@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 from st_aggrid import AgGrid, GridOptionsBuilder
 from st_aggrid.shared import GridUpdateMode
-from pythonProject.frontend.web_app import utils
+from frontend.web_app import utils
 
 
 def show(inputs, user_info):
