@@ -1,0 +1,16 @@
+Headtimestamp (the earliest data which ib can return)
+(using the timestamp of Hong Kong)
+UPRO 2009-06-26 08:00:00
+SPY 2004-01-23 14:30:00
+QQQ 2004-12-01 13:00:00
+TQQQ 2010-02-11 09:00:00
+GOVT 2012-02-16 09:00:00
+
+Limitations:
+No more than 50 outstanding requests at a time. They note that it is probably more efficient to do fewer requests rather than try to test the upper limit.
+
+If asking for 30 second bars or lower, no 6 requests for the same contract in 2 seconds, 60 requests in 10 minutes, or two identical in 15 seconds. 
+If you are grabbing consecutive single days for a symbol you can hit this limit pretty easily.
+
+In general, if your request will return more than a few thousand bars you should consider splitting it up.
+

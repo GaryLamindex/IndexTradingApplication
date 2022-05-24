@@ -1,0 +1,36 @@
+API connection failed: ConnectionRefusedError(22, '遠端電腦拒絕網路連線。', None, 1225, None)
+Make sure API port on TWS/IBG is open
+Traceback (most recent call last):
+  File "C:\Users\user\Documents\GitHub\dynamodb_related\pythonProject\application\realtime_application.py", line 81, in <module>
+    main()
+  File "C:\Users\user\Documents\GitHub\dynamodb_related\pythonProject\application\realtime_application.py", line 57, in main
+    ib.connect('127.0.0.1',7497,clientId=1)
+  File "C:\Users\user\Documents\GitHub\algotrade_venv\lib\site-packages\ib_insync\ib.py", line 269, in connect
+    return self._run(self.connectAsync(
+  File "C:\Users\user\Documents\GitHub\algotrade_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\Users\user\Documents\GitHub\algotrade_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\base_events.py", line 641, in run_until_complete
+    return future.result()
+  File "C:\Users\user\Documents\GitHub\algotrade_venv\lib\site-packages\ib_insync\ib.py", line 1626, in connectAsync
+    await self.client.connectAsync(host, port, clientId, timeout)
+  File "C:\Users\user\Documents\GitHub\algotrade_venv\lib\site-packages\ib_insync\client.py", line 210, in connectAsync
+    await asyncio.wait_for(self.conn.connectAsync(host, port), timeout)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\tasks.py", line 445, in wait_for
+    return fut.result()
+  File "C:\Users\user\Documents\GitHub\algotrade_venv\lib\site-packages\ib_insync\connection.py", line 37, in connectAsync
+    self.transport, _ = await loop.create_connection(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\base_events.py", line 1055, in create_connection
+    raise exceptions[0]
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\base_events.py", line 1040, in create_connection
+    sock = await self._connect_sock(
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\base_events.py", line 954, in _connect_sock
+    await self.sock_connect(sock, address)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\proactor_events.py", line 704, in sock_connect
+    return await self._proactor.connect(sock, address)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\windows_events.py", line 812, in _poll
+    value = callback(transferred, key, ov)
+  File "C:\Users\user\AppData\Local\Programs\Python\Python310\lib\asyncio\windows_events.py", line 599, in finish_connect
+    ov.getresult()
+ConnectionRefusedError: [WinError 1225] 遠端電腦拒絕網路連線。

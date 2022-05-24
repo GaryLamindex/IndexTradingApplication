@@ -1,0 +1,9 @@
+ffmpeg -stream_loop -1 -re -f image2 -i C:\Users\user\Documents\GitHub\dynamodb_related\pythonProject\engine\streaming_engine\final_version\test.png -re -stream_loop -1 -i C:\Users\user\Documents\GitHub\dynamodb_related\pythonProject\engine\streaming_engine\final_version\002.mp3 -c:v libx264 -preset ultrafast -pix_fmt yuv420p -b:v 1M -bufsize 1700k -maxrate 1500k -r 1 -f flv rtmp://a.rtmp.youtube.com/live2/y7uu-df98-r0w9-qdtr-b128
+
+ffmpeg -stream_loop -1 -framerate 1 -re -f image2pipe -i - -re -stream_loop -1 -i 004.mp3 -c:v libx264 -preset ultrafast -r 1 -b:v 1500k -bufsize 3000k -maxrate 1500k -f flv rtmp://a.rtmp.youtube.com/live2/tr8p-6423-5ttv-ywac-a65p
+ffmpeg -i /tmp/001.png -c:a pcm)s16le -f s16le pipe: | ffmpeg -f s16le -i pipe: -f
+
+
+ffmpeg -re -stream_loop -1 -f image2pipe -i %03d.png -re -stream_loop -1 -i 001.mp3 -c:v libx264 -preset ultrafast -r 1 -b:v 1500k -bufsize 3000k -maxrate 1500k -filter_complex "[1:v]setpts=PTS-STARTPTS[out_main]; [2:v]setpts=PTS-STARTPTS[out_overlay]; [out_main][out_overlay]overlay=0:0" -map 0:a -strict -2 -f flv rtmp://a.rtmp.youtube.com/live2/tr8p-6423-5ttv-ywac-a65p
+
+https://www.googleapis.com/youtube/v3/liveBroadcasts?part=id%2Csnippet%2Cstatus&mine=true&broadcastStatus=active&key={5bDSboNbSPk/livestreaming}

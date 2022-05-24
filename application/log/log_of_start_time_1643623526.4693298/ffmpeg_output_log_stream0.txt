@@ -1,0 +1,55 @@
+ffmpeg version N-105290-gbca30570d2-20220116 Copyright (c) 2000-2022 the FFmpeg developers
+  built with gcc 11.2.0 (crosstool-NG 1.24.0.498_5075e1f)
+  configuration: --prefix=/ffbuild/prefix --pkg-config-flags=--static --pkg-config=pkg-config --cross-prefix=x86_64-w64-mingw32- --arch=x86_64 --target-os=mingw32 --enable-gpl --enable-version3 --disable-debug --disable-w32threads --enable-pthreads --enable-iconv --enable-libxml2 --enable-zlib --enable-libfreetype --enable-libfribidi --enable-gmp --enable-lzma --enable-fontconfig --enable-libvorbis --enable-opencl --disable-libpulse --enable-libvmaf --disable-libxcb --disable-xlib --enable-amf --enable-libaom --enable-avisynth --enable-libdav1d --enable-libdavs2 --disable-libfdk-aac --enable-ffnvcodec --enable-cuda-llvm --enable-frei0r --enable-libgme --enable-libass --enable-libbluray --enable-libmp3lame --enable-libopus --enable-librist --enable-libtheora --enable-libvpx --enable-libwebp --enable-lv2 --enable-libmfx --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libopenh264 --enable-libopenjpeg --enable-libopenmpt --enable-librav1e --enable-librubberband --enable-schannel --enable-sdl2 --enable-libsoxr --enable-libsrt --enable-libsvtav1 --enable-libtwolame --enable-libuavs3d --disable-libdrm --disable-vaapi --enable-libvidstab --enable-vulkan --enable-libshaderc --enable-libplacebo --enable-libx264 --enable-libx265 --enable-libxavs2 --enable-libxvid --enable-libzimg --enable-libzvbi --extra-cflags=-DLIBTWOLAME_STATIC --extra-cxxflags= --extra-ldflags=-pthread --extra-ldexeflags= --extra-libs=-lgomp --extra-version=20220116
+  libavutil      57. 18.100 / 57. 18.100
+  libavcodec     59. 20.100 / 59. 20.100
+  libavformat    59. 17.101 / 59. 17.101
+  libavdevice    59.  5.100 / 59.  5.100
+  libavfilter     8. 25.100 /  8. 25.100
+  libswscale      6.  5.100 /  6.  5.100
+  libswresample   4.  4.100 /  4.  4.100
+  libpostproc    56.  4.100 / 56.  4.100
+Input #0, image2, from 'C:\Users\user\Documents\GitHub\dynamodb_related\pythonProject\engine\streaming_engine\asset\stream_0\upload_youtube_png_0.png':
+  Duration: 00:00:00.04, start: 0.000000, bitrate: N/A
+  Stream #0:0: Video: png, rgba(pc), 789x616 [SAR 6614:6614 DAR 789:616], 25 fps, 25 tbr, 25 tbn
+Input #1, mp3, from 'C:\Users\user\Documents\GitHub\dynamodb_related\pythonProject\engine\streaming_engine\asset\audio.mp3':
+  Metadata:
+    major_brand     : M4A 
+    minor_version   : 512
+    compatible_brands: isomiso2
+    encoder         : Lavf58.19.102
+  Duration: 01:33:16.58, start: 0.025057, bitrate: 128 kb/s
+  Stream #1:0: Audio: mp3, 44100 Hz, stereo, fltp, 128 kb/s
+    Metadata:
+      encoder         : Lavc58.34
+Stream mapping:
+  Stream #0:0 -> #0:0 (png (native) -> h264 (libx264))
+  Stream #1:0 -> #0:1 (mp3 (mp3float) -> mp3 (libmp3lame))
+Press [q] to stop, [?] for help
+[libx264 @ 000001f7abe16740] using SAR=1/1
+[libx264 @ 000001f7abe16740] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+[libx264 @ 000001f7abe16740] profile High 4:4:4 Predictive, level 3.1, 4:4:4, 8-bit
+[libx264 @ 000001f7abe16740] 264 - core 164 - H.264/MPEG-4 AVC codec - Copyleft 2003-2021 - http://www.videolan.org/x264.html - options: cabac=0 ref=1 deblock=0:0:0 analyse=0:0 me=dia subme=0 psy=1 psy_rd=1.00:0.00 mixed_ref=0 me_range=16 chroma_me=1 trellis=0 8x8dct=0 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=6 threads=9 lookahead_threads=1 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=0 weightp=0 keyint=250 keyint_min=25 scenecut=0 intra_refresh=0 rc_lookahead=0 rc=crf mbtree=0 crf=23.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 vbv_maxrate=2000 vbv_bufsize=1000 crf_max=0.0 nal_hrd=none filler=0 ip_ratio=1.40 aq=0
+Output #0, flv, to 'rtmp://a.rtmp.youtube.com/live2/kts2-yda5-d5pe-r3me-8uay':
+  Metadata:
+    encoder         : Lavf59.17.101
+  Stream #0:0: Video: h264 ([7][0][0][0] / 0x0007), yuv444p(tv, progressive), 789x616 [SAR 1:1 DAR 789:616], q=2-31, 2000 kb/s, 25 fps, 1k tbn
+    Metadata:
+      encoder         : Lavc59.20.100 libx264
+    Side data:
+      cpb: bitrate max/min/avg: 2000000/0/2000000 buffer size: 1000000 vbv_delay: N/A
+  Stream #0:1: Audio: mp3 ([2][0][0][0] / 0x0002), 44100 Hz, stereo, fltp
+    Metadata:
+      encoder         : Lavc59.20.100 libmp3lame
+frame=    1 fps=0.0 q=0.0 size=       0kB time=00:00:00.00 bitrate=N/A speed=   0x    frame=   13 fps=0.0 q=12.0 size=      36kB time=00:00:00.13 bitrate=2238.1kbits/s speed=0.233x    frame=   26 fps= 24 q=12.0 size=      84kB time=00:00:00.62 bitrate=1094.9kbits/s speed=0.585x    frame=   39 fps= 25 q=12.0 size=      99kB time=00:00:01.15 bitrate= 703.2kbits/s speed=0.727x    frame=   51 fps= 24 q=12.0 size=     113kB time=00:00:01.64 bitrate= 560.8kbits/s speed=0.787x    frame=   64 fps= 25 q=12.0 size=     128kB time=00:00:02.16 bitrate= 482.0kbits/s speed=0.835x    frame=   77 fps= 25 q=12.0 size=     142kB time=00:00:02.69 bitrate= 433.5kbits/s speed=0.864x    frame=   82 fps= 23 q=12.0 size=     148kB time=00:00:02.87 bitrate= 421.4kbits/s speed=0.793x    frame=   83 fps= 20 q=12.0 size=     149kB time=00:00:02.92 bitrate= 417.7kbits/s speed=0.707x    frame=  110 fps= 24 q=12.0 size=     179kB time=00:00:03.99 bitrate= 367.6kbits/s speed=0.86x    frame=  128 fps= 25 q=12.0 size=     200kB time=00:00:04.72 bitrate= 346.7kbits/s speed=0.917x    frame=  141 fps= 25 q=12.0 size=     215kB time=00:00:05.25 bitrate= 335.3kbits/s speed=0.926x    frame=  154 fps= 25 q=12.0 size=     229kB time=00:00:05.74 bitrate= 327.0kbits/s speed=0.93x    frame=  166 fps= 25 q=12.0 size=     243kB time=00:00:06.24 bitrate= 319.3kbits/s speed=0.933x    frame=  179 fps= 25 q=12.0 size=     258kB time=00:00:06.76 bitrate= 312.6kbits/s speed=0.94x    [flv @ 000001f7abe0ae80] Failed to update header with correct duration.
+[flv @ 000001f7abe0ae80] Failed to update header with correct filesize.
+frame=  187 fps= 25 q=-1.0 Lsize=     274kB time=00:00:07.44 bitrate= 302.0kbits/s speed=0.99x    
+video:153kB audio:113kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 3.145014%
+[libx264 @ 000001f7abe16740] frame I:1     Avg QP:22.33  size: 33159
+[libx264 @ 000001f7abe16740] frame P:186   Avg QP:12.29  size:   662
+[libx264 @ 000001f7abe16740] mb I  I16..4: 100.0%  0.0%  0.0%
+[libx264 @ 000001f7abe16740] mb P  I16..4:  0.5%  0.0%  0.0%  P16..4:  4.8%  0.0%  0.0%  0.0%  0.0%    skip:94.6%
+[libx264 @ 000001f7abe16740] coded y,u,v intra: 7.8% 4.9% 2.1% inter: 1.7% 0.2% 0.1%
+[libx264 @ 000001f7abe16740] i16 v,h,dc,p: 61% 35%  1%  3%
+[libx264 @ 000001f7abe16740] kb/s:167.14
+Exiting normally, received signal 15.

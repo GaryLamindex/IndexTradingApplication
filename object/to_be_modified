@@ -1,0 +1,16 @@
+object:
+def update_portfolio_item(self, ticker, position, marketPrice, averageCost, marketValue, realizedPNL, unrealizedPNL, initMarginReq, maintMarginReq, costBasis):
+    updating_portfolio_dict = {'ticker':ticker, f'{ticker} position': position, f"{ticker} marketPrice": marketPrice, f'{ticker} averageCost': averageCost, f"{ticker} marketValue": marketValue,
+                        f"{ticker} realizedPNL": realizedPNL, f"{ticker} unrealizedPNL": unrealizedPNL, f'{ticker} initMarginReq': initMarginReq, f'{ticker} maintMarginReq': maintMarginReq,
+                        f"{ticker} costBasis": costBasis}
+    print("New portfolio dict:", updating_portfolio_dict)
+
+    if len(self.portfolio) == 0:
+            self.portfolio.append(updating_portfolio_dict)
+    else:
+        for item in self.portfolio:
+            if item.get("ticker") == ticker:
+                item.update((k,v) for k,v in updating_portfolio_dict.items() if v is not None)
+                break
+
+portfolio:

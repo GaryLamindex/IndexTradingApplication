@@ -1,0 +1,78 @@
+Error 1100, reqId -1: Connectivity between IB and Trader Workstation has been lost.
+Error 200, reqId 14155: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14156: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14157: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14158: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14159: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14160: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14161: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14162: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14163: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14164: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14165: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14166: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14167: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14168: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14169: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14170: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14171: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14172: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14173: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14174: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14175: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14176: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14177: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14178: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14179: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14180: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14181: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14182: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14183: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14184: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14185: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14186: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14187: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14188: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14189: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14190: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14191: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Unknown contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14192: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 200, reqId 14193: No security definition has been found for the request, contract: Stock(symbol='SPY', exchange='SMART', currency='USD')
+Error 1102, reqId -1: Connectivity between IB and Trader Workstation has been restored - data maintained. All data farms are connected: usfarm.nj; cashfarm; usfarm; ushmds; secdefil.
+
+QQQ portfolio dict: {'ticker': 'QQQ', 'QQQ position': 1338.0, 'QQQ marketPrice': 350.8200073, 'QQQ averageCost': 365.4256995, 'QQQ marketValue': 469397.17, 'QQQ realizedPNL': -110.7, 'QQQ unrealizedPNL': -19542.42, 'QQQ initMarginReq': None, 'QQQ maintMarginReq': None, 'QQQ costBasis': None}
+SPY portfolio dict: {'ticker': 'SPY', 'SPY position': 1.0, 'SPY marketPrice': 439.25, 'SPY averageCost': 440.21117185, 'SPY marketValue': 439.25, 'SPY realizedPNL': -9.31, 'SPY unrealizedPNL': -0.96, 'SPY initMarginReq': None, 'SPY maintMarginReq': None, 'SPY costBasis': None}
+data: [Ticker(contract=Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS'), time=datetime.datetime(2022, 1, 26, 10, 20, 26, 30715, tzinfo=datetime.timezone.utc), bid=350.69, bidSize=24.0, ask=350.74, askSize=10.0, last=350.76, lastSize=2.0, prevBid=350.68, prevBidSize=16.0, prevAsk=350.73, prevAskSize=16.0, prevLast=350.84, prevLastSize=1.0, volume=4287.0, close=345.11, halted=0.0)]
+Market Opened !
+Ticker(contract=Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS'), time=datetime.datetime(2022, 1, 26, 10, 20, 39, 796670, tzinfo=datetime.timezone.utc), bid=350.71, bidSize=8.0, ask=350.78, askSize=24.0, last=350.71, lastSize=5.0, prevBid=350.69, prevBidSize=18.0, prevAsk=350.77, prevAskSize=16.0, prevLast=350.78, prevLastSize=6.0, volume=4301.0, close=345.11, halted=0.0, ticks=[TickData(time=datetime.datetime(2022, 1, 26, 10, 20, 39, 796670, tzinfo=datetime.timezone.utc), tickType=1, price=350.71, size=8.0)])
+Ticker(contract=Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY'), time=datetime.datetime(2022, 1, 26, 10, 20, 51, 815305, tzinfo=datetime.timezone.utc), bid=439.15, bidSize=10.0, ask=439.23, askSize=2.0, last=439.22, lastSize=1.0, prevBid=439.11, prevBidSize=25.0, prevAsk=439.24, prevAskSize=5.0, prevLast=439.15, prevLastSize=3.0, volume=1239.0, close=434.47, halted=0.0)
+{'QQQ': {'timestamp': 1643192439.79667, 'bid': 350.71, 'bidSize': 8.0, 'ask': 350.78, 'askSize': 24.0, 'last': 350.71, 'lastSize': 5.0, 'volume': 4301.0, 'close': 345.11, 'halted': 0.0}, 'SPY': {'timestamp': 1643192451.815305, 'bid': 439.15, 'bidSize': 10.0, 'ask': 439.23, 'askSize': 2.0, 'last': 439.22, 'lastSize': 1.0, 'volume': 1239.0, 'close': 434.47, 'halted': 0.0}}
+BUY limit order placed, Trade(contract=Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS'), order=LimitOrder(orderId=14149, clientId=1, permId=1797199370, action='BUY', totalQuantity=1.0, lmtPrice=357.7, auxPrice=0.0, outsideRth=True), orderStatus=OrderStatus(orderId=14149, status='Filled', filled=1.0, remaining=0.0, avgFillPrice=350.84, permId=1797199370, parentId=0, lastFillPrice=350.84, clientId=1, whyHeld='', mktCapPrice=0.0), fills=[Fill(contract=Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS'), execution=Execution(execId='0000e22a.6261c8a6.01.01', time=datetime.datetime(2022, 1, 26, 10, 20, 51, tzinfo=datetime.timezone.utc), acctNumber='DU2785296', exchange='ISLAND', side='BOT', shares=1.0, price=350.84, permId=1797199370, clientId=1, orderId=14149, liquidation=0, cumQty=1.0, avgPrice=350.84, orderRef='', evRule='', evMultiplier=0.0, modelCode='', lastLiquidity=2), commissionReport=CommissionReport(execId='0000e22a.6261c8a6.01.01', commission=1.0, currency='USD', realizedPNL=0.0, yield_=0.0, yieldRedemptionDate=0), time=datetime.datetime(2022, 1, 26, 10, 20, 52, 479247, tzinfo=datetime.timezone.utc))], log=[TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 52, 248111, tzinfo=datetime.timezone.utc), status='PendingSubmit', message='', errorCode=0), TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 52, 476261, tzinfo=datetime.timezone.utc), status='PreSubmitted', message='', errorCode=0), TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 52, 479247, tzinfo=datetime.timezone.utc), status='PreSubmitted', message='Fill 1.0@350.84', errorCode=0), TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 52, 480245, tzinfo=datetime.timezone.utc), status='Filled', message='', errorCode=0)])
+action_msg: {'state': '1', 'timestamp': 1643192453.264543, 'orderId': 14149, 'ticker': 'QQQ', 'action': 'BUY', 'lmtPrice': 357.7, 'totalQuantity': 1.0, 'avgPrice': 350.84, 'exchange': 'ISLAND', 'commission': '1.0 USD'}
+BUY limit order placed, Trade(contract=Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY'), order=LimitOrder(orderId=14151, clientId=1, permId=1797199371, action='BUY', totalQuantity=1.0, lmtPrice=448.0, auxPrice=0.0, outsideRth=True), orderStatus=OrderStatus(orderId=14151, status='Filled', filled=1.0, remaining=0.0, avgFillPrice=439.22, permId=1797199371, parentId=0, lastFillPrice=439.22, clientId=1, whyHeld='', mktCapPrice=0.0), fills=[Fill(contract=Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY'), execution=Execution(execId='0000e22a.6261c8a7.01.01', time=datetime.datetime(2022, 1, 26, 10, 20, 52, tzinfo=datetime.timezone.utc), acctNumber='DU2785296', exchange='ISLAND', side='BOT', shares=1.0, price=439.22, permId=1797199371, clientId=1, orderId=14151, liquidation=0, cumQty=1.0, avgPrice=439.22, orderRef='', evRule='', evMultiplier=0.0, modelCode='', lastLiquidity=2), commissionReport=CommissionReport(execId='0000e22a.6261c8a7.01.01', commission=1.0, currency='USD', realizedPNL=0.0, yield_=0.0, yieldRedemptionDate=0), time=datetime.datetime(2022, 1, 26, 10, 20, 53, 712614, tzinfo=datetime.timezone.utc))], log=[TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 53, 478757, tzinfo=datetime.timezone.utc), status='PendingSubmit', message='', errorCode=0), TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 53, 708629, tzinfo=datetime.timezone.utc), status='PreSubmitted', message='', errorCode=0), TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 53, 712614, tzinfo=datetime.timezone.utc), status='PreSubmitted', message='Fill 1.0@439.22', errorCode=0), TradeLogEntry(time=datetime.datetime(2022, 1, 26, 10, 20, 53, 713601, tzinfo=datetime.timezone.utc), status='Filled', message='', errorCode=0)])
+action_msg: {'state': '1', 'timestamp': 1643192454.492255, 'orderId': 14151, 'ticker': 'SPY', 'action': 'BUY', 'lmtPrice': 448.0, 'totalQuantity': 1.0, 'avgPrice': 439.22, 'exchange': 'ISLAND', 'commission': '1.0 USD'}
+
+QQQ portfolio dict: {'ticker': 'QQQ', 'QQQ position': 1339.0, 'QQQ marketPrice': 350.769989, 'QQQ averageCost': 365.41555335, 'QQQ marketValue': 469681.02, 'QQQ realizedPNL': -110.7, 'QQQ unrealizedPNL': -19610.41, 'QQQ initMarginReq': None, 'QQQ maintMarginReq': None, 'QQQ costBasis': None}
+SPY portfolio dict: {'ticker': 'SPY', 'SPY position': 2.0, 'SPY marketPrice': 439.1660156, 'SPY averageCost': 440.21558595, 'SPY marketValue': 878.33, 'SPY realizedPNL': -9.31, 'SPY unrealizedPNL': -2.1, 'SPY initMarginReq': None, 'SPY maintMarginReq': None, 'SPY costBasis': None}
+Ticker(contract=Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS'), time=datetime.datetime(2022, 1, 26, 10, 21, 5, 731122, tzinfo=datetime.timezone.utc), bid=350.83, bidSize=23.0, ask=350.89, askSize=24.0, last=350.71, lastSize=5.0, volume=4313.0, close=345.11, halted=0.0)
+Information incompleted, data: Ticker(contract=Stock(symbol='SPY', exchange='SMART', currency='USD'))
+Trying again...
+Information incompleted, data: Ticker(contract=Stock(symbol='SPY', exchange='SMART', currency='USD'))
+Trying again...
+Information incompleted, data: Ticker(contract=Stock(symbol='SPY', exchange='SMART', currency='USD'))
+Trying again...
+Information incompleted, data: Ticker(contract=Stock(symbol='SPY', exchange='SMART', currency='USD'))
+Trying again...

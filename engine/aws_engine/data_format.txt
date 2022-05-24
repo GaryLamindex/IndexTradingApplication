@@ -1,0 +1,7 @@
+[
+    {'QQQ': Decimal('148.78'), 'date': '2017-10-20', 'action': '', 'dummy1': '1', 'dummy2': '2', 'timestamp': '1508515200'}, 
+    {'QQQ': Decimal('154.79'), 'date': '2017-10-20', 'action': 'buy', 'dummy1': '1', 'dummy2': '2', 'timestamp': '1508515260'}, 
+    {'QQQ': Decimal('164.79'), 'date': '2017-10-20', 'action': '', 'dummy1': '1', 'dummy2': '2', 'timestamp': '1508515320'}, 
+    {'QQQ': Decimal('145.76'), 'date': '2017-10-20', 'action': 'sell', 'dummy1': '1', 'dummy2': '2', 'timestamp': '1508515380'}, 
+    {'QQQ': Decimal('155.8'), 'date': '2017-10-20', 'action': 'sell', 'dummy1': '1', 'dummy2': '2', 'timestamp': '1508515440'}
+]

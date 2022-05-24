@@ -1,0 +1,1648 @@
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python
+Python 3.9.5 (default, May 18 2021, 14:42:02) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+
+Warning:
+This Python interpreter is in a conda environment, but the environment has
+not been activated.  Libraries may fail to load.  To activate this environment
+please see https://conda.io/activation
+
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import os
+>>> list = os.listdir("D:\historical_data")
+>>> print(list)
+['data_record.txt', 'QQQ.csv', 'QQQ_1402560780_1642625940.csv']
+>>> exit()
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched two weeks data for QQQ, from 1373875260 to 1374825900
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1372752300 to 1373875260
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1371629100 to 1372752300
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1370505900 to 1371629100
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1369387380 to 1370505900
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1368432240 to 1369387380
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1367311740 to 1368432240
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1366185600 to 1367311740
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1364976060 to 1366185600
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1363852920 to 1364976060
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1362734880 to 1363852920
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1361788080 to 1362734880
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1360662600 to 1361788080
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1359539820 to 1360662600
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1358422080 to 1359539820
+Successfully appended QQQ.csv
+Fetched two weeks data for QQQ, from 1357290120 to 1358422080
+Successfully appended QQQ.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1374825900,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"2 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+reqHistoricalData: Timeout for Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Error 162, reqId 404: Historical Market Data Service error message:API historical data query cancelled: 404, contract: Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1357290120,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+reqHistoricalData: Timeout for Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Error 162, reqId 404: Historical Market Data Service error message:API historical data query cancelled: 404, contract: Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1357290120,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for QQQ, from 1355738820 to 1357290120
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1354006920 to 1355738820
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1352278920 to 1354006920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1350547320 to 1352278920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1348826640 to 1350547320
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1347276360 to 1348826640
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1345536120 to 1347276360
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1343808120 to 1345536120
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1342081620 to 1343808120
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1340359740 to 1342081620
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1338796920 to 1340359740
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1337068920 to 1338796920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1335340920 to 1337068920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1333618740 to 1335340920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1331895720 to 1333618740
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1330333980 to 1331895720
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1328605920 to 1330333980
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1326881700 to 1328605920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1325152380 to 1326881700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1323421740 to 1325152380
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1321866120 to 1323421740
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1320134520 to 1321866120
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1318409460 to 1320134520
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1316678520 to 1318409460
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1314950520 to 1316678520
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1313396280 to 1314950520
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1311667320 to 1313396280
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1309941300 to 1311667320
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1308216900 to 1309941300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1306485780 to 1308216900
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1304928420 to 1306485780
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1303207800 to 1304928420
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1301472120 to 1303207800
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1299747720 to 1301472120
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1298023860 to 1299747720
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1296464520 to 1298023860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1294738080 to 1296464520
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1293008820 to 1294738080
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1291280520 to 1293008820
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1289552520 to 1291280520
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1287993720 to 1289552520
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1286266080 to 1287993720
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1284537720 to 1286266080
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1282810680 to 1284537720
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1281085860 to 1282810680
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1279527540 to 1281085860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1277798700 to 1279527540
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1276071600 to 1277798700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1274343300 to 1276071600
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1272615300 to 1274343300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1271066880 to 1272615300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1269332100 to 1271066880
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1267613820 to 1269332100
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1265888760 to 1267613820
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1264151760 to 1265888760
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1262596500 to 1264151760
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1260870120 to 1262596500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1259140500 to 1260870120
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1257412500 to 1259140500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1255684860 to 1257412500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1254144960 to 1255684860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1252397700 to 1254144960
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1250669700 to 1252397700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1248942180 to 1250669700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1247216880 to 1248942180
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1245658920 to 1247216880
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1243930500 to 1245658920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1242202980 to 1243930500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1240474680 to 1242202980
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1238748360 to 1240474680
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1237192260 to 1238748360
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1235466900 to 1237192260
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1233738900 to 1235466900
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1232013600 to 1233738900
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1230293100 to 1232013600
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1228727700 to 1230293100
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1226999700 to 1228727700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1225268460 to 1226999700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1223540100 to 1225268460
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1221812100 to 1223540100
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1220343300 to 1221812100
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1218615300 to 1220343300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1216887540 to 1218615300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1215419460 to 1216887540
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1213690500 to 1215419460
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1211962620 to 1213690500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1210243620 to 1211962620
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1208506500 to 1210243620
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1206951300 to 1208506500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1205223300 to 1206951300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1203498900 to 1205223300
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1201770660 to 1203498900
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1200049800 to 1201770660
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1198498020 to 1200049800
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1196767260 to 1198498020
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1195033800 to 1196767260
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1193305080 to 1195033800
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1191572940 to 1193305080
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1190025540 to 1191572940
+Successfully appended QQQ.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1357290120,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"3 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for QQQ, from 1188298980 to 1190025540
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1186570020 to 1188298980
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1184851800 to 1186570020
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1183114920 to 1184851800
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1181562540 to 1183114920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1179835200 to 1181562540
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1178101860 to 1179835200
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1176289800 to 1178101860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1174561500 to 1176289800
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1172835360 to 1174561500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1171281960 to 1172835360
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1169551920 to 1171281960
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1167823620 to 1169551920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1166097960 to 1167823620
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1164367620 to 1166097960
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1162813920 to 1164367620
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1161082980 to 1162813920
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1159354440 to 1161082980
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1157626440 to 1159354440
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1155898200 to 1157626440
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1154341680 to 1155898200
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1152615360 to 1154341680
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1150885860 to 1152615360
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1149159540 to 1150885860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1147430040 to 1149159540
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1145875980 to 1147430040
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1144150380 to 1145875980
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1142422320 to 1144150380
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1140696180 to 1142422320
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1138967400 to 1140696180
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1137499200 to 1138967400
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1135772700 to 1137499200
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1134045360 to 1135772700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1132316700 to 1134045360
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1130763180 to 1132316700
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1129029960 to 1130763180
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1127302380 to 1129029960
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1125574500 to 1127302380
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1123846560 to 1125574500
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1122291240 to 1123846560
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1120563480 to 1122291240
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1118835420 to 1120563480
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1117106760 to 1118835420
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1115380860 to 1117106760
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1113823620 to 1115380860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1112101200 to 1113823620
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1110286860 to 1112101200
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1108558860 to 1110286860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1106830800 to 1108558860
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1105016400 to 1106830800
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1103202060 to 1105016400
+Successfully appended QQQ.csv
+Fetched three weeks data for QQQ, from 1101906000 to 1103202060
+Successfully appended QQQ.csv
+Error 162, reqId 508: Historical Market Data Service error message:HMDS query returned no data: QQQ@SMART Trades, contract: Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1190025540,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:HMDS query returned no data: QQQ@SMART Trades, contract: Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1101906000,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1101906000,"1 day",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+TypeError: 'tzinfo' is an invalid keyword argument for replace()
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:HMDS query returned no data: QQQ@SMART Trades, contract: Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1101906000,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:HMDS query returned no data: QQQ@SMART Trades, contract: Stock(conId=320227571, symbol='QQQ', exchange='SMART', primaryExchange='NASDAQ', currency='USD', localSymbol='QQQ', tradingClass='NMS')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1101906000,"15 mins",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 321, reqId 404: Error validating request.-'bS' : cause - Historical data bar size setting is invalid. Legal ones are: 1 secs, 5 secs, 10 secs, 15 secs, 30 secs, 1 min, 2 mins, 3 mins, 5 mins, 10 mins, 15 mins, 20 mins, 30 mins, 1 hour, 2 hours, 3 hours, 4 hours, 8 hours, 1 day, 1W, 1M, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1642636800,"1 mins",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1640854800 to 1642636800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1639040400 to 1640854800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1637226000 to 1639040400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1635408060 to 1637226000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1633680000 to 1635408060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1631865600 to 1633680000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1630051200 to 1631865600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1628237100 to 1630051200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1626681600 to 1628237100
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1624867200 to 1626681600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1623052800 to 1624867200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1621238400 to 1623052800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1619424000 to 1621238400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1617609600 to 1619424000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1615539600 to 1617609600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1613725200 to 1615539600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1611910800 to 1613725200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1610096400 to 1611910800
+Successfully appended SPY.csv
+Error 162, reqId 440: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1642636800,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python
+Python 3.9.5 (default, May 18 2021, 14:42:02) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+
+Warning:
+This Python interpreter is in a conda environment, but the environment has
+not been activated.  Libraries may fail to load.  To activate this environment
+please see https://conda.io/activation
+
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pandas as pd
+>>> df = pd.read_csv("D:/historical_data/QQQ/QQQ_1.csv")
+>>> print(df)
+                       date   open   high    low  close  volume  average  barCount   timestamp
+0       2004-12-01 21:00:00  39.22  39.22  39.22  39.22    27.0   39.220         3  1101906000
+1       2004-12-01 21:01:00  39.17  39.23  39.17  39.22   171.0   39.209        35  1101906060
+2       2004-12-01 21:02:00  39.22  39.22  39.22  39.22     5.0   39.220         2  1101906120
+3       2004-12-01 21:03:00  39.23  39.23  39.23  39.23     2.0   39.230         1  1101906180
+4       2004-12-01 21:04:00  39.23  39.23  39.23  39.23     0.0   39.230         0  1101906240
+...                     ...    ...    ...    ...    ...     ...      ...       ...         ...
+534290  2007-09-15 07:55:00  49.16  49.16  49.16  49.16     0.0   49.160         0  1189814100
+534291  2007-09-15 07:56:00  49.16  49.16  49.16  49.16     0.0   49.160         0  1189814160
+534292  2007-09-15 07:57:00  49.16  49.16  49.16  49.16     0.0   49.160         0  1189814220
+534293  2007-09-15 07:58:00  49.20  49.20  49.20  49.20    13.0   49.200         1  1189814280
+534294  2007-09-15 07:59:00  49.21  49.21  49.21  49.21    29.0   49.210         2  1189814340
+
+[534295 rows x 9 columns]
+>>> exit()
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python
+Python 3.9.5 (default, May 18 2021, 14:42:02) [MSC v.1916 64 bit (AMD64)] :: Anaconda, Inc. on win32
+
+Warning:
+This Python interpreter is in a conda environment, but the environment has
+not been activated.  Libraries may fail to load.  To activate this environment
+please see https://conda.io/activation
+
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pandas as pd
+>>> df = pd.read_csv("D:/historical_data/QQQ/QQQ.csv")
+>>> print(df)
+                        date    open    high     low   close    volume  average  barCount   timestamp
+0        2004-12-01 21:00:00   39.22   39.22   39.22   39.22     27.00   39.220         3  1101906000
+1        2004-12-01 21:01:00   39.17   39.23   39.17   39.22    171.00   39.209        35  1101906060
+2        2004-12-01 21:02:00   39.22   39.22   39.22   39.22      5.00   39.220         2  1101906120
+3        2004-12-01 21:03:00   39.23   39.23   39.23   39.23      2.00   39.230         1  1101906180
+4        2004-12-01 21:04:00   39.23   39.23   39.23   39.23      0.00   39.230         0  1101906240
+...                      ...     ...     ...     ...     ...       ...      ...       ...         ...
+3890070  2022-01-20 04:55:00  367.15  367.29  366.74  366.98   5430.57  367.010      3217  1642625700
+3890071  2022-01-20 04:56:00  366.98  366.98  366.57  366.84   3298.42  366.694      2062  1642625760
+3890072  2022-01-20 04:57:00  366.81  366.90  366.66  366.81   3384.23  366.800      2011  1642625820
+3890073  2022-01-20 04:58:00  366.80  366.84  366.42  366.53   5944.08  366.579      3037  1642625880
+3890074  2022-01-20 04:59:00  366.52  366.57  366.21  366.53  15224.94  366.377      7010  1642625940
+
+[3890075 rows x 9 columns]
+>>> print(sizeof(df))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'sizeof' is not defined
+>>> import sys
+>>> print(sys.getsizeof(df))
+544610644
+>>> exit()
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1608282000 to 1610096400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1606467600 to 1608282000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1604566800 to 1606467600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1602748800 to 1604566800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1600934400 to 1602748800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1599120000 to 1600934400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1597305600 to 1599120000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1595491200 to 1597305600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1593676800 to 1595491200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1591862400 to 1593676800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1590048000 to 1591862400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1588233600 to 1590048000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1586419200 to 1588233600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1584604800 to 1586419200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1582794000 to 1584604800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1580979600 to 1582794000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1579165200 to 1580979600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1577350800 to 1579165200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1575450060 to 1577350800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1573722000 to 1575450060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1571904000 to 1573722000
+Successfully appended SPY.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1610096400,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"3 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1640854800 to 1642636800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1639040400 to 1640854800
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1642636800,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 108, in get_historical_data_by_range
+    self.write_df_to_csv(ticker,current_data_df)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 127, in write_df_to_csv
+    old_df = pd.read_csv(f"{self.output_filepath}/{ticker}.csv")
+  File "C:\dynamodb_venv\lib\site-packages\pandas\util\_decorators.py", line 311, in wrapper
+    return func(*args, **kwargs)
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\parsers\readers.py", line 586, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\parsers\readers.py", line 482, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\parsers\readers.py", line 811, in __init__
+    self._engine = self._make_engine(self.engine)
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\parsers\readers.py", line 1040, in _make_engine
+    return mapping[engine](self.f, **self.options)  # type: ignore[call-arg]
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\parsers\c_parser_wrapper.py", line 51, in __init__
+    self._open_handles(src, kwds)
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\parsers\base_parser.py", line 222, in _open_handles
+    self.handles = get_handle(
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\common.py", line 609, in get_handle
+    ioargs = _get_filepath_or_buffer(
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\common.py", line 337, in _get_filepath_or_buffer
+    fsspec = import_optional_dependency("fsspec")
+  File "C:\dynamodb_venv\lib\site-packages\pandas\compat\_optional.py", line 118, in import_optional_dependency
+    raise ImportError(msg) from None
+ImportError: Missing optional dependency 'fsspec'.  Use pip or conda to install fsspec.
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>pip install fsspec
+Collecting fsspec
+  Downloading fsspec-2022.1.0-py3-none-any.whl (133 kB)
+     |████████████████████████████████| 133 kB 1.3 MB/s
+Installing collected packages: fsspec
+Successfully installed fsspec-2022.1.0
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>pip install fsspec
+Requirement already satisfied: fsspec in c:\dynamodb_venv\lib\site-packages (2022.1.0)
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1640854800 to 1642636800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1639040400 to 1640854800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1637226000 to 1639040400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1635408060 to 1637226000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1633680000 to 1635408060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1631865600 to 1633680000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1630051200 to 1631865600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1628237100 to 1630051200
+Successfully appended SPY.csv
+Error 162, reqId 420: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1642636800,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 11: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>dynamodb_venv\Scripts\activate.bat
+The system cannot find the path specified.
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1626681600 to 1628237100
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1624867200 to 1626681600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1623052800 to 1624867200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1621238400 to 1623052800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1619424000 to 1621238400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1617609600 to 1619424000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1615539600 to 1617609600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1613725200 to 1615539600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1611910800 to 1613725200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1610096400 to 1611910800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1608282000 to 1610096400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1606467600 to 1608282000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1604566800 to 1606467600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1602748800 to 1604566800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1600934400 to 1602748800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1599120000 to 1600934400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1597305600 to 1599120000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1595491200 to 1597305600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1593676800 to 1595491200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1591862400 to 1593676800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1590048000 to 1591862400
+Successfully appended SPY.csv
+Error 162, reqId 446: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1628237100,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Error 162, reqId 404: Historical Market Data Service error message:Trading TWS session is connected from a different IP address, contract: Stock(conId=756733, symbol='SPY', exchange='SMART', primaryExchange='ARCA', currency='USD', localSymbol='SPY', tradingClass='SPY')
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1590048000,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 98, in get_historical_data_by_range
+    front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+IndexError: list index out of range
+
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1588233600 to 1590048000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1586419200 to 1588233600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1584604800 to 1586419200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1582794000 to 1584604800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1580979600 to 1582794000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1579165200 to 1580979600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1577350800 to 1579165200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1575450060 to 1577350800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1573722000 to 1575450060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1571904000 to 1573722000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1570089600 to 1571904000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1568275200 to 1570089600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1566460800 to 1568275200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1564646400 to 1566460800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1562832000 to 1564646400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1561017600 to 1562832000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1559203200 to 1561017600
+Successfully appended SPY.csv
+Error 1100, reqId -1: Connectivity between IB and Trader Workstation has been lost.
+Error 1102, reqId -1: Connectivity between IB and Trader Workstation has been restored - data maintained. All data farms are connected: usfarm.nj; cashfarm; usfarm; ushmds; secdefil.
+Fetched three weeks data for SPY, from 1557388800 to 1559203200
+Successfully appended SPY.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1590048000,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"3 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1555574400 to 1557388800
+Successfully appended SPY.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1557388800,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"3 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1553760000 to 1555574400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1551949200 to 1553760000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1550134800 to 1551949200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1548320700 to 1550134800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1546592400 to 1548320700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1544778000 to 1546592400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1542963600 to 1544778000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1541059320 to 1542963600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1539331200 to 1541059320
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1537516800 to 1539331200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1535702460 to 1537516800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1534147200 to 1535702460
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1532332800 to 1534147200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1530518400 to 1532332800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1528704720 to 1530518400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1526976000 to 1528704720
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1525161660 to 1526976000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1523433600 to 1525161660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1521619200 to 1523433600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1519808400 to 1521619200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1517994000 to 1519808400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1516179600 to 1517994000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1514365200 to 1516179600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1512550920 to 1514365200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1510822800 to 1512550920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1509004920 to 1510822800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1507276860 to 1509004920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1505721600 to 1507276860
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1503907380 to 1505721600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1502179200 to 1503907380
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1500364980 to 1502179200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1498636800 to 1500364980
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1496822400 to 1498636800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1495008000 to 1496822400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1493193600 to 1495008000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1491379380 to 1493193600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1489651200 to 1491379380
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1487840400 to 1489651200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1486026000 to 1487840400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1484211600 to 1486026000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1482398220 to 1484211600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1480669260 to 1482398220
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1479114000 to 1480669260
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1477296000 to 1479114000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1475482980 to 1477296000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1473753600 to 1475482980
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1471939200 to 1473753600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1470124920 to 1471939200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1468396920 to 1470124920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1466669340 to 1468396920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1464940800 to 1466669340
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1463126400 to 1464940800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1461312000 to 1463126400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1459497600 to 1461312000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1457686800 to 1459497600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1455872400 to 1457686800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1454058000 to 1455872400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1452243600 to 1454058000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1450429200 to 1452243600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1448614920 to 1450429200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1447059600 to 1448614920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1445241600 to 1447059600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1443427260 to 1445241600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1441699200 to 1443427260
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1439798400 to 1441699200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1437984000 to 1439798400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1436169600 to 1437984000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1434096000 to 1436169600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1432283580 to 1434096000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1430727660 to 1432283580
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1428998400 to 1430727660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1427184000 to 1428998400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1425373200 to 1427184000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1423558860 to 1425373200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1421831100 to 1423558860
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1420189500 to 1421831100
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1418634000 to 1420189500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1416819600 to 1418634000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1415005500 to 1416819600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1413273600 to 1415005500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1411459440 to 1413273600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1409731200 to 1411459440
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1407916800 to 1409731200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1406102400 to 1407916800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1404288000 to 1406102400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1402473660 to 1404288000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1400745600 to 1402473660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1398933240 to 1400745600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1397203200 to 1398933240
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1395388800 to 1397203200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1393578000 to 1395388800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1391763660 to 1393578000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1390294800 to 1391763660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1388394120 to 1390294800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1386666300 to 1388394120
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1384938000 to 1386666300
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1383120000 to 1384938000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1381305600 to 1383120000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1379491200 to 1381305600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1377676800 to 1379491200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1375862400 to 1377676800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1374048180 to 1375862400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1372320240 to 1374048180
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1370592000 to 1372320240
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1368777600 to 1370592000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1366964100 to 1368777600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1365408000 to 1366964100
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1363593600 to 1365408000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1361782800 to 1363593600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1359969180 to 1361782800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1358240940 to 1359969180
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1356512520 to 1358240940
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1354784400 to 1356512520
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1352970000 to 1354784400
+Successfully appended SPY.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1555574400,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"3 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1351152000 to 1352970000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1349337600 to 1351152000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1347523200 to 1349337600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1345708800 to 1347523200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1343895600 to 1345708800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1342166400 to 1343895600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1340353020 to 1342166400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1338796800 to 1340353020
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1336982400 to 1338796800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1335168000 to 1336982400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1333353600 to 1335168000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1331540340 to 1333353600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1329814800 to 1331540340
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1327914000 to 1329814800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1326099600 to 1327914000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1324285200 to 1326099600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1322470800 to 1324285200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1320656400 to 1322470800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1318838400 to 1320656400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1317024000 to 1318838400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1315296000 to 1317024000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1313395200 to 1315296000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1311580800 to 1313395200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1309852920 to 1311580800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1308124800 to 1309852920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1306310460 to 1308124800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1304582520 to 1306310460
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1302854400 to 1304582520
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1301040000 to 1302854400
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1299229620 to 1301040000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1297674120 to 1299229620
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1295946720 to 1297674120
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1294218000 to 1295946720
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1292403600 to 1294218000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1290589200 to 1292403600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1288771200 to 1290589200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1286956800 to 1288771200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1285142580 to 1286956800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1283414460 to 1285142580
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1281686460 to 1283414460
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1280131920 to 1281686460
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1278403560 to 1280131920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1276675800 to 1278403560
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1274947980 to 1276675800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1273219440 to 1274947980
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1271664420 to 1273219440
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1269936900 to 1271664420
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1268212320 to 1269936900
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1266484500 to 1268212320
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1264756500 to 1266484500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1263201300 to 1264756500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1261474680 to 1263201300
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1259745660 to 1261474680
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1258017300 to 1259745660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1256285820 to 1258017300
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1254730500 to 1256285820
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1253005740 to 1254730500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1251274500 to 1253005740
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1249546500 to 1251274500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1247818500 to 1249546500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1246262940 to 1247818500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1244536140 to 1246262940
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1242807300 to 1244536140
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1241078820 to 1242807300
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1239610500 to 1241078820
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1237882500 to 1239610500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1236158100 to 1237882500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1234343760 to 1236158100
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1232615700 to 1234343760
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1230889800 to 1232615700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1229332500 to 1230889800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1227604500 to 1229332500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1225876500 to 1227604500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1224144360 to 1225876500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1222418580 to 1224144360
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1220861700 to 1222418580
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1219133700 to 1220861700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1217408280 to 1219133700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1215677460 to 1217408280
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1213949700 to 1215677460
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1212394020 to 1213949700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1210671480 to 1212394020
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1208940000 to 1210671480
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1207215660 to 1208940000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1205482920 to 1207215660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1203931140 to 1205482920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1202202960 to 1203931140
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1200474360 to 1202202960
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1198755180 to 1200474360
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1197024660 to 1198755180
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1195463700 to 1197024660
+Successfully appended SPY.csv
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1352970000,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 97, in get_historical_data_by_range
+    current_data = self.get_historical_data_helper(ticker,current_end_timestamp,"3 W",bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 72, in get_historical_data_helper
+    data = self.ib_instance.reqHistoricalData(contract,end_date,durationStr=duration,barSizeSetting=bar_size,whatToShow="TRADES",useRTH=regular_trading_hour)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 1048, in reqHistoricalData
+    return self._run(
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\ib.py", line 308, in _run
+    return util.run(*awaitables, timeout=self.RequestTimeout)
+  File "C:\dynamodb_venv\lib\site-packages\ib_insync\util.py", line 332, in run
+    result = loop.run_until_complete(task)
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 629, in run_until_complete
+    self.run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 316, in run_forever
+    super().run_forever()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 596, in run_forever
+    self._run_once()
+  File "C:\Users\85266\miniconda3\lib\asyncio\base_events.py", line 1854, in _run_once
+    event_list = self._selector.select(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 434, in select
+    self._poll(timeout)
+  File "C:\Users\85266\miniconda3\lib\asyncio\windows_events.py", line 783, in _poll
+    status = _overlapped.GetQueuedCompletionStatus(self._iocp, ms)
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1193740740 to 1195463700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1192003560 to 1193740740
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1190275920 to 1192003560
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1188556320 to 1190275920
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1187000700 to 1188556320
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1185272700 to 1187000700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1183632000 to 1185272700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1181903820 to 1183632000
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1180435500 to 1181903820
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1178708100 to 1180435500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1176978480 to 1178708100
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1175250660 to 1176978480
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1173695880 to 1175250660
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1171972620 to 1173695880
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1170244800 to 1171972620
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1168515300 to 1170244800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1166791500 to 1168515300
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1165232820 to 1166791500
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1163504340 to 1165232820
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1161771960 to 1163504340
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1160044560 to 1161771960
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1158318900 to 1160044560
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1156761840 to 1158318900
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1155033060 to 1156761840
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1153304940 to 1155033060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1151576940 to 1153304940
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1149849900 to 1151576940
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1148293860 to 1149849900
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1146567600 to 1148293860
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1144839180 to 1146567600
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1143115200 to 1144839180
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1141386060 to 1143115200
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1139832060 to 1141386060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1138102740 to 1139832060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1136377140 to 1138102740
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1134649560 to 1136377140
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1132923300 to 1134649560
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1131366480 to 1132923300
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1129635540 to 1131366480
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1127906700 to 1129635540
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1126178700 to 1127906700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1124451060 to 1126178700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1122895800 to 1124451060
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1121170020 to 1122895800
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1119439680 to 1121170020
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1117712280 to 1119439680
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1115983500 to 1117712280
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1114429260 to 1115983500
+Traceback (most recent call last):
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 189, in <module>
+    main()
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 181, in main
+    engine.get_multiple_historical_data_by_range(tickers,733593600,1195463700,"1 min",False)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 142, in get_multiple_historical_data_by_range
+    self.get_historical_data_by_range(ticker,start_timestamp,end_timestamp,bar_size,regular_trading_hour)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 108, in get_historical_data_by_range
+    self.write_df_to_csv(ticker,current_data_df)
+  File "C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr\stock_data_engine.py", line 136, in write_df_to_csv
+    old_df.to_csv(f,mode='a',index=False,header=False) # write the old data
+  File "C:\dynamodb_venv\lib\site-packages\pandas\core\generic.py", line 3466, in to_csv
+    return DataFrameRenderer(formatter).to_csv(
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\formats\format.py", line 1105, in to_csv
+    csv_formatter.save()
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\formats\csvs.py", line 257, in save
+    self._save()
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\formats\csvs.py", line 262, in _save
+    self._save_body()
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\formats\csvs.py", line 300, in _save_body
+    self._save_chunk(start_i, end_i)
+  File "C:\dynamodb_venv\lib\site-packages\pandas\io\formats\csvs.py", line 311, in _save_chunk
+    libwriters.write_csv_rows(
+  File "pandas\_libs\writers.pyx", line 72, in pandas._libs.writers.write_csv_rows
+KeyboardInterrupt
+^C
+(dynamodb_venv) C:\dynamodb\dynamodb_related\pythonProject\engine\realtime_engine_ibkr>python stock_data_engine.py
+Fetched three weeks data for SPY, from 1193740740 to 1195463700
+Successfully appended SPY.csv
+Fetched three weeks data for SPY, from 1192003560 to 1193740740
+Successfully appended SPY.csv
