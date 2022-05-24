@@ -8,8 +8,8 @@ import collections
 import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
-from pythonProject.frontend.web_app import utils
-from pythonProject.frontend.web_app.user_info import info
+from frontend.web_app import utils
+from frontend.web_app.user_info import info
 
 # Set page title and favicon.
 MAGE_EMOJI_URL = ""

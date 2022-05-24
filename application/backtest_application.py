@@ -1,14 +1,14 @@
 import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
-from pythonProject.engine.visualisation_engine import graph_plotting_engine
+from engine.visualisation_engine import graph_plotting_engine
 import datetime as dt
-from pythonProject.algo.rebalance_margin_wif_max_drawdown_control.backtest import backtest as rebalance_margin_wif_max_drawdown_control_backtest
-from pythonProject.algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
-from pythonProject.algo.rebalance_margin_wif_maintainance_margin.backtest import backtest as rebalance_margin_wif_maintainance_margin_backtest
+from algo.rebalance_margin_wif_max_drawdown_control.backtest import backtest as rebalance_margin_wif_max_drawdown_control_backtest
+from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
+from algo.rebalance_margin_wif_maintainance_margin.backtest import backtest as rebalance_margin_wif_maintainance_margin_backtest
 
-from pythonProject.engine.simulation_engine import sim_data_io_engine
-from pythonProject.engine.simulation_engine.statistic_engine import statistic_engine
+from engine.simulation_engine import sim_data_io_engine
+from engine.simulation_engine.statistic_engine import statistic_engine
 
 
 tickers = ['QQQ']

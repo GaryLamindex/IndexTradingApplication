@@ -4,12 +4,12 @@ import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
-from pythonProject.object.ibkr_acc_data import *
-from pythonProject.engine.realtime_engine_ibkr.portfolio_data_engine import *
-from pythonProject.engine.realtime_engine_ibkr.trade_engine import *
-from pythonProject.engine.realtime_engine_ibkr.stock_data_engine import *
-from pythonProject.algo.rebalance_margin_wif_max_drawdown_control import algorithm
-from pythonProject.engine.simulation_engine.simulation_agent import *
+from object.ibkr_acc_data import *
+from engine.realtime_engine_ibkr.portfolio_data_engine import *
+from engine.realtime_engine_ibkr.trade_engine import *
+from engine.realtime_engine_ibkr.stock_data_engine import *
+from algo.rebalance_margin_wif_max_drawdown_control import algorithm
+from engine.simulation_engine.simulation_agent import *
 
 # def write_account_data(portfolio_obj):
 #     account_record_field_name = ['date','timestamp','TotalCashValue','NetDividend','NetLiquidation','UnrealizedPnL','RealizedPnL','GrossPositionValue','AvailableFunds','ExcessLiquidity',

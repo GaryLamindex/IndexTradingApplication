@@ -7,7 +7,7 @@ import time
 
 ts=time.time()
 current_dir = os.path.dirname(__file__)
-log_dir=os.path.join(current_dir,'application','log','log_of_start_time_'+str(ts))
+log_dir=os.path.join(current_dir, '../application', 'log', 'log_of_start_time_' + str(ts))
 
 
 log_dir_cmd='start '+log_dir
