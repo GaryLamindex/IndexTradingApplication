@@ -10,7 +10,7 @@ import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
-from pythonProject.failure_handler import connection_handler, connect_tws
+from failure_handler import connection_handler, connect_tws
 
 class ibkr_trade_agent:
     ib_instance = None

@@ -8,17 +8,17 @@ import math
 import sys
 import pathlib
 
-from pythonProject.engine.realtime_engine_ibkr.portfolio_data_engine import ibkr_portfolio_data_engine
-from pythonProject.engine.realtime_engine_ibkr.stock_data_engine import ibkr_stock_data_io_engine
-from pythonProject.engine.realtime_engine_ibkr.trade_engine import ibkr_trade_agent
-from pythonProject.object.ibkr_acc_data import ibkr_acc_data
+from engine.realtime_engine_ibkr.portfolio_data_engine import ibkr_portfolio_data_engine
+from engine.realtime_engine_ibkr.stock_data_engine import ibkr_stock_data_io_engine
+from engine.realtime_engine_ibkr.trade_engine import ibkr_trade_agent
+from object.ibkr_acc_data import ibkr_acc_data
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
-from pythonProject.object.ibkr_acc_data import *
-from pythonProject.engine.realtime_engine_ibkr.portfolio_data_engine import *
-from pythonProject.engine.realtime_engine_ibkr.trade_engine import *
-from pythonProject.engine.realtime_engine_ibkr.stock_data_engine import *
+from object.ibkr_acc_data import *
+from engine.realtime_engine_ibkr.portfolio_data_engine import *
+from engine.realtime_engine_ibkr.trade_engine import *
+from engine.realtime_engine_ibkr.stock_data_engine import *
 
 from ib_insync import *
 from time import sleep

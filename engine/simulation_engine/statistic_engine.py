@@ -5,7 +5,7 @@ import sys
 import datetime as dt
 
 # 5-yr average
-from pythonProject.engine.simulation_engine import sim_data_io_engine
+from engine.simulation_engine import sim_data_io_engine
 
 RISK_FREE_RATE = 0.0127
 # equivalent rate for 60s

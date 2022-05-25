@@ -3,8 +3,8 @@ import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
 from ib_insync import *
-from pythonProject.object.ibkr_acc_data import ibkr_acc_data
-from pythonProject.failure_handler import connection_handler, connect_tws
+from object.ibkr_acc_data import ibkr_acc_data
+from failure_handler import connection_handler, connect_tws
 import datetime as dt
 
 class ibkr_portfolio_data_engine:

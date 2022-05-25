@@ -3,13 +3,15 @@ from datetime import datetime
 
 import sys
 import pathlib
+
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 import os
 import csv
 import datetime as dt
 
-from pythonProject.engine.realtime_engine_ibkr.portfolio_data_engine import *
-from pythonProject.engine.simulation_engine import sim_data_io_engine
+from engine.realtime_engine_ibkr.portfolio_data_engine import *
+from engine.simulation_engine import sim_data_io_engine
+
 
 class simulation_agent(object):
     spec = {}
@@ -25,20 +27,21 @@ class simulation_agent(object):
     # spec:{"rebalance_margin":rebalance_margin,"maintain_margin":maintain_margin,"max_drawdown_ratio":max_drawdown_ratio,"purchase_exliq":purchase_exliq}
     # table_info:{"mode":"backtest","strategy_name":"rebalance_margin_wif_max_drawdown_control","user_id":0}
     # ??? portfolio agent: should be an initialized instance which is connect to TWS with an initialized ibkr acc object
-    def __init__(self,spec,table_info,online,portfolio_data_engine,tickers):
+    def __init__(self, spec, table_info, online, portfolio_data_engine, tickers):
         self.spec = spec
         self.table_info = table_info
-        self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(self.table_info.get("user_id"))
+        self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
+            self.table_info.get("user_id"))
 
         if online == True:
             self.sim_data_engine = sim_data_io_engine.online_engine()
         else:
             self.sim_data_engine = sim_data_io_engine.offline_engine(table_info)
-        
+
         user_id = self.table_info.get("user_id")
         mode = table_info.get("mode")
 
-        for k,v in spec.items():
+        for k, v in spec.items():
             self.spec_str = f"{self.spec_str}{str(v)}_{str(k)}_"
 
         self.portfolio_data_engine = portfolio_data_engine
@@ -55,66 +58,76 @@ class simulation_agent(object):
         #     self.data_attribute += [f'{ticker} action',f'{ticker} totalQuantity',f'{ticker} avgPrice',f'{ticker} commission', f'{ticker} transaction_amount']
 
         self.table_path = str(pathlib.Path(
-            __file__).parent.parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/{mode}/{self.table_name}"
+            __file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/{mode}/{self.table_name}"
         self.run_file_path = f"{self.table_path}/run_data/{self.spec_str}.csv"
         self.transaction_record_file_path = f"{self.table_path}/transaction_data/{self.spec_str}.csv"
         self.acc_data_file_path = f"{self.table_path}/acc_data/{self.spec_str}.csv"
 
     # no clear usage
     def get_net_action_dicts(self, action_msgs):
-        print("action_msgs:",action_msgs)
+        print("action_msgs:", action_msgs)
         net_action_dicts = []
         for action_msg in action_msgs:
             action_ticker = action_msg.get('ticker')
             # if ticker not exist in net action
-            if (net_action_dicts==None):
+            if (net_action_dicts == None):
                 action_type = action_msg.get('action')
-                if(action_type == "BUY"):
+                if (action_type == "BUY"):
                     action_ticker = action_msg.get('ticker')
                     action_amount = action_msg.get('avgPrice') * action_msg.get('totalQuantity')
-                    net_action_dicts.append({action_ticker + ' action': action_type, action_ticker +" action amount": action_amount})
+                    net_action_dicts.append(
+                        {action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
 
                 elif (action_type == "SELL"):
                     action_ticker = action_msg.get('ticker')
                     action_amount = action_msg.get('transaction_amount')
-                    net_action_dicts.append({action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
+                    net_action_dicts.append(
+                        {action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
 
             elif any(action_ticker + ' action' in action_dict for action_dict in net_action_dicts):
                 action_type = action_msg.get('action')
-                print("action_type:",action_type)
-                print("action_msg:",action_msg)
+                print("action_type:", action_type)
+                print("action_msg:", action_msg)
                 action_amount = action_msg.get('transaction_amount')
                 if action_type == "SELL":
-                    action_amount = action_amount* -1
-                    print("action_amount:",action_amount)
-                previous_action_type = [action_dict[action_ticker + ' action'] for action_dict in net_action_dicts if action_ticker + ' action' in action_dict][0]
-                previous_action_amount = [action_dict[action_ticker +" action amount"] for action_dict in net_action_dicts if action_ticker + ' action amount' in action_dict][0]
+                    action_amount = action_amount * -1
+                    print("action_amount:", action_amount)
+                previous_action_type = [action_dict[action_ticker + ' action'] for action_dict in net_action_dicts if
+                                        action_ticker + ' action' in action_dict][0]
+                previous_action_amount = \
+                [action_dict[action_ticker + " action amount"] for action_dict in net_action_dicts if
+                 action_ticker + ' action amount' in action_dict][0]
                 if previous_action_type == 'SELL':
-                    previous_action_amount= previous_action_amount* -1
+                    previous_action_amount = previous_action_amount * -1
                     print("previous_action_amount:", previous_action_amount)
                 net_action_amount = action_amount + previous_action_amount
                 if net_action_amount > 0:
-                    net_action_dict = {action_ticker + ' action': "buy", action_ticker + " action amount": net_action_amount}
+                    net_action_dict = {action_ticker + ' action': "buy",
+                                       action_ticker + " action amount": net_action_amount}
                 else:
-                    net_action_dict = {action_ticker + ' action': "sell", action_ticker + " action amount": net_action_amount* -1}
+                    net_action_dict = {action_ticker + ' action': "sell",
+                                       action_ticker + " action amount": net_action_amount * -1}
 
-                net_action_dicts = [net_action_dict for net_action_dict in net_action_dicts if not action_ticker + ' action' in net_action_dict.keys()]
+                net_action_dicts = [net_action_dict for net_action_dict in net_action_dicts if
+                                    not action_ticker + ' action' in net_action_dict.keys()]
                 net_action_dicts.append(net_action_dict)
 
             # if ticker already exist in net action, calculate the net action (buy+sell)
             else:
                 action_type = action_msg.get('action')
-                if(action_type == "buy"):
+                if (action_type == "buy"):
                     action_ticker = action_msg.get('ticker')
                     action_amount = action_msg.get('transaction_amount')
-                    net_action_dicts.append({action_ticker + ' action': action_type, action_ticker +" action amount": action_amount})
+                    net_action_dicts.append(
+                        {action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
 
                 elif (action_type == "sell"):
                     action_ticker = action_msg.get('ticker')
                     action_amount = action_msg.get('transaction_amount')
-                    net_action_dicts.append({action_ticker + ' action': action_type, action_ticker +" action amount": action_amount})
+                    net_action_dicts.append(
+                        {action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
 
-            print("net_action_dicts:",net_action_dicts)
+            print("net_action_dicts:", net_action_dicts)
 
         return net_action_dicts
 
@@ -136,20 +149,21 @@ class simulation_agent(object):
     #     print("upload_sim_dict:",upload_sim_dict)
     #     self.sim_data_engine.upload_single_sim_data(self.spec_str, upload_sim_dict)
 
-    def append_run_data_to_db(self,timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data, ticker_data):
+    def append_run_data_to_db(self, timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data, ticker_data):
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-        timestamp_dict = {"timestamp": timestamp,"date": _date, "time": _time}
+        timestamp_dict = {"timestamp": timestamp, "date": _date, "time": _time}
         action_dicts = {}
         sim_data_res = {}
         ticker_data_res = {}
         for action_msg in action_msgs:
             temp_list = action_msg.copy()
             if not temp_list['action'] == 'rejected':
-                print("temp_list:",temp_list)
+                print("temp_list:", temp_list)
                 action_ticker = temp_list["ticker"]
                 try:
-                    del action_msg['ticker']  # get rid of the "ticker" column, since the csv does NOT contain this attribute
+                    del action_msg[
+                        'ticker']  # get rid of the "ticker" column, since the csv does NOT contain this attribute
                     del action_msg['orderId']
                     del action_msg['lmtPrice']
                     del action_msg['exchange']
@@ -158,7 +172,7 @@ class simulation_agent(object):
                     pass
 
                 action_res = {f"{action_ticker} {str(key)}": val for key, val in action_msg.items()}
-                action_dicts.update(action_res)# action_dicts|action_res
+                action_dicts.update(action_res)  # action_dicts|action_res
         print(action_dicts)
 
         try:
@@ -174,36 +188,35 @@ class simulation_agent(object):
             ticker_data_res.update({f"{ticker} mktPrice": ticker_data[ticker]['last']})
         print("sim_data_res")
         print(sim_data_res)
-        run_dict = timestamp_dict| orig_account_snapshot_dict |ticker_data_res| sim_data_res| action_dicts
+        run_dict = timestamp_dict | orig_account_snapshot_dict | ticker_data_res | sim_data_res | action_dicts
         self.data_attribute = run_dict.keys()
 
         # write the resulting_dict to a csv
         if f"{self.spec_str}.csv" not in os.listdir(f"{self.table_path}/run_data/"):
-            with open (self.run_file_path,'a+',newline='') as f:
-                writer = csv.DictWriter(f,self.data_attribute)
+            with open(self.run_file_path, 'a+', newline='') as f:
+                writer = csv.DictWriter(f, self.data_attribute)
                 writer.writeheader()
                 # writer.writerow(run_dict)
                 writer.writerow(run_dict)
         else:
-            with open(self.run_file_path,'a+',newline='') as f:
-                writer = csv.DictWriter(f,self.data_attribute)
+            with open(self.run_file_path, 'a+', newline='') as f:
+                writer = csv.DictWriter(f, self.data_attribute)
                 # writer.writerow(run_dict)
                 writer.writerow(run_dict)
 
-
-    def write_transaction_record(self,action_msgs):
+    def write_transaction_record(self, action_msgs):
         transaction_field_name = ["state", "timestamp", "orderId", "ticker", "action", "lmtPrice", "totalQuantity",
                                   "avgPrice", "error message", "exchange", "commission", "transaction_amount"]
 
         for action_msg in action_msgs:
             if f"{self.spec_str}.csv" not in os.listdir(f"{self.table_path}/transaction_data/"):
-                with open(self.transaction_record_file_path,'a+',newline='') as f:
-                    writer = csv.DictWriter(f,transaction_field_name)
+                with open(self.transaction_record_file_path, 'a+', newline='') as f:
+                    writer = csv.DictWriter(f, transaction_field_name)
                     writer.writeheader()
                     writer.writerow(action_msg)
             else:
-                with open(self.transaction_record_file_path,'a+',newline='') as f:
-                    writer = csv.DictWriter(f,transaction_field_name)
+                with open(self.transaction_record_file_path, 'a+', newline='') as f:
+                    writer = csv.DictWriter(f, transaction_field_name)
                     writer.writerow(action_msg)
 
     def write_acc_data(self):
@@ -220,8 +233,10 @@ class simulation_agent(object):
                 writer.writerow(data_dict)
         pass
 
+
 def main():
     pass
+
 
 if __name__ == "__main__":
     main()

@@ -53,7 +53,7 @@ class backtest(object):
 
     # maximum ONLY 2 tickers at a time !!!
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict, max_drawdown_ratio_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode, quick_test):
-        self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
+        self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "rebalance_margin_wif_max_drawdown_control", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(self.table_info.get("user_id"))

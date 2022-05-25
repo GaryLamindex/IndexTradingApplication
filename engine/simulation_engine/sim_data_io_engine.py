@@ -12,7 +12,7 @@ script_dir = os.path.dirname(__file__)
 db_engine_dir = os.path.join(script_dir, '..', 'aws_engine')
 sys.path.append(db_engine_dir)
 
-from pythonProject.engine.aws_engine.dynamo_db_engine import dynamo_db_engine as db_engine
+from engine.aws_engine.dynamo_db_engine import dynamo_db_engine as db_engine
 
 def check_kwargs(kwargs):
     if (len(kwargs) > 1 or len(kwargs) == 1 and list(kwargs.keys())[0] != "spec"):

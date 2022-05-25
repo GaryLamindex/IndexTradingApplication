@@ -158,7 +158,7 @@ class local_engine:
         # load all data from /his_data all inside the engine first
         # example of format of "freq": "one_min"
         # self.filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/{freq}"
-        self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.parent.resolve()) + f"/ticker_data/{freq}"
+        self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/ticker_data/{freq}"
         self.ticker = ticker
         """to be modified"""
         self.full_ticker_df = pd.read_csv(f"{self.filepath}/{ticker}.csv")

@@ -2,7 +2,7 @@ import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
-from pythonProject.engine.realtime_engine_ibkr.stock_data_engine import *
+from engine.realtime_engine_ibkr.stock_data_engine import *
 
 def main():
     # if you want to change the output path, go to __init__ of ibkr_stock_data_io_engine to change it
