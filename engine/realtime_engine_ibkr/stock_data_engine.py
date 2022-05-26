@@ -91,7 +91,7 @@ class ibkr_stock_data_io_engine:
             # fetch until information is completed
             while math.isnan(raw_ticker_info.bid) or math.isnan(raw_ticker_info.bidSize) or math.isnan(
                     raw_ticker_info.ask) or math.isnan(raw_ticker_info.askSize) or math.isnan(
-                    raw_ticker_info.last) or math.isnan(raw_ticker_info.lastSize) or math.isnan(raw_ticker_info.volume):
+                raw_ticker_info.last) or math.isnan(raw_ticker_info.lastSize) or math.isnan(raw_ticker_info.volume):
                 print("Information incompleted, data:", raw_ticker_info)
                 print("Trying again...")
                 contracts[ticker] = Stock(ticker, "SMART", "USD")  # create the contract in the dictionary
@@ -125,8 +125,7 @@ class ibkr_stock_data_io_engine:
         regular_trading_hour: a switch (boolean value) to allow user to choose whether to get data in the regular trading hour (True) or not (False)
         """
         end_date = dt.datetime.fromtimestamp(end_timestamp, tz=dt.timezone(dt.timedelta(hours=8)))
-        # contract = Stock(ticker, "SMART", "USD")  # create the contract in the dictionary
-        contract = Stock('3188', 'SEHK', 'HKD')  # need to check ib permission, by Thomas Li
+        contract = Stock(ticker, "SMART", "USD")  # create the contract in the dictionary
         self.ib_instance.qualifyContracts(contract)  # qualify the contract
         data = self.ib_instance.reqHistoricalData(contract, end_date, durationStr=duration, barSizeSetting=bar_size,
                                                   whatToShow="TRADES", useRTH=regular_trading_hour)
@@ -154,7 +153,7 @@ class ibkr_stock_data_io_engine:
         # historical_data = []
         current_end_timestamp = end_timestamp
 
-        while (current_end_timestamp > start_timestamp):
+        while current_end_timestamp > start_timestamp:
             current_data = self.get_historical_data_helper(ticker, current_end_timestamp, "3 W", bar_size,
                                                            regular_trading_hour)
             front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
@@ -173,6 +172,26 @@ class ibkr_stock_data_io_engine:
         # adding a column of timestamp
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
         # list(map(lambda x: {"date":x.date,"timestamp":x.date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(),"open":x.open,"high":x.high,"low":x.low,"close":x.close,"volume":x.volume,"average":x.average,"barCount":x.barCount},historical_data[ticker]))
+
+    # get the historical currency rate within the given range
+    def get_historical_currency_rate_by_range(self, base_cur, dest_cur, start_timestamp, end_timestamp):
+        current_end_timestamp = end_timestamp
+        ticker = f'{base_cur}{dest_cur}'
+        contract = Forex(ticker)
+        self.ib_instance.qualifyContracts(contract)  # qualify the contract
+
+        while current_end_timestamp > start_timestamp:
+            end_date = dt.datetime.fromtimestamp(current_end_timestamp)
+            current_data = self.ib_instance.reqHistoricalData(contract, end_date, whatToShow="BID", durationStr='2 W',
+                                                              barSizeSetting='1 min', useRTH=False)
+            current_end_timestamp = current_data[0].date.timestamp()
+            self.ib_instance.sleep(0)
+            current_data_df = util.df(current_data)  # convert into df
+            current_data_df['timestamp'] = current_data_df[['date']].apply(
+                lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
+
+            # print(current_data_df)
+            self.write_df_to_csv(ticker, current_data_df)
 
     def write_df_to_csv(self, ticker, df):
         """
