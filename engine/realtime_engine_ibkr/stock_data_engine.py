@@ -182,15 +182,16 @@ class ibkr_stock_data_io_engine:
 
         while current_end_timestamp > start_timestamp:
             end_date = dt.datetime.fromtimestamp(current_end_timestamp)
-            current_data = self.ib_instance.reqHistoricalData(contract, end_date, whatToShow="BID", durationStr='2 W',
-                                                              barSizeSetting='1 min', useRTH=False)
+            current_data = self.ib_instance.reqHistoricalData(contract, end_date, whatToShow="BID",
+                                                              durationStr='2 W',
+                                                              barSizeSetting='1 min', useRTH=True)
             current_end_timestamp = current_data[0].date.timestamp()
             self.ib_instance.sleep(0)
             current_data_df = util.df(current_data)  # convert into df
             current_data_df['timestamp'] = current_data_df[['date']].apply(
                 lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
 
-            # print(current_data_df)
+            # print(current_data_df)  # only for testing
             self.write_df_to_csv(ticker, current_data_df)
 
     def write_df_to_csv(self, ticker, df):
@@ -216,7 +217,7 @@ class ibkr_stock_data_io_engine:
             if file_exist:
                 old_df.to_csv(f, mode='a', index=False, header=False)  # write the old data
 
-        print(f"Successfully appended {ticker}.csv")
+        print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
     def get_multiple_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size,
                                               regular_trading_hour):
