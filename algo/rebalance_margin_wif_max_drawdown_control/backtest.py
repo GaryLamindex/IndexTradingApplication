@@ -192,7 +192,7 @@ class backtest(object):
                 _5_yr_sharpe = sharpe_dict.get("5y")
                 _ytd_sharpe = sharpe_dict.get("ytd")
 
-                sortino_dict = stat_engine.get_return_data(file_name)
+                sortino_dict = stat_engine.get_sortino_data(file_name)
                 inception_sortino = sortino_dict.get('inception')
                 _1_yr_sortino = sortino_dict.get('1y')
                 _3_yr_sortino = sortino_dict.get('3y')
