@@ -312,7 +312,7 @@ class statistic_engine:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
         ending_nlv = data_period_df['NetLiquidation']
-        return_col = ending_nlv.pct_change.dropna()
+        return_col = ending_nlv.pct_change().dropna()
         avg_period_return = np.array(return_col).mean()
 
         return_col_arr = np.array(return_col)
