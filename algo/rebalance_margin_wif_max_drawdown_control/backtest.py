@@ -168,7 +168,7 @@ class backtest(object):
                     print("Finished Backtest:", backtest_spec)
                     self.plot_all_file_graph()
 
-                    if (self.cal_stat == True):
+                    if self.cal_stat == True:
                         print("start backtest")
                         self.cal_all_file_return()
 
