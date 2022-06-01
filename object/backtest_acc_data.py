@@ -11,9 +11,10 @@ class backtest_acc_data(object):
     portfolio = []
     margin_info = []
     stock_transaction_record = []
-    cashflow_record= []
+    cashflow_record = []
     acc_data_json_file_path = ""
     table_name = ""
+
     def __init__(self, user_id, strategy_name, table_name, spec_str):
         self.user_id = user_id
         self.strategy_name = strategy_name
@@ -33,51 +34,64 @@ class backtest_acc_data(object):
         _qqq = {'ticker': 'QQQ', 'initMarginReq': 0.1, 'maintMarginReq': 0.11}
         _govt = {'ticker': 'GOVT', 'initMarginReq': 0.09, 'maintMarginReq': 0.1}
         _shv = {'ticker': 'SHV', 'initMarginReq': 0.09, 'maintMarginReq': 0.1}
-        self.margin_info = [_spy, _qqq, _govt, _shv]
-        self.acc_data_json_file_path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{self.user_id}/backtest/acc_data/{self.table_name}/{spec_str}.json"
+        _3188_hk = {'ticker': '3188', 'initMarginReq': 0.25, 'maintMarginReq': 0.20}
+        self.margin_info = [_spy, _qqq, _govt, _shv, _3188_hk]
+        self.acc_data_json_file_path = str(pathlib.Path(
+            __file__).parent.parent.parent.parent.resolve()) + f"/user_id_{self.user_id}/backtest/acc_data/{self.table_name}/{spec_str}.json"
+
     # for stocks !
-    def update_portfolio_item(self, ticker, position, marketPrice, averageCost, marketValue, realizedPNL, unrealizedPNL, initMarginReq, maintMarginReq, costBasis):
-        updating_portfolio_dict = {'ticker': ticker, 'position': position, "marketPrice": marketPrice, 'averageCost': averageCost, "marketValue": marketValue,
-                           "realizedPNL": realizedPNL, "unrealizedPNL": unrealizedPNL, 'initMarginReq': initMarginReq, 'maintMarginReq': maintMarginReq,
-                           "costBasis": costBasis}
+    def update_portfolio_item(self, ticker, position, marketPrice, averageCost, marketValue, realizedPNL, unrealizedPNL,
+                              initMarginReq, maintMarginReq, costBasis):
+        updating_portfolio_dict = {'ticker': ticker, 'position': position, "marketPrice": marketPrice,
+                                   'averageCost': averageCost, "marketValue": marketValue,
+                                   "realizedPNL": realizedPNL, "unrealizedPNL": unrealizedPNL,
+                                   'initMarginReq': initMarginReq, 'maintMarginReq': maintMarginReq,
+                                   "costBasis": costBasis}
         if len(self.portfolio) == 0:
             self.portfolio.append(updating_portfolio_dict)
         else:
             for item in self.portfolio:
                 if item.get("ticker") == ticker:
-                    item.update((k,v) for k,v in updating_portfolio_dict.items() if v is not None)
+                    item.update((k, v) for k, v in updating_portfolio_dict.items() if v is not None)
                     break
 
-    def append_stock_transaction_record(self, ticker, timestamp, transaction_type, position_purchase, ticker_open_price, transaction_amount,
-                                         position):
-        transaction_type_dict = {0:"Buy", 1:"Sell"}
-        record = {'ticker': ticker, "timestamp":timestamp, 'transaction_type': transaction_type_dict.get(transaction_type),
-                                         "position_purchase": position_purchase, 'ticker_open_price': ticker_open_price, 'transaction_amount': transaction_amount,
-                                         'position': position}
+    def append_stock_transaction_record(self, ticker, timestamp, transaction_type, position_purchase, ticker_open_price,
+                                        transaction_amount,
+                                        position):
+        transaction_type_dict = {0: "Buy", 1: "Sell"}
+        record = {'ticker': ticker, "timestamp": timestamp,
+                  'transaction_type': transaction_type_dict.get(transaction_type),
+                  "position_purchase": position_purchase, 'ticker_open_price': ticker_open_price,
+                  'transaction_amount': transaction_amount,
+                  'position': position}
         self.stock_transaction_record.append(record)
 
     def append_cashflow_record(self, timestamp, transaction_type, amount):
         transaction_type_dict = {0: "Deposit", 1: "Withdraw"}
-        record = {'timestamp': timestamp, 'transaction_type': transaction_type_dict.get(transaction_type), 'amount': amount}
+        record = {'timestamp': timestamp, 'transaction_type': transaction_type_dict.get(transaction_type),
+                  'amount': amount}
         self.cashflow_record.append(record)
 
     def update_acc_data(self, AccountCode, Currency, ExchangeRate):
         updating_acc_data_dict = {"AccountCode": AccountCode, "Currency": Currency, "ExchangeRate": ExchangeRate}
-        self.acc_data.update((k,v) for k,v in updating_acc_data_dict.items() if v is not None)
+        self.acc_data.update((k, v) for k, v in updating_acc_data_dict.items() if v is not None)
 
     def update_margin_acc(self, FullInitMarginReq, FullMaintMarginReq):
         updating_margin_acc_dict = {'FullInitMarginReq': FullInitMarginReq, 'FullMaintMarginReq': FullMaintMarginReq}
-        self.margin_acc.update((k,v) for k,v in updating_margin_acc_dict.items() if v is not None)
+        self.margin_acc.update((k, v) for k, v in updating_margin_acc_dict.items() if v is not None)
 
     def update_trading_funds(self, AvailableFunds, ExcessLiquidity, BuyingPower, Leverage, EquityWithLoanValue):
-        updating_trading_funds_dict = {'AvailableFunds': AvailableFunds, 'ExcessLiquidity': ExcessLiquidity, 'BuyingPower': BuyingPower,
+        updating_trading_funds_dict = {'AvailableFunds': AvailableFunds, 'ExcessLiquidity': ExcessLiquidity,
+                                       'BuyingPower': BuyingPower,
                                        'Leverage': Leverage, 'EquityWithLoanValue': EquityWithLoanValue}
-        self.trading_funds.update((k,v) for k,v in updating_trading_funds_dict.items() if v is not None)
+        self.trading_funds.update((k, v) for k, v in updating_trading_funds_dict.items() if v is not None)
 
-    def update_mkt_value(self, TotalCashValue, NetDividend, NetLiquidation, UnrealizedPnL, RealizedPnL, GrossPositionValue):
-        updating_mkt_value_dict = {"TotalCashValue": TotalCashValue, "NetDividend": NetDividend, "NetLiquidation": NetLiquidation, "UnrealizedPnL": UnrealizedPnL,
-                          "RealizedPnL": RealizedPnL, "GrossPositionValue": GrossPositionValue}
-        self.mkt_value.update( (k,v) for k,v in updating_mkt_value_dict.items() if v is not None)
+    def update_mkt_value(self, TotalCashValue, NetDividend, NetLiquidation, UnrealizedPnL, RealizedPnL,
+                         GrossPositionValue):
+        updating_mkt_value_dict = {"TotalCashValue": TotalCashValue, "NetDividend": NetDividend,
+                                   "NetLiquidation": NetLiquidation, "UnrealizedPnL": UnrealizedPnL,
+                                   "RealizedPnL": RealizedPnL, "GrossPositionValue": GrossPositionValue}
+        self.mkt_value.update((k, v) for k, v in updating_mkt_value_dict.items() if v is not None)
 
     def check_if_ticker_exist_in_portfolio(self, ticker):
         tickers = [d['ticker'] for d in self.portfolio]
@@ -94,7 +108,7 @@ class backtest_acc_data(object):
         ticker = ticker_item.get("ticker")
         for item in self.portfolio:
             if item.get("ticker") == ticker:
-                item.update((k,v) for k,v in ticker_item.items() if v is not None)
+                item.update((k, v) for k, v in ticker_item.items() if v is not None)
                 break
 
     def get_margin_info_ticker_item(self, ticker):
@@ -111,9 +125,11 @@ class backtest_acc_data(object):
         margin_acc_json = json.dumps(self.margin_acc)
         trading_funds_json = json.dumps(self.trading_funds)
 
-        data_dict = {"portfolio":portfolio_json, "stock_transaction_record":stock_transaction_record_json, "deposit_withdraw_cash_record":deposit_withdraw_cash_record_json,
-                "acc_data":acc_data_json, "mkt_value":mkt_value_json, "margin_acc":margin_acc_json, "trading_funds":trading_funds_json
-                }
+        data_dict = {"portfolio": portfolio_json, "stock_transaction_record": stock_transaction_record_json,
+                     "deposit_withdraw_cash_record": deposit_withdraw_cash_record_json,
+                     "acc_data": acc_data_json, "mkt_value": mkt_value_json, "margin_acc": margin_acc_json,
+                     "trading_funds": trading_funds_json
+                     }
 
         return data_dict
 

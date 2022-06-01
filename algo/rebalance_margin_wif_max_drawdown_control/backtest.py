@@ -37,7 +37,7 @@ class backtest(object):
     rabalance_dict = {}
     maintain_dict = {}
     max_drawdown_ratio_dict = {}
-    purchase_exliq_ratio_dict= {}
+    purchase_exliq_ratio_dict = {}
     algo = None
     dynamo_db = None
     table_info = {}
@@ -52,11 +52,14 @@ class backtest(object):
     stock_data_engines = {}
 
     # maximum ONLY 2 tickers at a time !!!
-    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict, max_drawdown_ratio_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode, quick_test):
+    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict,
+                 max_drawdown_ratio_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode, quick_test):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
-        self.table_info = {"mode": "backtest", "strategy_name": "rebalance_margin_wif_max_drawdown_control", "user_id": user_id}
-        self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(self.table_info.get("user_id"))
+        self.table_info = {"mode": "backtest", "strategy_name": "rebalance_margin_wif_max_drawdown_control",
+                           "user_id": user_id}
+        self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
+            self.table_info.get("user_id"))
         self.tickers = tickers
         self.initial_amount = initial_amount
         self.start_timestamp = datetime.timestamp(start_date)
@@ -71,7 +74,6 @@ class backtest(object):
 
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, "one_min")
-
 
         if db_mode.get("dynamo_db") == True:
             dynamo_db = dynamo_db_engine("http://dynamodb.us-west-2.amazonaws.com")
@@ -131,42 +133,49 @@ class backtest(object):
         # loop through all the rebalance requirement
         for rebalance in range(rebalance_start, rebalance_end, rebalance_step):
             # for maintain in range(maintain_start, maintain_end, maintain_step):
-                for max_drawdown in range(max_drawdown_start, max_drawdown_end, max_drawdown_step):
-                    for purchase_exliq_ratio in range(purchase_exliq_ratio_start, purchase_exliq_ratio_end, purchase_exliq_ratio_step):
+            for max_drawdown in range(max_drawdown_start, max_drawdown_end, max_drawdown_step):
+                for purchase_exliq_ratio in range(purchase_exliq_ratio_start, purchase_exliq_ratio_end,
+                                                  purchase_exliq_ratio_step):
 
-                        # if (maintain > rebalance):
-                        #     continue
+                    # if (maintain > rebalance):
+                    #     continue
 
-                        rebalance_margin = rebalance/1000
-                        # maintain_margin = maintain/1000
-                        # maintain_margin = rebalance_margin
-                        max_drawdown_ratio = max_drawdown/1000
-                        purchase_exliq = purchase_exliq_ratio/100
-                        acceptance_range = 0
+                    rebalance_margin = rebalance / 1000
+                    # maintain_margin = maintain/1000
+                    # maintain_margin = rebalance_margin
+                    max_drawdown_ratio = max_drawdown / 1000
+                    purchase_exliq = purchase_exliq_ratio / 100
+                    acceptance_range = 0
 
-                        backtest_spec = {"rebalance_margin":rebalance_margin, "max_drawdown_ratio":max_drawdown_ratio, "purchase_exliq":purchase_exliq}
-                        spec_str = ""
-                        for k, v in backtest_spec.items():
-                            spec_str = f"{spec_str}{str(v)}_{str(k)}_"
+                    backtest_spec = {"rebalance_margin": rebalance_margin, "max_drawdown_ratio": max_drawdown_ratio,
+                                     "purchase_exliq": purchase_exliq}
+                    spec_str = ""
+                    for k, v in backtest_spec.items():
+                        spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-                        acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"), self.table_name, spec_str)
-                        portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
-                        trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-                        sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine, self.tickers)
+                    acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                                 self.table_name, spec_str)
+                    portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
+                    trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
+                    sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
+                                                 self.tickers)
 
-                        algorithm = rebalance_margin_wif_max_drawdown(trade_agent, portfolio_data_engine, self.tickers, max_drawdown_ratio, acceptance_range, rebalance_margin)
-                        self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm, portfolio_data_engine, sim_agent)
-                        print("Finished Backtest:", backtest_spec)
-                        self.plot_all_file_graph()
+                    algorithm = rebalance_margin_wif_max_drawdown(trade_agent, portfolio_data_engine, self.tickers,
+                                                                  max_drawdown_ratio, acceptance_range,
+                                                                  rebalance_margin)
+                    self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
+                                       portfolio_data_engine, sim_agent)
+                    print("Finished Backtest:", backtest_spec)
+                    self.plot_all_file_graph()
 
-                        if(self.cal_stat == True):
-                            print("start backtest")
-                            self.cal_all_file_return()
-
+                    if (self.cal_stat == True):
+                        print("start backtest")
+                        self.cal_all_file_return()
 
     def plot_all_file_graph(self):
         print("plot_graph")
-        graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "NetLiquidation", f"{self.path}/{self.table_name}/graph")
+        graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "NetLiquidation",
+                                                      f"{self.path}/{self.table_name}/graph")
 
     def cal_all_file_return(self):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
@@ -174,7 +183,6 @@ class backtest(object):
         data_list = []
         for file in os.listdir(backtest_data_directory):
             if file.decode().endswith("csv"):
-
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 sharpe_dict = stat_engine.get_sharpe_data(file_name)
@@ -183,6 +191,13 @@ class backtest(object):
                 _3_yr_sharpe = sharpe_dict.get("3y")
                 _5_yr_sharpe = sharpe_dict.get("5y")
                 _ytd_sharpe = sharpe_dict.get("ytd")
+
+                sortino_dict = stat_engine.get_return_data(file_name)
+                inception_sortino = sortino_dict.get('inception')
+                _1_yr_sortino = sortino_dict.get('1y')
+                _3_yr_sortino = sortino_dict.get('3y')
+                _5_yr_sortino = sortino_dict.get('5y')
+                _ytd_sortino = sortino_dict.get('ytd')
 
                 return_dict = stat_engine.get_return_data(file_name)
                 inception_return = return_dict.get("inception")
@@ -199,10 +214,16 @@ class backtest(object):
                 _ytd_max_drawdown = max_drawdown_dict.get("ytd")
 
                 all_file_stats_row = {
-                    "Backtest Spec":file_name, 'YTD Return':_ytd_return, '1 Yr Return':_1_yr_return, "3 Yr Return":_3_yr_return, "5 Yr Return":_5_yr_return,
-                    "Since Inception Return":inception_return, "Since Inception Sharpe":inception_sharpe, "YTD Sharpe":_ytd_sharpe,
-                    "1 Yr Sharpe":_1_yr_sharpe, "3 Yr Sharpe":_3_yr_sharpe,"5 Yr Sharpe":_5_yr_sharpe, "Since Inception Max Drawdown":inception_max_drawdown, "YTD Max Drawdown":_ytd_max_drawdown,
-                    "1 Yr Max Drawdown":_1_yr_max_drawdown, "3 Yr Max Drawdown":_3_yr_max_drawdown,"5 Yr Max Drawdown":_5_yr_max_drawdown
+                    "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
+                    "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
+                    "Since Inception Return": inception_return, "Since Inception Sharpe": inception_sharpe,
+                    "YTD Sharpe": _ytd_sharpe,
+                    "1 Yr Sharpe": _1_yr_sharpe, "3 Yr Sharpe": _3_yr_sharpe, "5 Yr Sharpe": _5_yr_sharpe,
+                    'Since Inception Sortino': inception_sortino, 'YTD Sortino': _ytd_sortino,
+                    '1 Yr Sortino': _1_yr_sortino, '3 Yr Sortino': _3_yr_sortino, '5 Yr Sortino': _5_yr_sortino,
+                    "Since Inception Max Drawdown": inception_max_drawdown, "YTD Max Drawdown": _ytd_max_drawdown,
+                    "1 Yr Max Drawdown": _1_yr_max_drawdown, "3 Yr Max Drawdown": _3_yr_max_drawdown,
+                    "5 Yr Max Drawdown": _5_yr_max_drawdown
                 }
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
@@ -210,9 +231,11 @@ class backtest(object):
                 data_list.append(all_file_stats_row | _additional_data)
 
         col = ['Backtest Spec', 'YTD Return', '1 Yr Return', "3 Yr Return", "5 Yr Return",
-             "Since Inception Return", "Since Inception Sharpe", "YTD Sharpe", "1 Yr Sharpe", "3 Yr Sharpe",
-             "5 Yr Sharpe", "Since Inception Max Drawdown", "YTD Max Drawdown","1 Yr Max Drawdown",
-               "3 Yr Max Drawdown","5 Yr Max Drawdown"]
+               "Since Inception Return", "Since Inception Sharpe", "YTD Sharpe", "1 Yr Sharpe", "3 Yr Sharpe",
+               "5 Yr Sharpe", 'Since Inception Sortino', 'YTD Sortino', '1 Yr Sortino', '3 Yr Sortino', '5 Yr Sortino',
+               "Since Inception Max Drawdown", "YTD Max Drawdown",
+               "1 Yr Max Drawdown",
+               "3 Yr Max Drawdown", "5 Yr Max Drawdown"]
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
@@ -235,19 +258,22 @@ class backtest(object):
         _additional_data = {"min(ExcessLiquidity/ GrossPositionValue(Day End))": _exmk}
         return _additional_data
 
-    def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine, sim_agent):
+    def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
+                      sim_agent):
         # connect to downloaded ib data to get price data
         print("start backtest")
         row = 0
         print("Fetch data")
 
-
         if len(self.tickers) == 1:
-            timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
+            timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+                'timestamp']
         elif len(self.tickers) == 2:
-            series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
-            series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
-            timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1,series_2)
+            series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+                'timestamp']
+            series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
+                'timestamp']
+            timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
 
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
@@ -291,9 +317,12 @@ class backtest(object):
             sim_meta_data[ticker]["liq_sold_qty_dict"] = algorithm.liq_sold_qty_dict[ticker]
             sim_meta_data[ticker]["reg_exec"] = algorithm.reg_exec[ticker]
 
-        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data, stock_data_dict)
+        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+                                        stock_data_dict)
         # sim_agent.write_transaction_record(action_msgs)
         # sim_agent.write_acc_data()
+
+
 # def main():
 #     run_dir = "C:\\Users\\user\\Documents\\GitHub\\user_id_0\\backtest\\backtest_rebalance_margin_wif_max_drawdown_control_0\\"
 #     graph_plotting_engine.plot_all_file_graph_png(f"{run_dir}\\run_data", "date", "NetLiquidation", f"{run_dir}/graph")
@@ -345,7 +374,6 @@ def main():
     # df.to_csv(f"{self.path}/stats_data/{self.table_name}.csv")
     pass
 
+
 if __name__ == "__main__":
     main()
-
-
