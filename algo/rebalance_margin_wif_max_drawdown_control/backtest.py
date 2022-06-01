@@ -207,7 +207,7 @@ class backtest(object):
                 _ytd_return = return_dict.get("ytd")
 
                 max_drawdown_dict = stat_engine.get_max_drawdown_data(file_name)
-                inception_max_drawdown = return_dict.get("inception")
+                inception_max_drawdown = max_drawdown_dict.get("inception")
                 _1_yr_max_drawdown = max_drawdown_dict.get("1y")
                 _3_yr_max_drawdown = max_drawdown_dict.get("3y")
                 _5_yr_max_drawdown = max_drawdown_dict.get("5y")
