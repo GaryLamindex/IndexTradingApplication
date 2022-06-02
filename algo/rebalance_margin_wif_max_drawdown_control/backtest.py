@@ -168,7 +168,7 @@ class backtest(object):
                     print("Finished Backtest:", backtest_spec)
                     self.plot_all_file_graph()
 
-                    if (self.cal_stat == True):
+                    if self.cal_stat == True:
                         print("start backtest")
                         self.cal_all_file_return()
 
@@ -192,7 +192,7 @@ class backtest(object):
                 _5_yr_sharpe = sharpe_dict.get("5y")
                 _ytd_sharpe = sharpe_dict.get("ytd")
 
-                sortino_dict = stat_engine.get_return_data(file_name)
+                sortino_dict = stat_engine.get_sortino_data(file_name)
                 inception_sortino = sortino_dict.get('inception')
                 _1_yr_sortino = sortino_dict.get('1y')
                 _3_yr_sortino = sortino_dict.get('3y')
@@ -207,7 +207,7 @@ class backtest(object):
                 _ytd_return = return_dict.get("ytd")
 
                 max_drawdown_dict = stat_engine.get_max_drawdown_data(file_name)
-                inception_max_drawdown = return_dict.get("inception")
+                inception_max_drawdown = max_drawdown_dict.get("inception")
                 _1_yr_max_drawdown = max_drawdown_dict.get("1y")
                 _3_yr_max_drawdown = max_drawdown_dict.get("3y")
                 _5_yr_max_drawdown = max_drawdown_dict.get("5y")
