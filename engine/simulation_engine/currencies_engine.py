@@ -70,13 +70,13 @@ class currencies_engine:
             # attempt to find a closer timestamp in an earlier timeframe
             for i in range(1, 60):
                 conversion_row_minus = conversion_df.loc[conversion_df['timestamp'] == timestamp - i, 'close']
-                if conversion_row_minus:
+                if not conversion_row_minus.empty:
                     delta_minus = i
                     break
             # attempt to find a closer timestamp in a later timeframe
             for i in range(1, 60):
                 conversion_row_plus = conversion_df.loc[conversion_df['timestamp'] == timestamp + i, 'close']
-                if conversion_row_plus:
+                if not conversion_row_plus.empty:
                     delta_plus = i
                     break
             if delta_plus > delta_minus:
@@ -88,7 +88,7 @@ class currencies_engine:
     def get_conversion_df(self, base_cur, dest_cur):
         return pd.read_csv(f'{self.ticker_data_path}/{base_cur}{dest_cur}.csv')
 
-    def net_liq_to_usd(self, df_to_convert: pd.DataFrame, conversion: str, inverse_dir: bool) -> pd.DataFrame:
+    def net_liq_to_usd(self, df_to_convert: pd.DataFrame, conversion: str) -> pd.DataFrame:
         """
         params:
         df_to_convert: the base dataframe to be converted to USD
@@ -107,8 +107,13 @@ class currencies_engine:
 
         try:
             conversion_df = self.get_conversion_df(base_cur, dest_cur)
+            inverse_dir = False
         except FileNotFoundError:
-            raise FileNotFoundError('currencies_engine.net_liq_to_usd: df_cCurrencies data not found')
+            try:
+                conversion_df = self.get_conversion_df(dest_cur, base_cur)
+                inverse_dir = True
+            except FileNotFoundError:
+                raise FileNotFoundError('currencies_engine cannot find the corresponding currencies data')
 
         for row in df_to_convert.itertuples():
             timestamp_to_convert = getattr(row, 'timestamp')
@@ -130,7 +135,7 @@ def main():
     engine = currencies_engine(ib)
     df_to_convert = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data/0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_.csv')
     conversion_df = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/ticker_data/one_min/USDCNH.csv')
-    df = engine.net_liq_to_usd(df_to_convert, 'USDHKD', True)
+    df = engine.net_liq_to_usd(df_to_convert, 'HKDUSD')
     print(df)
 
 
