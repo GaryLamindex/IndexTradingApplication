@@ -20,7 +20,7 @@ def main():
 
     # The following two lines are fetching stock/forex data
     # engine.get_historical_data_by_range("AAPL", 1609430400, 1643594952, "1 min", False)
-    engine.get_historical_currency_rate_by_range('USD', 'HKD', 946702800, 1590700500)
+    engine.get_historical_currency_rate_by_range('USD', 'HKD', 946702800, 1291846500)
     # engine.get_sehk_historical_data_by_range('3188', 1351215000, 1351216020, '1 min', True)
 
 
