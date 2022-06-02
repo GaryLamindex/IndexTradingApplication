@@ -18,7 +18,8 @@ class rebalance_wif_ticket_input:
     ticker_wif_rebalance_ratio = {}
     account_snapshot = {}
     trading_funds = {}
-
+    portfolio=[]
+    tickers_value={}
     def __init__(self, trade_agent, portfolio_agent, ticker_wif_rebalance_ratio):
         self.ticker_wif_rebalance_ratio = ticker_wif_rebalance_ratio
         self.trade_agent = trade_agent
@@ -29,9 +30,12 @@ class rebalance_wif_ticket_input:
     def run(self, realtime_stock_data_dict):
         self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
         self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        trading_funds = self.account_snapshot.get("trading_funds")
-        for k, v in self.ticker_wif_rebalance_ratio:
-            self.trading_funds.get(k)
+        self.trading_funds = self.account_snapshot.get("trading_funds")
+        self.portfolio = self.account_snapshot.get("portfolio")
+        for item in self.portfolio:
+            self.tickers_value.update({item.get("ticker"): item.get("marketValue")})
+
+
 
 
 
