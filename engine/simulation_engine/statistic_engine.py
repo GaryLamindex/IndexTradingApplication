@@ -388,6 +388,18 @@ class statistic_engine:
 
         return alpha
         # calculate alpha
+    def get_volatility_by_range(self,range,file_name):
+        print("get_volatility_by_range")
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
+                                                                                   format="%Y-%m-%d")).days + 1
+        range_df['returns'] = np.log(range_df['close'] / range_df['close'].shift())
+        daily_std = range_df['returns'].std()
+
+        return daily_std * no_of_days ** 0.5
+
+
+
 
 
 def main():
