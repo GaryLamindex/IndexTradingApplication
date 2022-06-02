@@ -369,12 +369,33 @@ class statistic_engine:
 
         return sortino_dict
 
+    def get_alpha_by_period(self, date, lookback_period, file_name):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+
+        # calculate beta
+        # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
+        cov_matrix = data_period_df[["3188 marketPrice", "NetLiquidation"]]
+        beta = cov_matrix.cov()[0][1] / data_period_df.var()["3188 marketPrice"]
+
+        startNL = data_period_df["NetLiquidation"].iloc[0]
+        endNL = data_period_df["NetLiquidation"].iloc[-1]
+
+        portfolio_return = (startNL - endNL) / startNL
+        marketReturn = data_period_df["3188 marketPrice"]
+
+        alpha = portfolio_return - RISK_FREE_RATE - beta * (marketReturn - RISK_FREE_RATE)
+
+        return alpha
+        # calculate alpha
+
 
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
-    range = ["2004-12-1", "2005-12-1"]
+    range = ["2012-12-1", "2013-12-1"]
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
     # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
