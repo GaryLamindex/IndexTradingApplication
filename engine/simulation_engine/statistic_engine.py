@@ -375,19 +375,23 @@ class statistic_engine:
 
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
-        cov_matrix = data_period_df[["3188 marketPrice", "NetLiquidation"]]
-        beta = cov_matrix.cov()[0][1] / data_period_df.var()["3188 marketPrice"]
+        cov_matrix_df = data_period_df[["3188 marketPrice", "NetLiquidation"]]
+        beta = cov_matrix_df.cov().iat[0,1] / data_period_df["3188 marketPrice"].var()
 
+        #calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
         endNL = data_period_df["NetLiquidation"].iloc[-1]
+        portfolio_return = (endNL - startNL) / startNL
 
-        portfolio_return = (startNL - endNL) / startNL
-        marketReturn = data_period_df["3188 marketPrice"]
+        startR = data_period_df["3188 marketPrice"].iloc[0]
+        endR = data_period_df["3188 marketPrice"].iloc[-1]
+        marketReturn = (endR - startR) / startR
 
+        # calculate alpha
         alpha = portfolio_return - RISK_FREE_RATE - beta * (marketReturn - RISK_FREE_RATE)
 
         return alpha
-        # calculate alpha
+
 
     def get_volatility_by_range(self,range,file_name):
         print("get_volatility_by_range")
@@ -428,7 +432,8 @@ def main():
     #         'r') as f:
     #     df = pd.read_csv(f)
     # print(df)
-    print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    #print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_alpha_by_period("2017-11-30", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 
 
 if __name__ == "__main__":
