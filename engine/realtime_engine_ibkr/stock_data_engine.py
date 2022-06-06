@@ -7,8 +7,9 @@ import pandas as pd
 import sys
 import pathlib
 
-sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 from failure_handler import connection_handler, connect_tws
+
+sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
 """note: ALL the returning datetime will be set according to the BASE (but WITHOUT timezone info), i.e., Hong Kong time in this case. Timestamp should be adjusted accordingly"""
 """all the time input and comparison must be done according to the BASE timezone, i.e., Hong Kong time"""
