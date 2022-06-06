@@ -375,8 +375,12 @@ class statistic_engine:
 
         multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12, "3y": 60 * 24 * 30 * 12 * 3,
                       "5y": 60 * 24 * 30 * 12 * 5}
+        # calculate alpha
+        # https://corporatefinanceinstitute.com/resources/knowledge/finance/alpha/
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
+        # calculate covariance
+        # https://www.indeed.com/career-advice/career-development/how-to-calculate-covariance
         cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
         beta = cov_matrix_df.cov().iat[0,1] / data_period_df[marketCol].var()
 
