@@ -264,6 +264,7 @@ class backtest(object):
         print("start backtest")
         row = 0
         print("Fetch data")
+        timestamps={}
 
         if len(self.tickers) == 1:
             timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
@@ -285,7 +286,7 @@ class backtest(object):
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
 
-            if self.quick_test == True:
+            if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Daily", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
             else:
