@@ -7,9 +7,10 @@ import pathlib
 
 class currencies_engine:
 
-    def __init__(self, ib_instance):
-        self.ib_instance = ib_instance
-        self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
+    def __init__(self, ib_instance=None):
+        if ib_instance:
+            self.ib_instance = ib_instance
+            self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
         self.output_filepath = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
@@ -109,9 +110,10 @@ class currencies_engine:
 
 
 def main():
-    ib = IB()
-    ib.connect('127.0.0.1', 7497, clientId=1)
-    engine = currencies_engine(ib)
+    # ib = IB()
+    # ib.connect('127.0.0.1', 7497, clientId=1)
+
+    engine = currencies_engine()
     df_to_convert = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data/0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_.csv')
     conversion_df = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/ticker_data/one_min/USDCNH.csv')
     df = engine.convert_to_usd(df_to_convert, 'NetLiquidation', conversion_df, True)
