@@ -373,10 +373,12 @@ class statistic_engine:
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
+        multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12, "3y": 60 * 24 * 30 * 12 * 3,
+                      "5y": 60 * 24 * 30 * 12 * 5}
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
-        cov_matrix_df = data_period_df[["3188 marketPrice", "NetLiquidation"]]
-        beta = cov_matrix_df.cov().iat[0,1] / data_period_df["3188 marketPrice"].var()
+        cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
+        beta = cov_matrix_df.cov().iat[0,1] / data_period_df[marketCol].var()
 
         #calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
@@ -384,27 +386,78 @@ class statistic_engine:
         portfolio_return = (endNL - startNL) / startNL
 
         #NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
-        startR = data_period_df["3188 marketPrice"].iloc[0]
-        endR = data_period_df["3188 marketPrice"].iloc[-1]
+        startR = data_period_df[marketCol].iloc[0]
+        endR = data_period_df[marketCol].iloc[-1]
         marketReturn = (endR - startR) / startR
 
         # calculate alpha
-        alpha = portfolio_return - RISK_FREE_RATE - beta * (marketReturn - RISK_FREE_RATE)
+        alpha = portfolio_return - multiplier[lookback_period] * EQV_RISK_FREE_RATE - \
+                beta * (marketReturn - multiplier[lookback_period] * EQV_RISK_FREE_RATE)
 
         # good , write get_alpha_data function to output all the alpha
         return alpha
 
 
-    def get_volatility_by_range(self,range,file_name):
+    def get_volatility_by_period(self,date,lookback_period,file_name):
         # should be using by period, like get_alpha, ask Mark how to do it
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+           data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        # calculate number of trading days in a year
+        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],format="%Y-%m-%d")).days + 1
+        # calculate daily logarithmic return
+        data_period_df['returns'] = np.log(data_period_df['close'] / data_period_df['close'].shift())
+        # calculate daily standard deviation of returns
+        daily_std = data_period_df['returns'].std()
+
+        return daily_std * no_of_days ** 0.5
+
+    def get_volatility_by_range(self,range,file_name):
         print("get_volatility_by_range")
         range_df = self.data_engine.get_data_by_range(range, file_name)
-        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
-                                                                                   format="%Y-%m-%d")).days + 1
+        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],format="%Y-%m-%d")).days + 1
         range_df['returns'] = np.log(range_df['close'] / range_df['close'].shift())
         daily_std = range_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
+
+    def get_volatility_inception(self, file_name):
+        inception_df = self.data_engine.get_full_df(file_name)
+        if isinstance(self.data_engine, sim_data_io_engine.online_engine):
+            date_column = inception_df['timestamp'].dt.date
+            no_of_days = (date_column.max() - date_column.min()).days + 1
+        elif isinstance(self.data_engine, sim_data_io_engine.offline_engine):
+            date_column = inception_df['timestamp']
+            no_of_days = (date_column.max() - date_column.min()) / (24 * 60 * 60) + 1
+        inception_df['returns'] = np.log(inception_df['close'] / inception_df['close'].shift())
+        daily_std = inception_df['returns'].std()
+
+        return daily_std * no_of_days ** 0.5
+
+    def get_volatility_ytd(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_volatility_by_range(range, file_name)
+
+    def get_volatility_data(self, file_name):
+        volatility_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        volatility_dict["ytd"] = self.get_volatility_ytd(file_name)
+        volatility_dict["1y"] = self.get_volatility_by_period(day_string, "1y", file_name)
+        volatility_dict["3y"] = self.get_volatility_by_period(day_string, "3y", file_name)
+        volatility_dict["5y"] = self.get_volatility_by_period(day_string, "5y", file_name)
+        volatility_dict["inception"] = self.get_volatility_inception(file_name)
+
+        return volatility_dict
 
 
 def main():
