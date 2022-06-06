@@ -8,13 +8,16 @@ import pathlib
 
 class currencies_engine:
 
-    def __init__(self, ib_instance=None):
+    def __init__(self, ib_instance=None, run_data_path=None):
         if ib_instance:
             self.ib_instance = ib_instance
             self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
         self.ticker_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
+
+        if run_data_path:
+            self.run_data_path = run_data_path
 
     # get the historical currency rate within the given range
     def get_historical_currency_rate_by_range(self, base_cur, dest_cur, start_timestamp, end_timestamp):
@@ -88,7 +91,7 @@ class currencies_engine:
     def get_conversion_df(self, base_cur, dest_cur):
         return pd.read_csv(f'{self.ticker_data_path}/{base_cur}{dest_cur}.csv')
 
-    def net_liq_to_usd(self, df_to_convert, conversion):
+    def net_liq_to_usd(self, df_to_convert, conversion, output_filename):
         assert len(conversion) == 6
         first_cur = conversion[:3]
         second_cur = conversion[3:6]
@@ -109,6 +112,8 @@ class currencies_engine:
             df_to_convert.loc[df_to_convert['timestamp'] == timestamp, 'NetLiquidation'] = row.NetLiquidation / rate \
                 if invert_dir else row.NetLiquidation * rate
 
+        df_to_convert.to_csv(f'{self.run_data_path}/{output_filename}')
+
         return df_to_convert
 
 
@@ -116,9 +121,9 @@ def main():
     # ib = IB()
     # ib.connect('127.0.0.1', 7497, clientId=1)
 
-    engine = currencies_engine()
+    engine = currencies_engine(run_data_path='/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
     df_to_convert = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data/0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_.csv')
-    df = engine.net_liq_to_usd(df_to_convert, 'HKDUSD')
+    df = engine.net_liq_to_usd(df_to_convert, 'HKDUSD', 'usd.csv')
     print(df)
 
 
