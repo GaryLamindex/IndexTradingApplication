@@ -9,7 +9,7 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 
 
-class rebalance_wif_ticket_input:
+class algorithm:
     trade_agent = None
     portfolio_agent = None
     number_of_tickers = 0

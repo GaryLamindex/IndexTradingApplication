@@ -1,7 +1,5 @@
-import sys
-import pathlib
 from engine.realtime_engine_ibkr.stock_data_engine import *
-from engine.simulation_engine.currencies_engine import *
+from engine.backtest_engine.currencies_engine import *
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
