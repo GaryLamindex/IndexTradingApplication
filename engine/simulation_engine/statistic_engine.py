@@ -373,10 +373,12 @@ class statistic_engine:
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
+        multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12, "3y": 60 * 24 * 30 * 12 * 3,
+                      "5y": 60 * 24 * 30 * 12 * 5}
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
-        cov_matrix_df = data_period_df[["3188 marketPrice", "NetLiquidation"]]
-        beta = cov_matrix_df.cov().iat[0,1] / data_period_df["3188 marketPrice"].var()
+        cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
+        beta = cov_matrix_df.cov().iat[0,1] / data_period_df[marketCol].var()
 
         #calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
@@ -384,12 +386,13 @@ class statistic_engine:
         portfolio_return = (endNL - startNL) / startNL
 
         #NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
-        startR = data_period_df["3188 marketPrice"].iloc[0]
-        endR = data_period_df["3188 marketPrice"].iloc[-1]
+        startR = data_period_df[marketCol].iloc[0]
+        endR = data_period_df[marketCol].iloc[-1]
         marketReturn = (endR - startR) / startR
 
         # calculate alpha
-        alpha = portfolio_return - RISK_FREE_RATE - beta * (marketReturn - RISK_FREE_RATE)
+        alpha = portfolio_return - multiplier[lookback_period] * EQV_RISK_FREE_RATE - \
+                beta * (marketReturn - multiplier[lookback_period] * EQV_RISK_FREE_RATE)
 
         # good , write get_alpha_data function to output all the alpha
         return alpha
