@@ -386,7 +386,7 @@ class statistic_engine:
         portfolio_return = (endNL - startNL) / startNL
 
         #NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
-        startR = data_period_df[marketCol].iloc[0]
+        startR = data_period_df[marketCol].iloc[1]
         endR = data_period_df[marketCol].iloc[-1]
         marketReturn = (endR - startR) / startR
 
@@ -406,7 +406,7 @@ class statistic_engine:
         cov_matrix_df = alpha_range_df[[marketCol, "NetLiquidation"]]
         beta = cov_matrix_df.cov().iat[0, 1] / alpha_range_df[marketCol].var()
 
-        # calculate marketreturn and portfolio return
+        # calculate marketReturn and portfolio return
         startNL = alpha_range_df["NetLiquidation"].iloc[0]
         endNL = alpha_range_df["NetLiquidation"].iloc[-1]
         portfolio_return = (endNL - startNL) / startNL
@@ -460,7 +460,8 @@ class statistic_engine:
         enddt = dt.datetime.fromtimestamp(inception_df['timestamp'].max())
         no_of_days = (enddt - startdt).days
 
-        startNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].min()]['NetLiquidation'].values[0]
+        #the first data of ML is 0 for some reason so here use the next NL data
+        startNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].nsmallest(2).iloc[-1]]['NetLiquidation'].values[0]
         endNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['NetLiquidation'].values[0]
         portfolio_return = (endNL - startNL)/startNL
 
@@ -569,7 +570,7 @@ def main():
     #print(my_stat_engine.get_alpha_by_period("2022-05-26", '6m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
 
     #print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    #print(my_stat_engine.get_alpha_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #test the result in all_file_return, and add columns to
 
 if __name__ == "__main__":
