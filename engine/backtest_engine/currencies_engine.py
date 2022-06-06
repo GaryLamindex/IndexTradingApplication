@@ -1,3 +1,4 @@
+import numpy
 from ib_insync import *
 import datetime as dt
 import pandas as pd
@@ -12,7 +13,7 @@ class currencies_engine:
             self.ib_instance = ib_instance
             self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
-        self.output_filepath = str(
+        self.ticker_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
 
     # get the historical currency rate within the given range
@@ -46,65 +47,67 @@ class currencies_engine:
         write the current data to the new file (on the top) with header
         write the old data if file already exist
         """
-        file_exist = f"{ticker}.csv" in os.listdir(self.output_filepath)
+        file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
         if file_exist:  # file already exist
-            old_df = pd.read_csv(f"{self.output_filepath}/{ticker}.csv")
+            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
             try:
-                os.remove(f"{self.output_filepath}/{ticker}.csv")
+                os.remove(f"{self.ticker_data_path}/{ticker}.csv")
             except Exception as e:
                 print(f"Some errors occur, error message: {e}")
 
-        with open(f"{self.output_filepath}/{ticker}.csv", "a+", newline='') as f:
+        with open(f"{self.ticker_data_path}/{ticker}.csv", "a+", newline='') as f:
             df.to_csv(f, mode='a', index=False, header=True)  # write the current data with header
             if file_exist:
                 old_df.to_csv(f, mode='a', index=False, header=False)  # write the old data
 
         print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
-    def convert_to_usd(self, df_to_convert: pd.DataFrame, column_to_convert: str,
-                       conversion_df: pd.DataFrame, inverse_dir: bool):
-        """
-        params:
-        df_to_convert: the base dataframe to be converted to USD
-        column_to_convert: the column name in df_to_convert to be converted
-        conversion_df: dataframe which stores the base currency to USD (or inverse; we need {inverse_dir} = true)
-        inverse_dir: true if the conversion_df is from USD to destination currency.
-                        False if it is from destination to USD
+    def get_the_closet_exchange_rate(self, conversion_df, timestamp):
+        conversion_row = conversion_df.loc[conversion_df['timestamp'] == timestamp, 'close']
+        if not conversion_row.shape[0]:
+            delta_plus, delta_minus = numpy.nan, numpy.nan
+            # attempt to find a closer timestamp in an earlier timeframe
+            for i in range(1, 60):
+                conversion_row_minus = conversion_df.loc[conversion_df['timestamp'] == timestamp - i, 'close']
+                if not conversion_row_minus.empty:
+                    delta_minus = i
+                    break
 
-        output a new dataframe with column_to_convert in USD to output_filepath
-        """
+            for i in range(1, 60):
+                conversion_row_plus = conversion_df.loc[conversion_df['timestamp'] == timestamp + i, 'close']
+                if not conversion_row_plus.empty:
+                    delta_plus = i
+                    break
+
+            if delta_plus > delta_minus:
+                timestamp -= delta_minus
+            else:
+                timestamp += delta_plus
+        return conversion_df.loc[conversion_df['timestamp'] == timestamp, 'close'].array[0]
+
+    def get_conversion_df(self, base_cur, dest_cur):
+        return pd.read_csv(f'{self.ticker_data_path}/{base_cur}{dest_cur}.csv')
+
+    def net_liq_to_usd(self, df_to_convert, conversion):
+        assert len(conversion) == 6
+        first_cur = conversion[:3]
+        second_cur = conversion[3:6]
+
+        try:
+            conversion_df = self.get_conversion_df(first_cur, second_cur)
+            invert_dir = False
+        except FileNotFoundError:
+            try:
+                conversion_df = self.get_conversion_df(second_cur, first_cur)
+                invert_dir = True
+            except FileNotFoundError:
+                raise FileNotFoundError('currencies engine.net_liq_to_usd() cannot find the currencies ticker data')
 
         for row in df_to_convert.itertuples():
-            timestamp_to_convert = getattr(row, 'timestamp')
-            column_to_convert_value = getattr(row, column_to_convert)
-            timestamp_in_conversion = timestamp_to_convert
-            conversion_row = conversion_df.loc[conversion_df['timestamp'] == timestamp_to_convert]
-            if not conversion_row.shape[0]:  # there is no data has the same timestamp
-                # attempt to find a closer timestamp in an earlier timeframe
-                for i in range(1, 60):
-                    conversion_row_minus = conversion_df.loc[conversion_df['timestamp'] == timestamp_in_conversion - i, column_to_convert]
-                    if conversion_row_minus:
-                        delta_minus = i
-                        break
-                # attempt to find a closer timestamp in a later timeframe
-                for i in range(1, 60):
-                    conversion_row_plus = conversion_df.loc[conversion_df['timestamp'] == timestamp_in_conversion + i, column_to_convert]
-                    if conversion_row_plus:
-                        delta_plus = i
-                        break
-                if delta_plus > delta_minus:
-                    timestamp_in_conversion -= delta_minus
-                else:
-                    timestamp_in_conversion += delta_plus
-            conversion_row = conversion_df.loc[conversion_df['timestamp'] == timestamp_in_conversion]
-            rate = conversion_row['close'].values[0]
-            if inverse_dir:
-                print(column_to_convert_value / rate)
-                df_to_convert.loc[df_to_convert['timestamp'] == timestamp_to_convert,
-                                  column_to_convert] = column_to_convert_value / rate
-            else:
-                df_to_convert.loc[df_to_convert['timestamp'] == timestamp_to_convert,
-                                  column_to_convert] = column_to_convert_value * rate
+            timestamp = row.timestamp
+            rate = self.get_the_closet_exchange_rate(conversion_df, timestamp)
+            df_to_convert.loc[df_to_convert['timestamp'] == timestamp, 'NetLiquidation'] = row.NetLiquidation / rate \
+                if invert_dir else row.NetLiquidation * rate
 
         return df_to_convert
 
@@ -115,8 +118,7 @@ def main():
 
     engine = currencies_engine()
     df_to_convert = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data/0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_.csv')
-    conversion_df = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/ticker_data/one_min/USDCNH.csv')
-    df = engine.convert_to_usd(df_to_convert, 'NetLiquidation', conversion_df, True)
+    df = engine.net_liq_to_usd(df_to_convert, 'HKDUSD')
     print(df)
 
 
