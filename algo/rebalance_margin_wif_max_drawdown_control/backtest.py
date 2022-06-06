@@ -222,6 +222,12 @@ class backtest(object):
                 _5_yr_alpha = alpha_dict.get('5y')
                 _ytd_alpha = alpha_dict.get('ytd')
 
+                volatility_dict = stat_engine.get_volatility_data(file_name)
+                inception_volatility = volatility_dict.get('inception')
+                _1_yr_volatility = volatility_dict.get('1y')
+                _3_yr_volatility = volatility_dict.get('3y')
+                _5_yr_volatility = volatility_dict.get('5y')
+                _ytd_volatility = volatility_dict.get('ytd')
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -235,7 +241,10 @@ class backtest(object):
                     "5 Yr Max Drawdown": _5_yr_max_drawdown,
                     "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
                     "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
-                    "5 Yr Alpha": _5_yr_alpha
+                    "5 Yr Alpha": _5_yr_alpha,
+                    "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
+                    "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
+                    "5 Yr Volatility": _5_yr_volatility
                 }
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
@@ -248,7 +257,8 @@ class backtest(object):
                "Since Inception Max Drawdown", "YTD Max Drawdown",
                "1 Yr Max Drawdown",
                "3 Yr Max Drawdown", "5 Yr Max Drawdown",
-               "Since Inception Alpha", "YTD Alpha", "1 Yr Alpha", "3 Yr Alpha", "5 Yr Alpha"]
+               "Since Inception Alpha", "YTD Alpha", "1 Yr Alpha", "3 Yr Alpha", "5 Yr Alpha",
+               "Since Inception Volatility", "YTD Volatility", "1 Yr Volatility", "3 Yr Volatility", "5 Yr Volatility"]
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")

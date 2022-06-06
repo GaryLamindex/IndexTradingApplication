@@ -486,7 +486,7 @@ class statistic_engine:
            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
         # calculate daily logarithmic return
-        data_period_df['returns'] = np.log(data_period_df['3188 mktPrice'] / data_period_df['3188 mktPrice'].shift())
+        data_period_df['returns'] = np.log(data_period_df['3188 mktPrice'] / data_period_df['3188 mktPrice'].shift(-1))
         # calculate daily standard deviation of returns
         daily_std = data_period_df['returns'].std()
 
@@ -496,7 +496,7 @@ class statistic_engine:
         print("get_volatility_by_range")
         range_df = self.data_engine.get_data_by_range(range, file_name)
         no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],format="%Y-%m-%d")).days + 1
-        range_df['returns'] = np.log(range_df['3188 mktPrice'] / range_df['3188 mktPrice'].shift())
+        range_df['returns'] = np.log(range_df['3188 mktPrice'] / range_df['3188 mktPrice'].shift(-1))
         daily_std = range_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
@@ -509,7 +509,7 @@ class statistic_engine:
         elif isinstance(self.data_engine, sim_data_io_engine.offline_engine):
             date_column = inception_df['timestamp']
             no_of_days = (date_column.max() - date_column.min()) / (24 * 60 * 60) + 1
-        inception_df['returns'] = np.log(inception_df['3188 mktPrice'] / inception_df['3188 mktPrice'].shift())
+        inception_df['returns'] = np.log(inception_df['3188 mktPrice'] / inception_df['3188 mktPrice'].shift(-1))
         daily_std = inception_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
@@ -573,8 +573,8 @@ def main():
     #print(my_stat_engine.get_alpha_by_period("2022-05-26", '6m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
 
     #print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    #print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #test the result in all_file_return, and add columns to
-    #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 if __name__ == "__main__":
     main()
