@@ -369,7 +369,7 @@ class statistic_engine:
 
         return sortino_dict
 
-    def get_alpha_by_period(self, date, lookback_period, file_name):
+    def get_alpha_by_period(self, date, lookback_period, file_name, marketCol):
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
@@ -383,6 +383,7 @@ class statistic_engine:
         endNL = data_period_df["NetLiquidation"].iloc[-1]
         portfolio_return = (endNL - startNL) / startNL
 
+        #NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
         startR = data_period_df["3188 marketPrice"].iloc[0]
         endR = data_period_df["3188 marketPrice"].iloc[-1]
         marketReturn = (endR - startR) / startR
@@ -390,10 +391,12 @@ class statistic_engine:
         # calculate alpha
         alpha = portfolio_return - RISK_FREE_RATE - beta * (marketReturn - RISK_FREE_RATE)
 
+        # good , write get_alpha_data function to output all the alpha
         return alpha
 
 
     def get_volatility_by_range(self,range,file_name):
+        # should be using by period, like get_alpha, ask Mark how to do it
         print("get_volatility_by_range")
         range_df = self.data_engine.get_data_by_range(range, file_name)
         no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
@@ -435,6 +438,7 @@ def main():
     #print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     print(my_stat_engine.get_alpha_by_period("2017-11-30", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 
+    #test the result in all_file_return, and add columns to
 
 if __name__ == "__main__":
     main()
