@@ -375,8 +375,12 @@ class statistic_engine:
 
         multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12, "3y": 60 * 24 * 30 * 12 * 3,
                       "5y": 60 * 24 * 30 * 12 * 5}
+        # calculate alpha
+        # https://corporatefinanceinstitute.com/resources/knowledge/finance/alpha/
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
+        # calculate covariance
+        # https://www.indeed.com/career-advice/career-development/how-to-calculate-covariance
         cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
         beta = cov_matrix_df.cov().iat[0,1] / data_period_df[marketCol].var()
 
@@ -386,7 +390,7 @@ class statistic_engine:
         portfolio_return = (endNL - startNL) / startNL
 
         #NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
-        startR = data_period_df[marketCol].iloc[0]
+        startR = data_period_df[marketCol].iloc[1]
         endR = data_period_df[marketCol].iloc[-1]
         marketReturn = (endR - startR) / startR
 
@@ -397,25 +401,102 @@ class statistic_engine:
         # good , write get_alpha_data function to output all the alpha
         return alpha
 
+    def get_alpha_by_range(self, range, file_name, marketCol):
+        alpha_range_df = self.data_engine.get_data_by_range(range, file_name)
+        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0], format="%Y-%m-%d")).days + 1
+
+        # calculate beta
+        # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
+        cov_matrix_df = alpha_range_df[[marketCol, "NetLiquidation"]]
+        beta = cov_matrix_df.cov().iat[0, 1] / alpha_range_df[marketCol].var()
+
+        # calculate marketReturn and portfolio return
+        startNL = alpha_range_df["NetLiquidation"].iloc[0]
+        endNL = alpha_range_df["NetLiquidation"].iloc[-1]
+        portfolio_return = (endNL - startNL) / startNL
+
+        # NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
+        startR = alpha_range_df[marketCol].iloc[0]
+        endR = alpha_range_df[marketCol].iloc[-1]
+        marketReturn = (endR - startR) / startR
+
+        # calculate alpha
+        alpha = portfolio_return - no_of_days*60*24 * EQV_RISK_FREE_RATE - \
+                beta * (marketReturn - no_of_days * EQV_RISK_FREE_RATE)
+
+        return alpha
+
+    def get_alpha_data(self, file_name, marketCol):
+        alpha_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+
+        alpha_dict["ytd"] = self.get_alpha_ytd(file_name, marketCol)
+        alpha_dict["1y"] = self.get_alpha_by_period(day_string, "1y", file_name, marketCol)
+        alpha_dict["3y"] = self.get_alpha_by_period(day_string, "3y", file_name, marketCol)
+        alpha_dict["5y"] = self.get_alpha_by_period(day_string, "5y", file_name, marketCol)
+        alpha_dict["inception"] = self.get_alpha_inception(file_name, marketCol)
+
+        return alpha_dict
+
+    def get_alpha_ytd(self, file_name, marketCol):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_alpha_by_range(range, file_name, marketCol)
+
+    def get_alpha_inception(self, file_name, marketCol):
+
+        inception_df = self.data_engine.get_full_df(file_name)
+
+        cov_matrix_df = inception_df[[marketCol, "NetLiquidation"]]
+        beta = cov_matrix_df.cov().iat[0, 1] / inception_df[marketCol].var()
+
+        startdt = dt.datetime.fromtimestamp(inception_df['timestamp'].min())
+        enddt = dt.datetime.fromtimestamp(inception_df['timestamp'].max())
+        no_of_days = (enddt - startdt).days
+
+        #the first data of ML is 0 for some reason so here use the next NL data
+        startNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].nsmallest(2).iloc[-1]]['NetLiquidation'].values[0]
+        endNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['NetLiquidation'].values[0]
+        portfolio_return = (endNL - startNL)/startNL
+
+        # iloc[0] is 0 so i use iloc[1] as starting point
+        startR = inception_df[marketCol].iloc[1]
+        endR = inception_df[marketCol].iloc[-1]
+        marketReturn = (endR - startR) / startR
+
+        # calculate alpha
+        alpha = portfolio_return - no_of_days * EQV_RISK_FREE_RATE - \
+                beta * (marketReturn - no_of_days * EQV_RISK_FREE_RATE)
+
+        return alpha
 
     def get_volatility_by_period(self,date,lookback_period,file_name):
         # should be using by period, like get_alpha, ask Mark how to do it
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-        # calculate number of trading days in a year
-        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],format="%Y-%m-%d")).days + 1
+
         # calculate daily logarithmic return
-        data_period_df['returns'] = np.log(data_period_df['close'] / data_period_df['close'].shift())
+        data_period_df['returns'] = np.log(data_period_df['3188 mktPrice'] / data_period_df['3188 mktPrice'].shift())
         # calculate daily standard deviation of returns
         daily_std = data_period_df['returns'].std()
 
-        return daily_std * no_of_days ** 0.5
+        return daily_std * 252 ** 0.5
 
     def get_volatility_by_range(self,range,file_name):
         print("get_volatility_by_range")
         range_df = self.data_engine.get_data_by_range(range, file_name)
         no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],format="%Y-%m-%d")).days + 1
-        range_df['returns'] = np.log(range_df['close'] / range_df['close'].shift())
+        range_df['returns'] = np.log(range_df['3188 mktPrice'] / range_df['3188 mktPrice'].shift())
         daily_std = range_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
@@ -428,7 +509,7 @@ class statistic_engine:
         elif isinstance(self.data_engine, sim_data_io_engine.offline_engine):
             date_column = inception_df['timestamp']
             no_of_days = (date_column.max() - date_column.min()) / (24 * 60 * 60) + 1
-        inception_df['returns'] = np.log(inception_df['close'] / inception_df['close'].shift())
+        inception_df['returns'] = np.log(inception_df['3188 mktPrice'] / inception_df['3188 mktPrice'].shift())
         daily_std = inception_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
@@ -461,7 +542,7 @@ class statistic_engine:
 
 
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine('/Users/percychui/Documents/Rainy Drop/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
@@ -489,9 +570,11 @@ def main():
     #     df = pd.read_csv(f)
     # print(df)
     #print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print(my_stat_engine.get_alpha_by_period("2017-11-30", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    #print(my_stat_engine.get_alpha_by_period("2022-05-26", '6m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
 
+    #print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #test the result in all_file_return, and add columns to
-
+    #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 if __name__ == "__main__":
     main()

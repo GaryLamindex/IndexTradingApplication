@@ -17,6 +17,8 @@ class crypto_data_engine:
         response = requests.get(url)
         zip_filename = f'{self.ticker_data_path}/{ticker}.zip'
         open(zip_filename, 'wb').write(response.content)
+        zipfile.ZipFile.extractall(zip_filename)
+
 
 
 def main():

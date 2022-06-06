@@ -9,6 +9,8 @@ import pathlib
 
 from failure_handler import connection_handler, connect_tws
 
+import yfinance as yf
+
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
 """note: ALL the returning datetime will be set according to the BASE (but WITHOUT timezone info), i.e., Hong Kong time in this case. Timestamp should be adjusted accordingly"""
@@ -58,14 +60,17 @@ def combine_csv(filepath, csv_list, output_name):
 
 class ibkr_stock_data_io_engine:
     ib_instance = None
-    output_filepath = ""
+    ticker_data_path = ""
 
     def __init__(self, ib_instance):
         self.ib_instance = ib_instance
         self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
-        self.output_filepath = str(
+        self.ticker_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
+        self.dividends_data_path = str(
+            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
+
         # self.output_filepath = "C:/Users/85266/OneDrive/Documents"
 
     # return a dictionary of the latest price of the stock
@@ -174,6 +179,22 @@ class ibkr_stock_data_io_engine:
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
         # list(map(lambda x: {"date":x.date,"timestamp":x.date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(),"open":x.open,"high":x.high,"low":x.low,"close":x.close,"volume":x.volume,"average":x.average,"barCount":x.barCount},historical_data[ticker]))
 
+    def get_dividends(self, ticker):
+        ticker_obj = yf.Ticker(ticker)
+        dividends = pd.DataFrame(ticker_obj.dividends)
+        dividends = dividends.iloc[::-1]
+
+        timestamps = []
+
+        for index in dividends.index:
+            timestamps.append(int(index.timestamp()))
+
+        dividends['timestamp'] = timestamps
+
+        today_dt = dt.datetime.now()
+        dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
+        dividends.to_csv(f'{self.dividends_data_path}/dividends_{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
+
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
         current_end_timestamp = end_timestamp
@@ -204,15 +225,15 @@ class ibkr_stock_data_io_engine:
         write the current data to the new file (on the top) with header 
         write the old data if file already exist
         """
-        file_exist = f"{ticker}.csv" in os.listdir(self.output_filepath)
+        file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
         if file_exist:  # file already exist
-            old_df = pd.read_csv(f"{self.output_filepath}/{ticker}.csv")
+            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
             try:
-                os.remove(f"{self.output_filepath}/{ticker}.csv")
+                os.remove(f"{self.ticker_data_path}/{ticker}.csv")
             except Exception as e:
                 print(f"Some errors occur, error message: {e}")
 
-        with open(f"{self.output_filepath}/{ticker}.csv", "a+", newline='') as f:
+        with open(f"{self.ticker_data_path}/{ticker}.csv", "a+", newline='') as f:
             df.to_csv(f, mode='a', index=False, header=True)  # write the current data with header
             if file_exist:
                 old_df.to_csv(f, mode='a', index=False, header=False)  # write the old data
@@ -231,7 +252,8 @@ def main():
     ib.connect('127.0.0.1', 7497, clientId=1)
     # contracts = [Stock(ticker,"SMART","USD") for ticker in tickers]
     engine = ibkr_stock_data_io_engine(ib)
-    engine.get_ibkr_open_price(["QQQ", "SPY"])
+    engine.get_dividends('QQQ')
+
     # print(engine.get_ibkr_open_price("QQQ"))
     # for contract in contracts:
     #     ib.qualifyContracts(contract)
