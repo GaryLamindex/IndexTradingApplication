@@ -9,21 +9,25 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 
 
-class algorithm:
+class portfolio_rebalance:
     trade_agent = None
     portfolio_agent = None
     number_of_tickers = 0
     action_msgs = []
     loop = 0
-    rebalance_ratio = {}  # for testing
+    acceptance_range=0
+    ticker_wif_rebalance_ratio = {}  # for testing
     account_snapshot = {}
-
-    def __init__(self, trade_agent, portfolio_agent, ticker_wif_rebalance_ratio):
+    market_value=0
+    portfolio={}
+    rebalance_dict={}
+    def __init__(self, trade_agent, portfolio_agent, ticker_wif_rebalance_ratio, acceptance_range, market_value, portfolio, rebalance_dict):
         self.ticker_wif_rebalance_ratio = ticker_wif_rebalance_ratio
         self.trade_agent = trade_agent
         self.portfolio_agent = portfolio_agent
         self.number_of_tickers = len(ticker_wif_rebalance_ratio)
         self.account_snapshot = self.portfolio_agent.get_account_snapshot()
+        self.acceptance_range=acceptance_range
 
     def run(self, realtime_stock_data_dict):
         self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
