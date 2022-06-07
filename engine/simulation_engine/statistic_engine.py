@@ -7,9 +7,6 @@ from matplotlib import pyplot as plt
 from scipy import stats
 from dateutil.relativedelta import relativedelta
 
-# 5-yr average
-import self as self
-
 from engine.simulation_engine import sim_data_io_engine
 
 RISK_FREE_RATE = 0.0127
@@ -558,7 +555,7 @@ class statistic_engine:
 
         return
 
-    def get_volatility_by_period(self,date,lookback_period,file_name):
+    def get_volatility_by_period(self,date,lookback_period,file_name,marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
