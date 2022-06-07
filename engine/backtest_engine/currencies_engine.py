@@ -112,7 +112,7 @@ class currencies_engine:
             df_to_convert.loc[df_to_convert['timestamp'] == timestamp, 'NetLiquidation'] = row.NetLiquidation / rate \
                 if invert_dir else row.NetLiquidation * rate
 
-        df_to_convert.to_csv(f'{self.run_data_path}/{output_filename}')
+        df_to_convert.to_csv(f'{self.run_data_path}/{output_filename}', index=False)
 
         return df_to_convert
 
@@ -124,7 +124,6 @@ def main():
     engine = currencies_engine(run_data_path='/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
     df_to_convert = pd.read_csv('/Users/thomasli/Documents/Rainy Drop Investment/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data/0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_.csv')
     df = engine.net_liq_to_usd(df_to_convert, 'HKDUSD', 'usd.csv')
-    print(df)
 
 
 if __name__ == '__main__':

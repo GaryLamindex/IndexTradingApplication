@@ -30,8 +30,8 @@ class backtest(object):
     check_ratio = False
     stock_data_engines = {}
     market_value = 0
-
-    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rebalance_dict, data_freq, user_id,
+    tickers_list = []
+    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode, quick_test, acceptance_range, market_value):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
@@ -45,7 +45,6 @@ class backtest(object):
         self.cal_stat = cal_stat
         self.data_freq = data_freq
         self.quick_test = quick_test
-        self.rebalance_dict = rebalance_dict
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
         self.market_value = market_value
@@ -78,37 +77,41 @@ class backtest(object):
                 os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
-
         # loop through all the rebalance requirement
-        self.check_rebalance_ratio()
-        if self.check_ratio:
-            backtest_spec = {}
-            for ticker, percentage in self.rebalance_dict:
+        possible_ratio = self.get_outcomes(len(self.tickers_list), 100)
+        #calculate all possible ratio that sum is 100 with different number of stickers
+        for ratio in possible_ratio:
+            self.rebalance_dict = {}
+            for ticker_num in range(len(self.tickers_list)):
+                self.rebalance_dict.update({self.tickers_list[ticker_num]: ratio[ticker_num]})
 
-                rebalance_ratio = percentage / 100
+                self.check_rebalance_ratio()
+                if self.check_ratio:
+                    backtest_spec = {}
+                    for ticker, percentage in self.rebalance_dict:
+                        rebalance_ratio = percentage / 100
+                        backtest_spec.update({ticker: rebalance_ratio})
+                    spec_str = ""
+                    for k, v in backtest_spec.items():
+                        spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-                backtest_spec.update({ticker: rebalance_ratio})
-            spec_str = ""
-            for k, v in backtest_spec.items():
-                spec_str = f"{spec_str}{str(v)}_{str(k)}_"
+                    acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                                 self.table_name, spec_str)
+                    portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
+                    trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
+                    sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
+                                                 self.tickers)
 
-            acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                         self.table_name, spec_str)
-            portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
-            trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-            sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
-                                         self.tickers)
+                    algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, backtest_spec,
+                                                    self.acceptance_range, self.market_value)
+                    self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
+                                       portfolio_data_engine, sim_agent)
+                    print("Finished Backtest:", backtest_spec)
+                    self.plot_all_file_graph()
 
-            algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
-                                            self.acceptance_range, self.market_value)
-            self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                               portfolio_data_engine, sim_agent)
-            print("Finished Backtest:", backtest_spec)
-            self.plot_all_file_graph()
-
-            if self.cal_stat:
-                print("start backtest")
-            self.cal_all_file_return()
+                    if self.cal_stat:
+                        print("start backtest")
+                    self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent):
@@ -137,7 +140,7 @@ class backtest(object):
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
 
-            if self.quick_test == True:
+            if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Daily", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
             else:
@@ -164,3 +167,25 @@ class backtest(object):
 
     def run(self, timestamp, algorithm, sim_agent):
         pass
+
+
+
+    def get_outcomes(self, dim, target):
+
+        if dim == 2:
+            outcomes = []
+            for i in range(0, target + 1):
+                outcomes.append([i, target - i])
+            return outcomes
+        else:
+            result = []
+            for i in range(0, target + 1):
+                outcomes = self.get_outcomes(dim - 1, target - i)
+                for j in outcomes:
+                    j.append(i)
+                    result.append(j)
+            return result
+def main(self):
+    pass
+if __name__ == "__main__":
+    main()
