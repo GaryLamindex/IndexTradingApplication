@@ -83,14 +83,14 @@ class backtest(object):
         for ratio in possible_ratio:
             self.rebalance_dict = {}
             for ticker_num in range(len(self.tickers_list)):
-                self.rebalance_dict.update({self.tickers_list[ticker_num]: ratio[ticker_num]})
+                self.rebalance_dict = {self.tickers_list[ticker_num]: ratio[ticker_num]}
 
                 self.check_rebalance_ratio()
                 if self.check_ratio:
                     backtest_spec = {}
                     for ticker, percentage in self.rebalance_dict:
                         rebalance_ratio = percentage / 100
-                        backtest_spec.update({ticker: rebalance_ratio})
+                        backtest_spec = {ticker: rebalance_ratio}
                     spec_str = ""
                     for k, v in backtest_spec.items():
                         spec_str = f"{spec_str}{str(v)}_{str(k)}_"
@@ -102,7 +102,7 @@ class backtest(object):
                     sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
                                                  self.tickers)
 
-                    algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, backtest_spec,
+                    algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, backtest_spec, self.tickers,
                                                     self.acceptance_range, self.market_value)
                     self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
                                        portfolio_data_engine, sim_agent)
