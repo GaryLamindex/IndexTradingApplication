@@ -3,6 +3,8 @@ import numpy as np
 import os
 import sys
 import datetime as dt
+from matplotlib import pyplot as plt
+from scipy import stats
 
 # 5-yr average
 from engine.simulation_engine import sim_data_io_engine
@@ -382,7 +384,8 @@ class statistic_engine:
         # calculate covariance
         # https://www.indeed.com/career-advice/career-development/how-to-calculate-covariance
         cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
-        beta = cov_matrix_df.cov().iat[0,1] / data_period_df[marketCol].var()
+        beta = self.find_beta(cov_matrix_df)
+        print(f"beta: {beta}")
 
         #calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
@@ -395,8 +398,8 @@ class statistic_engine:
         marketReturn = (endR - startR) / startR
 
         # calculate alpha
-        alpha = portfolio_return - multiplier[lookback_period] * EQV_RISK_FREE_RATE - \
-                beta * (marketReturn - multiplier[lookback_period] * EQV_RISK_FREE_RATE)
+        alpha = portfolio_return - EQV_RISK_FREE_RATE ** multiplier[lookback_period]  - \
+                beta * (marketReturn - EQV_RISK_FREE_RATE ** multiplier[lookback_period])
 
         # good , write get_alpha_data function to output all the alpha
         return alpha
@@ -408,21 +411,20 @@ class statistic_engine:
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
         cov_matrix_df = alpha_range_df[[marketCol, "NetLiquidation"]]
-        beta = cov_matrix_df.cov().iat[0, 1] / alpha_range_df[marketCol].var()
+        beta = self.find_beta(cov_matrix_df)
 
         # calculate marketReturn and portfolio return
-        startNL = alpha_range_df["NetLiquidation"].iloc[0]
-        endNL = alpha_range_df["NetLiquidation"].iloc[-1]
+        startNL = alpha_range_df["NetLiquidation"].dropna().iloc[0]
+        endNL = alpha_range_df["NetLiquidation"].dropna().iloc[-1]
         portfolio_return = (endNL - startNL) / startNL
 
-        # NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
-        startR = alpha_range_df[marketCol].iloc[0]
-        endR = alpha_range_df[marketCol].iloc[-1]
+        startR = alpha_range_df[marketCol].dropna().iloc[0]
+        endR = alpha_range_df[marketCol].dropna().iloc[-1]
         marketReturn = (endR - startR) / startR
 
         # calculate alpha
-        alpha = portfolio_return - no_of_days*60*24 * EQV_RISK_FREE_RATE - \
-                beta * (marketReturn - no_of_days * EQV_RISK_FREE_RATE)
+        alpha = portfolio_return - EQV_RISK_FREE_RATE ** (no_of_days*60*24)- \
+                beta * (marketReturn - EQV_RISK_FREE_RATE ** (no_of_days*60*24))
 
         return alpha
 
@@ -456,13 +458,14 @@ class statistic_engine:
     def get_alpha_inception(self, file_name, marketCol):
 
         inception_df = self.data_engine.get_full_df(file_name)
-
         cov_matrix_df = inception_df[[marketCol, "NetLiquidation"]]
-        beta = cov_matrix_df.cov().iat[0, 1] / inception_df[marketCol].var()
+        cov_matrix_df = cov_matrix_df[~(cov_matrix_df == 0).any(axis = 1)]
+        beta = self.find_beta(cov_matrix_df)
+        print(f"beta: {beta}")
 
         startdt = dt.datetime.fromtimestamp(inception_df['timestamp'].min())
         enddt = dt.datetime.fromtimestamp(inception_df['timestamp'].max())
-        no_of_days = (enddt - startdt).days
+        no_of_days = (enddt - startdt).days + 1
 
         #the first data of ML is 0 for some reason so here use the next NL data
         startNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].nsmallest(2).iloc[-1]]['NetLiquidation'].values[0]
@@ -475,10 +478,32 @@ class statistic_engine:
         marketReturn = (endR - startR) / startR
 
         # calculate alpha
-        alpha = portfolio_return - no_of_days * EQV_RISK_FREE_RATE - \
-                beta * (marketReturn - no_of_days * EQV_RISK_FREE_RATE)
+        alpha = portfolio_return - EQV_RISK_FREE_RATE ** no_of_days - \
+                beta * (marketReturn - EQV_RISK_FREE_RATE ** no_of_days)
 
         return alpha
+
+    def find_beta(self, cov_matrix_df):
+        cov_matrix_df = cov_matrix_df.pct_change().dropna()
+        x = np.array(cov_matrix_df.iloc[:, 0])
+        y = np.array(cov_matrix_df.iloc[:, 1])
+
+        # uncomment the following code to see the graph for finding beta (slope of linear regression)
+        # plt.scatter(x, y)
+        # plt.show()
+
+        slope, intercept, r, p, std_err = stats.linregress(x, y)
+
+        # def myfunc(x):
+        #   return slope * x + intercept
+
+        # mymodel = list(map(myfunc, x))
+
+        # plt.scatter(x, y)
+        # plt.plot(x, mymodel)
+        # plt.show()
+
+        return slope
 
     def get_volatility_by_period(self,date,lookback_period,file_name):
         # should be using by period, like get_alpha, ask Mark how to do it
@@ -542,11 +567,11 @@ class statistic_engine:
 
 
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/percychui/Documents/Rainy Drop/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
-    range = ["2012-12-1", "2013-12-1"]
+    range = ["2012-12-1", "2021-12-1"]
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
     # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
@@ -570,10 +595,10 @@ def main():
     #     df = pd.read_csv(f)
     # print(df)
     #print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_alpha_by_period("2022-05-26", '6m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
-
+    #print(my_stat_engine.get_alpha_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
+    #print(my_stat_engine.get_alpha_by_range(range,  '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    #print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #test the result in all_file_return, and add columns to
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 if __name__ == "__main__":
