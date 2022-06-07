@@ -179,21 +179,22 @@ class ibkr_stock_data_io_engine:
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
         # list(map(lambda x: {"date":x.date,"timestamp":x.date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(),"open":x.open,"high":x.high,"low":x.low,"close":x.close,"volume":x.volume,"average":x.average,"barCount":x.barCount},historical_data[ticker]))
 
-    def get_dividends(self, ticker):
-        ticker_obj = yf.Ticker(ticker)
-        dividends = pd.DataFrame(ticker_obj.dividends)
-        dividends = dividends.iloc[::-1]
+    def get_dividends(self, tickers):
+        for ticker in tickers:
+            ticker = ticker.upper()
+            ticker_obj = yf.Ticker(ticker)
+            dividends = pd.DataFrame(ticker_obj.dividends)
 
-        timestamps = []
+            timestamps = []
 
-        for index in dividends.index:
-            timestamps.append(int(index.timestamp()))
+            for index in dividends.index:
+                timestamps.append(int(index.timestamp()))
 
-        dividends['timestamp'] = timestamps
+            dividends['timestamp'] = timestamps
 
-        today_dt = dt.datetime.now()
-        dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
-        dividends.to_csv(f'{self.dividends_data_path}/dividends_{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
+            today_dt = dt.datetime.now()
+            dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
+            dividends.to_csv(f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
@@ -252,7 +253,7 @@ def main():
     ib.connect('127.0.0.1', 7497, clientId=1)
     # contracts = [Stock(ticker,"SMART","USD") for ticker in tickers]
     engine = ibkr_stock_data_io_engine(ib)
-    engine.get_dividends('QQQ')
+    engine.get_dividends(['qqq', 'spy', 'aapl', 'msft'])
 
     # print(engine.get_ibkr_open_price("QQQ"))
     # for contract in contracts:
