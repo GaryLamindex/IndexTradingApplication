@@ -560,7 +560,7 @@ class statistic_engine:
 
             if(rolling_return_temp > 0):
                 positive += 1
-            elif(rolling_return_temp):
+            elif(rolling_return_temp < 0):
                 negative += 1
 
             if(max_rolling_return < rolling_return_temp):
@@ -579,13 +579,17 @@ class statistic_engine:
             mean = np.mean(avg_return)
         else:
             mean = float('NaN')
+        if((positive + negative) > 0):
+            neg_periods = negative/(positive + negative)
+        else:
+            neg_periods = float('NaN')
 
         return {"max_rolling_return": max_rolling_return,
                 "dateinfo_index_max": dateinfo_index_max,
                 "min_rolling_return": min_rolling_return,
                 "dateinfo_index_min": dateinfo_index_min,
                 "average_return": mean,
-                "negative_periods":negative/(positive + negative)}
+                "negative_periods":neg_periods}
 
     def get_volatility_by_period(self,date,lookback_period,file_name,marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it
