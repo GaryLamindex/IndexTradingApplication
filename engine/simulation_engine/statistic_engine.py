@@ -530,6 +530,8 @@ class statistic_engine:
         min_rolling_return = float('inf')
         dateinfo_index_max = float('NaN')
         dateinfo_index_min = float('NaN')
+        positive = 0
+        negative = 0
         avg_return = np.array([])
 
         if rolling_period in ['1y', '2y', '3y', '5y', '7y', '10y', '15y', '20y']:
@@ -556,6 +558,11 @@ class statistic_engine:
             rolling_return_temp = (temprre - temprrs) / temprrs
             avg_return = np.append(avg_return, rolling_return_temp)
 
+            if(rolling_return_temp > 0):
+                positive += 1
+            elif(rolling_return_temp):
+                negative += 1
+
             if(max_rolling_return < rolling_return_temp):
                 max_rolling_return = rolling_return_temp
                 dateinfo_index_max = f"{start_info_df['date']} to {end_info_df['date']}"
@@ -577,7 +584,8 @@ class statistic_engine:
                 "dateinfo_index_max": dateinfo_index_max,
                 "min_rolling_return": min_rolling_return,
                 "dateinfo_index_min": dateinfo_index_min,
-                "average_return": mean}
+                "average_return": mean,
+                "negative_periods":negative/(positive + negative)}
 
     def get_volatility_by_period(self,date,lookback_period,file_name,marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it

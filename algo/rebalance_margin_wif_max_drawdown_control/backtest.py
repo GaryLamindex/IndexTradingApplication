@@ -15,6 +15,7 @@ from engine.simulation_engine import sim_data_io_engine
 from engine.aws_engine.dynamo_db_engine import dynamo_db_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.simulation_engine.statistic_engine import statistic_engine
+from engine.simulation_engine.statistic_engine_2 import statistic_engine_2
 from object.backtest_acc_data import backtest_acc_data
 
 from engine.visualisation_engine import graph_plotting_engine
@@ -188,6 +189,7 @@ class backtest(object):
                 costCol = f'{self.tickers[idx]} costBasis'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
+                stat_engine_2 = statistic_engine_2(sim_data_offline_engine)
                 sharpe_dict = stat_engine.get_sharpe_data(file_name)
                 inception_sharpe = sharpe_dict.get("inception")
                 _1_yr_sharpe = sharpe_dict.get("1y")
@@ -230,7 +232,7 @@ class backtest(object):
                 _5_yr_volatility = volatility_dict.get('5y')
                 _ytd_volatility = volatility_dict.get('ytd')
 
-                win_rate_dict = stat_engine.get_win_rate_data(file_name, costCol)
+                win_rate_dict = stat_engine_2.get_win_rate_data(file_name, costCol)
                 inception_win_rate = win_rate_dict.get('inception')
                 _1_yr_win_rate = win_rate_dict.get('1y')
                 _3_yr_win_rate = win_rate_dict.get('3y')
