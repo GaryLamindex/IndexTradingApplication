@@ -30,7 +30,7 @@ class portfolio_rebalance:
         #self.trade_agent = trade_agent
         #self.portfolio_agent = portfolio_agent
         #self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        self.account_snapshot = testing_account #for testin
+        self.account_snapshot = testing_account #for testing
         self.acceptance_range = acceptance_range
         #self.portfolio = self.account_snapshot.get("portfolio")
         #self.total_market_value = self.account_snapshot.get("mkt_value").get("NetLiquidation")
@@ -44,7 +44,7 @@ class portfolio_rebalance:
 
         #self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
         #self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        self.portfolio.append(realtime_stock_data_dict) #testing
+        #self.portfolio.append(realtime_stock_data_dict) #testing
         self.portfolio = self.account_snapshot.get("portfolio")
         self.net_liquidation = self.account_snapshot.get("mkt_value").get("NetLiquidation")
         for ticker, percentage in self.ticker_wif_rebalance_ratio.items():
@@ -92,17 +92,18 @@ class portfolio_rebalance:
         return
 
 
+
 def main():
     pass
 
 
 if __name__ == "__main__":
-    sim_account = {"portfolio": [{'ticker': "3188", 'position': 500, "marketPrice": 20},
+    sim_account = {"portfolio": [{'ticker': "3188", 'position': 2624, "marketPrice": 70},
                                  {'ticker': "QQQ", 'position': 300, "marketPrice": 50},
-                                 {'ticker': "SPY", 'position': 100, "marketPrice": 100}
+                                 {'ticker': "SPY", 'position': 2274, "marketPrice": 100}
                                  ],
-                   "mkt_value": {"NetLiquidation": 35000}}
-    rebalance_ratio = {"3188": 25, "QQQ": 25,"AAPL": 50}
+                   "mkt_value": {"NetLiquidation": 419830}}
+    rebalance_ratio = {"3188": 50, "SPY": 35,"AAPL": 15}
     ticker_not_own = [{'ticker': "AAPL", "marketPrice": 20}]
     sim = portfolio_rebalance(None, None, rebalance_ratio, 0, sim_account)
 
@@ -111,3 +112,4 @@ if __name__ == "__main__":
     print("buy list:", sim.buy_list)
     print("sell list", sim.sell_list)
     print("final_portfolio", sim.target_market_positions)
+    print("action msg",sim.action_msgs)

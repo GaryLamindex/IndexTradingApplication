@@ -29,10 +29,10 @@ class backtest(object):
     initial_amount = 0
     check_ratio = False
     stock_data_engines = {}
-    market_value = 0
     tickers_list = []
+
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range, market_value):
+                 db_mode, quick_test, acceptance_range):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
@@ -47,7 +47,6 @@ class backtest(object):
         self.quick_test = quick_test
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
-        self.market_value = market_value
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
 
@@ -103,7 +102,7 @@ class backtest(object):
                                                  self.tickers)
 
                     algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, backtest_spec,
-                                                    self.acceptance_range,)
+                                                    self.acceptance_range)
                     self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
                                        portfolio_data_engine, sim_agent)
                     print("Finished Backtest:", backtest_spec)
@@ -120,15 +119,21 @@ class backtest(object):
         row = 0
         print("Fetch data")
         timestamps = {}
-        if len(self.tickers) == 1:
-            timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
-                'timestamp']
-        elif len(self.tickers) == 2:
-            series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
-                'timestamp']
-            series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
-                'timestamp']
-            timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
+        # if len(self.tickers) == 1:
+        #     timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+        #         'timestamp']
+        # elif len(self.tickers) == 2:
+        #     series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+        #         'timestamp']
+        #     series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
+        #         'timestamp']
+        #     timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
+
+
+
+
+
+
 
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
