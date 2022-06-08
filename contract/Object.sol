@@ -33,8 +33,5 @@ contract Object {
         uint256 UnrealizedPnL;
         uint256 RealizedPnL;
         uint256 GrossPositionValue;
-
-        //Ticker portfolio
-        mapping(string => uint256) tickerPortfolio;
     }
 }
