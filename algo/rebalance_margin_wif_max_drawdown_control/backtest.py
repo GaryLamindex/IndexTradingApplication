@@ -61,6 +61,7 @@ class backtest(object):
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.tickers = tickers
+        #self.marketCol = f'{self.tickers[0]} marketPrice'
         self.initial_amount = initial_amount
         self.start_timestamp = datetime.timestamp(start_date)
         self.end_timestamp = datetime.timestamp(end_date)
@@ -181,8 +182,10 @@ class backtest(object):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
         data_list = []
-        for file in os.listdir(backtest_data_directory):
+        for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
+                marketCol = f'{self.tickers[idx]} marketPrice'
+                costCol = f'{self.tickers[idx]} costBasis'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 sharpe_dict = stat_engine.get_sharpe_data(file_name)
@@ -213,6 +216,27 @@ class backtest(object):
                 _5_yr_max_drawdown = max_drawdown_dict.get("5y")
                 _ytd_max_drawdown = max_drawdown_dict.get("ytd")
 
+                alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
+                inception_alpha = alpha_dict.get('inception')
+                _1_yr_alpha = alpha_dict.get('1y')
+                _3_yr_alpha = alpha_dict.get('3y')
+                _5_yr_alpha = alpha_dict.get('5y')
+                _ytd_alpha = alpha_dict.get('ytd')
+
+                volatility_dict = stat_engine.get_volatility_data(file_name, marketCol)
+                inception_volatility = volatility_dict.get('inception')
+                _1_yr_volatility = volatility_dict.get('1y')
+                _3_yr_volatility = volatility_dict.get('3y')
+                _5_yr_volatility = volatility_dict.get('5y')
+                _ytd_volatility = volatility_dict.get('ytd')
+
+                win_rate_dict = stat_engine.get_win_rate_data(file_name, costCol)
+                inception_win_rate = win_rate_dict.get('inception')
+                _1_yr_win_rate = win_rate_dict.get('1y')
+                _3_yr_win_rate = win_rate_dict.get('3y')
+                _5_yr_win_rate = win_rate_dict.get('5y')
+                _ytd_win_rate = win_rate_dict.get('ytd')
+
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -223,7 +247,16 @@ class backtest(object):
                     '1 Yr Sortino': _1_yr_sortino, '3 Yr Sortino': _3_yr_sortino, '5 Yr Sortino': _5_yr_sortino,
                     "Since Inception Max Drawdown": inception_max_drawdown, "YTD Max Drawdown": _ytd_max_drawdown,
                     "1 Yr Max Drawdown": _1_yr_max_drawdown, "3 Yr Max Drawdown": _3_yr_max_drawdown,
-                    "5 Yr Max Drawdown": _5_yr_max_drawdown
+                    "5 Yr Max Drawdown": _5_yr_max_drawdown,
+                    "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
+                    "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
+                    "5 Yr Alpha": _5_yr_alpha,
+                    "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
+                    "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
+                    "5 Yr Volatility": _5_yr_volatility,
+                    "Since Inception Win Rate": inception_win_rate, "YTD Win Rate": _ytd_win_rate,
+                    "1 Yr Win Rate": _1_yr_win_rate, "3 Yr Win Rate": _3_yr_win_rate,
+                    "5 Yr Win Rate": _5_yr_win_rate
                 }
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
@@ -235,7 +268,10 @@ class backtest(object):
                "5 Yr Sharpe", 'Since Inception Sortino', 'YTD Sortino', '1 Yr Sortino', '3 Yr Sortino', '5 Yr Sortino',
                "Since Inception Max Drawdown", "YTD Max Drawdown",
                "1 Yr Max Drawdown",
-               "3 Yr Max Drawdown", "5 Yr Max Drawdown"]
+               "3 Yr Max Drawdown", "5 Yr Max Drawdown",
+               "Since Inception Alpha", "YTD Alpha", "1 Yr Alpha", "3 Yr Alpha", "5 Yr Alpha",
+               "Since Inception Volatility", "YTD Volatility", "1 Yr Volatility", "3 Yr Volatility", "5 Yr Volatility",
+               "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate"]
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
@@ -264,6 +300,7 @@ class backtest(object):
         print("start backtest")
         row = 0
         print("Fetch data")
+        timestamps={}
 
         if len(self.tickers) == 1:
             timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
@@ -285,7 +322,7 @@ class backtest(object):
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
 
-            if self.quick_test == True:
+            if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Daily", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
             else:

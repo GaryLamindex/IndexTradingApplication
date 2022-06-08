@@ -16,8 +16,8 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 tickers = ['3188']
 # dataFreq = ["1 secs", "5 secs", "10 secs", "15 secs", "30 secs", "1 min", "2 mins", "3 mins", "5 mins", "10 mins", "15 mins", "20 mins", "30 mins", "1 hour", "2 hours", "3 hours", "4 hours", "8 hours", "1 day", "1W", "1M"]
 initial_amount = 1000000
-start_date = dt.datetime(2022, 4, 26)  # YYMMDD
-end_date = dt.datetime(2022, 5, 27)  # YYMMDD
+start_date = dt.datetime(2012, 10, 26)  # YYMMDD
+end_date = dt.datetime(2022, 4, 29)  # YYMMDD
 
 strategy = "rebalance_margin_wif_max_drawdown_control"
 mode = "backtest"
