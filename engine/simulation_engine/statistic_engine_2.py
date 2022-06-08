@@ -51,7 +51,7 @@ data_engine_dir = os.path.join(script_dir, '..', 'data_io_engine')
 sys.path.append(data_engine_dir)
 
 
-class statistic_engine:
+class statistic_engine_2:
     # private data members # modify later
     data_engine = None
 
@@ -124,9 +124,15 @@ class statistic_engine:
 
         return (full_df_arr[-1]/full_df_arr[0])**0.25-1
 
-    def get_win_rate_by_period(self, date, lookback_period, file_name) :
-        full_df = self.data_engine.get_full_df(file_name)
+    def get_treynor_ratio_by_period(self, date, lookback_period, file_name) :
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
+    def get_treynor_ratio_by_range(self, range, file_name):
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+
+    def get_treynor_ratio_inception(self, file_name):
+        inception_df = self.data_engine.get_full_df(file_name)
 
 def main():
     engine = sim_data_io_engine.offline_engine(
