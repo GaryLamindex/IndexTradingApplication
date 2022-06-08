@@ -58,8 +58,79 @@ class statistic_engine:
     def __init__(self, data_engine):
         self.data_engine = data_engine
 
+    def get_win_rate_by_period(self, date, lookback_period, file_name, valCol, costCol):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        pd.options.mode.chained_assignment = None
+        data_period_df['profit'] = data_period_df[valCol] - data_period_df[costCol]
+        profit = data_period_df['profit']
+        no_of_winning_trade = profit[profit > 0].count()
+
+        return no_of_winning_trade / data_period_df['profit'].count()  # number of win trades divided by total trades
+
+    def get_win_rate_by_range(self, range, file_name, valCol, costCol):
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+        pd.options.mode.chained_assignment = None
+        range_df['profit'] = range_df[valCol] - range_df[costCol]
+        profit = range_df['profit']
+        no_of_winning_trade = profit[profit > 0].count()
+
+        return no_of_winning_trade / range_df['profit'].count()
+
+    def get_win_rate_inception(self, file_name, valCol, costCol):
+        inception_df = self.data_engine.get_full_df(file_name)
+        pd.options.mode.chained_assignment = None
+        inception_df['profit'] = inception_df[valCol] - inception_df[costCol]
+        profit = inception_df['profit']
+        no_of_winning_trade = profit[profit > 0].count()
+
+        return no_of_winning_trade / inception_df['profit'].count()
+
+    def get_win_rate_ytd(self, file_name, valCol, costCol):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_win_rate_by_range(range, file_name, valCol, costCol)
+
+    def get_win_rate_data(self, file_name, valCol, costCol):
+        win_rate_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        win_rate_dict["ytd"] = self.get_win_rate_ytd(file_name, valCol, costCol)
+        win_rate_dict["1y"] = self.get_win_rate_by_period(day_string, "1y", file_name, valCol, costCol)
+        win_rate_dict["3y"] = self.get_win_rate_by_period(day_string, "3y", file_name, valCol, costCol)
+        win_rate_dict["5y"] = self.get_win_rate_by_period(day_string, "5y", file_name, valCol, costCol)
+        win_rate_dict["inception"] = self.get_win_rate_inception(file_name, valCol, costCol)
+
+        return win_rate_dict
+
+    def get_total_trade(self, file_name, actionCol):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df['total_trade'] = full_df[actionCol]
+
+        return full_df.total_trade.value_counts().Buy + full_df.total_trade.value_counts().sell
+
+    def get_compounding_annual_return(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df_arr = np.array(full_df['NetLiquidation'])
+
+        return (full_df_arr[-1]/full_df_arr[0])**0.25-1
+
+    def get_win_rate_by_period(self, date, lookback_period, file_name) :
+        full_df = self.data_engine.get_full_df(file_name)
+
+
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine(
+        '/Users/percychui/Documents/Rainy Drop/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
@@ -86,13 +157,16 @@ def main():
     #         'r') as f:
     #     df = pd.read_csv(f)
     # print(df)
-    #print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_alpha_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
-    #print(my_stat_engine.get_alpha_by_range(range,  '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    #print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    #print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    #test the result in all_file_return, and add columns to
-    #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"1y", '3188 marketPrice')
+    # print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_alpha_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
+    # print(my_stat_engine.get_alpha_by_range(range,  '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    # print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    # print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
+    # test the result in all_file_return, and add columns to
+    # print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_win_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 marketValue', '3188 costBasis'))
+    # print(my_stat_engine.get_total_trade('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 action'))
+    print(my_stat_engine.get_compounding_annual_return('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+
 if __name__ == "__main__":
     main()
