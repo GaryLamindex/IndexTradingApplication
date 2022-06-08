@@ -386,7 +386,7 @@ class statistic_engine:
         # https://www.indeed.com/career-advice/career-development/how-to-calculate-covariance
         cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
         beta = self.find_beta(cov_matrix_df)
-        
+
         # calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
         endNL = data_period_df["NetLiquidation"].iloc[-1]
@@ -593,7 +593,7 @@ class statistic_engine:
         return daily_std * 252 ** 0.5
 
     def get_volatility_by_range(self, range, file_name, marketCol):
-        print("get_volatility_by_range")
+
         range_df = self.data_engine.get_data_by_range(range, file_name)
         no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
                                                                                    format="%Y-%m-%d")).days + 1
