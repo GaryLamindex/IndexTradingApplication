@@ -30,7 +30,7 @@ class backtest(object):
     tickers = []
     initial_amount = 0
     start_timestamp = None
-    end_date = None
+    end_timestamp = None
     cal_stat = True
     wipe_previous_sim_data = False
     quick_test = False
@@ -237,6 +237,21 @@ class backtest(object):
                 _5_yr_win_rate = win_rate_dict.get('5y')
                 _ytd_win_rate = win_rate_dict.get('ytd')
 
+                dateStringS = datetime.fromtimestamp(self.start_timestamp)
+                dateStringE = datetime.fromtimestamp(self.end_timestamp)
+                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}",\
+                              f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
+                rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
+                _1_yr_rolling_return = rolling_return_dict.get('1y')
+                _2_yr_rolling_return = rolling_return_dict.get('2y')
+                _3_yr_rolling_return = rolling_return_dict.get('3y')
+                _5_yr_rolling_return = rolling_return_dict.get('5y')
+                _7_yr_rolling_return = rolling_return_dict.get('7y')
+                _10_yr_rolling_return = rolling_return_dict.get('10y')
+                _15_yr_rolling_return = rolling_return_dict.get('15y')
+                _20_yr_rolling_return = rolling_return_dict.get('20y')
+
+
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -256,7 +271,12 @@ class backtest(object):
                     "5 Yr Volatility": _5_yr_volatility,
                     "Since Inception Win Rate": inception_win_rate, "YTD Win Rate": _ytd_win_rate,
                     "1 Yr Win Rate": _1_yr_win_rate, "3 Yr Win Rate": _3_yr_win_rate,
-                    "5 Yr Win Rate": _5_yr_win_rate
+                    "5 Yr Win Rate": _5_yr_win_rate,
+
+                    "1 Yr Rolling Return": _1_yr_rolling_return, "2 Yr Rolling Return": _2_yr_rolling_return,
+                    "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
+                    "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
+                    "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return
                 }
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
@@ -271,7 +291,10 @@ class backtest(object):
                "3 Yr Max Drawdown", "5 Yr Max Drawdown",
                "Since Inception Alpha", "YTD Alpha", "1 Yr Alpha", "3 Yr Alpha", "5 Yr Alpha",
                "Since Inception Volatility", "YTD Volatility", "1 Yr Volatility", "3 Yr Volatility", "5 Yr Volatility",
-               "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate"]
+               "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
+               "1 Yr Rolling Return","2 Yr Rolling Return","3 Yr Rolling Return","5 Yr Rolling Return",
+               "7 Yr Rolling Return","10 Yr Rolling Return","15 Yr Rolling Return","20 Yr Rolling Return"]
+
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")

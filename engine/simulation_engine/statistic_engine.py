@@ -386,8 +386,7 @@ class statistic_engine:
         # https://www.indeed.com/career-advice/career-development/how-to-calculate-covariance
         cov_matrix_df = data_period_df[[marketCol, "NetLiquidation"]]
         beta = self.find_beta(cov_matrix_df)
-        print(f"beta: {beta}")
-
+        
         # calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
         endNL = data_period_df["NetLiquidation"].iloc[-1]
@@ -409,7 +408,6 @@ class statistic_engine:
         alpha_range_df = self.data_engine.get_data_by_range(range, file_name)
         no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
                                                                                    format="%Y-%m-%d")).days + 1
-
         # calculate beta
         # https://www.investopedia.com/ask/answers/070615/what-formula-calculating-beta.asp
         cov_matrix_df = alpha_range_df[[marketCol, "NetLiquidation"]]
@@ -431,6 +429,7 @@ class statistic_engine:
         return alpha
 
     def get_alpha_data(self, file_name, marketCol):
+
         alpha_dict = {}
         full_df = self.data_engine.get_full_df(file_name)
         last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
@@ -509,14 +508,29 @@ class statistic_engine:
 
         return slope
 
-    def get_rolling_return_data(self):
-        return
+    def get_rolling_return_data(self, file_name, range):
 
-    def get_rolling_return_by_range(self, range, file_name, rolling_period, marketCol):
-        max_rolling_return = 0
-        min_rolling_return = 0
-        dateinfo_index_max = 0
-        dateinfo_index_min = 0
+        rolling_return_dict = {}
+
+        rolling_return_dict['1y'] = self.get_rolling_return_by_range(range, file_name, '1y')
+        rolling_return_dict['2y'] = self.get_rolling_return_by_range(range, file_name, '2y')
+        rolling_return_dict['3y'] = self.get_rolling_return_by_range(range, file_name, '3y')
+        rolling_return_dict['5y'] = self.get_rolling_return_by_range(range, file_name, '5y')
+        rolling_return_dict['7y'] = self.get_rolling_return_by_range(range, file_name, '7y')
+        rolling_return_dict['10y'] = self.get_rolling_return_by_range(range, file_name, '10y')
+        rolling_return_dict['15y'] = self.get_rolling_return_by_range(range, file_name, '15y')
+        rolling_return_dict['20y'] = self.get_rolling_return_by_range(range, file_name, '20y')
+
+        return rolling_return_dict
+
+    def get_rolling_return_by_range(self, range, file_name, rolling_period):
+
+        # return these parameters as a dictionary
+        max_rolling_return = float('-inf')
+        min_rolling_return = float('inf')
+        dateinfo_index_max = float('NaN')
+        dateinfo_index_min = float('NaN')
+        avg_return = np.array([])
 
         if rolling_period in ['1y', '2y', '3y', '5y', '7y', '10y', '15y', '20y']:
             rolling_range_df = self.data_engine.get_data_by_range(range, file_name)
@@ -524,36 +538,46 @@ class statistic_engine:
         rolling_period_dict = {'1y': 1, '2y':2, '3y':3, '5y':5, '7y':7, '10y':10, '15y':15, '20y':20}
         start_dt = pd.to_datetime(range[0],format="%Y-%m-%d")
         end_dt = pd.to_datetime(range[1],format="%Y-%m-%d")
+
         rolling_start_dt = start_dt
         rolling_end_dt = rolling_start_dt + relativedelta(years = rolling_period_dict[rolling_period])
+
+        #when last date of rolling is still in range then loop
         while(rolling_end_dt <= end_dt):
-            #print(start_dt)
-            #print(rolling_range_df['date'])
-            #print(f"rolling_range_df.loc[rolling_range_df['date'] == rolling_start_dt]: {rolling_range_df.loc[for i in rolling_range_df['date'] if pd.to_datetime(i , format = '%Y-%m-%d') >= rolling_start_dt]}")
-            temprrs = rolling_range_df.loc[rolling_range_df['date'] == rolling_start_dt][marketCol]
-            temprre = rolling_range_df.loc[rolling_range_df['date'] == rolling_end_dt][marketCol]
+
+            start_ts = dt.datetime.timestamp(rolling_start_dt)
+            end_ts = dt.datetime.timestamp(rolling_end_dt)
+
+            start_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] >= start_ts].index[0]]
+            end_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] <= end_ts].index[-1]]
+            temprrs = start_info_df['NetLiquidation']
+            temprre = end_info_df['NetLiquidation']
 
             rolling_return_temp = (temprre - temprrs) / temprrs
+            avg_return = np.append(avg_return, rolling_return_temp)
+
             if(max_rolling_return < rolling_return_temp):
                 max_rolling_return = rolling_return_temp
-                dateinfo_index_max = rolling_range_df.loc[rolling_range_df['date'] == rolling_start_dt]
+                dateinfo_index_max = f"{start_info_df['date']} to {end_info_df['date']}"
 
             if(min_rolling_return > rolling_return_temp):
                 min_rolling_return = rolling_return_temp
-                dateinfo_index_min = rolling_range_df.loc[rolling_range_df['date'] == rolling_start_dt]
+                dateinfo_index_min = f"{start_info_df['date']} to {end_info_df['date']}"
 
 
             rolling_start_dt += dt.timedelta(days=1)
             rolling_end_dt = rolling_start_dt + relativedelta(years = rolling_period_dict[rolling_period])
-            print(f"rolling_start_dt: {rolling_start_dt}")
-            print(f"rolling_end_dt: {rolling_end_dt}")
 
-        print(f"max_rolling_return: {max_rolling_return}")
-        print(f"dateinfo_index_max: {dateinfo_index_max}")
-        print(f"min_rolling_return: {min_rolling_return}")
-        print(f"dateinfo_index_min: {dateinfo_index_min}")
+        if(avg_return.size != 0):
+            mean = np.mean(avg_return)
+        else:
+            mean = float('NaN')
 
-        return
+        return {"max_rolling_return": max_rolling_return,
+                "dateinfo_index_max": dateinfo_index_max,
+                "min_rolling_return": min_rolling_return,
+                "dateinfo_index_min": dateinfo_index_min,
+                "average_return": mean}
 
     def get_volatility_by_period(self,date,lookback_period,file_name,marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it
@@ -678,7 +702,7 @@ def main():
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
-    range = ["2019-12-1", "2021-12-1"]
+    range = ["2012-12-1", "2021-12-1"]
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
     # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
@@ -708,6 +732,6 @@ def main():
     #print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #test the result in all_file_return, and add columns to
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"1y", '3188 marketPrice')
+    print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"10y"))
 if __name__ == "__main__":
     main()
