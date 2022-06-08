@@ -62,7 +62,7 @@ class backtest(object):
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.tickers = tickers
-        #self.marketCol = f'{self.tickers[0]} marketPrice'
+        # self.marketCol = f'{self.tickers[0]} marketPrice'
         self.initial_amount = initial_amount
         self.start_timestamp = datetime.timestamp(start_date)
         self.end_timestamp = datetime.timestamp(end_date)
@@ -187,6 +187,7 @@ class backtest(object):
             if file.decode().endswith("csv"):
                 marketCol = f'{self.tickers[idx]} marketPrice'
                 costCol = f'{self.tickers[idx]} costBasis'
+                valueCol = f'{self.tickers[idx]} marketValue'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 stat_engine_2 = statistic_engine_2(sim_data_offline_engine)
@@ -232,7 +233,7 @@ class backtest(object):
                 _5_yr_volatility = volatility_dict.get('5y')
                 _ytd_volatility = volatility_dict.get('ytd')
 
-                win_rate_dict = stat_engine_2.get_win_rate_data(file_name, costCol)
+                win_rate_dict = stat_engine_2.get_win_rate_data(file_name, valueCol, costCol)
                 inception_win_rate = win_rate_dict.get('inception')
                 _1_yr_win_rate = win_rate_dict.get('1y')
                 _3_yr_win_rate = win_rate_dict.get('3y')
@@ -241,7 +242,7 @@ class backtest(object):
 
                 dateStringS = datetime.fromtimestamp(self.start_timestamp)
                 dateStringE = datetime.fromtimestamp(self.end_timestamp)
-                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}",\
+                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}", \
                               f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
                 rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
                 _1_yr_rolling_return = rolling_return_dict.get('1y')
@@ -252,7 +253,6 @@ class backtest(object):
                 _10_yr_rolling_return = rolling_return_dict.get('10y')
                 _15_yr_rolling_return = rolling_return_dict.get('15y')
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
-
 
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
@@ -294,8 +294,8 @@ class backtest(object):
                "Since Inception Alpha", "YTD Alpha", "1 Yr Alpha", "3 Yr Alpha", "5 Yr Alpha",
                "Since Inception Volatility", "YTD Volatility", "1 Yr Volatility", "3 Yr Volatility", "5 Yr Volatility",
                "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
-               "1 Yr Rolling Return","2 Yr Rolling Return","3 Yr Rolling Return","5 Yr Rolling Return",
-               "7 Yr Rolling Return","10 Yr Rolling Return","15 Yr Rolling Return","20 Yr Rolling Return"]
+               "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
+               "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return"]
 
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)
@@ -325,7 +325,7 @@ class backtest(object):
         print("start backtest")
         row = 0
         print("Fetch data")
-        timestamps={}
+        timestamps = {}
 
         if len(self.tickers) == 1:
             timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
