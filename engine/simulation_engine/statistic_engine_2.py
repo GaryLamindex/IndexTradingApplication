@@ -134,11 +134,35 @@ class statistic_engine_2:
     def get_treynor_ratio_inception(self, file_name):
         inception_df = self.data_engine.get_full_df(file_name)
 
+    def get_treynor_ratio_ytd(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+    def get_treynor_ratio_data(self, file_name):
+        treynor_ratio_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        treynor_ratio_dict["ytd"] = self.get_treynor_ratio_ytd(file_name)
+        treynor_ratio_dict["1y"] = self.get_treynor_ratio_by_period(day_string, "1y", file_name)
+        treynor_ratio_dict["3y"] = self.get_treynor_ratio_by_period(day_string, "3y", file_name)
+        treynor_ratio_dict["5y"] = self.get_treynor_ratio_by_period(day_string, "5y", file_name)
+        treynor_ratio_dict["inception"] = self.get_treynor_ratio_inception(file_name)
+
+        return treynor_ratio_dict
+
 def main():
     engine = sim_data_io_engine.offline_engine(
         '/Users/percychui/Documents/Rainy Drop/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
-    my_stat_engine = statistic_engine(engine)
+    my_stat_engine = statistic_engine_2(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
     range = ["2019-12-1", "2021-12-1"]
     # print(my_stat_engine.get_return_range(range))
