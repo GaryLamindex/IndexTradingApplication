@@ -3,7 +3,7 @@ import pathlib
 from datetime import datetime
 from os import listdir
 from pathlib import Path
-from algo.portfolio_rebalance.algorithm import algorithm
+from algo.portfolio_rebalance.algorithm import portfolio_rebalance
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 
 from engine.backtest_engine.stock_data_io_engine import local_engine
@@ -21,9 +21,9 @@ class backtest(object):
     cal_stat = True
     data_freq = "one_min"
     db_mode = "local"
+    acceptance_range = 0
 
-
-    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, data_freq, user_id, db_mode, quick_test):
+    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, data_freq, user_id, db_mode, quick_test, acceptance_range):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance","user_id": user_id}
@@ -38,6 +38,7 @@ class backtest(object):
         self.quick_test = quick_test
         self.rabalance_dict = rabalance_dict
         self.db_mode = db_mode
+        self.acceptance_range = acceptance_range
 
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
@@ -87,8 +88,8 @@ class backtest(object):
             sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
                                          self.tickers)
 
-            algorithm = rebalance_margin_wif_max_drawdown(trade_agent, portfolio_data_engine, self.tickers,
-                                                          max_drawdown_ratio, acceptance_range,
+            algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.tickers,
+                                                          max_drawdown_ratio, self.acceptance_range,
                                                           rebalance_margin)
             self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
                                portfolio_data_engine, sim_agent)
@@ -132,3 +133,13 @@ class backtest(object):
                     self.run(timestamp, algorithm, sim_agent)
             else:
                 self.run(timestamp, algorithm, sim_agent)
+
+    def check_exec(self):
+        boo= True
+
+        return boo
+
+def main():
+    tickers = ["SPY", "GOVT"]
+    ticker_dict = {"SPY": x%, "GOVT":y%, "3188":z%}
+    loop_through_param(ticker_dict)
