@@ -32,8 +32,7 @@ class portfolio_rebalance:
 
 
 def main():
-    ticker_wif_rebalance_ratio = {"first": 0.5, "second": 0.5}
-    abc = rebalance_wif_ticket_input(None, None, ticker_wif_rebalance_ratio)
+
 
 
 if __name__ == "__main__":
