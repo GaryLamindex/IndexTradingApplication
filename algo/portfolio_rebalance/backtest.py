@@ -102,8 +102,8 @@ class backtest(object):
                     sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
                                                  self.tickers)
 
-                    algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, backtest_spec, self.tickers,
-                                                    self.acceptance_range, self.market_value)
+                    algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, backtest_spec,
+                                                    self.acceptance_range,)
                     self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
                                        portfolio_data_engine, sim_agent)
                     print("Finished Backtest:", backtest_spec)
@@ -185,7 +185,7 @@ class backtest(object):
                     j.append(i)
                     result.append(j)
             return result
-def main(self):
+def main():
     pass
 if __name__ == "__main__":
     main()
