@@ -1,9 +1,12 @@
 import os
 import pathlib
 import datetime as dt
+import time
+
 import requests
 from zipfile import ZipFile, BadZipFile
 import pandas as pd
+import selenium.common
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -15,9 +18,9 @@ class crypto_data_engine:
         self.ticker_data_path = str(pathlib.Path(__file__)
                                     .parent.parent.parent.parent.resolve()) + '/ticker_data/one_min'
         self.crypto_market_cap_data_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_market_cap'
+                                               .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_market_cap'
         self.binance_base_url = 'https://data.binance.vision'
-        self.coingecko_ranking_url = 'https://www.coingecko.com/'
+        self.coingecko_ranking_url = 'https://www.coingecko.com/en/all-cryptocurrencies'
         self.coingecko_historical_data_url = 'https://www.coingecko.com/en/coins/cardano/historical_data?end_date=2022-06-08&start_date=2021-03-01#panel'
         self.binance_data_col_names = ['Open time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close time',
                                        'Quote asset volume',
@@ -74,7 +77,7 @@ class crypto_data_engine:
                 if merging_dfs[0] is not None and merging_dfs[1] is not None:
                     merging_dfs[0] = pd.concat(merging_dfs, ignore_index=True)
                     merging_dfs[1] = None
-                current_timestamp += 86400   # differ by one day
+                current_timestamp += 86400  # differ by one day
 
             result_df = merging_dfs[0]
             result_df['Open time'] = round(result_df['Open time'] / 1000)
@@ -91,45 +94,36 @@ class crypto_data_engine:
                 result_str += c
         return int(result_str)
 
-    def get_coingecko_historical_market_cap_url(self, coin, start_timestamp, end_timestamp, page):
-        start_date_string = self.get_date_str_from_timestamp(start_timestamp, dt.timezone.utc, '%Y-%m-%d')
-        end_date_string = self.get_date_str_from_timestamp(end_timestamp, dt.timezone.utc, '%Y-%m-%d')
-        url = f'https://www.coingecko.com/en/coins/{coin}/historical_data?start_date={start_date_string}' \
-              f'&end_date={end_date_string}&page={page}'
-        return url
+    def crawl_historical_market_cap_by_range_coingecko(self):
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {'download.default_directory': self.crypto_market_cap_data_path}
+        chrome_options.add_experimental_option('prefs', prefs)
+        browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-    def crawl_historical_market_cap_by_range_coingecko(self, start_timestamp, end_timestamp):
-        browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         browser.get(self.coingecko_ranking_url)
-        elements = browser.find_elements(by=By.TAG_NAME, value='td')
+        tbody = browser.find_element(By.TAG_NAME, 'tbody')
+        rows = tbody.find_elements(By.TAG_NAME, 'tr')
+        for row in rows:
 
-        rank_df = pd.DataFrame(columns=['FullName', 'Symbol'])
+
 
         i = 0
-        for e in elements:
-            if e.text == '' and (i <= 1 or i > 8):
-                i = 0
-                continue
-            if i == 1:
-                row = e.text.split('\n')
-                temp_df = pd.DataFrame({'FullName': [row[0].replace(' ', '-').lower()], 'Symbol': [row[1]]})
-                rank_df = pd.concat([rank_df, temp_df], ignore_index=True)
+        for coin in rank_df['FullName']:
+            div1 = browser.find_element(By.CSS_SELECTOR, 'div.card-body')
+            div2 = div1.find_element(By.CSS_SELECTOR, 'div.card-block')
+            div3 = div2.find_element(By.CSS_SELECTOR, 'div.tw-flex.tw-justify-between')
+            div4 = div3.find_element(By.CSS_SELECTOR, 'div.dropdown.tw-mt-4')
+            menu = div4.find_element(By.CSS_SELECTOR, 'ul.dropdown-menu')
+            elements = menu.find_elements(By.CSS_SELECTOR, 'a.dropdown-item')
+            for e in elements:
+                url = e.get_attribute('href')
+                if url.endswith('.csv'):
+                    browser.get(url)
             i = i + 1
 
-        i = 1
-        for coin in rank_df['FullName']:
-            browser.get(self.get_coingecko_historical_market_cap_url(coin, start_timestamp, end_timestamp, i))
-            elements = browser.find_elements(by=By.TAG_NAME, value='tr')
-            elements = elements[1:]   # drop the header
-            market_cap_df = pd.DataFrame(columns=['Date', 'MarketCap'])
-            for e in elements:
-                row = e.text.split(' ')
-                temp_df = pd.DataFrame({'Date': row[0], 'MarketCap': row[1]})
-                market_cap_df = pd.concat([market_cap_df, temp_df], ignore_index=True)
-
-
-
         browser.quit()
+
+
 
 
 def main():
@@ -137,7 +131,7 @@ def main():
     tickers = ['ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'XRPUSDT', 'SOLUSDT', 'DOGEUSDT', 'DOTUSDT', 'TRXUSDT',
                'AVAXUSDT', 'SHIBUSDT', 'MATICUSDT']
     # engine.get_historical_data_by_range(tickers, 1614556800, 1654473600, '1m')
-    engine.crawl_historical_market_cap_by_range_coingecko(1614556800, 1654473600)
+    engine.crawl_historical_market_cap_by_range_coingecko()
 
 
 if __name__ == '__main__':
