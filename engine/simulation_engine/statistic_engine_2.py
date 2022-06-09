@@ -58,6 +58,70 @@ class statistic_engine_2:
     def __init__(self, data_engine):
         self.data_engine = data_engine
 
+    def get_volatility_by_period(self, date, lookback_period, file_name, marketCol):
+        # should be using by period, like get_alpha, ask Mark how to do it
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        delete_duplicate_df = data_period_df.drop_duplicates(subset=["date"], keep=False)
+        no_of_days = delete_duplicate_df["date"].count()
+        # calculate daily logarithmic return data_period_df['timestamp'].max().index.values
+        pd.options.mode.chained_assignment = None
+        data_period_df['returns'] = np.log(data_period_df[marketCol] / data_period_df[marketCol].shift(-1))
+        # calculate daily standard deviation of returns
+        daily_std = data_period_df['returns'].std()
+
+        return daily_std * no_of_days ** 0.5
+
+    def get_volatility_by_range(self, range, file_name, marketCol):
+
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+        no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
+                                                                                   format="%Y-%m-%d")).days + 1
+        pd.options.mode.chained_assignment = None
+        range_df['returns'] = np.log(range_df[marketCol] / range_df[marketCol].shift(-1))
+        daily_std = range_df['returns'].std()
+
+        return daily_std * no_of_days ** 0.5
+
+    def get_volatility_inception(self, file_name, marketCol):
+        inception_df = self.data_engine.get_full_df(file_name)
+        if isinstance(self.data_engine, sim_data_io_engine.online_engine):
+            date_column = inception_df['timestamp'].dt.date
+            no_of_days = (date_column.max() - date_column.min()).days + 1
+        elif isinstance(self.data_engine, sim_data_io_engine.offline_engine):
+            date_column = inception_df['timestamp']
+            no_of_days = (date_column.max() - date_column.min()) / (24 * 60 * 60) + 1
+        inception_df['returns'] = np.log(inception_df[marketCol] / inception_df[marketCol].shift(-1))
+        daily_std = inception_df['returns'].std()
+
+        return daily_std * no_of_days ** 0.5
+
+    def get_volatility_ytd(self, file_name, marketCol):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_volatility_by_range(range, file_name, marketCol)
+
+    def get_volatility_data(self, file_name, marketCol):
+        volatility_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        volatility_dict["ytd"] = self.get_volatility_ytd(file_name, marketCol)
+        volatility_dict["1y"] = self.get_volatility_by_period(day_string, "1y", file_name, marketCol)
+        volatility_dict["3y"] = self.get_volatility_by_period(day_string, "3y", file_name, marketCol)
+        volatility_dict["5y"] = self.get_volatility_by_period(day_string, "5y", file_name, marketCol)
+        volatility_dict["inception"] = self.get_volatility_inception(file_name, marketCol)
+
+        return volatility_dict
+
     def find_beta(self, cov_matrix_df):
         cov_matrix_df = cov_matrix_df.pct_change().dropna()
         x = np.array(cov_matrix_df.iloc[:, 0])
@@ -72,14 +136,8 @@ class statistic_engine_2:
         profit = data_period_df.NetLiquidation.diff() * 100
         no_of_winning_trade = profit[profit > 0].count()
 
-        return no_of_winning_trade / data_period_df['NetLiquidation'].count()  # number of win trades divided by total trades
-
-    def get_win_rate_by_range(self, range, file_name):
-        range_df = self.data_engine.get_data_by_range(range, file_name)
-        profit = range_df.NetLiquidation.diff() * 100
-        no_of_winning_trade = profit[profit > 0].count()
-
-        return no_of_winning_trade / range_df['NetLiquidation'].count()
+        return no_of_winning_trade / data_period_df[
+            'NetLiquidation'].count()  # number of win trades divided by total trades
 
     def get_win_rate_inception(self, file_name):
         inception_df = self.data_engine.get_full_df(file_name)
@@ -87,16 +145,6 @@ class statistic_engine_2:
         no_of_winning_trade = profit[profit > 0].count()
 
         return no_of_winning_trade / inception_df['NetLiquidation'].count()
-
-    def get_win_rate_ytd(self, file_name):
-        full_df = self.data_engine.get_full_df(file_name)
-        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
-        year = last_day.year
-        month = last_day.month
-        day = last_day.day
-        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
-
-        return self.get_win_rate_by_range(range, file_name)
 
     def get_win_rate_data(self, file_name):
         win_rate_dict = {}
@@ -106,13 +154,43 @@ class statistic_engine_2:
         month = last_day.month
         day = last_day.day
         day_string = f"{year}-{month}-{day}"
-        win_rate_dict["ytd"] = self.get_win_rate_ytd(file_name)
         win_rate_dict["1y"] = self.get_win_rate_by_period(day_string, "1y", file_name)
         win_rate_dict["3y"] = self.get_win_rate_by_period(day_string, "3y", file_name)
         win_rate_dict["5y"] = self.get_win_rate_by_period(day_string, "5y", file_name)
         win_rate_dict["inception"] = self.get_win_rate_inception(file_name)
 
         return win_rate_dict
+
+    def get_loss_rate_by_period(self, date, lookback_period, file_name):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        profit = data_period_df.NetLiquidation.diff() * 100
+        no_of_loss_trade = profit[profit < 0].count()
+
+        return no_of_loss_trade / data_period_df[
+            'NetLiquidation'].count()  # number of win trades divided by total trades
+
+    def get_loss_rate_inception(self, file_name):
+        inception_df = self.data_engine.get_full_df(file_name)
+        profit = inception_df.NetLiquidation.diff() * 100
+        no_of_loss_trade = profit[profit < 0].count()
+
+        return no_of_loss_trade / inception_df['NetLiquidation'].count()
+
+    def get_loss_rate_data(self, file_name):
+        loss_rate_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        loss_rate_dict["1y"] = self.get_loss_rate_by_period(day_string, "1y", file_name)
+        loss_rate_dict["3y"] = self.get_loss_rate_by_period(day_string, "3y", file_name)
+        loss_rate_dict["5y"] = self.get_loss_rate_by_period(day_string, "5y", file_name)
+        loss_rate_dict["inception"] = self.get_loss_rate_inception(file_name)
+
+        return loss_rate_dict
 
     def get_total_trade(self, file_name, actionCol):
         full_df = self.data_engine.get_full_df(file_name)
@@ -229,8 +307,9 @@ def main():
     # print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     # print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     # test the result in all_file_return, and add columns to
-    # print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice"))
     # print(my_stat_engine.get_win_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_loss_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_total_trade('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 action'))
     # print(my_stat_engine.get_compounding_annual_return('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_treynor_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
