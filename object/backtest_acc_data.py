@@ -159,3 +159,6 @@ class backtest_acc_data(object):
             self.trading_funds = json.loads(trading_funds_json)
 
         pass
+
+    def get_portfolio(self):
+        return self.portfolio
