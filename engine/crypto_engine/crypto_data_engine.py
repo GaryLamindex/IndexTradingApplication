@@ -1,12 +1,11 @@
 import os
+from os import listdir
 import pathlib
 import datetime as dt
-import time
 
 import requests
 from zipfile import ZipFile, BadZipFile
 import pandas as pd
-import selenium.common
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -61,11 +60,13 @@ class crypto_data_engine:
     def get_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
         for ticker in tickers:
             ticker = ticker.upper()
-
+            csv_filename = None
             merging_dfs = [None, None]
             current_timestamp = start_timestamp
             while current_timestamp <= end_timestamp:
                 csv_filename = self.download_binance_daily_data(ticker, current_timestamp, bar_size)
+                if csv_filename is None:
+                    break
                 if merging_dfs[0] is None:
                     merging_dfs[0] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
 
@@ -78,6 +79,9 @@ class crypto_data_engine:
                     merging_dfs[0] = pd.concat(merging_dfs, ignore_index=True)
                     merging_dfs[1] = None
                 current_timestamp += 86400  # differ by one day
+
+            if csv_filename is None:
+                continue
 
             result_df = merging_dfs[0]
             result_df['Open time'] = round(result_df['Open time'] / 1000)
@@ -103,12 +107,19 @@ class crypto_data_engine:
         browser.get(self.coingecko_ranking_url)
         tbody = browser.find_element(By.TAG_NAME, 'tbody')
         rows = tbody.find_elements(By.TAG_NAME, 'tr')
+
+        rank_page_handle = browser.current_window_handle
+
         for row in rows:
+            url_td = row.find_elements(By.TAG_NAME, 'td')[1]
+            div1 = url_td.find_element(By.CSS_SELECTOR, 'div.tw-flex')
+            div2 = div1.find_elements(By.TAG_NAME, 'div')[1]
+            a = div2.find_element(By.TAG_NAME, 'a')
+            url = a.get_attribute('href') + '/historical_data'
 
+            browser.switch_to.new_window('tab')
+            browser.get(url)
 
-
-        i = 0
-        for coin in rank_df['FullName']:
             div1 = browser.find_element(By.CSS_SELECTOR, 'div.card-body')
             div2 = div1.find_element(By.CSS_SELECTOR, 'div.card-block')
             div3 = div2.find_element(By.CSS_SELECTOR, 'div.tw-flex.tw-justify-between')
@@ -119,19 +130,23 @@ class crypto_data_engine:
                 url = e.get_attribute('href')
                 if url.endswith('.csv'):
                     browser.get(url)
-            i = i + 1
+
+            browser.close()
+            browser.switch_to.window(rank_page_handle)
 
         browser.quit()
 
-
+    def get_tickers_from_dir(self):
+        tickers = []
+        for filename in listdir(self.crypto_market_cap_data_path):
+            tickers.append(filename.split('-')[0] + 'USDT')
+        return tickers
 
 
 def main():
     engine = crypto_data_engine()
-    tickers = ['ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'XRPUSDT', 'SOLUSDT', 'DOGEUSDT', 'DOTUSDT', 'TRXUSDT',
-               'AVAXUSDT', 'SHIBUSDT', 'MATICUSDT']
-    # engine.get_historical_data_by_range(tickers, 1614556800, 1654473600, '1m')
-    engine.crawl_historical_market_cap_by_range_coingecko()
+    engine.get_historical_data_by_range(engine.get_tickers_from_dir(), 1614556800, 1654473600, '1m')
+    # engine.crawl_historical_market_cap_by_range_coingecko()
 
 
 if __name__ == '__main__':
