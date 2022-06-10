@@ -235,7 +235,7 @@ class backtest(object):
                 _5_yr_volatility = volatility_dict.get('5y')
                 _ytd_volatility = volatility_dict.get('ytd')
 
-                win_rate_dict = stat_engine_2.get_win_rate_data(file_name, valueCol, costCol)
+                win_rate_dict = stat_engine_2.get_win_rate_data(file_name)
                 inception_win_rate = win_rate_dict.get('inception')
                 _1_yr_win_rate = win_rate_dict.get('1y')
                 _3_yr_win_rate = win_rate_dict.get('3y')
@@ -255,6 +255,22 @@ class backtest(object):
                 _10_yr_rolling_return = rolling_return_dict.get('10y')
                 _15_yr_rolling_return = rolling_return_dict.get('15y')
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
+
+                drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
+
+                average_win_day_dict = stat_engine_3.get_average_win_day_data(file_name)
+                inception_average_win_day = average_win_day_dict.get('inception')
+                _1_yr_average_win_day = average_win_day_dict.get('1y')
+                _3_yr_average_win_day = average_win_day_dict.get('3y')
+                _5_yr_average_win_day = average_win_day_dict.get('5y')
+                _ytd_average_win_day = average_win_day_dict.get('ytd')
+
+                profit_loss_ratio_dict = stat_engine_3.get_profit_loss_ratio_data(file_name)
+                inception_profit_loss_ratio = profit_loss_ratio_dict.get('inception')
+                _1_yr_profit_loss_ratio = profit_loss_ratio_dict.get('1y')
+                _3_yr_profit_loss_ratio = profit_loss_ratio_dict.get('3y')
+                _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
+                _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
 
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
@@ -280,7 +296,16 @@ class backtest(object):
                     "1 Yr Rolling Return": _1_yr_rolling_return, "2 Yr Rolling Return": _2_yr_rolling_return,
                     "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
                     "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
-                    "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return
+                    "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return,
+                    "Drawdowns": drawdown_dict,
+
+                    "Since Inception Average Win Per Day": inception_average_win_day,
+                    "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
+                    "3 Yr Average Win Per Day": _3_yr_average_win_day, "5 Yr Average Win Per Day": _5_yr_average_win_day,
+                    "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
+                    "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
+                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio
+
                 }
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
@@ -297,7 +322,13 @@ class backtest(object):
                "Since Inception Volatility", "YTD Volatility", "1 Yr Volatility", "3 Yr Volatility", "5 Yr Volatility",
                "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
                "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
-               "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return"]
+               "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
+               "Drawdown",
+               "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
+               "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
+               "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
+               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio"
+        ]
 
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)

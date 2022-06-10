@@ -243,7 +243,7 @@ class backtest(object):
 
             # input database and historical data into algo
             action_msgs = algorithm.run(stock_data_dict, timestamp)
-            sim_meta_data = {}
+            sim_meta_data = {}jh.m
 
             if algorithm.account_snapshot["GrossPositionValue"] != 0:
                 ExcessLiquidity_to_GrossPositionValue = algorithm.account_snapshot["ExcessLiquidity"] / algorithm.account_snapshot["GrossPositionValue"]
