@@ -271,6 +271,56 @@ class statistic_engine_2:
 
         return treynor_ratio_dict
 
+    def get_information_ratio_by_period(self, date, lookback_period, file_name, marketCol):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        average_portfolio_return = data_period_df["NetLiquidation"].pct_change().mean()
+        average_benchmark_return = data_period_df[marketCol].pct_change().mean()
+        track_error = data_period_df["NetLiquidation"].pct_change().std() - data_period_df[marketCol].pct_change().std()
+
+        return (average_portfolio_return - average_benchmark_return) / track_error
+
+    def get_information_ratio_by_range(self, range, file_name,marketCol):
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+        average_portfolio_return = range_df["NetLiquidation"].pct_change().mean()
+        average_benchmark_return = range_df[marketCol].pct_change().mean()
+        track_error = range_df["NetLiquidation"].pct_change().std() - range_df[marketCol].pct_change().std()
+
+        return (average_portfolio_return - average_benchmark_return) / track_error
+
+    def get_information_ratio_inception(self, file_name, marketCol):
+        inception_df = self.data_engine.get_full_df(file_name)
+        average_portfolio_return = inception_df["NetLiquidation"].pct_change().mean()
+        average_benchmark_return = inception_df[marketCol].pct_change().mean()
+        track_error = inception_df["NetLiquidation"].pct_change().std() - inception_df[marketCol].pct_change().std()
+
+        return (average_portfolio_return - average_benchmark_return) / track_error
+
+    def get_information_ratio_ytd(self, file_name, marketCol):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_information_ratio_by_range(range, file_name, marketCol)
+
+    def get_information_ratio_data(self, file_name, marketCol):
+        information_ratio_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        information_ratio_dict["ytd"] = self.get_information_ratio_ytd(file_name, marketCol)
+        information_ratio_dict["1y"] = self.get_information_ratio_by_period(day_string, "1y", file_name, marketCol)
+        information_ratio_dict["3y"] = self.get_information_ratio_by_period(day_string, "3y", file_name, marketCol)
+        information_ratio_dict["5y"] = self.get_information_ratio_by_period(day_string, "5y", file_name, marketCol)
+        information_ratio_dict["inception"] = self.get_information_ratio_inception(file_name, marketCol)
+
+        return information_ratio_dict
 
 def main():
     engine = sim_data_io_engine.offline_engine(
@@ -313,7 +363,7 @@ def main():
     # print(my_stat_engine.get_total_trade('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 action'))
     # print(my_stat_engine.get_compounding_annual_return('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_treynor_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-
+    print(my_stat_engine.get_information_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice"))
 
 if __name__ == "__main__":
     main()
