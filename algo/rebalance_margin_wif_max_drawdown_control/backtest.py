@@ -265,6 +265,13 @@ class backtest(object):
                 _5_yr_average_win_day = average_win_day_dict.get('5y')
                 _ytd_average_win_day = average_win_day_dict.get('ytd')
 
+                profit_loss_ratio_dict = stat_engine_3.get_profit_loss_ratio_data(file_name)
+                inception_profit_loss_ratio = profit_loss_ratio_dict.get('inception')
+                _1_yr_profit_loss_ratio = profit_loss_ratio_dict.get('1y')
+                _3_yr_profit_loss_ratio = profit_loss_ratio_dict.get('3y')
+                _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
+                _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
+
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -294,7 +301,10 @@ class backtest(object):
 
                     "Since Inception Average Win Per Day": inception_average_win_day,
                     "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
-                    "3 Yr Average Win Per Day": _3_yr_average_win_day, "5 Yr Average Win Per Day": _5_yr_average_win_day
+                    "3 Yr Average Win Per Day": _3_yr_average_win_day, "5 Yr Average Win Per Day": _5_yr_average_win_day,
+                    "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
+                    "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
+                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio
 
                 }
                 # _additional_data = self.cal_additional_data(file_name)
@@ -315,7 +325,9 @@ class backtest(object):
                "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
                "Drawdown",
                "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
-               "3 Yr Average Win Per Day", "5 Yr Average Win Per Day"
+               "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
+               "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
+               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio"
         ]
 
         df = pd.DataFrame(data_list, columns=col)
