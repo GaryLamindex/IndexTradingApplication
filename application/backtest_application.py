@@ -6,18 +6,18 @@ from engine.visualisation_engine import graph_plotting_engine
 import datetime as dt
 from algo.portfolio_rebalance.backtest import \
     backtest as portfolio_rebalance_backtest
-from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
-    backtest as rebalance_margin_wif_max_drawdown_control_backtest
-from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
-from algo.rebalance_margin_wif_maintainance_margin.backtest import \
-    backtest as rebalance_margin_wif_maintainance_margin_backtest
+# from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
+#     backtest as rebalance_margin_wif_max_drawdown_control_backtest
+# from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
+# from algo.rebalance_margin_wif_maintainance_margin.backtest import \
+#     backtest as rebalance_margin_wif_maintainance_margin_backtest
+#
+# from engine.simulation_engine import sim_data_io_engine
+# from engine.simulation_engine.statistic_engine import statistic_engine
 
-from engine.simulation_engine import sim_data_io_engine
-from engine.simulation_engine.statistic_engine import statistic_engine
 
-
-start_date = dt.datetime(2012, 10, 26)  # YYMMDD
-end_date = dt.datetime(2022, 4, 29)  # YYMMDD
+start_date = dt.datetime(2005, 4, 23)  # YYMMDD
+end_date = dt.datetime(2005, 4, 24)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"
@@ -27,9 +27,21 @@ wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
-portfolio_rebalance = portfolio_rebalance_backtest()
+tickers = ["SPY", "QQQ"]
+deposit_amount = 10000
+acceptance_range = 0
+portfolio_rebalance = portfolio_rebalance_backtest(tickers,
+                                                   deposit_amount,
+                                                   start_date,
+                                                   end_date,
+                                                   cal_stat,
+                                                   data_freq,
+                                                   user_id,
+                                                   db_mode,
+                                                   quick_test,
+                                                   acceptance_range)
 
-
+portfolio_rebalance.loop_through_param()
 
 
 #tickers = ['3188']
