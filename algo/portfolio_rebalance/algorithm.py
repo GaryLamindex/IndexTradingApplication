@@ -81,12 +81,14 @@ class portfolio_rebalance:
                 self.sell_list.append([ticker_info.get("ticker"), current_position])
         for ticker in unmodified_tickers:
             self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
-
+        realtime_stock_data_dict["timestamp"] = timestamp
         for ticker in self.sell_list:
-            action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], {"ticker_open_price": None})
+
+            action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
         for ticker in self.buy_list:
-            action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], {"ticker_open_price": None})
+
+            action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
 
         return self.action_msgs.copy()
@@ -95,6 +97,7 @@ class portfolio_rebalance:
     def check_exec(self, timestamp, **kwargs):
         datetime_obj = datetime.utcfromtimestamp(timestamp)
         if self.last_exec_datetime_obj == None:
+            self.last_exec_datetime_obj = datetime_obj
             return True
         else:
             freq = kwargs.pop("freq")
@@ -102,12 +105,12 @@ class portfolio_rebalance:
             if freq == "Daily":
                 # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(days=+relative_delta)
                 if datetime_obj.day != self.last_exec_datetime_obj.day and datetime_obj > self.last_exec_datetime_obj:
-                    print(
-                        f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
+                    #print(
+                        #f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
                     return True
                 else:
-                    print(
-                        f"check_exec: False. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
+                    #print(
+                        #f"check_exec: False. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
                     return False
 
             elif freq == "Monthly":

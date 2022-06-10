@@ -30,9 +30,12 @@ class backtest(object):
     check_ratio = False
     stock_data_engines = {}
     getdata = []
+    timestamps=[]
+    rebalance_ratio=[]
 
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range):
+                 db_mode, quick_test, acceptance_range,rebalance_ratio):
+
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
@@ -47,7 +50,9 @@ class backtest(object):
         self.quick_test = quick_test
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
+        self.rebalance_ratio=rebalance_ratio
         for ticker in self.tickers:
+
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             self.getdata.append(False)
 
@@ -88,38 +93,40 @@ class backtest(object):
                 os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
+        print("Start loop_through_param:")
         # loop through all the rebalance requirement
         num_tickers = len(self.tickers)
         possible_ratio = self.get_outcomes(num_tickers, 100)
         # calculate all possible ratio that sum is 100 with different number of stickers
-        for ratio in possible_ratio:
-            self.rebalance_dict = {}
-            for ticker_num in range(num_tickers):
-                self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
-            self.check_rebalance_ratio()
-            if self.check_ratio:
-                backtest_spec = self.rebalance_dict
-                spec_str = ""
-                for k, v in backtest_spec.items():
-                    spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-                acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                             self.table_name, spec_str)
-                portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
-                trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-                sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
-                                             self.tickers)
+        print("Start Backtest:", self.rebalance_ratio)
+        self.rebalance_dict = {}
+        for ticker_num in range(num_tickers):
+            self.rebalance_dict.update({self.tickers[ticker_num]: self.rebalance_ratio[ticker_num]})
+        self.check_rebalance_ratio()
+        if self.check_ratio:
+            backtest_spec = self.rebalance_dict
+            spec_str = ""
+            for k, v in backtest_spec.items():
+                spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-                algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
-                                                self.acceptance_range)
-                self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                                   portfolio_data_engine, sim_agent)
-                print("Finished Backtest:", backtest_spec)
-                self.plot_all_file_graph()
+            acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                         self.table_name, spec_str)
+            portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
+            trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
+            sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
+                                         self.tickers)
 
-                if self.cal_stat:
-                    print("start backtest")
-                self.cal_all_file_return()
+            algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
+                                            self.acceptance_range)
+            self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
+                               portfolio_data_engine, sim_agent)
+            print("Finished Backtest:", backtest_spec)
+            #self.plot_all_file_graph()
+
+            # if self.cal_stat:
+            #     print("start backtest")
+            # self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent):
@@ -127,10 +134,10 @@ class backtest(object):
         print("start backtest")
         row = 0
         print("Fetch data")
-        timestamps = []
+
         for ticker_num in range(len(self.tickers)):
             if self.getdata[ticker_num] == False:
-                timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
+                self.timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
                                   get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
                 self.getdata[ticker_num] = True
         # if len(self.tickers) == 1:
@@ -143,7 +150,7 @@ class backtest(object):
         #         'timestamp']
         #     timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
 
-        for ticker in timestamps:
+        for ticker in self.timestamps:
             for timestamp in ticker:
                 _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
                 _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
@@ -181,6 +188,7 @@ class backtest(object):
 
     def run(self, timestamp, algorithm, sim_agent):
         stock_data_dict = {}
+        sim_meta_data = {}
         for ticker in self.tickers:
             # get stock data from historical data
             print("timestamp:", timestamp, "; ticker:", ticker)
@@ -190,6 +198,7 @@ class backtest(object):
                 print("ticker_open_price", ticker_open_price)
                 stock_data_dict.update({ticker: {'last': ticker_open_price}})
                 print("stock_data_dict", stock_data_dict)
+                sim_meta_data.update({ticker: ticker_data})
 
             # ticker_div = ticker_stock_data.get(Query().timestamp == timestamp).get(ticker + ' div amount')
             # div_data_dict.update({ticker + ' div amount': ticker_div})
@@ -197,17 +206,13 @@ class backtest(object):
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
         # input database and historical data into algo
         action_msgs = algorithm.run(stock_data_dict, timestamp)
-        sim_meta_data = {}
 
-        for ticker in self.tickers:
-            pass
-            # sim_meta_data.update({ticker: {"max_stock_price": algorithm.max_stock_price[ticker]}})
-            # sim_meta_data[ticker]["benchmark_drawdown_price"] = algorithm.benchmark_drawdown_price[ticker]
-            # sim_meta_data[ticker]["liq_sold_qty_dict"] = algorithm.liq_sold_qty_dict[ticker]
-            # sim_meta_data[ticker]["reg_exec"] = algorithm.reg_exec[ticker]
 
-        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
-                                        stock_data_dict)
+
+
+
+        #sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+                                       # stock_data_dict)
 
     def get_outcomes(self, dim, target):
 

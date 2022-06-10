@@ -159,7 +159,7 @@ class simulation_agent(object):
         for action_msg in action_msgs:
             temp_list = action_msg.copy()
             if not temp_list['action'] == 'rejected':
-                print("temp_list:", temp_list)
+                #print("temp_list:", temp_list)
                 action_ticker = temp_list["ticker"]
                 try:
                     del action_msg[
@@ -181,8 +181,8 @@ class simulation_agent(object):
             pass
         sim_data_res = {}
         for ticker in self.tickers:
-            print("sim_meta_data[ticker].items()")
-            print(sim_meta_data[ticker].items())
+            #print("sim_meta_data[ticker].items()")
+            #print(sim_meta_data[ticker].items())
             if len(sim_meta_data) > 0 and ticker in sim_meta_data:
                 sim_data_res.update({f"{ticker} {str(key)}": val for key, val in sim_meta_data[ticker].items()})
             ticker_data_res.update({f"{ticker} mktPrice": ticker_data[ticker]['last']})
