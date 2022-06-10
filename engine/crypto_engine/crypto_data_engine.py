@@ -146,6 +146,7 @@ class crypto_data_engine:
 def main():
     engine = crypto_data_engine()
     engine.get_historical_data_by_range(engine.get_tickers_from_dir(), 1614556800, 1654473600, '1m')
+    # KSMUSDT completed
     # engine.crawl_historical_market_cap_by_range_coingecko()
 
 
