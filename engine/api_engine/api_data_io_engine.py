@@ -19,7 +19,7 @@ class api_data_io_engine:
 
         return buysell_df
 
-    def get_mulitple_info_dict(self):
+    def get_mulitple_info_dict(self, input_df):
         output_dict ={}
         #total return %, net profit, net liquidation, sharpe ratio, compounding return, margin ratio
         #code below
@@ -32,5 +32,5 @@ class api_data_io_engine:
 
 def main():
 
-if __name__ == main():
+if __name__ == "__main__":
     main()
