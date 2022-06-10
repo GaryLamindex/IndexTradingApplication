@@ -656,10 +656,9 @@ class statistic_engine:
 
     def get_drawdown_data(self, file_name, range):
 
-        drawdown_dict = self.get_drawdown_by_range(range, file_name)
-        print(f"drawdown_dict: {drawdown_dict}")
+        drawdown_df = self.get_drawdown_by_range(range, file_name)
 
-        return drawdown_dict
+        return drawdown_df
 
     def get_drawdown_by_range(self, range, file_name):
         drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])
@@ -708,6 +707,35 @@ class statistic_engine:
 
         return drawdown_df
 
+    def get_drawdown_raw_data_by_range(self, range, file_name):
+        #drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+        output_df = pd.DataFrame(columns=['timestamp','drawdown'])
+
+        start_dt = pd.to_datetime(range[0], format="%Y-%m-%d")
+        end_dt = pd.to_datetime(range[1], format="%Y-%m-%d")
+
+        start_ts = dt.datetime.timestamp(start_dt)
+        end_ts = dt.datetime.timestamp(end_dt)
+
+        g_max = -np.inf
+
+        info_df = range_df.loc[(range_df['timestamp'] >= start_ts) & (range_df['timestamp'] <= end_ts)]
+        info_df["drawdown"] = np.nan
+
+        for index, row in info_df.iterrows():
+            if (row['NetLiquidation']) >= g_max:
+                g_max = row['NetLiquidation']
+
+            if (g_max - row['NetLiquidation']) <= 0:
+                output_df.at[index, "drawdown"] = 0
+                output_df.at[index, "timestamp"] = row['timestamp']
+            else:
+                output_df.at[index, "drawdown"] = (row['NetLiquidation']-g_max) / g_max
+                output_df.at[index, "timestamp"] = row['timestamp']
+
+        return output_df
+
 
 def main():
     engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
@@ -745,6 +773,7 @@ def main():
     #test the result in all_file_return, and add columns to
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
-    my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', top = 10)
+    #my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
+    #print(my_stat_engine.get_drawdown_raw_data_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 if __name__ == "__main__":
     main()
