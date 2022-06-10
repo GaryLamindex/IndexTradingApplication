@@ -33,7 +33,6 @@ class backtest_portfolio_data_engine(object):
 
         print('Cash withdraw :', amount)
 
-
     def init_stock_position(self, tickers):
         for ticker in tickers:
             self.acc_data.update_portfolio_item(ticker, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -46,18 +45,19 @@ class backtest_portfolio_data_engine(object):
             print("Updating Portfolio and Stock Data")
             for ticker in tickers:
                 if stock_data_dict.get(ticker) != None:
-                    #Update price
+                    # Update price
                     ticker_item = self.acc_data.get_portfolio_ticker_item(ticker)
-                    marketPrice = stock_data_dict[ticker]['last'] #Retrieve stock data of date
-                    print("updated price:",marketPrice,"; updated stock:",ticker)
+                    marketPrice = stock_data_dict[ticker]['last']  # Retrieve stock data of date
+                    print("updated price:", marketPrice, "; updated stock:", ticker)
                     position = ticker_item.get('position')
                     cost_basis = ticker_item.get('costBasis')
                     marketValue = marketPrice * position
                     unrealizedPNL = marketValue - cost_basis
-                    self.acc_data.update_portfolio_item(ticker, position, marketPrice, None, marketValue, None, unrealizedPNL, None, None, None)
+                    self.acc_data.update_portfolio_item(ticker, position, marketPrice, None, marketValue, None,
+                                                        unrealizedPNL, None, None, None)
 
             self.update_acc_data()
-        else :
+        else:
             print("Portfolio is empty")
 
         print('update_portfolio_data')
@@ -83,7 +83,7 @@ class backtest_portfolio_data_engine(object):
 
         # Update the DB
         self.acc_data.update_mkt_value(TotalCashValue, None, NetLiquidation, UnrealizedPnL, RealizedPnL,
-                                           GrossPositionValue)
+                                       GrossPositionValue)
 
         # update margin info
         TotalCashValue = mkt_value.get("TotalCashValue")
@@ -97,7 +97,7 @@ class backtest_portfolio_data_engine(object):
             ticker_init_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
             ticker_mnt_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
             self.acc_data.update_portfolio_item(ticker, None, None, None, None, None, None, ticker_init_margin,
-                                                    ticker_mnt_margin, None)
+                                                ticker_mnt_margin, None)
 
         FullInitMarginReq = sum([r['initMarginReq'] for r in portfolio])
         FullMaintMarginReq = sum([r['maintMarginReq'] for r in portfolio])
@@ -119,7 +119,7 @@ class backtest_portfolio_data_engine(object):
 
         self.acc_data.update_margin_acc(FullInitMarginReq, FullMaintMarginReq)
         self.acc_data.update_trading_funds(AvailableFunds, ExcessLiquidity, BuyingPower, Leverage,
-                                               EquityWithLoanValue)
+                                           EquityWithLoanValue)
 
     # return a dictionary of data of the account
     def get_account_snapshot(self):
@@ -129,9 +129,13 @@ class backtest_portfolio_data_engine(object):
         account_snapshot.update(self.acc_data.mkt_value)
         # account_snapshot.update({"portfolio":self.acc_data.portfolio})
         for stock_item in self.acc_data.portfolio:
-            temp_list = stock_item.copy() # get a copy of the stock_item dictionary
+            temp_list = stock_item.copy()  # get a copy of the stock_item dictionary
             ticker = temp_list["ticker"]
             del temp_list['ticker']  # get rid of the "ticker" column, since the csv does NOT contain this attribute
             res = {f"{ticker} {str(key)}": val for key, val in temp_list.items()}
             account_snapshot.update(res)
+
         return account_snapshot
+
+    def get_portfolio(self):
+        return self.acc_data.portfolio

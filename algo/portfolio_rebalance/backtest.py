@@ -29,6 +29,7 @@ class backtest(object):
     initial_amount = 0
     check_ratio = False
     stock_data_engines = {}
+    getdata = []
 
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode, quick_test, acceptance_range):
@@ -48,6 +49,7 @@ class backtest(object):
         self.acceptance_range = acceptance_range
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+            self.getdata.append(False)
 
         if db_mode.get("local"):
 
@@ -127,8 +129,10 @@ class backtest(object):
         print("Fetch data")
         timestamps = []
         for ticker_num in range(len(self.tickers)):
-            timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
-                              get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
+            if self.getdata[ticker_num] == False:
+                timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
+                                  get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
+                self.getdata[ticker_num] = True
         # if len(self.tickers) == 1:
         #     timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
         #         'timestamp']
@@ -143,7 +147,7 @@ class backtest(object):
             for timestamp in ticker:
                 _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
                 _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-                print('#' * 20, _date, ":", _time, '#' * 20)
+                # print('#' * 20, _date, ":", _time, '#' * 20)
 
                 if row == 0:
                     # input initial cash
@@ -176,7 +180,34 @@ class backtest(object):
         pass
 
     def run(self, timestamp, algorithm, sim_agent):
-        pass
+        stock_data_dict = {}
+        for ticker in self.tickers:
+            # get stock data from historical data
+            print("timestamp:", timestamp, "; ticker:", ticker)
+            ticker_data = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
+            if ticker_data != None:
+                ticker_open_price = ticker_data.get("open")
+                print("ticker_open_price", ticker_open_price)
+                stock_data_dict.update({ticker: {'last': ticker_open_price}})
+                print("stock_data_dict", stock_data_dict)
+
+            # ticker_div = ticker_stock_data.get(Query().timestamp == timestamp).get(ticker + ' div amount')
+            # div_data_dict.update({ticker + ' div amount': ticker_div})
+
+        orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
+        # input database and historical data into algo
+        action_msgs = algorithm.run(stock_data_dict, timestamp)
+        sim_meta_data = {}
+
+        for ticker in self.tickers:
+            pass
+            # sim_meta_data.update({ticker: {"max_stock_price": algorithm.max_stock_price[ticker]}})
+            # sim_meta_data[ticker]["benchmark_drawdown_price"] = algorithm.benchmark_drawdown_price[ticker]
+            # sim_meta_data[ticker]["liq_sold_qty_dict"] = algorithm.liq_sold_qty_dict[ticker]
+            # sim_meta_data[ticker]["reg_exec"] = algorithm.reg_exec[ticker]
+
+        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+                                        stock_data_dict)
 
     def get_outcomes(self, dim, target):
 

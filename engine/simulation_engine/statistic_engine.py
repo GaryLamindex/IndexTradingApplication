@@ -526,8 +526,8 @@ class statistic_engine:
     def get_rolling_return_by_range(self, range, file_name, rolling_period):
 
         # return these parameters as a dictionary
-        max_rolling_return = float('-inf')
-        min_rolling_return = float('inf')
+        max_annual_rolling_return = float('-inf')
+        min_annual_rolling_return = float('inf')
         dateinfo_index_max = float('NaN')
         dateinfo_index_min = float('NaN')
         positive = 0
@@ -555,20 +555,20 @@ class statistic_engine:
             temprrs = start_info_df['NetLiquidation']
             temprre = end_info_df['NetLiquidation']
 
-            rolling_return_temp = (temprre - temprrs) / temprrs
-            avg_return = np.append(avg_return, rolling_return_temp)
+            annual_rolling_return_temp = (temprre/ temprrs) ** (1/rolling_period_dict[rolling_period]) - 1
+            avg_return = np.append(avg_return, annual_rolling_return_temp)
 
-            if(rolling_return_temp > 0):
+            if(annual_rolling_return_temp > 0):
                 positive += 1
-            elif(rolling_return_temp < 0):
+            elif(annual_rolling_return_temp < 0):
                 negative += 1
 
-            if(max_rolling_return < rolling_return_temp):
-                max_rolling_return = rolling_return_temp
+            if(max_annual_rolling_return < annual_rolling_return_temp):
+                max_annual_rolling_return = annual_rolling_return_temp
                 dateinfo_index_max = f"{start_info_df['date']} to {end_info_df['date']}"
 
-            if(min_rolling_return > rolling_return_temp):
-                min_rolling_return = rolling_return_temp
+            if(min_annual_rolling_return > annual_rolling_return_temp):
+                min_annual_rolling_return = annual_rolling_return_temp
                 dateinfo_index_min = f"{start_info_df['date']} to {end_info_df['date']}"
 
 
@@ -584,11 +584,11 @@ class statistic_engine:
         else:
             neg_periods = float('NaN')
 
-        return {"max_rolling_return": max_rolling_return,
+        return {"max_annual_rolling_return": max_annual_rolling_return,
                 "dateinfo_index_max": dateinfo_index_max,
-                "min_rolling_return": min_rolling_return,
+                "min_annual_rolling_return": min_annual_rolling_return,
                 "dateinfo_index_min": dateinfo_index_min,
-                "average_return": mean,
+                "average_annual_return": mean,
                 "negative_periods":neg_periods}
 
     def get_volatility_by_period(self,date,lookback_period,file_name,marketCol):
@@ -654,13 +654,63 @@ class statistic_engine:
 
         return volatility_dict
 
+    def get_drawdown_by_range(self, range, file_name, top = 10):
+        drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])
+        range_df = self.data_engine.get_data_by_range(range, file_name)
+
+        start_dt = pd.to_datetime(range[0], format="%Y-%m-%d")
+        end_dt = pd.to_datetime(range[1], format="%Y-%m-%d")
+        current_dt = start_dt
+
+        start_ts = dt.datetime.timestamp(start_dt)
+        end_ts = dt.datetime.timestamp(end_dt)
+        current_ts = start_ts
+
+        g_max = -np.inf
+        g_min = np.inf
+
+        info_df = range_df.loc[(range_df['timestamp'] >= start_ts) & (range_df['timestamp'] <= end_ts)]
+        #current_NL = info_df['NetLiquidation'].iloc[0]
+
+        for index, row in info_df.iterrows():
+            if((row['NetLiquidation']) >= g_max):
+                if(not np.isinf(g_min)):
+                    recovery_date_info = row['date']
+                    max_drawdown = (g_min-g_max)/g_max
+                    drawdown_period = f"{max_date_info}-{min_date_info}"
+                    drawdown_days = (pd.to_datetime(min_date_info,format="%Y-%m-%d") - pd.to_datetime(max_date_info,format="%Y-%m-%d")).days
+                    recovery_days = (pd.to_datetime(recovery_date_info, format="%Y-%m-%d") - pd.to_datetime(min_date_info, format="%Y-%m-%d")).days
+                    list = [max_drawdown, drawdown_period, drawdown_days,recovery_date_info,recovery_days]
+                    drawdown_df.loc[len(drawdown_df.index)] = list
+                    g_min = np.inf
+                g_max = row['NetLiquidation']
+                max_date_info = row['date']
+
+            else:
+                if(row['NetLiquidation'] < g_min):
+                    g_min = row['NetLiquidation']
+                    min_date_info = row['date']
+
+        if(not np.isinf(g_min)):
+            recovery_date_info = np.nan
+            max_drawdown = (g_min - g_max) / g_max
+            drawdown_period = f"{max_date_info}-{min_date_info}"
+            drawdown_days = (pd.to_datetime(min_date_info, format="%Y-%m-%d") - pd.to_datetime(max_date_info,\
+                                                                                               format="%Y-%m-%d")).days
+            recovery_days = np.nan
+            list = [max_drawdown, drawdown_period, drawdown_days, recovery_date_info, recovery_days]
+            drawdown_df.loc[len(drawdown_df.index)] = list
+
+        print(drawdown_df)
+        return
+
 
 def main():
     engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
-    range = ["2012-12-1", "2021-12-1"]
+    range = ["2012-12-1", "2022-4-29"]
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
     # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
@@ -690,6 +740,7 @@ def main():
     #print(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     #test the result in all_file_return, and add columns to
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"10y"))
+    #print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
+    my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', top = 10)
 if __name__ == "__main__":
     main()

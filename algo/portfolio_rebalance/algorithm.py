@@ -46,8 +46,8 @@ class portfolio_rebalance:
 
         self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
         self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        self.portfolio = self.account_snapshot.get("portfolio")
-        self.net_liquidation = self.account_snapshot.get("mkt_value").get("NetLiquidation")
+        self.portfolio = self.portfolio_agent.get_portfolio()
+        self.net_liquidation = self.account_snapshot.get("NetLiquidation")
         for ticker, percentage in self.ticker_wif_rebalance_ratio.items():
             hold_flag = False
             for ticker_info in self.portfolio:
@@ -57,9 +57,9 @@ class portfolio_rebalance:
                     target_position = int((self.net_liquidation * (percentage/100)) / current_market_price)
                     self.target_market_positions.update({ticker: target_position})
             if(hold_flag == False):
-                for ticker_info in realtime_stock_data_dict:
-                    if ticker_info.get("ticker") == ticker:
-                        current_market_price = ticker_info.get("marketPrice")
+                for ticker_name , market_price in realtime_stock_data_dict.items():
+                    if ticker_name == ticker:
+                        current_market_price = market_price.get('last')
                         target_position = int((self.net_liquidation * (percentage / 100)) / current_market_price)
                         self.target_market_positions.update({ticker: target_position})
         unmodified_tickers = list(self.target_market_positions.keys())
@@ -83,10 +83,10 @@ class portfolio_rebalance:
             self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
 
         for ticker in self.sell_list:
-            action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], timestamp)
+            action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], {"ticker_open_price": None})
             self.action_msgs.append(action_msg)
         for ticker in self.buy_list:
-            action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], timestamp)
+            action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], {"ticker_open_price": None})
             self.action_msgs.append(action_msg)
 
         return self.action_msgs.copy()

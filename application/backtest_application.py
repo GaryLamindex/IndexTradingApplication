@@ -16,8 +16,8 @@ from algo.portfolio_rebalance.backtest import \
 # from engine.simulation_engine.statistic_engine import statistic_engine
 
 
-start_date = dt.datetime(2019, 4, 23)  # YYMMDD
-end_date = dt.datetime(2019, 4, 24)  # YYMMDD
+start_date = dt.datetime(2005, 4, 23)  # YYMMDD
+end_date = dt.datetime(2005, 4, 24)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"
@@ -27,7 +27,7 @@ wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
-tickers = ["3188", "QQQ"]
+tickers = ["SPY", "QQQ"]
 deposit_amount = 10000
 acceptance_range = 0
 portfolio_rebalance = portfolio_rebalance_backtest(tickers,
