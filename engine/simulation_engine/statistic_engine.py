@@ -654,7 +654,14 @@ class statistic_engine:
 
         return volatility_dict
 
-    def get_drawdown_by_range(self, range, file_name, top = 10):
+    def get_drawdown_data(self, file_name, range):
+
+        drawdown_dict = self.get_drawdown_by_range(range, file_name)
+        print(f"drawdown_dict: {drawdown_dict}")
+
+        return drawdown_dict
+
+    def get_drawdown_by_range(self, range, file_name):
         drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])
         range_df = self.data_engine.get_data_by_range(range, file_name)
 
@@ -664,20 +671,18 @@ class statistic_engine:
 
         start_ts = dt.datetime.timestamp(start_dt)
         end_ts = dt.datetime.timestamp(end_dt)
-        current_ts = start_ts
 
         g_max = -np.inf
         g_min = np.inf
 
         info_df = range_df.loc[(range_df['timestamp'] >= start_ts) & (range_df['timestamp'] <= end_ts)]
-        #current_NL = info_df['NetLiquidation'].iloc[0]
 
         for index, row in info_df.iterrows():
             if((row['NetLiquidation']) >= g_max):
                 if(not np.isinf(g_min)):
                     recovery_date_info = row['date']
                     max_drawdown = (g_min-g_max)/g_max
-                    drawdown_period = f"{max_date_info}-{min_date_info}"
+                    drawdown_period = [max_date_info,min_date_info]
                     drawdown_days = (pd.to_datetime(min_date_info,format="%Y-%m-%d") - pd.to_datetime(max_date_info,format="%Y-%m-%d")).days
                     recovery_days = (pd.to_datetime(recovery_date_info, format="%Y-%m-%d") - pd.to_datetime(min_date_info, format="%Y-%m-%d")).days
                     list = [max_drawdown, drawdown_period, drawdown_days,recovery_date_info,recovery_days]
@@ -694,15 +699,14 @@ class statistic_engine:
         if(not np.isinf(g_min)):
             recovery_date_info = np.nan
             max_drawdown = (g_min - g_max) / g_max
-            drawdown_period = f"{max_date_info}-{min_date_info}"
+            drawdown_period = [max_date_info,min_date_info]
             drawdown_days = (pd.to_datetime(min_date_info, format="%Y-%m-%d") - pd.to_datetime(max_date_info,\
                                                                                                format="%Y-%m-%d")).days
             recovery_days = np.nan
             list = [max_drawdown, drawdown_period, drawdown_days, recovery_date_info, recovery_days]
             drawdown_df.loc[len(drawdown_df.index)] = list
 
-        print(drawdown_df)
-        return
+        return drawdown_df
 
 
 def main():
