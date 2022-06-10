@@ -139,7 +139,12 @@ class statistic_engine_3:
         results = self.check_win_or_lose_day(data_period_df)
         # average_win_day = results[0]
         # average_lose_day = results[1]
-        return results[0] / results[1]
+        if results[0] == 0 or results[1] == 0:
+            profit_loss_ratio = 0
+        else:
+            profit_loss_ratio = results[0] / results[1]
+
+        return profit_loss_ratio
 
     def get_profit_loss_ratio_by_range(self, rangee, file_name):
         range_df = self.data_engine.get_data_by_range(rangee, file_name)
@@ -148,7 +153,12 @@ class statistic_engine_3:
         print(results)
         #average_win_day = results[0]
         #average_lose_day = results[1]
-        return results[0] / results[1]
+        if results[0] == 0 or results[1] == 0:
+            profit_loss_ratio = 0
+        else:
+            profit_loss_ratio = results[0] / results[1]
+
+        return profit_loss_ratio
 
     def get_profit_loss_ratio_ytd(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
@@ -166,7 +176,12 @@ class statistic_engine_3:
         results = self.check_win_or_lose_day(inception_df)
         # average_win_day = results[0]
         # average_lose_day = results[1]
-        return results[0] / results[1]
+        if results[0] == 0 or results[1] == 0:
+            profit_loss_ratio = 0
+        else:
+            profit_loss_ratio = results[0] / results[1]
+
+        return profit_loss_ratio
 
     def get_profit_loss_ratio_data(self, file_name):
         profit_loss_ratio_dict = {}
@@ -210,9 +225,14 @@ class statistic_engine_3:
                     number_of_lose_days += 1
                 pos = x + 1
             check = False
-        average_win_day = sum_of_percentage_increased / number_of_win_days
-        average_lose_day = abs(sum_of_percentage_decreased / number_of_lose_days)
-
+        if number_of_win_days == 0:
+            average_win_day = 0
+        else:
+            average_win_day = sum_of_percentage_increased / number_of_win_days
+        if number_of_lose_days == 0:
+            average_lose_day = 0
+        else:
+            average_lose_day = abs(sum_of_percentage_decreased / number_of_lose_days)
         return [average_win_day, average_lose_day]
 
 def main():
@@ -252,21 +272,22 @@ def main():
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"10y"))
 #print(my_stat_engine.get_average_win_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m','my_test'))
-    print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"],'my_test'))
-    print(my_stat_engine.get_average_win_day_ytd('my_test'))
-    print(my_stat_engine.get_average_win_day_inception('my_test'))
-    print(my_stat_engine.get_average_win_day_data('my_test'))
-    print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m', 'my_test'))
-    print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-31", "2022-4-28"], 'my_test'))
-    print(my_stat_engine.get_profit_loss_ratio_ytd('my_test'))
-    print(my_stat_engine.get_profit_loss_ratio_inception('my_test'))
-    print(my_stat_engine.get_profit_loss_ratio_data('my_test'))
+    #print(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m','my_test'))
+    # print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"],'my_test'))
+    # print(my_stat_engine.get_average_win_day_ytd('my_test'))
+    # print(my_stat_engine.get_average_win_day_inception('my_test'))
+    # print(my_stat_engine.get_average_win_day_data('my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m', 'my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-31", "2022-4-28"], 'my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_ytd('my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_inception('my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_data('my_test'))
 
 if __name__ == "__main__":
     main()
