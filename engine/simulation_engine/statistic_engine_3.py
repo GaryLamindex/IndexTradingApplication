@@ -58,9 +58,176 @@ class statistic_engine_3:
     def __init__(self, data_engine):
         self.data_engine = data_engine
 
+    # def get_average_win_by_period(self, date, lookback_period, file_name):
+    #     if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+    #         data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+    #     pd.options.mode.chained_assignment = None #?
+    #     realized_pnl_list = data_period_df['3188 realizedPNL'].tolist()
+    #     number_of_win_trades = 0
+    #     sum_of_win_trades = 0
+    #     for x in range(len(realized_pnl_list)-1):
+    #         if realized_pnl_list[x+1] > realized_pnl_list[x]:
+    #             number_of_win_trades += 1
+    #             sum_of_win_trades += realized_pnl_list[x+1] - realized_pnl_list[x]
+    #     average_win = sum_of_win_trades / number_of_win_trades
+    #     return average_win
+
+    def get_average_win_day_by_period(self, date, lookback_period, file_name):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        #print(data_period_df)
+        results = self.check_win_or_lose_day(data_period_df)
+        # average_win_day = results[0]
+        # average_lose_day = results[1]
+        return results[0]
+
+    def get_average_win_day_by_range(self, rangee, file_name):
+        range_df = self.data_engine.get_data_by_range(rangee, file_name)
+        #print(range_df)
+        results = self.check_win_or_lose_day(range_df)
+        # average_win_day = results[0]
+        # average_lose_day = results[1]
+        return results[0]
+
+    def get_average_win_day_ytd(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_average_win_day_by_range(range, file_name)
+
+    def get_average_win_day_inception(self, file_name):
+        inception_df = self.data_engine.get_full_df(file_name)
+        # print(inception_df)
+        results = self.check_win_or_lose_day(inception_df)
+        # average_win_day = results[0]
+        # average_lose_day = results[1]
+        return results[0]
+
+    def get_average_win_day_data(self, file_name):
+        average_win_day_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        average_win_day_dict["ytd"] = self.get_average_win_day_ytd(file_name)
+        average_win_day_dict["1y"] = self.get_average_win_day_by_period(day_string, "1y", file_name)
+        average_win_day_dict["3y"] = self.get_average_win_day_by_period(day_string, "3y", file_name)
+        average_win_day_dict["5y"] = self.get_average_win_day_by_period(day_string, "5y", file_name)
+        average_win_day_dict["inception"] = self.get_average_win_day_inception(file_name)
+
+        return average_win_day_dict
+
+    def get_profit_loss_ratio_by_period(self, date, lookback_period, file_name):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+        #print(data_period_df)
+        results = self.check_win_or_lose_day(data_period_df)
+        # average_win_day = results[0]
+        # average_lose_day = results[1]
+        if results[0] == 0 or results[1] == 0:
+            profit_loss_ratio = 0
+        else:
+            profit_loss_ratio = results[0] / results[1]
+
+        return profit_loss_ratio
+
+    def get_profit_loss_ratio_by_range(self, rangee, file_name):
+        range_df = self.data_engine.get_data_by_range(rangee, file_name)
+        #print(range_df)
+        results = self.check_win_or_lose_day(range_df)
+        print(results)
+        #average_win_day = results[0]
+        #average_lose_day = results[1]
+        if results[0] == 0 or results[1] == 0:
+            profit_loss_ratio = 0
+        else:
+            profit_loss_ratio = results[0] / results[1]
+
+        return profit_loss_ratio
+
+    def get_profit_loss_ratio_ytd(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        range = [f"{year}-01-01", f"{year}-{month}-{day}"]
+
+        return self.get_profit_loss_ratio_by_range(range, file_name)
+
+    def get_profit_loss_ratio_inception(self, file_name):
+        inception_df = self.data_engine.get_full_df(file_name)
+        # print(inception_df)
+        results = self.check_win_or_lose_day(inception_df)
+        # average_win_day = results[0]
+        # average_lose_day = results[1]
+        if results[0] == 0 or results[1] == 0:
+            profit_loss_ratio = 0
+        else:
+            profit_loss_ratio = results[0] / results[1]
+
+        return profit_loss_ratio
+
+    def get_profit_loss_ratio_data(self, file_name):
+        profit_loss_ratio_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        profit_loss_ratio_dict["ytd"] = self.get_profit_loss_ratio_ytd(file_name)
+        profit_loss_ratio_dict["1y"] = self.get_profit_loss_ratio_by_period(day_string, "1y", file_name)
+        profit_loss_ratio_dict["3y"] = self.get_profit_loss_ratio_by_period(day_string, "3y", file_name)
+        profit_loss_ratio_dict["5y"] = self.get_profit_loss_ratio_by_period(day_string, "5y", file_name)
+        profit_loss_ratio_dict["inception"] = self.get_profit_loss_ratio_inception(file_name)
+
+        return profit_loss_ratio_dict
+
+    def check_win_or_lose_day(self, df, pos=0, check=False, sum_of_percentage_increased=0, number_of_win_days=0, sum_of_percentage_decreased=0, number_of_lose_days=0):
+        for x in range(len(df['date'])):
+            if x == len(df['date']) - 1:
+                percentage_change_in_net_liquidation = (df['NetLiquidation'][x] - df['NetLiquidation'][pos]) / df['NetLiquidation'][pos]
+                # print(range_df['NetLiquidation'][x], 1)
+                # print(pos)
+                # print(percentage_change_in_net_liquidation, 1)
+                check = True
+            elif df['date'][x] != df['date'][x + 1]:
+                percentage_change_in_net_liquidation = (df['NetLiquidation'][x] - df['NetLiquidation'][pos]) / df['NetLiquidation'][pos]
+                # print(range_df['NetLiquidation'][x], 2)
+                # print(pos)
+                # print(percentage_change_in_net_liquidation, 2)
+                check = True
+            if check is True:
+                if x == pos:  # for this simple backtest with one liquidation data only
+                    sum_of_percentage_increased += df['NetLiquidation'][x] / 10000000
+                    number_of_win_days += 1
+                elif percentage_change_in_net_liquidation > 0:
+                    sum_of_percentage_increased += percentage_change_in_net_liquidation
+                    number_of_win_days += 1
+                elif percentage_change_in_net_liquidation < 0:
+                    sum_of_percentage_decreased += percentage_change_in_net_liquidation
+                    number_of_lose_days += 1
+                pos = x + 1
+            check = False
+        if number_of_win_days == 0:
+            average_win_day = 0
+        else:
+            average_win_day = sum_of_percentage_increased / number_of_win_days
+        if number_of_lose_days == 0:
+            average_lose_day = 0
+        else:
+            average_lose_day = abs(sum_of_percentage_decreased / number_of_lose_days)
+        return [average_win_day, average_lose_day]
 
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine('/Applications/IndexTrading/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine_3(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
@@ -95,5 +262,23 @@ def main():
     #test the result in all_file_return, and add columns to
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"10y"))
+#print(my_stat_engine.get_average_win_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m','my_test'))
+    # print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"],'my_test'))
+    # print(my_stat_engine.get_average_win_day_ytd('my_test'))
+    # print(my_stat_engine.get_average_win_day_inception('my_test'))
+    # print(my_stat_engine.get_average_win_day_data('my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m', 'my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-31", "2022-4-28"], 'my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_ytd('my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_inception('my_test'))
+    # print(my_stat_engine.get_profit_loss_ratio_data('my_test'))
+
 if __name__ == "__main__":
     main()

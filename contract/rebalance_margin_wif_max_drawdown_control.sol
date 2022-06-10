@@ -8,30 +8,26 @@ import ".\agents\StockTrading.sol";
 
 contract algorithm is Object, StockTrading{
     using DateUtils for *;
-    using FixidityLib for int256;
 
     event LogActionMsg(string actionMsgs);
     ActionMsg[] memory actionMsgs;
-    RealTimeTickerData[] realTimeTickerData;
 
     uint lastExecutedTimestamp;
     uint timestamp;
-    PortfolioData portfolioData;
     mapping (string => bool) maxDrawdownDodge;
     mapping (string => int256) benchmarkDrawdownPrice;
     mapping (string => int256) liquidateTickerQty;
     mapping (string => int256) maxStockPrice;
     mapping (string => int256) liqSoldQty;
     mapping (string => int256) liqSoldPrice;
+    mapping (uint256 => RealTimeTickerData[]) realTimeTickerData;
+    mapping (uint256 => PortfolioData)  portfolioData;
     uint256 loop = 0;
-    uint256 rebalanceMargin = 5;
-    uint256 maxDrawdown = 5;
-    uint256 limitOrderAcceptanceRange;
+    int256 rebalanceMargin = 5/100 * FixidityLib.fixed1();
+    int256 maxDrawdown = 5/1000 * FixidityLib.fixed1();
 
-
-    constructor(RealTimeTickerData[] memory _realTimeTickerData, uint256 _limitOrderAcceptanceRange){
+    constructor(RealTimeTickerData[] memory _realTimeTickerData){
         lastExecutedTimestamp = block.timestamp;
-        limitOrderAcceptanceRange = _limitOrderAcceptanceRange;
         for (uint i=0; i < _realTimeTickerData.length; i++){
             string tickerName = realTimeTickerData[i].tickerName;
             maxDrawdownDodge[tickerName] = false;
@@ -43,7 +39,7 @@ contract algorithm is Object, StockTrading{
         require(checkExecution(timestamp));
         renewContractState(_tickerData, _timeStamp, _portfolioData);
         if(loop == 0){
-            int256 capitalForEachStock = portfolioData.TotalCashValue / realTimeTickerData.length;
+            int256 capitalForEachStock = FixidityLib.divide(portfolioData.TotalCashValue, realTimeTickerData.length);
             for (uint i=0; i < realTimeTickerData.length; i++){
                 RealTimeTickerData data = realTimeTickerData[i];
                 string tickerName = data.tickerName;
@@ -54,7 +50,7 @@ contract algorithm is Object, StockTrading{
             }
         }
         else{
-            uint256 targetExLiq = rebalanceMargin * portfolioData.GrossPositionValue;
+            int256 targetExLiq = FixidityLib.multiply(rebalanceMargin, portfolioData.GrossPositionValue);
             for (uint i=0; i < realTimeTickerData.length; i++){
                 int256 tickerPrice = realTimeTickerData[i].last;
                 string tickerName = realTimeTickerData[i].tickerName;
@@ -66,12 +62,12 @@ contract algorithm is Object, StockTrading{
                     }
                 }else{
                     if(checkMaxDrawdownDodge(tickerName,tickerPrice)){
-                        ActionMsg memory actionMsg = liquidateTickerPosition(tickerName, tickerPrice * (1 - limitOrderAcceptanceRange),timestamp);
+                        ActionMsg memory actionMsg = liquidateTickerPosition(tickerName, tickerPrice ,timestamp);
                     }
                     else{
                         if (portfolioData.ExcessLiquidity > targetExLiq) {
-                            uint256 exLiqDiff = portfolioData.ExcessLiquidity - targetExLiq;
-                            uint256 targetSharePurchase = exLiqDiff / tickerPrice;
+                            int256 exLiqDiff = FixidityLib.subtract(portfolioData.ExcessLiquidity, targetExLiq);
+                            int256 targetSharePurchase = FixidityLib.divide(exLiqDiff,tickerPrice);
 
                             if (targetSharePurchase > 0){
                                 ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName, sharePurchase, limitPrice);
@@ -83,7 +79,7 @@ contract algorithm is Object, StockTrading{
             }
 
             for (uint i=0; i < realTimeTickerData.length; i++){
-                uint256 tickerPrice = realTimeTickerData[i].last;
+                int256 tickerPrice = realTimeTickerData[i].last;
                 string tickerName = realTimeTickerData[i].tickerName;
                 if (maxDrawdownDodge[realTimeTickerData.tickerName]){
                     updateBenchmarkDrawdownPriceAfterDodge(tickerName, tickerPrice);
@@ -100,13 +96,8 @@ contract algorithm is Object, StockTrading{
 
     function renewContractState(RealTimeTickerData[] memory _tickerData, uint256 _timeStamp, PortfolioData memory _portfolioData){
         timestamp = _timeStamp;
-
-        delete realTimeTickerData;
-        realTimeTickerData = _tickerData;
-
-        portfolioData = _portfolioData;
-
-
+        realTimeTickerData[_timeStamp] = _tickerData;
+        portfolioData[_timeStamp] = _portfolioData;
     }
 
     function checkExecution(uint256 _timestamp) internal returns (bool){
@@ -124,14 +115,13 @@ contract algorithm is Object, StockTrading{
     function checkBuyBack(string memory ticker, uint256 realTimeTickerPrice)internal returns (bool){
 //        range_price = self.benchmark_drawdown_price.get(ticker) * (1 + 0.01)
 //        return ticker_price > range_price
-        int256 rangePrice = benchmarkDrawdownPrice[ticker] * (100 + 1);
-        int256 comparisonPrice = realTimeTickerPrice * 100;
-        return comparisonPrice > rangePrice;
+        int256 rangePrice = benchmarkDrawdownPrice[ticker] /100*101;
+        return realTimeTickerPrice > rangePrice;
     }
 
     function buyBackPosition(string memory tickerName, uint256 limitPrice) internal returns (ActionMsg memory) {
-        uint256 targetSharePurchase = liquidateTickerQty[ticker];
-        uint256 purchaseAmount = targetSharePurchase * limitPrice;
+        int256 targetSharePurchase = liquidateTickerQty[ticker];
+        int256 purchaseAmount = targetSharePurchase * limitPrice;
         if (portfolioData.BuyingPower >= purchaseAmount){
             ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName, targetSharePurchase, limitPrice);
         }else{
@@ -145,25 +135,27 @@ contract algorithm is Object, StockTrading{
         return actionMsg;
     }
 
-    function checkMaxDrawdownDodge(string memory tickerName, uint256 limitPrice) returns bool{
+    function checkMaxDrawdownDodge(string memory tickerName, int256 limitPrice) returns (bool){
         return limitPrice < benchmarkDrawdownPrice[ticker];
     }
 
-    function updateBenchmarkDrawdownPriceAfterDodge(string memory tickerName, uint256 tickerPrice){
+    function updateBenchmarkDrawdownPriceAfterDodge(string memory tickerName, int256 tickerPrice){
 //        if real_time_ticker_price < self.benchmark_drawdown_price[ticker] * 0.7:
 //            target_update_benchmark_drawdown_price = real_time_ticker_price + (
 //                    (self.liq_sold_price_dict[ticker] - real_time_ticker_price) * 0.5)
 //            if target_update_benchmark_drawdown_price < self.benchmark_drawdown_price[ticker]:
 //                self.benchmark_drawdown_price[ticker] = target_update_benchmark_drawdown_price
 
-        if (limitPrice < benchmarkDrawdownPrice[tickerName] * 0.7){
-            uint256 targetUpdateBenchmarkDrawdownPrice = tickerPrice + (liqSoldPrice[tickerName] - tickerPrice) * 0.5;
-            if targetUpdateBenchmarkDrawdownPrice < benchmarkDrawdownPrice[tickerName] :
-            benchmarkDrawdownPrice[tickerName] = targetUpdateBenchmarkDrawdownPrice;
+        if (tickerPrice < benchmarkDrawdownPrice[tickerName] * (70 / 100)){
+            int256 tickerDiff = FixidityLib.subtract(liqSoldPrice[tickerName],tickerPrice);
+            int256 targetUpdateBenchmarkDrawdownPrice = FixidityLib.add(tickerPrice, tickerDiff) * 50 / 100;
+            if (targetUpdateBenchmarkDrawdownPrice < benchmarkDrawdownPrice[tickerName]){
+                benchmarkDrawdownPrice[tickerName] = targetUpdateBenchmarkDrawdownPrice;
+            }
         }
     }
 
-    function updateBenchmarkDrawdownPriceBeforeDodge(string memory tickerName, uint256 limitPrice){
+    function updateBenchmarkDrawdownPriceBeforeDodge(string memory tickerName, int256 realTimeTickerPrice){
 //        if (self.max_stock_price.get(ticker) == 0):  # if there is no data for the max and benchmark price
 //            self.max_stock_price.update({ticker: real_time_ticker_price})
 //            benchmark_price = real_time_ticker_price * (1 - self.max_drawdown_ratio)
@@ -175,42 +167,27 @@ contract algorithm is Object, StockTrading{
 
         if (maxStockPrice[ticker] == 0){
             maxStockPrice[ticker] = realTimeTickerPrice;
-            benchmarkPrice = limitPrice * (1 - maxDrawdown);
+            int256 drawDownFactor = FixidityLib.subtract(FixidityLib.fixed1(), maxDrawdown);
+            int256 benchmarkPrice = FixidityLib.multiply(maxStockPrice[ticker], drawDownFactor);
             benchmarkDrawdownPrice[ticker] = benchmark_price;
         }
-        else if (limitPrice > maxStockPrice[ticker]){
-            maxStockPrice[ticker] = limitPrice;
-            benchmarkDrawdownPrice[ticker] = limitPrice * (1 - maxDrawdown);
+        else if (realTimeTickerPrice > maxStockPrice[ticker]){
+            maxStockPrice[ticker] = realTimeTickerPrice;
+            int256 drawDownFactor = FixidityLib.subtract(FixidityLib.fixed1(), maxDrawdown);
+            int256 benchmarkPrice = FixidityLib.multiply(maxStockPrice[ticker], drawDownFactor);
+            benchmarkDrawdownPrice[ticker] = benchmarkPrice;
         }
 
     }
 
-    function liquidateTickerPosition(string memory tickerName, uint256 limitPrice) returns ActionMsg{
-//        current_position = float(self.account_snapshot.get(f"{ticker} position"))
-//        no_leverage_position = (float(
-//            self.account_snapshot.get("EquityWithLoanValue")) / self.number_of_stocks) / float(
-//            self.account_snapshot.get(f"{ticker} marketPrice"))
-//        target_leverage_position_at_liquid_state = no_leverage_position * 1.2
-//        print("liquidate_stock_position::current_position:", current_position)
-//        print("liquidate_stock_position::no_leverage_position:", current_position)
-//        target_sold_position = math.ceil(current_position - target_leverage_position_at_liquid_state)
-//
-//        action_msg = self.trade_agent.place_sell_stock_limit_order(ticker, target_sold_position, limit_price, timestamp)
-//        self.action_msgs.append(action_msg)
-//
-//        if int(action_msg['state']) == 1:  # successfully placed the sell order
-//            self.benchmark_drawdown_price.update({ticker: action_msg['avgPrice']})
-//            self.liq_sold_qty_dict.update({ticker: action_msg['totalQuantity']})
-//            self.liq_sold_price_dict.update({ticker: action_msg['avgPrice']})
-//            self.liquidate_sold_value.update({ticker: action_msg['avgPrice'] * action_msg['totalQuantity']})
-//
-//        self.max_drawdown_dodge.update({ticker: True})
+    function liquidateTickerPosition(string memory tickerName, uint256 limitPrice) returns (ActionMsg){
 
-        uint256 currentPosition = portfolioData.tickerPortfolio[ticker];
-        uint256 noLeveragePosition = portfolioData.EquityWithLoanValue / realTimeTickerData.length / realTimeTickerData[tickerName];
-        uint256 targetLeveragePositionAtLiquidState = noLeveragePosition * 12;
+        int256 currentPosition = portfolioData.tickerPortfolio[ticker];
+        int256 noLeverageEquity = portfolioData.EquityWithLoanValue / realTimeTickerData.length;
+        int256 noLeveragePosition = FixidityLib.divide(noLeverageEquity,realTimeTickerData[tickerName]);
+        int256 targetLeveragePositionAtLiquidState = noLeveragePosition * 12 / 10;
 
-        uint256 targetSoldPosition = currentPosition - targetLeveragePositionAtLiquidState;
+        int256 targetSoldPosition = currentPosition - targetLeveragePositionAtLiquidState;
         ActionMsg memory actionMsg = placeSellStockLimitOrderMsg(tickerName,targetSoldPosition,limitPrice);
 
         benchmarkDrawdownPrice[ticker] = limitPrice;
