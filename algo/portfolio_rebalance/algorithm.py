@@ -93,7 +93,6 @@ class portfolio_rebalance:
 
         return self.action_msgs.copy()
 
-
     def check_exec(self, timestamp, **kwargs):
         datetime_obj = datetime.utcfromtimestamp(timestamp)
         if self.last_exec_datetime_obj == None:
