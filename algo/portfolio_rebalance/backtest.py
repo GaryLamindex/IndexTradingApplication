@@ -30,11 +30,11 @@ class backtest(object):
     check_ratio = False
     stock_data_engines = {}
     getdata = []
-    timestamps=[]
-    rebalance_ratio=[]
+    timestamps = []
+    rebalance_ratio = []
 
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range,rebalance_ratio):
+                 db_mode, quick_test, acceptance_range, rebalance_ratio):
 
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
@@ -50,9 +50,8 @@ class backtest(object):
         self.quick_test = quick_test
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
-        self.rebalance_ratio=rebalance_ratio
+        self.rebalance_ratio = rebalance_ratio
         for ticker in self.tickers:
-
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             self.getdata.append(False)
 
@@ -95,10 +94,8 @@ class backtest(object):
     def loop_through_param(self):
         print("Start loop_through_param:")
         # loop through all the rebalance requirement
-        num_tickers = len(self.tickers)
-        possible_ratio = self.get_outcomes(num_tickers, 100)
         # calculate all possible ratio that sum is 100 with different number of stickers
-
+        num_tickers = len(self.tickers)
         print("Start Backtest:", self.rebalance_ratio)
         self.rebalance_dict = {}
         for ticker_num in range(num_tickers):
@@ -122,7 +119,7 @@ class backtest(object):
             self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
                                portfolio_data_engine, sim_agent)
             print("Finished Backtest:", backtest_spec)
-            #self.plot_all_file_graph()
+            # self.plot_all_file_graph()
 
             # if self.cal_stat:
             #     print("start backtest")
@@ -138,7 +135,7 @@ class backtest(object):
         for ticker_num in range(len(self.tickers)):
             if self.getdata[ticker_num] == False:
                 self.timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
-                                  get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
+                                       get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
                 self.getdata[ticker_num] = True
         # if len(self.tickers) == 1:
         #     timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
@@ -207,14 +204,11 @@ class backtest(object):
         # input database and historical data into algo
         action_msgs = algorithm.run(stock_data_dict, timestamp)
 
+        # sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+        # stock_data_dict)
 
-
-
-
-        #sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
-                                       # stock_data_dict)
-
-    def get_outcomes(self, dim, target):
+    @staticmethod
+    def get_outcomes( dim, target):
 
         if dim == 2:
             outcomes = []
@@ -224,7 +218,7 @@ class backtest(object):
         else:
             result = []
             for i in range(0, target + 1):
-                outcomes = self.get_outcomes(dim - 1, target - i)
+                outcomes = backtest.get_outcomes(dim - 1, target - i)
                 for j in outcomes:
                     j.append(i)
                     result.append(j)
