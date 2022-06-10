@@ -30,6 +30,7 @@ user_id = 0
 tickers = ["SPY", "QQQ"]
 deposit_amount = 10000
 acceptance_range = 0
+rebalance_ratio=[0,100]
 portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    deposit_amount,
                                                    start_date,
@@ -39,7 +40,7 @@ portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    user_id,
                                                    db_mode,
                                                    quick_test,
-                                                   acceptance_range)
+                                                   acceptance_range,rebalance_ratio)
 
 portfolio_rebalance.loop_through_param()
 
