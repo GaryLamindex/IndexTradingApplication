@@ -171,6 +171,7 @@ class simulation_agent(object):
                 except KeyError:
                     pass
 
+                # Mark, change the code here as you like, so that giving a better representations in tickers snapshots
                 action_res = {f"{action_ticker} {str(key)}": val for key, val in action_msg.items()}
                 action_dicts.update(action_res)  # action_dicts|action_res
         print(action_dicts)
