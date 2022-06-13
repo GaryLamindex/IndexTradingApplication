@@ -8,11 +8,19 @@ contract Object {
         uint256 last;
     }
 
+    struct ActionMsg{
+        string tickerName;
+        uint256 timestamp;
+        string transactionType;
+        int256 positionAction;
+        int256 transactionTickerPrice;
+        int256 transactionAmount;
+    }
+
     struct PortfolioData{
         //accData
         string AccountCode;
         string Currency;
-        string HKD;
         string ExchangeRate;
 
         //margin_acc
