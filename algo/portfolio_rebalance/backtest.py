@@ -29,7 +29,6 @@ class backtest(object):
     initial_amount = 0
     check_ratio = False
     stock_data_engines = {}
-    getdata = []
     timestamps = []
     rebalance_ratio = []
     quick_test = True
@@ -54,7 +53,6 @@ class backtest(object):
         self.rebalance_ratio = rebalance_ratio
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
-            self.getdata.append(False)
 
         if db_mode.get("local"):
 
@@ -129,28 +127,23 @@ class backtest(object):
                       sim_agent):
         # connect to downloaded ib data to get price data
         row = 0
+        timestamps = {}
+        timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
+        for timestamp in timestamps:
+            _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
+            _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
+            print('#' * 20, _date, ":", _time, '#' * 20)
 
-        for ticker_num in range(len(self.tickers)):
-            if self.getdata[ticker_num] == False:
-                self.timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
-                                       get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
-                self.getdata[ticker_num] = True
-        for ticker in self.timestamps:
-            for timestamp in ticker:
-                _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
-                _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-                print('#' * 20, _date, ":", _time, '#' * 20)
+            if row == 0:
+                # input initial cash
+                portfolio_data_engine.deposit_cash(initial_amount, timestamp)
+                row += 1
 
-                if row == 0:
-                    # input initial cash
-                    portfolio_data_engine.deposit_cash(initial_amount, timestamp)
-                    row += 1
-
-                if self.quick_test:
-                    if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
-                        self.run(timestamp, algorithm, sim_agent)
-                else:
+            if self.quick_test:
+                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
+            else:
+                self.run(timestamp, algorithm, sim_agent)
 
     def check_rebalance_ratio(self):
         total_ratio = 0
@@ -211,6 +204,8 @@ class backtest(object):
 
 
 def main():
+
+
     pass
 
 
