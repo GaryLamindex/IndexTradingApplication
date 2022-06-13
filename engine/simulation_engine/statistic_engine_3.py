@@ -75,7 +75,7 @@ class statistic_engine_3:
     def get_average_win_day_by_period(self, date, lookback_period, file_name):
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-        #print(data_period_df)
+        # print(data_period_df)
         results = self.check_win_or_lose_day(data_period_df)
         # average_win_day = results[0]
         # average_lose_day = results[1]
@@ -130,6 +130,7 @@ class statistic_engine_3:
         results = self.check_win_or_lose_day(data_period_df)
         # average_win_day = results[0]
         # average_lose_day = results[1]
+        print(results)
         if results[0] == 0 or results[1] == 0:
             profit_loss_ratio = 0
         else:
@@ -141,7 +142,7 @@ class statistic_engine_3:
         range_df = self.data_engine.get_data_by_range(rangee, file_name)
         #print(range_df)
         results = self.check_win_or_lose_day(range_df)
-        print(results)
+        # print(results)
         #average_win_day = results[0]
         #average_lose_day = results[1]
         if results[0] == 0 or results[1] == 0:
@@ -190,32 +191,30 @@ class statistic_engine_3:
 
         return profit_loss_ratio_dict
 
-    def check_win_or_lose_day(self, df, pos=0, check=False, sum_of_percentage_increased=0, number_of_win_days=0, sum_of_percentage_decreased=0, number_of_lose_days=0):
+    def check_win_or_lose_day(self, df, sum_of_percentage_increased=0, number_of_win_days=0, sum_of_percentage_decreased=0, number_of_lose_days=0, pos=0):
         for x in range(len(df['date'])):
-            if x == len(df['date']) - 1:
-                percentage_change_in_net_liquidation = (df['NetLiquidation'][x] - df['NetLiquidation'][pos]) / df['NetLiquidation'][pos]
-                # print(range_df['NetLiquidation'][x], 1)
-                # print(pos)
-                # print(percentage_change_in_net_liquidation, 1)
-                check = True
-            elif df['date'][x] != df['date'][x + 1]:
+            check = False
+            # if x == len(df['date']) - 1:
+            #     percentage_change_in_net_liquidation = (df['NetLiquidation'][x] - df['NetLiquidation'][pos]) / df['NetLiquidation'][pos]
+            #     # print(range_df['NetLiquidation'][x], 1)
+            #     # print(pos)
+            #     print(percentage_change_in_net_liquidation, 1)
+            #     check = True
+            if df['date'][pos] != df['date'][x]:
                 percentage_change_in_net_liquidation = (df['NetLiquidation'][x] - df['NetLiquidation'][pos]) / df['NetLiquidation'][pos]
                 # print(range_df['NetLiquidation'][x], 2)
                 # print(pos)
                 # print(percentage_change_in_net_liquidation, 2)
                 check = True
+                pos = x
+            # print(percentage_change_in_net_liquidation)
             if check is True:
-                if x == pos:  # for this simple backtest with one liquidation data only
-                    sum_of_percentage_increased += df['NetLiquidation'][x] / 10000000
-                    number_of_win_days += 1
-                elif percentage_change_in_net_liquidation > 0:
+                if percentage_change_in_net_liquidation > 0:
                     sum_of_percentage_increased += percentage_change_in_net_liquidation
                     number_of_win_days += 1
                 elif percentage_change_in_net_liquidation < 0:
                     sum_of_percentage_decreased += percentage_change_in_net_liquidation
                     number_of_lose_days += 1
-                pos = x + 1
-            check = False
         if number_of_win_days == 0:
             average_win_day = 0
         else:
@@ -263,12 +262,12 @@ def main():
     #print(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"10y"))
 #print(my_stat_engine.get_average_win_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_average_win_day_by_range(["2022-03-27", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m','my_test'))
     # print(my_stat_engine.get_average_win_day_by_range(["2022-03-31", "2022-4-28"],'my_test'))
     # print(my_stat_engine.get_average_win_day_ytd('my_test'))
@@ -279,6 +278,12 @@ def main():
     # print(my_stat_engine.get_profit_loss_ratio_ytd('my_test'))
     # print(my_stat_engine.get_profit_loss_ratio_inception('my_test'))
     # print(my_stat_engine.get_profit_loss_ratio_data('my_test'))
+    print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-27", "2022-4-28"],'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_profit_loss_ratio_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_profit_loss_ratio_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+
 
 if __name__ == "__main__":
     main()

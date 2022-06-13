@@ -15,7 +15,6 @@ from engine.simulation_engine import sim_data_io_engine
 from engine.aws_engine.dynamo_db_engine import dynamo_db_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.simulation_engine.statistic_engine import statistic_engine
-from engine.simulation_engine.statistic_engine_2 import statistic_engine_2
 from engine.simulation_engine.statistic_engine_3 import statistic_engine_3
 from object.backtest_acc_data import backtest_acc_data
 
