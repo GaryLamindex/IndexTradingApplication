@@ -58,7 +58,7 @@ def plot_all_file_graph_png(folder_path, time_axis_name, data_axis_name, output_
         filename = os.fsdecode(file)
         if filename.endswith(".csv"):
             print(f"{folder_path}/{filename}")
-            plot_time_data_png(f"{folder_path}/{filename}", time_axis_name, data_axis_name, output_folder)
+            #plot_time_data_png(f"{folder_path}/{filename}", time_axis_name, data_axis_name, output_folder)
             continue
         else:
             continue

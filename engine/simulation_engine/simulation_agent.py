@@ -65,7 +65,7 @@ class simulation_agent(object):
 
     # no clear usage
     def get_net_action_dicts(self, action_msgs):
-        print("action_msgs:", action_msgs)
+       # print("action_msgs:", action_msgs)
         net_action_dicts = []
         for action_msg in action_msgs:
             action_ticker = action_msg.get('ticker')
@@ -86,12 +86,12 @@ class simulation_agent(object):
 
             elif any(action_ticker + ' action' in action_dict for action_dict in net_action_dicts):
                 action_type = action_msg.get('action')
-                print("action_type:", action_type)
-                print("action_msg:", action_msg)
+               # print("action_type:", action_type)
+               # print("action_msg:", action_msg)
                 action_amount = action_msg.get('transaction_amount')
                 if action_type == "SELL":
                     action_amount = action_amount * -1
-                    print("action_amount:", action_amount)
+                    #print("action_amount:", action_amount)
                 previous_action_type = [action_dict[action_ticker + ' action'] for action_dict in net_action_dicts if
                                         action_ticker + ' action' in action_dict][0]
                 previous_action_amount = \
@@ -99,7 +99,7 @@ class simulation_agent(object):
                  action_ticker + ' action amount' in action_dict][0]
                 if previous_action_type == 'SELL':
                     previous_action_amount = previous_action_amount * -1
-                    print("previous_action_amount:", previous_action_amount)
+                    #print("previous_action_amount:", previous_action_amount)
                 net_action_amount = action_amount + previous_action_amount
                 if net_action_amount > 0:
                     net_action_dict = {action_ticker + ' action': "buy",
@@ -127,7 +127,7 @@ class simulation_agent(object):
                     net_action_dicts.append(
                         {action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
 
-            print("net_action_dicts:", net_action_dicts)
+            #print("net_action_dicts:", net_action_dicts)
 
         return net_action_dicts
 
@@ -173,7 +173,7 @@ class simulation_agent(object):
 
                 action_res = {f"{action_ticker} {str(key)}": val for key, val in action_msg.items()}
                 action_dicts.update(action_res)  # action_dicts|action_res
-        print(action_dicts)
+        #print(action_dicts)
 
         try:
             del ticker_data['timestamp']
@@ -186,8 +186,8 @@ class simulation_agent(object):
             if len(sim_meta_data) > 0 and ticker in sim_meta_data:
                 sim_data_res.update({f"{ticker} {str(key)}": val for key, val in sim_meta_data[ticker].items()})
             ticker_data_res.update({f"{ticker} mktPrice": ticker_data[ticker]['last']})
-        print("sim_data_res")
-        print(sim_data_res)
+        #print("sim_data_res")
+       # print(sim_data_res)
         run_dict = timestamp_dict | orig_account_snapshot_dict | ticker_data_res | sim_data_res | action_dicts
         self.data_attribute = run_dict.keys()
 
