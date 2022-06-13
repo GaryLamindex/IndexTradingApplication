@@ -70,6 +70,8 @@ class ibkr_stock_data_io_engine:
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
         self.dividends_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
+        self.etf_list_path = str(
+            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/etf_list.csv'
 
         # self.output_filepath = "C:/Users/85266/OneDrive/Documents"
 
@@ -150,18 +152,39 @@ class ibkr_stock_data_io_engine:
     // 2009-07-01 00:00:00 - 1246377600
     """
 
+    def get_first_row_of_data(self, ticker):
+        filename = f'{self.ticker_data_path}/{ticker}.csv'
+        file_exists = os.path.exists(filename)
+        if file_exists:
+            df = pd.read_csv(filename)
+            return df.iloc[0]
+        else:
+            return None
+
     # write the historical data to the
     # the function is for fetching large dataframe, thus inside the loop will only fetch the data of one week once
     # due to TWS limitataion, max. 2 tickers at a time !!!
     # e.g. {"QQQ":[{timestamp, ohlc},{timestamp, ohlc}],"SPY"[{timestamp, ohlc},{timestamp, ohlc}]...}
+    @connection_handler
     def get_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
+
+        first_row = self.get_first_row_of_data(ticker)
+        if first_row is not None:
+            end_timestamp = first_row['timestamp']
 
         # historical_data = []
         current_end_timestamp = end_timestamp
 
+        connect_tws(self.ib_instance)
+
         while current_end_timestamp > start_timestamp:
-            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, "3 W", bar_size,
+            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                            regular_trading_hour)
+            if len(current_data) == 0:
+                current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
+                                                               regular_trading_hour)
+            if len(current_data) == 0:
+                return
             front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -178,6 +201,9 @@ class ibkr_stock_data_io_engine:
         # adding a column of timestamp
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
         # list(map(lambda x: {"date":x.date,"timestamp":x.date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(),"open":x.open,"high":x.high,"low":x.low,"close":x.close,"volume":x.volume,"average":x.average,"barCount":x.barCount},historical_data[ticker]))
+
+    def get_etf_list(self):
+        return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
 
     def get_dividends(self, tickers):
         for ticker in tickers:
@@ -246,6 +272,7 @@ class ibkr_stock_data_io_engine:
         for ticker in tickers:
             self.get_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
             print("successfully written", ticker)
+
 
 
 def main():
