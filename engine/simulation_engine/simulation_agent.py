@@ -159,7 +159,7 @@ class simulation_agent(object):
         for action_msg in action_msgs:
             temp_list = action_msg.copy()
             if not temp_list['action'] == 'rejected':
-                print("temp_list:", temp_list)
+                #print("temp_list:", temp_list)
                 action_ticker = temp_list["ticker"]
                 try:
                     del action_msg[
@@ -171,6 +171,7 @@ class simulation_agent(object):
                 except KeyError:
                     pass
 
+                # Mark, change the code here as you like, so that giving a better representations in tickers snapshots
                 action_res = {f"{action_ticker} {str(key)}": val for key, val in action_msg.items()}
                 action_dicts.update(action_res)  # action_dicts|action_res
         print(action_dicts)
@@ -180,9 +181,10 @@ class simulation_agent(object):
         except KeyError:
             pass
         sim_data_res = {}
+        #Mark, change the code here as you like, so that giving a better representations in tickers snapshots
         for ticker in self.tickers:
-            print("sim_meta_data[ticker].items()")
-            print(sim_meta_data[ticker].items())
+            #print("sim_meta_data[ticker].items()")
+            #print(sim_meta_data[ticker].items())
             if len(sim_meta_data) > 0 and ticker in sim_meta_data:
                 sim_data_res.update({f"{ticker} {str(key)}": val for key, val in sim_meta_data[ticker].items()})
             ticker_data_res.update({f"{ticker} mktPrice": ticker_data[ticker]['last']})
@@ -192,6 +194,10 @@ class simulation_agent(object):
         self.data_attribute = run_dict.keys()
 
         # write the resulting_dict to a csv
+
+        # Mark, here is writing header , then write row per timestamp to output the simulation, it is NOT converting whole DT to csv.  This is useful when DT is huge (>100,000 row)
+        # However, the main problem is the header is non changable, so that the output CSV will be non
+        # Also the row output is also not align with header
         if f"{self.spec_str}.csv" not in os.listdir(f"{self.table_path}/run_data/"):
             with open(self.run_file_path, 'a+', newline='') as f:
                 writer = csv.DictWriter(f, self.data_attribute)

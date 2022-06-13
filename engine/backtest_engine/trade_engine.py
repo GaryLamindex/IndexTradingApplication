@@ -24,8 +24,8 @@ class backtest_trade_engine(object):
         portfolio = self.backtest_acc_data.portfolio
         stock_transaction_record = self.backtest_acc_data.stock_transaction_record
 
-        if meta_data["ticker_open_price"] != None:
-            ticker_open_price = meta_data["ticker_open_price"]
+        if meta_data[ticker]['last'] != None:
+            ticker_open_price = meta_data[ticker]['last']
             timestamp = meta_data.get("timestamp")
         else:
             timestamp = meta_data.get("timestamp")

@@ -162,3 +162,6 @@ class backtest_acc_data(object):
 
     def get_portfolio(self):
         return self.portfolio
+
+    def get_mkt_value(self):
+        return self.mkt_value

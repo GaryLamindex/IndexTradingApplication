@@ -6,8 +6,8 @@ import datetime as dt
 from matplotlib import pyplot as plt
 from scipy import stats
 from dateutil.relativedelta import relativedelta
-
 from engine.simulation_engine import sim_data_io_engine
+from object import backtest_acc_data
 
 RISK_FREE_RATE = 0.0127
 # equivalent rate for 60s
@@ -736,6 +736,10 @@ class statistic_engine:
 
         return output_df
 
+    def composite(self, file_name):
+
+        return output_df
+
 
 def main():
     engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
@@ -775,5 +779,6 @@ def main():
     #print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
     #my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
     #print(my_stat_engine.get_drawdown_raw_data_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.composite('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 if __name__ == "__main__":
     main()

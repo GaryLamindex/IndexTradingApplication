@@ -48,7 +48,7 @@ class backtest_portfolio_data_engine(object):
                     # Update price
                     ticker_item = self.acc_data.get_portfolio_ticker_item(ticker)
                     marketPrice = stock_data_dict[ticker]['last']  # Retrieve stock data of date
-                    print("updated price:", marketPrice, "; updated stock:", ticker)
+                    #print("updated price:", marketPrice, "; updated stock:", ticker)
                     position = ticker_item.get('position')
                     cost_basis = ticker_item.get('costBasis')
                     marketValue = marketPrice * position
