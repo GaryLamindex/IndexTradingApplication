@@ -12,12 +12,13 @@ class api_data_io_engine:
     def get_netliquidation_df(self):
         output_df = pd.DataFrame(columns=['timestamp','NetLiquidation'])
         #Code below
-
+        output_df = self.input_df[['timestamp', 'NetLiquidation']].copy()
         return output_df
 
     def get_buy_sell_info_df(self):
         buysell_df = pd.DataFrame(columns=['timestamp', 'buy/sell', 'quantity', 'price', 'totalAmount'])
         # Code below
+
 
         return buysell_df
 
@@ -28,11 +29,13 @@ class api_data_io_engine:
         return output_dict
 
     def convert_df_to_json(self):
+        json_file = pd.json_normalize()
         #code below
         return json_file
 
 
 def main():
+    return
 
 if __name__ == "__main__":
     main()
