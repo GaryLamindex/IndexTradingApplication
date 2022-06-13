@@ -190,7 +190,6 @@ class backtest(object):
                 valueCol = f'{self.tickers[idx]} marketValue'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
-                stat_engine_2 = statistic_engine_2(sim_data_offline_engine)
                 stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
                 sharpe_dict = stat_engine.get_sharpe_data(file_name)
                 inception_sharpe = sharpe_dict.get("inception")
@@ -234,7 +233,7 @@ class backtest(object):
                 _5_yr_volatility = volatility_dict.get('5y')
                 _ytd_volatility = volatility_dict.get('ytd')
 
-                win_rate_dict = stat_engine_2.get_win_rate_data(file_name)
+                win_rate_dict = stat_engine.get_win_rate_data(file_name)
                 inception_win_rate = win_rate_dict.get('inception')
                 _1_yr_win_rate = win_rate_dict.get('1y')
                 _3_yr_win_rate = win_rate_dict.get('3y')
