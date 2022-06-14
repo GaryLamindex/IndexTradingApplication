@@ -73,22 +73,22 @@ class backtest(object):
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
-            list_of_run_files = listdir(self.run_file_dir)
-            list_of_stats_data = listdir(self.stats_data_dir)
-            list_of_acc_data = listdir(self.acc_data_dir)
-            list_of_transact_data = listdir(self.transact_data_dir)
-            list_of_graph = listdir(self.graph_dir)
+            # list_of_run_files = listdir(self.run_file_dir)
+            # list_of_stats_data = listdir(self.stats_data_dir)
+            # list_of_acc_data = listdir(self.acc_data_dir)
+            # list_of_transact_data = listdir(self.transact_data_dir)
+            # list_of_graph = listdir(self.graph_dir)
 
-            for file in list_of_run_files:
-                os.remove(Path(f"{self.run_file_dir}/{file}"))
-            for file in list_of_stats_data:
-                os.remove(Path(f"{self.stats_data_dir}/{file}"))
-            for file in list_of_acc_data:
-                os.remove(Path(f"{self.acc_data_dir}/{file}"))
-            for file in list_of_transact_data:
-                os.remove(Path(f"{self.transact_data_dir}/{file}"))
-            for file in list_of_graph:
-                os.remove(Path(f"{self.graph_dir}/{file}"))
+            # for file in list_of_run_files:
+            #     os.remove(Path(f"{self.run_file_dir}/{file}"))
+            # for file in list_of_stats_data:
+            #     os.remove(Path(f"{self.stats_data_dir}/{file}"))
+            # for file in list_of_acc_data:
+            #     os.remove(Path(f"{self.acc_data_dir}/{file}"))
+            # for file in list_of_transact_data:
+            #     os.remove(Path(f"{self.transact_data_dir}/{file}"))
+            # for file in list_of_graph:
+            #     os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
         # loop through all the rebalance requirement
