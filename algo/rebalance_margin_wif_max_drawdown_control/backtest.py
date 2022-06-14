@@ -189,7 +189,7 @@ class backtest(object):
                 valueCol = f'{self.tickers[idx]} marketValue'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
-                stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
+                # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
                 sharpe_dict = stat_engine.get_sharpe_data(file_name)
                 inception_sharpe = sharpe_dict.get("inception")
                 _1_yr_sharpe = sharpe_dict.get("1y")
@@ -255,14 +255,14 @@ class backtest(object):
 
                 drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
 
-                average_win_day_dict = stat_engine_3.get_average_win_day_data(file_name)
+                average_win_day_dict = stat_engine.get_average_win_day_data(file_name)
                 inception_average_win_day = average_win_day_dict.get('inception')
                 _1_yr_average_win_day = average_win_day_dict.get('1y')
                 _3_yr_average_win_day = average_win_day_dict.get('3y')
                 _5_yr_average_win_day = average_win_day_dict.get('5y')
                 _ytd_average_win_day = average_win_day_dict.get('ytd')
 
-                profit_loss_ratio_dict = stat_engine_3.get_profit_loss_ratio_data(file_name)
+                profit_loss_ratio_dict = stat_engine.get_profit_loss_ratio_data(file_name)
                 inception_profit_loss_ratio = profit_loss_ratio_dict.get('inception')
                 _1_yr_profit_loss_ratio = profit_loss_ratio_dict.get('1y')
                 _3_yr_profit_loss_ratio = profit_loss_ratio_dict.get('3y')
