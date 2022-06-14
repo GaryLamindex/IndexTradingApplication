@@ -3,6 +3,8 @@ from datetime import timezone
 
 from engine.realtime_engine_ibkr.stock_data_engine import *
 from engine.backtest_engine.currencies_engine import *
+from datetime import datetime
+from datetime import timezone
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
@@ -25,6 +27,11 @@ def main():
 
     # engine.get_historical_currency_rate_by_range('USD', 'HKD', 946702800, 1590700500)
     # engine.get_sehk_historical_data_by_range('3188', 1351215000, 1351216020, '1 min', True)
+
+    etf_list = engine.get_etf_list()
+    for etf in etf_list['Ticker']:
+        engine.get_historical_data_by_range(etf, 0,
+                                            datetime(2022, 6, 9, tzinfo=timezone.utc).timestamp(), '1 min', True)
 
 
 if __name__ == "__main__":
