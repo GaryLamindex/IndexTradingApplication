@@ -42,7 +42,7 @@ class backtest_portfolio_data_engine(object):
         portfolio = self.acc_data.portfolio
         tickers = [r['ticker'] for r in portfolio]
         if len(tickers) > 0:
-            print("Updating Portfolio and Stock Data")
+            #print("Updating Portfolio and Stock Data")
             for ticker in tickers:
                 if stock_data_dict.get(ticker) != None:
                     # Update price
@@ -58,10 +58,10 @@ class backtest_portfolio_data_engine(object):
 
             self.update_acc_data()
         else:
-            print("Portfolio is empty")
+            #print("Portfolio is empty")
 
-        print('update_portfolio_data')
-        pass
+        #print('update_portfolio_data')
+            pass
 
     def update_acc_data(self):
         mkt_value = self.acc_data.mkt_value
@@ -108,10 +108,10 @@ class backtest_portfolio_data_engine(object):
             AvailableFunds = 0
         BuyingPower = AvailableFunds * 20 / 3
         ExcessLiquidity = EquityWithLoanValue - FullMaintMarginReq
-        print("NetLiquidation:", NetLiquidation, "; GrossPositionValue:", GrossPositionValue, "; TotalCashValue:",
-              TotalCashValue, "; FullInitMarginReq:", FullInitMarginReq, "; FullMaintMarginReq:", FullMaintMarginReq,
-              "; EquityWithLoanValue:", EquityWithLoanValue, "; AvailableFunds:", AvailableFunds, ";BuyingPower:",
-              BuyingPower, "; ExcessLiquidity:", ExcessLiquidity)
+        # print("NetLiquidation:", NetLiquidation, "; GrossPositionValue:", GrossPositionValue, "; TotalCashValue:",
+        #       TotalCashValue, "; FullInitMarginReq:", FullInitMarginReq, "; FullMaintMarginReq:", FullMaintMarginReq,
+        #       "; EquityWithLoanValue:", EquityWithLoanValue, "; AvailableFunds:", AvailableFunds, ";BuyingPower:",
+        #       BuyingPower, "; ExcessLiquidity:", ExcessLiquidity)
         if NetLiquidation == 0:
             Leverage = 0
         else:

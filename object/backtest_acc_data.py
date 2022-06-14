@@ -30,12 +30,13 @@ class backtest_acc_data(object):
         self.mkt_value = {"TotalCashValue": 0, "NetDividend": 0, "NetLiquidation": 0, "UnrealizedPnL": 0,
                           "RealizedPnL": 0, "GrossPositionValue": 0}
 
-        _spy = {'ticker': 'SPY', 'initMarginReq': 0.09, 'maintMarginReq': 0.1}
+        _spy = {'ticker': 'SPY', 'initMarginReq': 0.1091, 'maintMarginReq': 0.992}
         _qqq = {'ticker': 'QQQ', 'initMarginReq': 0.1, 'maintMarginReq': 0.11}
         _govt = {'ticker': 'GOVT', 'initMarginReq': 0.09, 'maintMarginReq': 0.1}
         _shv = {'ticker': 'SHV', 'initMarginReq': 0.09, 'maintMarginReq': 0.1}
         _3188_hk = {'ticker': '3188', 'initMarginReq': 0.25, 'maintMarginReq': 0.20}
-        self.margin_info = [_spy, _qqq, _govt, _shv, _3188_hk]
+        _ivv = {'ticker': 'IVV', 'initMarginReq': 0.1071, 'maintMarginReq': 0.0974}
+        self.margin_info = [_spy, _qqq, _govt, _shv, _3188_hk, _ivv]
         self.acc_data_json_file_path = str(pathlib.Path(
             __file__).parent.parent.parent.parent.resolve()) + f"/user_id_{self.user_id}/backtest/acc_data/{self.table_name}/{spec_str}.json"
 

@@ -29,9 +29,9 @@ class backtest(object):
     initial_amount = 0
     check_ratio = False
     stock_data_engines = {}
-    getdata = []
     timestamps = []
     rebalance_ratio = []
+    quick_test = True
 
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode, quick_test, acceptance_range, rebalance_ratio):
@@ -53,7 +53,6 @@ class backtest(object):
         self.rebalance_ratio = rebalance_ratio
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
-            self.getdata.append(False)
 
         if db_mode.get("local"):
 
@@ -92,7 +91,6 @@ class backtest(object):
                 os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
-        print("Start loop_through_param:")
         # loop through all the rebalance requirement
         # calculate all possible ratio that sum is 100 with different number of stickers
         num_tickers = len(self.tickers)
@@ -119,50 +117,33 @@ class backtest(object):
             self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
                                portfolio_data_engine, sim_agent)
             print("Finished Backtest:", backtest_spec)
-            # self.plot_all_file_graph()
+            print("-------------------------------------------------------------------------------")
+            self.plot_all_file_graph()
 
-            # if self.cal_stat:
-            #     print("start backtest")
-            # self.cal_all_file_return()
+            if self.cal_stat:
+                self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent):
         # connect to downloaded ib data to get price data
-        print("start backtest")
         row = 0
-        print("Fetch data")
+        timestamps = {}
+        timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
+        for timestamp in timestamps:
+            _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
+            _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
+            print('#' * 20, _date, ":", _time, '#' * 20)
 
-        for ticker_num in range(len(self.tickers)):
-            if self.getdata[ticker_num] == False:
-                self.timestamps.append(self.stock_data_engines[self.tickers[ticker_num]].
-                                       get_data_by_range([start_timestamp, end_timestamp])['timestamp'])
-                self.getdata[ticker_num] = True
-        # if len(self.tickers) == 1:
-        #     timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
-        #         'timestamp']
-        # elif len(self.tickers) == 2:
-        #     series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
-        #         'timestamp']
-        #     series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
-        #         'timestamp']
-        #     timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
+            if row == 0:
+                # input initial cash
+                portfolio_data_engine.deposit_cash(initial_amount, timestamp)
+                row += 1
 
-        for ticker in self.timestamps:
-            for timestamp in ticker:
-                _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
-                _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-                # print('#' * 20, _date, ":", _time, '#' * 20)
-
-                if row == 0:
-                    # input initial cash
-                    portfolio_data_engine.deposit_cash(initial_amount, timestamp)
-                    row += 1
-
-                if self.quick_test:
-                    if algorithm.check_exec(timestamp, freq="Daily", relative_delta=1):
-                        self.run(timestamp, algorithm, sim_agent)
-                else:
+            if self.quick_test:
+                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
+            else:
+                self.run(timestamp, algorithm, sim_agent)
 
     def check_rebalance_ratio(self):
         total_ratio = 0
@@ -188,13 +169,10 @@ class backtest(object):
         sim_meta_data = {}
         for ticker in self.tickers:
             # get stock data from historical data
-            print("timestamp:", timestamp, "; ticker:", ticker)
             ticker_data = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
             if ticker_data != None:
                 ticker_open_price = ticker_data.get("open")
-                print("ticker_open_price", ticker_open_price)
                 stock_data_dict.update({ticker: {'last': ticker_open_price}})
-                print("stock_data_dict", stock_data_dict)
                 sim_meta_data.update({ticker: ticker_data})
 
             # ticker_div = ticker_stock_data.get(Query().timestamp == timestamp).get(ticker + ' div amount')
@@ -204,8 +182,8 @@ class backtest(object):
         # input database and historical data into algo
         action_msgs = algorithm.run(stock_data_dict, timestamp)
 
-        # sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
-        # stock_data_dict)
+        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+        stock_data_dict)
 
     @staticmethod
     def get_outcomes( dim, target):
@@ -226,6 +204,8 @@ class backtest(object):
 
 
 def main():
+
+
     pass
 
 
