@@ -1077,6 +1077,7 @@ class statistic_engine:
                 # print(pos)
                 # print(percentage_change_in_net_liquidation, 2)
                 check = True
+                pos = x
             # print(percentage_change_in_net_liquidation)
             if check is True:
                 if percentage_change_in_net_liquidation > 0:
@@ -1085,7 +1086,6 @@ class statistic_engine:
                 elif percentage_change_in_net_liquidation < 0:
                     sum_of_percentage_decreased += percentage_change_in_net_liquidation
                     number_of_lose_days += 1
-            pos = x
         if number_of_win_days == 0:
             average_win_day = 0
         else:
