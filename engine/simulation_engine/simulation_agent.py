@@ -69,7 +69,7 @@ class simulation_agent(object):
 
     # no clear usage
     def get_net_action_dicts(self, action_msgs):
-        print("action_msgs:", action_msgs)
+       # print("action_msgs:", action_msgs)
         net_action_dicts = []
         for action_msg in action_msgs:
             action_ticker = action_msg.get('ticker')
@@ -90,12 +90,12 @@ class simulation_agent(object):
 
             elif any(action_ticker + ' action' in action_dict for action_dict in net_action_dicts):
                 action_type = action_msg.get('action')
-                print("action_type:", action_type)
-                print("action_msg:", action_msg)
+               # print("action_type:", action_type)
+               # print("action_msg:", action_msg)
                 action_amount = action_msg.get('transaction_amount')
                 if action_type == "SELL":
                     action_amount = action_amount * -1
-                    print("action_amount:", action_amount)
+                    #print("action_amount:", action_amount)
                 previous_action_type = [action_dict[action_ticker + ' action'] for action_dict in net_action_dicts if
                                         action_ticker + ' action' in action_dict][0]
                 previous_action_amount = \
@@ -103,7 +103,7 @@ class simulation_agent(object):
                  action_ticker + ' action amount' in action_dict][0]
                 if previous_action_type == 'SELL':
                     previous_action_amount = previous_action_amount * -1
-                    print("previous_action_amount:", previous_action_amount)
+                    #print("previous_action_amount:", previous_action_amount)
                 net_action_amount = action_amount + previous_action_amount
                 if net_action_amount > 0:
                     net_action_dict = {action_ticker + ' action': "buy",
@@ -131,7 +131,7 @@ class simulation_agent(object):
                     net_action_dicts.append(
                         {action_ticker + ' action': action_type, action_ticker + " action amount": action_amount})
 
-            print("net_action_dicts:", net_action_dicts)
+            #print("net_action_dicts:", net_action_dicts)
 
         return net_action_dicts
 
