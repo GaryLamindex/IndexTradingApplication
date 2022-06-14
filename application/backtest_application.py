@@ -29,11 +29,11 @@ db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
 tickers = ["SPY", "IVV"]
-deposit_amount = 10000
+deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)
 #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[80,20],]
+rebalance_ratio = [[25, 75], [50, 50], [75, 25]]
 for ratio in rebalance_ratio:
     portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                        deposit_amount,
