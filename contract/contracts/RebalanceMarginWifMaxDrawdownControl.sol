@@ -1,19 +1,15 @@
 pragma solidity ^0.8.13;
-import ".\utils\DateUtils.sol";
-import ".\utils\FixidityLib.sol";
-import ".\Object.sol";
-import ".\agent\StockTrading.sol";
-import ".\agents\Portfolio.sol";
-import ".\agents\StockTrading.sol";
+import "./utils/DateUtils.sol";
+import "./utils/FixidityLib.sol";
+import "./Object.sol";
 
-contract algorithm is Object, StockTrading{
+contract algorithm is Object{
     using DateUtils for *;
 
     event LogActionMsg(string actionMsgs);
-    ActionMsg[] memory actionMsgs;
 
-    uint lastExecutedTimestamp;
-    uint timestamp;
+    uint256 lastExecutedTimestamp;
+    uint256 timestamp;
     mapping (string => bool) maxDrawdownDodge;
     mapping (string => int256) benchmarkDrawdownPrice;
     mapping (string => int256) liquidateTickerQty;
@@ -27,7 +23,7 @@ contract algorithm is Object, StockTrading{
     int256 maxDrawdown = 5/1000 * FixidityLib.fixed1();
 
     constructor(RealTimeTickerData[] memory _realTimeTickerData){
-        lastExecutedTimestamp = block.timestamp;
+//        lastExecutedTimestamp = block.timestamp;
         for (uint i=0; i < _realTimeTickerData.length; i++){
             string tickerName = realTimeTickerData[i].tickerName;
             maxDrawdownDodge[tickerName] = false;
@@ -45,7 +41,7 @@ contract algorithm is Object, StockTrading{
                 string tickerName = data.tickerName;
                 uint256 limitPrice = data.last;
                 uint256 sharePurchase = capitalForEachStock/data.last * 3;
-                ActionMsg actionMsg = placeBuyStockLimitOrderMsg(tickerName, sharePurchase, limitPrice);
+                ActionMsg actionMsg = placeBuyStockLimitOrderMsg(tickerName,sharePurchase,limitPrice,_timeStamp);
                 actionMsgs.push(actionMsg);
             }
         }
@@ -57,12 +53,12 @@ contract algorithm is Object, StockTrading{
                 if (maxDrawdownDodge[realTimeTickerData[i].tickerName]){
                     int256 buyingPower = portfolioData.BuyingPower;
                     if (checkBuyBack(tickerName, tickerPrice)){
-                        ActionMsg memory actionMsg = buyBackPosition(tickerName, tickerPrice, buyingPower,timestamp);
+                        ActionMsg memory actionMsg = buyBackPosition(tickerName, tickerPrice, buyingPower,_timeStamp);
                         actionMsgs.push(actionMsg);
                     }
                 }else{
                     if(checkMaxDrawdownDodge(tickerName,tickerPrice)){
-                        ActionMsg memory actionMsg = liquidateTickerPosition(tickerName, tickerPrice ,timestamp);
+                        ActionMsg memory actionMsg = liquidateTickerPosition(tickerName, tickerPrice ,_timeStamp);
                     }
                     else{
                         if (portfolioData.ExcessLiquidity > targetExLiq) {
@@ -70,7 +66,7 @@ contract algorithm is Object, StockTrading{
                             int256 targetSharePurchase = FixidityLib.divide(exLiqDiff,tickerPrice);
 
                             if (targetSharePurchase > 0){
-                                ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName, sharePurchase, limitPrice);
+                                ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName,sharePurchase,limitPrice,_timeStamp);
                                 actionMsgs.push(actionMsg);
                             }
                         }
@@ -89,12 +85,12 @@ contract algorithm is Object, StockTrading{
                 }
             }
         }
-        lastExecutedTimestamp = block.timestamp;
+        lastExecutedTimestamp = _timeStamp;
         loop = loop + 1;
         return actionMsgs;
     }
 
-    function renewContractState(RealTimeTickerData[] memory _tickerData, uint256 _timeStamp, PortfolioData memory _portfolioData){
+    function renewContractState(RealTimeTickerData[] memory _tickerData, uint256 _timeStamp, PortfolioData memory _portfolioData) private{
         timestamp = _timeStamp;
         realTimeTickerData[_timeStamp] = _tickerData;
         portfolioData[_timeStamp] = _portfolioData;
@@ -102,6 +98,14 @@ contract algorithm is Object, StockTrading{
 
     function checkExecution(uint256 _timestamp) internal returns (bool){
         bool exec = false;
+        uint16 _year;
+        uint8 _month;
+        uint8 _day;
+
+        uint16 _lastYear;
+        uint8 _lastMonth;
+        uint8 _lastday;
+
         (_year, _month, _day) = _timestamp.convertTimestampToYMD;
         (_lastYear, _lastMonth, _lastday) = lastExecutedTimestamp.convertTimestampToYMD;
         if (_month != _lastMonth){
@@ -112,21 +116,21 @@ contract algorithm is Object, StockTrading{
     }
 
 
-    function checkBuyBack(string memory ticker, uint256 realTimeTickerPrice)internal returns (bool){
+    function checkBuyBack(string memory tickerName, uint256 realTimeTickerPrice)internal returns (bool){
 //        range_price = self.benchmark_drawdown_price.get(ticker) * (1 + 0.01)
 //        return ticker_price > range_price
-        int256 rangePrice = benchmarkDrawdownPrice[ticker] /100*101;
+        int256 rangePrice = benchmarkDrawdownPrice[tickerName] /100*101;
         return realTimeTickerPrice > rangePrice;
     }
 
-    function buyBackPosition(string memory tickerName, uint256 limitPrice) internal returns (ActionMsg memory) {
+    function buyBackPosition(string memory tickerName, uint256 limitPrice, uint256 _timeStamp) internal returns (ActionMsg memory) {
         int256 targetSharePurchase = liquidateTickerQty[ticker];
         int256 purchaseAmount = targetSharePurchase * limitPrice;
         if (portfolioData.BuyingPower >= purchaseAmount){
-            ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName, targetSharePurchase, limitPrice);
+            ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName,sharePurchase,limitPrice,_timeStamp);
         }else{
             targetSharePurchase = portfolioData.BuyingPower / limitPrice;
-            ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName, targetSharePurchase, limitPrice);
+            ActionMsg memory actionMsg = placeBuyStockLimitOrderMsg(tickerName,sharePurchase,limitPrice,_timeStamp);
         }
 
         maxDrawdownDodge[ticker] = False;
@@ -135,11 +139,12 @@ contract algorithm is Object, StockTrading{
         return actionMsg;
     }
 
-    function checkMaxDrawdownDodge(string memory tickerName, int256 limitPrice) returns (bool){
-        return limitPrice < benchmarkDrawdownPrice[ticker];
+
+    function checkMaxDrawdownDodge(string memory tickerName, int256 limitPrice) private returns (bool){
+        return limitPrice < benchmarkDrawdownPrice[tickerName];
     }
 
-    function updateBenchmarkDrawdownPriceAfterDodge(string memory tickerName, int256 tickerPrice){
+    function updateBenchmarkDrawdownPriceAfterDodge(string memory tickerName, int256 tickerPrice) private{
 //        if real_time_ticker_price < self.benchmark_drawdown_price[ticker] * 0.7:
 //            target_update_benchmark_drawdown_price = real_time_ticker_price + (
 //                    (self.liq_sold_price_dict[ticker] - real_time_ticker_price) * 0.5)
@@ -155,7 +160,7 @@ contract algorithm is Object, StockTrading{
         }
     }
 
-    function updateBenchmarkDrawdownPriceBeforeDodge(string memory tickerName, int256 realTimeTickerPrice){
+    function updateBenchmarkDrawdownPriceBeforeDodge(string memory tickerName, int256 realTimeTickerPrice) private{
 //        if (self.max_stock_price.get(ticker) == 0):  # if there is no data for the max and benchmark price
 //            self.max_stock_price.update({ticker: real_time_ticker_price})
 //            benchmark_price = real_time_ticker_price * (1 - self.max_drawdown_ratio)
@@ -169,31 +174,31 @@ contract algorithm is Object, StockTrading{
             maxStockPrice[ticker] = realTimeTickerPrice;
             int256 drawDownFactor = FixidityLib.subtract(FixidityLib.fixed1(), maxDrawdown);
             int256 benchmarkPrice = FixidityLib.multiply(maxStockPrice[ticker], drawDownFactor);
-            benchmarkDrawdownPrice[ticker] = benchmark_price;
+            benchmarkDrawdownPrice[tickerName] = benchmark_price;
         }
         else if (realTimeTickerPrice > maxStockPrice[ticker]){
             maxStockPrice[ticker] = realTimeTickerPrice;
             int256 drawDownFactor = FixidityLib.subtract(FixidityLib.fixed1(), maxDrawdown);
             int256 benchmarkPrice = FixidityLib.multiply(maxStockPrice[ticker], drawDownFactor);
-            benchmarkDrawdownPrice[ticker] = benchmarkPrice;
+            benchmarkDrawdownPrice[tickerName] = benchmarkPrice;
         }
 
     }
 
-    function liquidateTickerPosition(string memory tickerName, uint256 limitPrice) returns (ActionMsg){
+    function liquidateTickerPosition(string memory tickerName, uint256 limitPrice, uint256 _timeStamp) private returns (ActionMsg){
 
-        int256 currentPosition = portfolioData.tickerPortfolio[ticker];
+        int256 currentPosition = portfolioData.tickerPortfolio[tickerName];
         int256 noLeverageEquity = portfolioData.EquityWithLoanValue / realTimeTickerData.length;
         int256 noLeveragePosition = FixidityLib.divide(noLeverageEquity,realTimeTickerData[tickerName]);
         int256 targetLeveragePositionAtLiquidState = noLeveragePosition * 12 / 10;
 
         int256 targetSoldPosition = currentPosition - targetLeveragePositionAtLiquidState;
-        ActionMsg memory actionMsg = placeSellStockLimitOrderMsg(tickerName,targetSoldPosition,limitPrice);
+        ActionMsg memory actionMsg = placeSellStockLimitOrderMsg(tickerName,targetSoldPosition,limitPrice, _timeStamp);
 
-        benchmarkDrawdownPrice[ticker] = limitPrice;
+        benchmarkDrawdownPrice[tickerName] = limitPrice;
         liqSoldQty[ticker] = targetSoldPosition;
         liqSoldPrice[ticker] = limitPrice;
-        maxDrawdownDodge[ticker] = true;
+        maxDrawdownDodge[tickerName] = true;
 
         return actionMsg;
     }

@@ -4,6 +4,8 @@ from datetime import datetime
 import sys
 import pathlib
 
+import pandas as pd
+
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 import os
 import csv
@@ -22,6 +24,8 @@ class simulation_agent(object):
 
     sim_data_engine = None
     portfolio_data_engine = None
+
+    list_header = []
 
     # example
     # spec:{"rebalance_margin":rebalance_margin,"maintain_margin":maintain_margin,"max_drawdown_ratio":max_drawdown_ratio,"purchase_exliq":purchase_exliq}
@@ -153,12 +157,20 @@ class simulation_agent(object):
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
         timestamp_dict = {"timestamp": timestamp, "date": _date, "time": _time}
+
+        #store the header list
+        #timestamp, date and time first
+        # draft
+        for key in timestamp_dict.keys():
+            if key not in self.list_header:
+                self.list_header.append(key)
+
         action_dicts = {}
         sim_data_res = {}
         ticker_data_res = {}
         for action_msg in action_msgs:
             temp_list = action_msg.copy()
-            if not temp_list['action'] == 'rejected':
+            if not temp_list['action'] == 'rejected': #accpeted the then do
                 #print("temp_list:", temp_list)
                 action_ticker = temp_list["ticker"]
                 try:
@@ -172,9 +184,15 @@ class simulation_agent(object):
                     pass
 
                 # Mark, change the code here as you like, so that giving a better representations in tickers snapshots
-                action_res = {f"{action_ticker} {str(key)}": val for key, val in action_msg.items()}
+                action_res = {f"{str(key)}_{action_ticker}": val for key, val in action_msg.items()}
                 action_dicts.update(action_res)  # action_dicts|action_res
-        #print(action_dicts)
+
+                # draft
+                for key in action_dicts.keys():
+                    if key not in self.list_header:
+                        self.list_header.append(key)
+
+        print(action_dicts)
 
         try:
             del ticker_data['timestamp']
@@ -187,9 +205,19 @@ class simulation_agent(object):
             #print(sim_meta_data[ticker].items())
             if len(sim_meta_data) > 0 and ticker in sim_meta_data:
                 sim_data_res.update({f"{ticker} {str(key)}": val for key, val in sim_meta_data[ticker].items()})
+            #draft
+            for key in sim_data_res.keys():
+                if key not in self.list_header:
+                    self.list_header.append(key)
+
             ticker_data_res.update({f"{ticker} mktPrice": ticker_data[ticker]['last']})
-        #print("sim_data_res")
-       # print(sim_data_res)
+            #draft
+            for key in ticker_data_res.keys():
+                if key not in self.list_header:
+                    self.list_header.append(key)
+
+        print("sim_data_res")
+        print(sim_data_res)
         run_dict = timestamp_dict | orig_account_snapshot_dict | ticker_data_res | sim_data_res | action_dicts
         self.data_attribute = run_dict.keys()
 
@@ -209,6 +237,16 @@ class simulation_agent(object):
                 writer = csv.DictWriter(f, self.data_attribute)
                 # writer.writerow(run_dict)
                 writer.writerow(run_dict)
+
+        # thoughts:
+        # generate a file, leave the first line for header which place after running all the code
+        # first get the header list
+        # if header in header list:
+        #   iterate through the data which get the value corresponding to the header if it exists
+        #   else leave a blank space" "
+        # else:
+        #   add a new header to the header list
+        # place header list to the first row
 
     def write_transaction_record(self, action_msgs):
         transaction_field_name = ["state", "timestamp", "orderId", "ticker", "action", "lmtPrice", "totalQuantity",
