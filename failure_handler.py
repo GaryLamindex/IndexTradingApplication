@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 # not recommended, but for simplicity
+
 GMAIL_USER = "garylam@lamindexinvest.com"
 GMAIL_APP_PASSWORD = "Lamindexinvest123!"
 
@@ -38,12 +39,11 @@ def connection_handler(func):
         except Exception as e:
             # send a notification to the user about the disruption
             error_time = dt.datetime.now()
-            message = f"{func.__name__} was disrupted at {error_time}.\nError message: {e}\nTrying to run the function again after 30 seconds..."
+            message = f"{func.__name__} was disrupted at {error_time}.\nError message: {e}\nTrying to run the function again after 10 seconds..."
             """
             write the message to a log ???
             """
             print(message)
-            send_email(message)
             sleep(10)
             return inner(*args)  # recursive call
 
