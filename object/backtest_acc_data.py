@@ -225,7 +225,7 @@ class backtest_acc_data(object):
         _oneq = {'ticker': 'ONEQ', 'initMarginReq': 0.1322, 'maintMarginReq': 0.1202}
         _igm = {'ticker': 'IGM', 'initMarginReq': 0.1650, 'maintMarginReq': 0.1500}
         _oih = {'ticker': 'OIH', 'initMarginReq': 0.3825, 'maintMarginReq': 0.3477}
-        _skyy = {'ticker': 'SKYY', 'initMarginReq': 0.1110, 'maintMarginReq': 0.1009}
+        _skyy = {'ticker': 'SKYY', 'initMarginReq': 0.1650, 'maintMarginReq': 0.1500}
         _dsi = {'ticker': 'DSI', 'initMarginReq': 0.1110, 'maintMarginReq': 0.1009}
         _ita = {'ticker': 'ITA', 'initMarginReq': 0.1110, 'maintMarginReq': 0.1009}
         _mgc = {'ticker': 'MGC', 'initMarginReq': 0.1110, 'maintMarginReq': 0.1009}
