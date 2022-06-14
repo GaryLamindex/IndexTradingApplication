@@ -160,9 +160,9 @@ class simulation_agent(object):
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
         timestamp_dict = {"timestamp": timestamp, "date": _date, "time": _time}
 
-        #store the header list
-        #timestamp, date and time first
-        # draft
+        # store the header information to self.list_header field
+        # using a for-loop function like the below example
+        # timestamp, date and time first
         for key in timestamp_dict.keys():
             if key not in self.list_header:
                 self.list_header.append(key)
@@ -187,10 +187,11 @@ class simulation_agent(object):
                     pass
 
                 # Mark, change the code here as you like, so that giving a better representations in tickers snapshots
+                #The action_msg has a null val so the output has 4 collumns of (key)_null BUG
                 action_res = {f"{str(key)}_{action_ticker}": val for key, val in action_msg.items()}
                 action_dicts.update(action_res)  # action_dicts|action_res
 
-                # draft
+                # then action_dicts
                 for key in action_dicts.keys():
                     if key not in self.list_header:
                         self.list_header.append(key)
@@ -252,7 +253,7 @@ class simulation_agent(object):
         #         writer.writerow(run_dict)
 
         if f"{self.spec_str}.csv" not in os.listdir(f"{self.table_path}/run_data/"):
-            with open(self.run_file_path, 'w', newline='') as f:
+            with open(self.run_file_path, 'w+', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(self.list_header)
                 temp_row = []
@@ -264,7 +265,7 @@ class simulation_agent(object):
             if self.header_update:
                 #if exist then copy first
                 with open(self.run_file_path, 'r') as f_input,\
-                        open(self.run_file_path_temp, 'w', newline='') as f_output:
+                        open(self.run_file_path_temp, 'w+', newline='') as f_output:
                     writer = csv.writer(f_output)
                     writer.writerow(self.list_header)
 
