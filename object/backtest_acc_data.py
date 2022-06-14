@@ -48,13 +48,17 @@ class backtest_acc_data(object):
                                    "realizedPNL": realizedPNL, "unrealizedPNL": unrealizedPNL,
                                    'initMarginReq': initMarginReq, 'maintMarginReq': maintMarginReq,
                                    "costBasis": costBasis}
+        update = False
         if len(self.portfolio) == 0:
             self.portfolio.append(updating_portfolio_dict)
         else:
             for item in self.portfolio:
                 if item.get("ticker") == ticker:
                     item.update((k, v) for k, v in updating_portfolio_dict.items() if v is not None)
+                    update = True
                     break
+            if update==False:
+                self.portfolio.append(updating_portfolio_dict)
 
     def append_stock_transaction_record(self, ticker, timestamp, transaction_type, position_purchase, ticker_open_price,
                                         transaction_amount,

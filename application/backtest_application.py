@@ -33,7 +33,7 @@ deposit_amount = 10000
 acceptance_range = 0
 num_tickers = len(tickers)
 #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[0,100],[10,90],[20,80],[30,70],[40,60],[50, 50],[60,40],[70,30],[80,20],[90,10],[100,0]]
+rebalance_ratio = [[80,20],]
 for ratio in rebalance_ratio:
     portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                        deposit_amount,
