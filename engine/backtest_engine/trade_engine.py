@@ -12,7 +12,7 @@ class backtest_trade_engine(object):
         return True
 
     def place_buy_stock_limit_order(self, ticker, share_purchase, ticker_price, timestamp):
-        meta_data = {"ticker_open_price" : ticker_price, "timestamp":timestamp}
+        meta_data = {ticker: {'last': ticker_price, "timestamp": timestamp}}
         action_msg = self.place_buy_stock_mkt_order(ticker, share_purchase, meta_data)
         return action_msg
 
@@ -24,22 +24,22 @@ class backtest_trade_engine(object):
         portfolio = self.backtest_acc_data.portfolio
         stock_transaction_record = self.backtest_acc_data.stock_transaction_record
 
-        if meta_data["ticker_open_price"] != None:
-            ticker_open_price = meta_data["ticker_open_price"]
+        if meta_data[ticker]['last'] != None:
+            ticker_open_price = meta_data[ticker]['last']
             timestamp = meta_data.get("timestamp")
         else:
             timestamp = meta_data.get("timestamp")
             ticker_item = self.stock_data_io_engines[ticker].get_ticker_item_by_timestamp(timestamp)
             ticker_open_price = ticker_item.get("open")
-            print("ticker_open_price", ticker_open_price)
+            #print("ticker_open_price", ticker_open_price)
 
         transaction_amount = position_purchase * ticker_open_price
         BuyingPower = trading_funds.get("BuyingPower")
         TotalCashValue = mkt_value.get("TotalCashValue")
 
-        print("BuyingPower:", BuyingPower)
+       # print("BuyingPower:", BuyingPower)
         if BuyingPower < transaction_amount:
-            print("amount required:",transaction_amount,'; not enough buy_pwr, buy position is rejected')
+           # print("amount required:",transaction_amount,'; not enough buy_pwr, buy position is rejected')
             ticker = ""
             transaction_amount = 0
             msg = {'state':'0','ticker': ticker, 'action': 'rejected', 'totalQuantity': position_purchase, 'avgPrice': None}
@@ -73,8 +73,8 @@ class backtest_trade_engine(object):
         transaction_type = 0
         self.backtest_acc_data.append_stock_transaction_record(ticker, timestamp, transaction_type, position_purchase, ticker_open_price, transaction_amount, position)
 
-        print("buy order fully executed")
-        print("")
+       # print("buy order fully executed")
+        #print("")
 
         # Update Mkt Value & Margin
         self.portfolio_data_engine.update_acc_data()
@@ -89,10 +89,10 @@ class backtest_trade_engine(object):
 
         ticker_item = self.stock_data_io_engines[ticker].get_ticker_item_by_timestamp(timestamp)
         ticker_open_price = ticker_item.get("open")
-        print("ticker_open_price", ticker_open_price)
+       # print("ticker_open_price", ticker_open_price)
 
         if self.backtest_acc_data.check_if_ticker_exist_in_portfolio(ticker) == False:
-            print('stock not exist, sell action rejected')
+           # print('stock not exist, sell action rejected')
             ticker = ""
             transaction_amount = 0
             msg = {'state':'0', 'ticker': ticker, 'action': 'none', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
@@ -102,7 +102,7 @@ class backtest_trade_engine(object):
         orig_position = portfolio_ticker_item.get("position")
 
         if orig_position < position_sell:
-            print('shares not enough, sell action rejected')
+           # print('shares not enough, sell action rejected')
             ticker = ""
             transaction_amount = 0
             msg = {'state':'0', 'ticker': ticker, 'action': 'none', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
@@ -138,7 +138,7 @@ class backtest_trade_engine(object):
         self.backtest_acc_data.append_stock_transaction_record(ticker, timestamp, transaction_type, position_sell, ticker_open_price, transaction_amount, position)
 
 
-        print("ticker sold: ", ticker)
+       # print("ticker sold: ", ticker)
         msg = {'state':'1','ticker': ticker, 'action': 'sell', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
         return msg
 
