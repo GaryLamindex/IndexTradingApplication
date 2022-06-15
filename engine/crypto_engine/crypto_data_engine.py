@@ -16,8 +16,8 @@ class crypto_data_engine:
     def __init__(self):
         self.ticker_data_path = str(pathlib.Path(__file__)
                                     .parent.parent.parent.parent.resolve()) + '/ticker_data/one_min'
-        self.crypto_market_cap_data_path = str(pathlib.Path(__file__)
-                                               .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_market_cap'
+        self.crypto_daily_data_path = str(pathlib.Path(__file__)
+                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
         self.binance_base_url = 'https://data.binance.vision'
         self.coingecko_ranking_url = 'https://www.coingecko.com/en/all-cryptocurrencies'
         self.coingecko_historical_data_url = 'https://www.coingecko.com/en/coins/cardano/historical_data?end_date=2022-06-08&start_date=2021-03-01#panel'
@@ -58,6 +58,8 @@ class crypto_data_engine:
         return f'{self.ticker_data_path}/{csv_filename}'
 
     def get_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
+        if type(tickers) is str:
+            tickers = [tickers]
         for ticker in tickers:
             ticker = ticker.upper()
             csv_filename = None
@@ -100,7 +102,7 @@ class crypto_data_engine:
 
     def crawl_historical_market_cap_by_range_coingecko(self):
         chrome_options = webdriver.ChromeOptions()
-        prefs = {'download.default_directory': self.crypto_market_cap_data_path}
+        prefs = {'download.default_directory': self.crypto_daily_data_path}
         chrome_options.add_experimental_option('prefs', prefs)
         browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
@@ -138,16 +140,30 @@ class crypto_data_engine:
 
     def get_tickers_from_dir(self):
         tickers = []
-        for filename in listdir(self.crypto_market_cap_data_path):
-            tickers.append(filename.split('-')[0] + 'USDT')
+        is_start = False
+        for filename in listdir(self.crypto_daily_data_path):
+            if is_start:
+                tickers.append(filename.split('-')[0] + 'USDT')
+            if filename == 'ksm-usd-max.csv':
+                is_start = True
         return tickers
+
+    def get_crypto_daily_data(self, ticker):
+        filename = f'{self.crypto_daily_data_path}/{ticker.lower()}-usd-max.csv'
+        if os.path.exists(filename):
+            df = pd.read_csv(filename)
+            df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0], format='%Y-%m-%d %H:%M:%S %Z')
+            df.set_index('snapped_at', inplace=True)
+            return df
+        else:
+            print('daily crypto data not found')
+            return None
 
 
 def main():
     engine = crypto_data_engine()
-    engine.get_historical_data_by_range(engine.get_tickers_from_dir(), 1614556800, 1654473600, '1m')
-    # KSMUSDT completed
-    # engine.crawl_historical_market_cap_by_range_coingecko()
+    data = engine.get_crypto_daily_data('BTC')
+    print(data)
 
 
 if __name__ == '__main__':

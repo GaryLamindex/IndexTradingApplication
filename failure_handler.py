@@ -59,7 +59,7 @@ def connect_tws(ib_instance):
             sleep(5)
             ib_instance.disconnect()
             ib_instance.connect('127.0.0.1', 7497, clientId=1)
-            print("TWS er-connected !")
+            print("TWS re-connected !")
     except Exception as e:
         print("Exception or error:", e)
         connect_tws(ib_instance)
