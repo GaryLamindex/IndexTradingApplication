@@ -857,9 +857,11 @@ class statistic_engine:
 
     def get_drawdown_data(self, file_name, range):
 
-        drawdown_df = self.get_drawdown_by_range(range, file_name)
+        drawdown_dict = {}
 
-        return drawdown_df
+        drawdown_dict['drawdown_abstract'] = self.get_drawdown_by_range(range ,file_name)
+        drawdown_dict['drawdown_raw_data'] = self.get_drawdown_raw_data_by_range(file_name, range)
+        return drawdown_dict
 
     def get_drawdown_by_range(self, range, file_name):
         drawdown_df = pd.DataFrame(
@@ -910,9 +912,9 @@ class statistic_engine:
             list = [max_drawdown, drawdown_period, drawdown_days, recovery_date_info, recovery_days]
             drawdown_df.loc[len(drawdown_df.index)] = list
 
-        return drawdown_df
+        return drawdown_df.to_dict()
 
-    def get_drawdown_raw_data_by_range(self, range, file_name):
+    def get_drawdown_raw_data_by_range(self,file_name, range):
         # drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])
         range_df = self.data_engine.get_data_by_range(range, file_name)
         output_df = pd.DataFrame(columns=['timestamp', 'drawdown'])
@@ -1111,7 +1113,7 @@ class statistic_engine:
 
 
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_portfolio_rebalance_0/run_data')
+    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
@@ -1147,7 +1149,7 @@ def main():
     # print('volatility :' + str(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
     # # print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
     # # my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
-    # # print(my_stat_engine.get_drawdown_raw_data_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_drawdown_data( '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range))
     # # print(my_stat_engine.composite('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # #print('max drawdown :' + str(my_stat_engine.get_max_drawdown_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
     # print('rolling return :' + str(my_stat_engine.get_rolling_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range)))
@@ -1168,7 +1170,7 @@ def main():
     # # print(my_stat_engine.get_average_win_day_by_range(["2022-03-27", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print(my_stat_engine.get_composite_data('50_SPY_50_IVV_'))
+    #print(my_stat_engine.get_composite_data('50_SPY_50_IVV_'))
 
 if __name__ == "__main__":
     main()
