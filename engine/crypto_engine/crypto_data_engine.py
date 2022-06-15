@@ -151,7 +151,10 @@ class crypto_data_engine:
     def get_crypto_daily_data(self, ticker):
         filename = f'{self.crypto_daily_data_path}/{ticker.lower()}-usd-max.csv'
         if os.path.exists(filename):
-            return pd.read_csv(filename)
+            df = pd.read_csv(filename)
+            df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0], format='%Y-%m-%d %H:%M:%S %Z')
+            df.set_index('snapped_at', inplace=True)
+            return df
         else:
             print('daily crypto data not found')
             return None
@@ -159,9 +162,8 @@ class crypto_data_engine:
 
 def main():
     engine = crypto_data_engine()
-    engine.get_historical_data_by_range(engine.get_tickers_from_dir(), 1614556800, 1654473600, '1m')
-    # KSMUSDT completed
-    # engine.crawl_historical_market_cap_by_range_coingecko()
+    data = engine.get_crypto_daily_data('BTC')
+    print(data)
 
 
 if __name__ == '__main__':

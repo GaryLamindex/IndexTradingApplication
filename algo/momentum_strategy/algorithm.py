@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 class momentum_strategy:
     def __init__(self, trade_agent, portfolio_agent):
         self.trade_agent = trade_agent
@@ -6,10 +9,6 @@ class momentum_strategy:
         self.portfolio = self.account_snapshot.get("portfolio")
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
-    def run(self):
-        pass
-
-    def calculate_past_n_days_pct_change(self, ticker_dfs, n):
-        for df in ticker_dfs:
-            df['pct_change'] = df['price'].pct_change(periods=n)
-        return ticker_dfs
+    def run(self, stock_price_dict, periods_pct_change_dict, timestamp):
+        df = pd.DataFrame.from_dict(stock_price_dict, orient='index', columns=['price'])
+        df
