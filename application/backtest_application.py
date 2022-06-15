@@ -69,7 +69,7 @@ for ratio in rebalance_ratio:
 # db_mode = {"dynamo_db": False, "local": True}
 # data_freq = "one_min"
 # user_id = 0
-rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
+#rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
 #                                                                                                         initial_amount,
 #                                                                                                         start_date,
 #                                                                                                         end_date,
