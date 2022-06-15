@@ -105,6 +105,13 @@ class backtest(object):
             for k, v in backtest_spec.items():
                 spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
+            run_file = self.run_file_dir+spec_str+'.csv'
+            if os.path.exists(run_file):
+                os.remove(Path(run_file))
+            graph_file = self.graph_dir + spec_str + '.png'
+            if os.path.exists(graph_file):
+                os.remove(Path(graph_file))
+
             acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
                                          self.table_name, spec_str)
             portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
