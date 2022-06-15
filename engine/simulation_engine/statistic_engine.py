@@ -1096,10 +1096,22 @@ class statistic_engine:
             average_lose_day = abs(sum_of_percentage_decreased / number_of_lose_days)
         return [average_win_day, average_lose_day]
 
+    def get_composite_data(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day_info = full_df[full_df['timestamp'] == full_df['timestamp'].max()]
+        header = [col for col in full_df if col.startswith('marketValue')]
+        gross = last_day_info.iloc[0]['GrossPositionValue']
+        composite = {}
+        for i in header:
+            mkv = last_day_info.iloc[0][i]
+            tname = (i.split("_"))[-1]
+            composite.update({tname: mkv/gross})
+
+        return composite
+
 
 def main():
-    engine = sim_data_io_engine.offline_engine(
-        '/Users/percychui/Documents/Rainy Drop/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_portfolio_rebalance_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
@@ -1130,33 +1142,33 @@ def main():
     # print(my_stat_engine.get_alpha_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
     # print(my_stat_engine.get_alpha_by_range(range,  '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
     # print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    print('alpha :' + str(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice")))
-    # test the result in all_file_return, and add columns to
-    print('volatility :' + str(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
-    # print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
-    # my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
-    # print(my_stat_engine.get_drawdown_raw_data_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.composite('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print('max drawdown :' + str(my_stat_engine.get_max_drawdown_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    print('rolling return :' + str(my_stat_engine.get_rolling_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range)))
-    print('win rate :' + str(my_stat_engine.get_win_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    print('loss rate :' + str(my_stat_engine.get_loss_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    print('total trade :' + str(my_stat_engine.get_total_trade('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 action')))
-    print('compounding annual return :' + str(my_stat_engine.get_compounding_annual_return('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    print('treynor ratio :' + str(my_stat_engine.get_treynor_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice")))
-    print('information ratio :' + str(my_stat_engine.get_information_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
-    # print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m','0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-27", "2022-4-28"],'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_profit_loss_ratio_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_profit_loss_ratio_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    print('profit loss ratio :' + str(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    print('average win :' + str(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # print(my_stat_engine.get_average_win_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_by_range(["2022-03-27", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-
+    # print('alpha :' + str(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice")))
+    # # test the result in all_file_return, and add columns to
+    # print('volatility :' + str(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
+    # # print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
+    # # my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
+    # # print(my_stat_engine.get_drawdown_raw_data_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.composite('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # #print('max drawdown :' + str(my_stat_engine.get_max_drawdown_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
+    # print('rolling return :' + str(my_stat_engine.get_rolling_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range)))
+    # print('win rate :' + str(my_stat_engine.get_win_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
+    # print('loss rate :' + str(my_stat_engine.get_loss_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
+    # print('total trade :' + str(my_stat_engine.get_total_trade('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 action')))
+    # print('compounding annual return :' + str(my_stat_engine.get_compounding_annual_return('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
+    # print('treynor ratio :' + str(my_stat_engine.get_treynor_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice")))
+    # print('information ratio :' + str(my_stat_engine.get_information_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
+    # # print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m','0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-27", "2022-4-28"],'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_profit_loss_ratio_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_profit_loss_ratio_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print('profit loss ratio :' + str(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
+    # print('average win :' + str(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
+    # # print(my_stat_engine.get_average_win_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_average_win_day_by_range(["2022-03-27", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_composite_data('50_SPY_50_IVV_'))
 
 if __name__ == "__main__":
     main()

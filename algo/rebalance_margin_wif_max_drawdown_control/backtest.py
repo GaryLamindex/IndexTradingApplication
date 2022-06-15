@@ -269,6 +269,8 @@ class backtest(object):
                 _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
                 _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
 
+                composite_dict = stat_engine.get_composite_data(file_name)
+
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -301,9 +303,13 @@ class backtest(object):
                     "3 Yr Average Win Per Day": _3_yr_average_win_day, "5 Yr Average Win Per Day": _5_yr_average_win_day,
                     "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
                     "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
-                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio
+                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
+
+                    "Composite": composite_dict
 
                 }
+
+
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
                 _additional_data = {}
@@ -324,7 +330,8 @@ class backtest(object):
                "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
-               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio"
+               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
+               "Composite"
         ]
 
         df = pd.DataFrame(data_list, columns=col)
