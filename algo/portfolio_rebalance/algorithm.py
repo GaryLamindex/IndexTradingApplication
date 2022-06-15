@@ -28,7 +28,7 @@ class portfolio_rebalance:
     last_exec_datetime_obj = None
     last_max_drawdown_control_operation_datetime_obj = None
 
-    def __init__(self, trade_agent, portfolio_agent, ticker_wif_rebalance_ratio, acceptance_range,):
+    def __init__(self, trade_agent, portfolio_agent, ticker_wif_rebalance_ratio, acceptance_range):
         self.ticker_wif_rebalance_ratio = ticker_wif_rebalance_ratio
         self.trade_agent = trade_agent
         self.portfolio_agent = portfolio_agent

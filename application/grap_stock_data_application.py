@@ -31,7 +31,7 @@ def main():
     etf_list = engine.get_etf_list()
     for etf in etf_list['Ticker']:
         engine.get_historical_data_by_range(etf, 0,
-                                            datetime(2022, 6, 9, tzinfo=timezone.utc).timestamp(), '1 min', True)
+                                            datetime(2022, 6, 9, tzinfo=timezone.utc).timestamp(), '1 min', False)
 
 
 if __name__ == "__main__":
