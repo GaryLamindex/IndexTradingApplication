@@ -184,9 +184,9 @@ class backtest(object):
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
-                marketCol = f'{self.tickers[idx]} marketPrice'
-                costCol = f'{self.tickers[idx]} costBasis'
-                valueCol = f'{self.tickers[idx]} marketValue'
+                marketCol = f'marketPrice_{self.tickers[idx]}'
+                costCol = f'costBasis_{self.tickers[idx]}'
+                valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
@@ -254,6 +254,8 @@ class backtest(object):
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
 
                 drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
+                drawdown_abstract = drawdown_dict.get('drawdown_abstract')
+                drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
 
                 average_win_day_dict = stat_engine.get_average_win_day_data(file_name)
                 inception_average_win_day = average_win_day_dict.get('inception')
@@ -268,6 +270,8 @@ class backtest(object):
                 _3_yr_profit_loss_ratio = profit_loss_ratio_dict.get('3y')
                 _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
                 _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
+
+                composite_dict = stat_engine.get_composite_data(file_name)
 
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
@@ -294,16 +298,20 @@ class backtest(object):
                     "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
                     "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
                     "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return,
-                    "Drawdowns": drawdown_dict,
+                    "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
 
                     "Since Inception Average Win Per Day": inception_average_win_day,
                     "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
                     "3 Yr Average Win Per Day": _3_yr_average_win_day, "5 Yr Average Win Per Day": _5_yr_average_win_day,
                     "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
                     "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
-                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio
+                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
+
+                    "Composite": composite_dict
 
                 }
+
+
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
                 _additional_data = {}
@@ -320,14 +328,16 @@ class backtest(object):
                "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
                "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
                "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
-               "Drawdown",
+               "Drawdown_abstract","Drawdown_raw_data",
                "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
-               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio"
+               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
+               "Composite"
         ]
 
         df = pd.DataFrame(data_list, columns=col)
+        pd.set_option("max_colwidth", 10000)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv")

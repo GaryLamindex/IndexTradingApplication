@@ -57,15 +57,11 @@ for ratio in rebalance_ratio:
 # start_date = dt.datetime(2012, 10, 26)  # YYMMDD
 # end_date = dt.datetime(2022, 4, 29)  # YYMMDD
 #
-# strategy = "rebalance_margin_wif_max_drawdown_control"
+# strategy = "portfolio_rebalance"
 # mode = "backtest"
 # cal_stat = True
 # quick_test = True
 # wipe_previous_sim_data = True
-# rabalance_dict = {"start": 60, "end": 70, "step": 10}
-# maintain_dict = {"start": 50, "end": 60, "step": 10}
-# max_drawdown_ratio_dict = {"start": 5, "end": 7, "step": 2}
-# purchase_exliq_ratio_dict = {"start": 500, "end": 502, "step": 2}
 # db_mode = {"dynamo_db": False, "local": True}
 # data_freq = "one_min"
 # user_id = 0
