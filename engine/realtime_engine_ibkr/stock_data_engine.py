@@ -1,3 +1,5 @@
+import datetime
+
 from ib_insync import *
 import datetime as dt
 import os
@@ -185,7 +187,7 @@ class ibkr_stock_data_io_engine:
                                                                regular_trading_hour)
             if len(current_data) == 0:
                 return
-            front_timestamp = current_data[0].date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp()
+            front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
             current_end_timestamp = front_timestamp
