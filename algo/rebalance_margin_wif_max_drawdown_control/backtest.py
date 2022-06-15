@@ -184,9 +184,9 @@ class backtest(object):
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
-                marketCol = f'{self.tickers[idx]} marketPrice'
-                costCol = f'{self.tickers[idx]} costBasis'
-                valueCol = f'{self.tickers[idx]} marketValue'
+                marketCol = f'marketPrice_{self.tickers[idx]}'
+                costCol = f'costBasis_{self.tickers[idx]}'
+                valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
