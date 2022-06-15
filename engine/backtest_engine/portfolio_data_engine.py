@@ -132,7 +132,7 @@ class backtest_portfolio_data_engine(object):
             temp_list = stock_item.copy()  # get a copy of the stock_item dictionary
             ticker = temp_list["ticker"]
             del temp_list['ticker']  # get rid of the "ticker" column, since the csv does NOT contain this attribute
-            res = {f"{ticker} {str(key)}": val for key, val in temp_list.items()}
+            res = {f"{str(key)}_{ticker} ": val for key, val in temp_list.items()}
             account_snapshot.update(res)
 
         return account_snapshot
