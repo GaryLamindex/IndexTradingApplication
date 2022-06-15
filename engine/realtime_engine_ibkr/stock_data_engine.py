@@ -1,4 +1,4 @@
-import datetime
+import time
 
 from ib_insync import *
 import datetime as dt
@@ -74,6 +74,8 @@ class ibkr_stock_data_io_engine:
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
         self.etf_list_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/etf_list.csv'
+
+        self.grab_data_retry_attempt = 0
 
         # self.output_filepath = "C:/Users/85266/OneDrive/Documents"
 
@@ -182,11 +184,16 @@ class ibkr_stock_data_io_engine:
         while current_end_timestamp > start_timestamp:
             current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                            regular_trading_hour)
+
             if len(current_data) == 0:
                 current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
                                                                regular_trading_hour)
             if len(current_data) == 0:
-                return
+                if self.grab_data_retry_attempt <= 5:
+                    self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
+                    raise Exception
+                else:
+                    return 
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -222,7 +229,8 @@ class ibkr_stock_data_io_engine:
 
             today_dt = dt.datetime.now()
             dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
-            dividends.to_csv(f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
+            dividends.to_csv(
+                f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
@@ -274,7 +282,6 @@ class ibkr_stock_data_io_engine:
         for ticker in tickers:
             self.get_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
             print("successfully written", ticker)
-
 
 
 def main():
