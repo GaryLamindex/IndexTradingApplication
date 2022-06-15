@@ -11,4 +11,4 @@ class momentum_strategy:
 
     def run(self, stock_price_dict, periods_pct_change_dict, timestamp):
         df = pd.DataFrame.from_dict(stock_price_dict, orient='index', columns=['price'])
-        df
+
