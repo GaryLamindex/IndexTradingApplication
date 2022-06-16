@@ -28,12 +28,12 @@ wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
-tickers = ["VTV", "SPY"]
+tickers = ["M", "MSFT"]
 deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)
 #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[0, 100], [25, 75], [50, 50], [75, 25], [100, 0]]
+rebalance_ratio = [[10, 90], [30, 70], [40, 60], [60, 40], [70, 30], [90, 10]]
 for ratio in rebalance_ratio:
     portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                        deposit_amount,
