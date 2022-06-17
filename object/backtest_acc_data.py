@@ -30,6 +30,7 @@ class backtest_acc_data(object):
         self.mkt_value = {"TotalCashValue": 0, "NetDividend": 0, "NetLiquidation": 0, "UnrealizedPnL": 0,
                           "RealizedPnL": 0, "GrossPositionValue": 0}
 
+
         _spy = {'ticker': 'SPY', 'initMarginReq': 0.1091, 'maintMarginReq': 0.992}
         _qqq = {'ticker': 'QQQ', 'initMarginReq': 0.1315, 'maintMarginReq': 0.1196}
         _govt = {'ticker': 'GOVT', 'initMarginReq': 0.099, 'maintMarginReq': 0.09}

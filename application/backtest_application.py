@@ -16,37 +16,51 @@ from algo.rebalance_margin_wif_maintainance_margin.backtest import \
 from engine.simulation_engine import sim_data_io_engine
 from engine.simulation_engine.statistic_engine import statistic_engine
 
+from algo.momentum_strategy.backtest import backtest as momentum_strategy_backtest
 
-start_date = dt.datetime(2005, 1, 23)  # YYMMDD
-end_date = dt.datetime(2006, 1, 24)  # YYMMDD
-
-strategy = "portfolio_rebalance"
-mode = "backtest"
+tickers = ['ETH', 'LTC']
+initial_amount = 10000
+start_date = dt.datetime(2015, 2, 1, tzinfo=dt.timezone.utc)
+end_date = dt.datetime(2022, 5, 1, tzinfo=dt.timezone.utc)
+periods_dict = {"start": 1, "end": 50, "step": 1}
 cal_stat = True
-quick_test = True
-wipe_previous_sim_data = True
-db_mode = {"dynamo_db": False, "local": True}
-data_freq = "one_min"
 user_id = 0
-tickers = ["SPY", "IVV"]
-deposit_amount = 10000
-acceptance_range = 0
-num_tickers = len(tickers)
-#rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[50, 50]]
-for ratio in rebalance_ratio:
-    portfolio_rebalance = portfolio_rebalance_backtest(tickers,
-                                                       deposit_amount,
-                                                       start_date,
-                                                       end_date,
-                                                       cal_stat,
-                                                       data_freq,
-                                                       user_id,
-                                                       db_mode,
-                                                       quick_test,
-                                                       acceptance_range, ratio)
 
-    portfolio_rebalance.loop_through_param()
+backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
+                                      cal_stat, user_id, periods_dict)
+backtest.loop_through_params()
+
+
+# start_date = dt.datetime(2005, 1, 23)  # YYMMDD
+# end_date = dt.datetime(2006, 1, 24)  # YYMMDD
+#
+# strategy = "portfolio_rebalance"
+# mode = "backtest"
+# cal_stat = True
+# quick_test = True
+# wipe_previous_sim_data = True
+# db_mode = {"dynamo_db": False, "local": True}
+# data_freq = "one_min"
+# user_id = 0
+# tickers = ["SPY", "IVV"]
+# deposit_amount = 10000
+# acceptance_range = 0
+# num_tickers = len(tickers)
+# #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+# rebalance_ratio = [[50, 50]]
+# for ratio in rebalance_ratio:
+#     portfolio_rebalance = portfolio_rebalance_backtest(tickers,
+#                                                        deposit_amount,
+#                                                        start_date,
+#                                                        end_date,
+#                                                        cal_stat,
+#                                                        data_freq,
+#                                                        user_id,
+#                                                        db_mode,
+#                                                        quick_test,
+#                                                        acceptance_range, ratio)
+#
+#     portfolio_rebalance.loop_through_param()
 
 
 
@@ -69,7 +83,7 @@ for ratio in rebalance_ratio:
 # db_mode = {"dynamo_db": False, "local": True}
 # data_freq = "one_min"
 # user_id = 0
-rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
+# rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
 #                                                                                                         initial_amount,
 #                                                                                                         start_date,
 #                                                                                                         end_date,
@@ -121,3 +135,4 @@ rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_dr
 # user_id = 0
 # backtest = rebalance_margin_wif_maintainance_margin_backtest(tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode)
 # backtest.loop_through_param()
+
