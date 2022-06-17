@@ -204,7 +204,8 @@ library FixidityLib {
         uint8 decimalDifference;
         if ( _originDigits > _destinationDigits ){
             decimalDifference = _originDigits - _destinationDigits;
-            return x/(uint128(10)**uint128(decimalDifference));
+             //changed by Gary
+            return x/(int256(10)**int256(decimalDifference));
         }
         else if ( _originDigits < _destinationDigits ){
             decimalDifference = _destinationDigits - _originDigits;
@@ -214,9 +215,11 @@ library FixidityLib {
             //     decimalDifference = abs(_destinationDigits - _originDigits)
             //     decimalDifference < 38
             //     10**38 < 2**128-1
-            assert(x <= maxInt256()/uint128(10)**uint128(decimalDifference));
-            assert(x >= minInt256()/uint128(10)**uint128(decimalDifference));
-            return x*(uint128(10)**uint128(decimalDifference));
+
+            //changed by Gary
+            assert(x <= maxInt256()/int256(10)**int256(decimalDifference));
+            assert(x >= minInt256()/int256(10)**int256(decimalDifference));
+            return x*(int256(10)**int256(decimalDifference));
         }
         // _originDigits == digits())
         return x;
