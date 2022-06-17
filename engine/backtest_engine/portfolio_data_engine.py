@@ -94,8 +94,12 @@ class backtest_portfolio_data_engine(object):
         for ticker in tickers:
             ticker_item = self.acc_data.get_portfolio_ticker_item(ticker)
             costBasis = ticker_item.get("costBasis")
-            ticker_init_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
-            ticker_mnt_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
+            try:
+                ticker_init_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
+                ticker_mnt_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
+            except AttributeError:
+                ticker_init_margin = costBasis
+                ticker_mnt_margin = costBasis
             self.acc_data.update_portfolio_item(ticker, None, None, None, None, None, None, ticker_init_margin,
                                                 ticker_mnt_margin, None)
 

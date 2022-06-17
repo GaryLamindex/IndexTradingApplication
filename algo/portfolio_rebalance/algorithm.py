@@ -40,6 +40,8 @@ class portfolio_rebalance:
     def run(self, realtime_stock_data_dict, timestamp):
 
         self.action_msgs = []
+        self.buy_list = []
+        self.sell_list = []
 
         if not self.trade_agent.market_opened():
             return
