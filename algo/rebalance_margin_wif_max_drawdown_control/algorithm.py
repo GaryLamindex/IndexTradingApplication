@@ -244,10 +244,10 @@ class rebalance_margin_wif_max_drawdown:
 
     # liquidate only one stock
     def liquidate_stock_position(self, ticker, limit_price, timestamp):
-        current_position = float(self.account_snapshot.get(f"{ticker} position"))
+        current_position = float(self.account_snapshot.get(f"position_{ticker}"))
         no_leverage_position = (float(
             self.account_snapshot.get("EquityWithLoanValue")) / self.number_of_stocks) / float(
-            self.account_snapshot.get(f"{ticker} marketPrice"))
+            self.account_snapshot.get(f"marketPrice_{ticker}"))
         target_leverage_position_at_liquid_state = no_leverage_position * 1.2
         print("liquidate_stock_position::current_position:", current_position)
         print("liquidate_stock_position::no_leverage_position:", current_position)

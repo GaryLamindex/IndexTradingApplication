@@ -209,14 +209,14 @@ class simulation_agent(object):
             #print("sim_meta_data[ticker].items()")
             #print(sim_meta_data[ticker].items())
             if len(sim_meta_data) > 0 and ticker in sim_meta_data:
-                sim_data_res.update({f"{ticker} {str(key)}": val for key, val in sim_meta_data[ticker].items()})
+                sim_data_res.update({f"{str(key)}_{ticker} ": val for key, val in sim_meta_data[ticker].items()})
             #draft
             for key in sim_data_res.keys():
                 if key not in self.list_header:
                     self.list_header.append(key)
                     self.header_update = True
 
-            ticker_data_res.update({f"{ticker} mktPrice": ticker_data[ticker]['last']})
+            ticker_data_res.update({f"mktPrice_{ticker} ": ticker_data[ticker]['last']})
             #draft
             for key in ticker_data_res.keys():
                 if key not in self.list_header:

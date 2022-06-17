@@ -95,7 +95,7 @@ class backtest_trade_engine(object):
            # print('stock not exist, sell action rejected')
             ticker = ""
             transaction_amount = 0
-            msg = {'state':'0', 'ticker': ticker, 'action': 'none', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+            msg = {'state':'0', 'ticker': ticker, 'action': 'rejected', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
             return msg
 
         portfolio_ticker_item = self.backtest_acc_data.get_portfolio_ticker_item(ticker)
@@ -103,9 +103,9 @@ class backtest_trade_engine(object):
 
         if orig_position < position_sell:
            # print('shares not enough, sell action rejected')
-            ticker = ""
+            ticker = "this?"
             transaction_amount = 0
-            msg = {'state':'0', 'ticker': ticker, 'action': 'none', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+            msg = {'state':'0', 'ticker': ticker, 'action': 'rejected', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
             return msg
 
         transaction_amount = position_sell * ticker_open_price
