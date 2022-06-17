@@ -1,6 +1,7 @@
 import os
 import pathlib
 from datetime import datetime
+import pandas as pd
 from os import listdir
 from pathlib import Path
 from algo.portfolio_rebalance.algorithm import portfolio_rebalance
@@ -88,47 +89,50 @@ class backtest(object):
             # for file in list_of_transact_data:
             #     os.remove(Path(f"{self.transact_data_dir}/{file}"))
             # for file in list_of_graph:
-            #     os.remove(Path(f"{self.graph_dir}/{file}"))
+            #             #     os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
         # loop through all the rebalance requirement
         # calculate all possible ratio that sum is 100 with different number of stickers
-        num_tickers = len(self.tickers)
-        print("Start Backtest:", self.rebalance_ratio)
-        self.rebalance_dict = {}
-        for ticker_num in range(num_tickers):
-            self.rebalance_dict.update({self.tickers[ticker_num]: self.rebalance_ratio[ticker_num]})
-        self.check_rebalance_ratio()
-        if self.check_ratio:
-            backtest_spec = self.rebalance_dict
-            spec_str = ""
-            for k, v in backtest_spec.items():
-                spec_str = f"{spec_str}{str(v)}_{str(k)}_"
+        for ratio in self.rebalance_ratio:
+            num_tickers = len(self.tickers)
+            print("Start Backtest:", ratio)
+            self.rebalance_dict = {}
+            for ticker_num in range(num_tickers):
+                self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
+            self.check_rebalance_ratio()
+            if self.check_ratio:
+                backtest_spec = self.rebalance_dict
+                spec_str = ""
+                for k, v in backtest_spec.items():
+                    spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-            run_file = self.run_file_dir+spec_str+'.csv'
-            if os.path.exists(run_file):
-                os.remove(Path(run_file))
-            graph_file = self.graph_dir + spec_str + '.png'
-            if os.path.exists(graph_file):
-                os.remove(Path(graph_file))
+                run_file = self.run_file_dir+spec_str+'.csv'
+                if os.path.exists(run_file):
+                    os.remove(Path(run_file))
+                graph_file = self.graph_dir + spec_str + '.png'
+                if os.path.exists(graph_file):
+                    os.remove(Path(graph_file))
 
-            acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                         self.table_name, spec_str)
-            portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
-            trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-            sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
-                                         self.tickers)
+                acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                             self.table_name, spec_str)
+                portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
+                trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
+                sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
+                                             self.tickers)
 
-            algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
-                                            self.acceptance_range)
-            self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                               portfolio_data_engine, sim_agent)
-            print("Finished Backtest:", backtest_spec)
-            print("-------------------------------------------------------------------------------")
-            self.plot_all_file_graph()
-
-            if self.cal_stat:
-                self.cal_all_file_return()
+                algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
+                                                self.acceptance_range)
+                self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
+                                   portfolio_data_engine, sim_agent)
+                print("Finished Backtest:", backtest_spec)
+                print("-------------------------------------------------------------------------------")
+        self.plot_all_file_graph()
+        list_of_stats_data = listdir(self.stats_data_dir)
+        for file in list_of_stats_data:
+            os.remove(Path(f"{self.stats_data_dir}/{file}"))
+        if self.cal_stat:
+            self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent):
@@ -174,9 +178,6 @@ class backtest(object):
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
-                marketCol = f'marketPrice_{self.tickers[idx]}'
-                costCol = f'costBasis_{self.tickers[idx]}'
-                valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
@@ -208,19 +209,19 @@ class backtest(object):
                 _5_yr_max_drawdown = max_drawdown_dict.get("5y")
                 _ytd_max_drawdown = max_drawdown_dict.get("ytd")
 
-                alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
-                inception_alpha = alpha_dict.get('inception')
-                _1_yr_alpha = alpha_dict.get('1y')
-                _3_yr_alpha = alpha_dict.get('3y')
-                _5_yr_alpha = alpha_dict.get('5y')
-                _ytd_alpha = alpha_dict.get('ytd')
+                # alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
+                # inception_alpha = alpha_dict.get('inception')
+                # _1_yr_alpha = alpha_dict.get('1y')
+                # _3_yr_alpha = alpha_dict.get('3y')
+                # _5_yr_alpha = alpha_dict.get('5y')
+                # _ytd_alpha = alpha_dict.get('ytd')
 
-                volatility_dict = stat_engine.get_volatility_data(file_name, marketCol)
-                inception_volatility = volatility_dict.get('inception')
-                _1_yr_volatility = volatility_dict.get('1y')
-                _3_yr_volatility = volatility_dict.get('3y')
-                _5_yr_volatility = volatility_dict.get('5y')
-                _ytd_volatility = volatility_dict.get('ytd')
+                # volatility_dict = stat_engine.get_volatility_data(file_name, marketCol)
+                # inception_volatility = volatility_dict.get('inception')
+                # _1_yr_volatility = volatility_dict.get('1y')
+                # _3_yr_volatility = volatility_dict.get('3y')
+                # _5_yr_volatility = volatility_dict.get('5y')
+                # _ytd_volatility = volatility_dict.get('ytd')
 
                 win_rate_dict = stat_engine.get_win_rate_data(file_name)
                 inception_win_rate = win_rate_dict.get('inception')
@@ -231,7 +232,7 @@ class backtest(object):
 
                 dateStringS = datetime.fromtimestamp(self.start_timestamp)
                 dateStringE = datetime.fromtimestamp(self.end_timestamp)
-                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}", \
+                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}",
                               f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
                 rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
                 _1_yr_rolling_return = rolling_return_dict.get('1y')
@@ -274,12 +275,12 @@ class backtest(object):
                     "Since Inception Max Drawdown": inception_max_drawdown, "YTD Max Drawdown": _ytd_max_drawdown,
                     "1 Yr Max Drawdown": _1_yr_max_drawdown, "3 Yr Max Drawdown": _3_yr_max_drawdown,
                     "5 Yr Max Drawdown": _5_yr_max_drawdown,
-                    "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
-                    "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
-                    "5 Yr Alpha": _5_yr_alpha,
-                    "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
-                    "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
-                    "5 Yr Volatility": _5_yr_volatility,
+                    # "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
+                    # "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
+                    # "5 Yr Alpha": _5_yr_alpha,
+                    # "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
+                    # "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
+                    # "5 Yr Volatility": _5_yr_volatility,
                     "Since Inception Win Rate": inception_win_rate, "YTD Win Rate": _ytd_win_rate,
                     "1 Yr Win Rate": _1_yr_win_rate, "3 Yr Win Rate": _3_yr_win_rate,
                     "5 Yr Win Rate": _5_yr_win_rate,
