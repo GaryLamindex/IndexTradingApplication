@@ -1,7 +1,5 @@
 import pandas as pd
 
-import algo.momentum_strategy.backtest
-
 
 class momentum_strategy:
     def __init__(self, portfolio_agent):
@@ -19,21 +17,20 @@ class momentum_strategy:
         if (df['pct_change'] > 0).any():  # at least one can buy
             df_largest = df['pct_change'].nlargest(1, 'all')
             for ticker, pct_change in df_largest.iteritems():
-                buying_power = self.portfolio_agent.get_account_snapshot().get('BuyingPower')
+                cash = self.portfolio_agent.get_account_snapshot().get('TotalCashValue')
                 cur_price = price_dict[ticker]
-                qty_to_buy = int(buying_power / cur_price * 0.9)
+                qty_to_buy = int(cash / cur_price * 0.9)
 
                 # metadata isn't available at this stage
                 # will be accommodated later
                 action = algo.momentum_strategy.backtest.Action.BUY_MKT_ORDER
-                pending_action_list.append((timestamp + 86400, action,
-                                            {'ticker': ticker,
-                                             'position_purchase': qty_to_buy}))
+                actions_tup = algo.momentum_strategy.backtest.ActionsTuple(timestamp + 86400, action,
+                                                                           {'ticker': ticker,
+                                                                            'position_purchase': qty_to_buy})
+                pending_action_list.append(actions_tup)
         else:  # all non-positive, empty all position and won't buy
             action = algo.momentum_strategy.backtest.Action.CLOSE_ALL
-            pending_action_list.append((timestamp + 86400, action, None))
+            actions_tup = algo.momentum_strategy.backtest.ActionsTuple(timestamp + 86400, action, None)
+            pending_action_list.append(actions_tup)
 
         return pending_action_list
-
-
-
