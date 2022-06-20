@@ -363,7 +363,7 @@ class backtest(object):
         action_msgs = algorithm.run(stock_data_dict, timestamp)
 
         sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
-        stock_data_dict)
+                                        stock_data_dict)
 
     @staticmethod
     def get_outcomes( dim, target):
