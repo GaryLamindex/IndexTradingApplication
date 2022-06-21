@@ -1,7 +1,8 @@
 from pymongo import MongoClient
 import certifi
 
-class mongodb:
+
+class mongodb_engine:
     db = None
     conn = None
 
@@ -9,7 +10,8 @@ class mongodb:
         # initialize connection to mongodb
         # and choose the correct database
         try:
-            self.conn = MongoClient('mongodb+srv://nft:nft123@nft.qrqri.mongodb.net/?retryWrites=true&w=majority', tlsCAFile = certifi.where())
+            self.conn = MongoClient('mongodb+srv://nft:nft123@nft.qrqri.mongodb.net/?retryWrites=true&w=majority',
+                                    tlsCAFile=certifi.where())
             self.db = self.conn['rainydrop']
             print(f"Successful connection to database: {self.db.name}")
         except:
@@ -27,7 +29,7 @@ class mongodb:
 
         return result
 
-    def write_mongodb_json(self, _collection, json):
+    def write_mongodb_dict_list(self, _collection, dict_list):
         # json is a json type data
         # DO NOT import json as file
 
@@ -37,9 +39,10 @@ class mongodb:
             print("WARNING: The collection does not exist")
             exit(1)
 
-        coll.insert_many(json)
+        coll.insert_one(dict_list)
 
         return
+
 
 def main():
     test = mongodb()
