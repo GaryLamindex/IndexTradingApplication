@@ -1,7 +1,11 @@
+import csv
 import time
 
 from ib_insync import *
+import time
+import datetime
 import datetime as dt
+from datetime import datetime, timedelta
 import os
 import math
 import pandas as pd
@@ -66,7 +70,7 @@ class ibkr_stock_data_io_engine:
 
     def __init__(self, ib_instance=None):
         self.ib_instance = ib_instance
-        if ib_instance is not None :
+        if ib_instance is not None:
             self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
         self.ticker_data_path = str(
@@ -194,7 +198,7 @@ class ibkr_stock_data_io_engine:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
                     raise Exception
                 else:
-                    return 
+                    return
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -285,6 +289,17 @@ class ibkr_stock_data_io_engine:
         for ticker in tickers:
             self.get_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
             print("successfully written", ticker)
+
+    def update_csv(self, old_csv, update_csv):
+        old_df = pd.read_csv(old_csv)
+        new_df = pd.read_csv(update_csv)
+        append_df = pd.concat([old_df, new_df])
+        append_df.drop_duplicates(keep=False)
+        append_row = append_df.to_numpy()
+        with open(old_csv, 'a') as f:
+            writer = csv.writer(f)
+            writer.writerows(append_row)
+        print("The csv file is successfully updated !")
 
 
 def main():

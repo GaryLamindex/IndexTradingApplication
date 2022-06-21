@@ -9,10 +9,12 @@ class dividend_engine:
     tickers = []
     filepath = ""
     dividend_dir = ""
+    portfolio = []
 
-    def __int__(self, tickers, start_timestamp, end_timestamp, ):
+    def __int__(self, tickers, start_timestamp, end_timestamp, portfolio):
         self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/ticker_data/dividends"
         self.tickers = tickers
+        self.portfolio = portfolio
         list_of_dividend = os.listdir(self.dividend_dir)
         for file in list_of_dividend:
             ticker_name = file.split("_")
@@ -37,9 +39,13 @@ class dividend_engine:
         self.tickers.remove(ticker)
         self.full_dividend_df = self.full_dividend_df[self.full_dividend_df.ticker != ticker]
 
-
-
-
     def check_div(self, timestamp):
+        total_dividend = 0
         for ticker in self.tickers:
-            return
+            ticker_dividend = self.full_dividend_df[self.full_dividend_df.ticker == ticker &
+                                                    self.full_dividend_df.timestamp == timestamp].dividends
+
+
+            total_dividend
+
+            pass
