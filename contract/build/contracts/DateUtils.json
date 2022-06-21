@@ -33460,7 +33460,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-06-20T10:46:36.908Z",
+  "updatedAt": "2022-06-21T03:27:22.183Z",
   "devdoc": {
     "author": "Skeleton Codeworks, LLC <skeleton.codeworks@gmail.com>",
     "details": "This library primarily provides utilities to convert between various date and time formats.  The supported formats are: 1) Unix timestamps, 2) strings in yyyy-mm-dd format (also known as ISO), and 3) YMD format (year, month, day, as integers). Additionally, support is provided for the date and time formats analogous to the date formats above: 1) Unix timestamps (identical to the format above), 2) strings in yyyy-mm-dd hh:mm:ss format, and 3) YMDHMS format (year, month, day, hour, minute, second, as integers). Hours, minutes, and seconds are in 24-hour clock format (i.e., hour from 0 - 23, minute from 0 - 59, and second from 0 - 59). Convenience functions for validation, splitting date strings, and calculating the day of the week are also provided. Note that this library does not use \"yyyy-mm-ddThh:mm:ssZ\" as valid date and time format, but rather \"yyyy-mm-dd hh:mm:ss\".",

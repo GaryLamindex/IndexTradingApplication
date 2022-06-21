@@ -26202,7 +26202,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-06-20T10:46:36.877Z",
+  "updatedAt": "2022-06-21T03:27:22.155Z",
   "devdoc": {
     "author": "Skeleton Codeworks, LLC <skeleton.codeworks@gmail.com>",
     "details": "This contract provides multi-purpose storage for date objects in six different formats, stored as public members.  The formats are: 1) \"yyyy-mm-dd\" date string format (also known as ISO), 2) \"yyyy-mm-dd hh:mm:ss\" date and time string format, 3) Unix timestamp format, 4) Dt struct format, a struct with year, month, day, and weekday attributes, 5) DtTime struct format, a struct with year, month, day, hour, minute, second and weekday attributes, 6) year, month, day, hour, minute, second, and weekday members on the contract itself. Whenever the contract is set using one of the several available set functions, including at initialization, then all six of the above formats are set to the same date and time, so that all members of the contract will always be in agreement.  The contract can be reset with a new date any number times.",
