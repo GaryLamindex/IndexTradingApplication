@@ -6,7 +6,7 @@ class crypto_acc_data():
         self.strategy_name = strategy_name
         self.table_name = table_name
         self.portfolio = []
-        self.mkt_value = {'TotalCashValue': 0, 'NetLiquidation': 0}
+        self.overview = {'Spot': 0, 'Funding': 0}
 
-    
+
 

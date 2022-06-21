@@ -11,7 +11,7 @@ import pathlib
 
 from failure_handler import connection_handler, connect_tws
 
-#import yfinance as yf
+import yfinance as yf
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 

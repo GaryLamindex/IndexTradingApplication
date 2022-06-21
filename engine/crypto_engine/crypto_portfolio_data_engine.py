@@ -4,3 +4,4 @@ class crypto_portfolio_data_engine:
         self.tickers = tickers
 
     def deposit_cash(self, amount, timestamp):
+        pass
