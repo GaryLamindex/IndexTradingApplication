@@ -194,18 +194,14 @@ library FixidityLib {
      * Test convertFixed(maxInt256,39,0) throws
      * Test convertFixed(1,0,39) throws
      */
-    function convertFixed(int256 x, uint8 _originDigits, uint8 _destinationDigits)
-        public
-        pure
-        returns (int256)
-    {
+    function convertFixed(int256 x, uint8 _originDigits, uint8 _destinationDigits) public pure returns (int256){
         assert(_originDigits <= 38 && _destinationDigits <= 38);
 
         uint8 decimalDifference;
         if ( _originDigits > _destinationDigits ){
             decimalDifference = _originDigits - _destinationDigits;
-             //changed by Gary
-            return x/(int256(10)**int256(decimalDifference));
+            //amended by gary
+            return x/int256(uint256((uint128(10)**uint128(decimalDifference))));
         }
         else if ( _originDigits < _destinationDigits ){
             decimalDifference = _destinationDigits - _originDigits;
@@ -215,11 +211,11 @@ library FixidityLib {
             //     decimalDifference = abs(_destinationDigits - _originDigits)
             //     decimalDifference < 38
             //     10**38 < 2**128-1
-
-            //changed by Gary
-            assert(x <= maxInt256()/int256(10)**int256(decimalDifference));
-            assert(x >= minInt256()/int256(10)**int256(decimalDifference));
-            return x*(int256(10)**int256(decimalDifference));
+            //amended by gary
+            assert(x <= maxInt256()/int256(uint256(uint128(10)**uint128(decimalDifference))));
+            assert(x >= minInt256()/int256(uint256(uint128(10)**uint128(decimalDifference))));
+            //amended by gary
+            return x*int256(uint256((uint128(10)**uint128(decimalDifference))));
         }
         // _originDigits == digits())
         return x;

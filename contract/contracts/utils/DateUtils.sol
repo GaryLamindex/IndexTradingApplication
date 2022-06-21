@@ -607,11 +607,7 @@ library DateUtils {
     @return month Returns month as `uint8`
     @return day Returns day as `uint8`
    */
-   function convertTimestampToYMD(uint256 _dt)
-                                  internal pure
-                                  returns (uint16 year,
-                                           uint8 month,
-                                           uint8 day) {
+   function convertTimestampToYMD(uint256 _dt)internal pure returns (uint16 year,uint8 month,uint8 day) {
 
      uint256 secondsRemaining = _dt;
 
@@ -630,14 +626,7 @@ library DateUtils {
     @return minute Returns minute as `uint8`
     @return second Returns second as `uint8`
    */
-   function convertTimestampToYMDHMS(uint256 _dt)
-                                     internal pure
-                                     returns (uint16 year,
-                                              uint8 month,
-                                              uint8 day,
-                                              uint8 hour,
-                                              uint8 minute,
-                                              uint8 second) {
+   function convertTimestampToYMDHMS(uint256 _dt) internal pure returns (uint16 year,uint8 month,uint8 day,uint8 hour,uint8 minute,uint8 second) {
 
      uint256 secondsRemaining = _dt;
 

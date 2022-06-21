@@ -291,6 +291,6 @@ contract Date {
     @dev Terminate contract - must be owner
    */
    function terminate() external restricted {
-     selfdestruct(msg.sender);
+     selfdestruct(payable(msg.sender));
    }
 }
