@@ -78,4 +78,8 @@ library StringUtils {
     function stringToBytes32(string memory _src)  public pure returns (bytes32) {
       return StringLib.stringToBytes32(_src);
     }
+
+    function compareStrings(string memory a, string memory b) public view returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+    }
 }

@@ -58,4 +58,6 @@ contract Object {
         int256 maintMarginReq;
         int256 costBasis;
     }
+
+
 }

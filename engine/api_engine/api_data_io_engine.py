@@ -1,5 +1,5 @@
 import pandas as pd
-
+from engine.mongoDB_engine import mongdb_engine
 
 class api_data_io_engine:
     timestamp = []
@@ -28,9 +28,8 @@ class api_data_io_engine:
         #code below
         return output_dict
 
-    def convert_df_to_json(self):
-        json_file = pd.json_normalize()
-        #code below
+    def convert_df_to_json(self, df):
+        json_file = df.to_json(orient='records')
         return json_file
 
 
