@@ -11,7 +11,7 @@ import pathlib
 
 from failure_handler import connection_handler, connect_tws
 
-#import yfinance as yf
+import yfinance as yf
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
@@ -64,9 +64,10 @@ class ibkr_stock_data_io_engine:
     ib_instance = None
     ticker_data_path = ""
 
-    def __init__(self, ib_instance):
+    def __init__(self, ib_instance=None):
         self.ib_instance = ib_instance
-        self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
+        if ib_instance is not None :
+            self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
         self.ticker_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
@@ -229,6 +230,8 @@ class ibkr_stock_data_io_engine:
 
             today_dt = dt.datetime.now()
             dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
+            if not os.path.exists(self.dividends_data_path):
+                os.mkdir(self.dividends_data_path)
             dividends.to_csv(
                 f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
 
