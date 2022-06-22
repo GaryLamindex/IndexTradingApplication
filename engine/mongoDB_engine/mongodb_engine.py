@@ -10,7 +10,7 @@ class mongodb_engine:
         # initialize connection to mongodb
         # and choose the correct database
         try:
-            self.conn = MongoClient('mongodb+srv://nft:nft123@nft.qrqri.mongodb.net/?retryWrites=true&w=majority',
+            self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',
                                     tlsCAFile=certifi.where())
             self.db = self.conn[_database]
             print(f"Successful connection to database: {self.db.name}")
@@ -47,13 +47,12 @@ class mongodb_engine:
         # json is a json type data
         # DO NOT import json as file
 
-        if _collection in self.db.list_collection_names():
-            coll = self.db[_collection]
-        else:
-            print("WARNING: The collection does not exist")
-            exit(1)
-
+        coll = self.db[_collection]
         coll.insert_many(dict_list)
+        return
+
+    def rename_collection(self, _collection, name):
+        self.db[_collection].rename(name)
         return
 
 def main():

@@ -54,17 +54,45 @@ class Write_Mongodb:
             for item in dict_list:
                 self.mongo.write_mongodb_dict_list("Performance", item)
 
-    def write_one_min_raw_data(self, dict_list):
-        self.mongo.write_mongodb_many_dict_list("QQQ", dict_list)
+    def write_one_min_raw_data(self, _collection,dict_list):
+        self.mongo.write_mongodb_many_dict_list(_collection, dict_list)
+
+    def rename_collection(self,_collection, name):
+        self.mongo.rename_collection(_collection,name)
+
 
 
 def main():
-    w = Write_Mongodb('one_min_raw_data')
-    df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/ticker_data/one_min/QQQ.csv')
+    # w = Write_Mongodb('one_min_raw_data')
+    # df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/ticker_data/one_min/QQQ.csv')
+    #
+    # temp_list = df.to_dict(orient='records')
+    # print("SUCCESS")
+    # w.write_one_min_raw_data("QQQ",temp_list)
 
-    temp_list = df.to_dict(orient='records')
-    print("SUCCESS")
-    w.write_one_min_raw_data(temp_list)
+    # w = Write_Mongodb('one_min_raw_data')
+    # df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/ticker_data/one_min/SPY.csv')
+    #
+    # temp_list = df.to_dict(orient='records')
+    # print("SUCCESS")
+    # w.write_one_min_raw_data("SPY",temp_list)
+
+    # w = Write_Mongodb('one_min_raw_data')
+    # df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/ticker_data/one_min/3188.csv')
+    #
+    # temp_list = df.to_dict(orient='records')
+    # print("SUCCESS")
+    # w.write_one_min_raw_data("3188",temp_list)
+
+
+    # w = Write_Mongodb('simulation')
+    # w.rename_collection('40_M_60_MSFT_','backtest_portfolio_rebalance_0')
+    # w.rename_collection('50_VTV_50_SPY_','backtest_portfolio_rebalance_1')
+    # df = pd.read_csv('/Users/chansiuchung/Downloads/M MSFT/VTV SPY/50_VTV_50_SPY_.csv')
+    #
+    # temp_list = df.to_dict(orient='records')
+    # print("SUCCESS")
+    # w.write_one_min_raw_data("50_VTV_50_SPY_",temp_list)
 
     #
     # client_data = {"name": ["Ivy", "Peter", "Percy"], "VIP":["Premium", "basic","Gold+"], "Followed":[[3,5],[6,5,2,1],[0,5,8,9,45]]}
