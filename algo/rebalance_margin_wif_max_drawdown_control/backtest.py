@@ -346,9 +346,8 @@ class backtest(object):
         #store data to mongoDB HERE
         wmdb = Write_Mongodb()
 
-        _strat_dict = [{'name': self.table_name}]
-        wmdb.write_Strategies(_strat_dict)
-        wmdb.write_Performance(df.to_dict(orient='records'), _strat_dict)
+        df['name'] = self.table_name
+        wmdb.write_Strategies(df.to_dict(orient='records'))
         pass
 
     #

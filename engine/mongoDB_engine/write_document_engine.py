@@ -1,12 +1,13 @@
 from engine.mongoDB_engine.mongodb_engine import mongodb_engine
+import pandas as pd
 
 
 class Write_Mongodb:
 
     mongo = None
 
-    def __init__(self):
-        self.mongo = mongodb_engine()
+    def __init__(self, _database = 'rainydrop'):
+        self.mongo = mongodb_engine(_database)
 
     def write_Strategies(self, dict_list):
         for item in dict_list:
@@ -31,7 +32,7 @@ class Write_Mongodb:
 
     def write_Transactions(self, dict_list):
         for item in dict_list:
-            if self.mongo.db['Transactions'].count_documents({'-id': item['_id']}) > 0:
+            if self.mongo.db['Transactions'].count_documents({'_id': item['_id']}) > 0:
                 print("document already exist")
             else:
                 self.mongo.write_mongodb_dict_list("Transactions", item)
@@ -53,9 +54,18 @@ class Write_Mongodb:
             for item in dict_list:
                 self.mongo.write_mongodb_dict_list("Performance", item)
 
+    def write_one_min_raw_data(self, dict_list):
+        self.mongo.write_mongodb_many_dict_list("QQQ", dict_list)
+
 
 def main():
-    # w = Write_Mongodb()
+    w = Write_Mongodb('one_min_raw_data')
+    df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/ticker_data/one_min/QQQ.csv')
+
+    temp_list = df.to_dict(orient='records')
+    print("SUCCESS")
+    w.write_one_min_raw_data(temp_list)
+
     #
     # client_data = {"name": ["Ivy", "Peter", "Percy"], "VIP":["Premium", "basic","Gold+"], "Followed":[[3,5],[6,5,2,1],[0,5,8,9,45]]}
     # client_df = pd.DataFrame(data=client_data)
