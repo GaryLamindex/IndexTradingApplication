@@ -6,13 +6,13 @@ class mongodb_engine:
     db = None
     conn = None
 
-    def __init__(self):
+    def __init__(self, _database = 'rainydrop'):
         # initialize connection to mongodb
         # and choose the correct database
         try:
-            self.conn = MongoClient('mongodb+srv://nft:nft123@nft.qrqri.mongodb.net/?retryWrites=true&w=majority',
+            self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',
                                     tlsCAFile=certifi.where())
-            self.db = self.conn['rainydrop']
+            self.db = self.conn[_database]
             print(f"Successful connection to database: {self.db.name}")
         except:
             print("WARNING: Could not connect to MongoDB")
@@ -43,9 +43,21 @@ class mongodb_engine:
 
         return
 
+    def write_mongodb_many_dict_list(self, _collection, dict_list):
+        # json is a json type data
+        # DO NOT import json as file
+
+        coll = self.db[_collection]
+        coll.insert_many(dict_list)
+        return
+
+    def rename_collection(self, _collection, name):
+        self.db[_collection].rename(name)
+        return
 
 def main():
-    test = mongodb()
+    pass
+    #test = mongodb()
     # #for testing read funcion
     # print(test.get_mongodb_all_json("Transactions"))
     # for item in test.get_mongodb_all_json("Transactions"):
