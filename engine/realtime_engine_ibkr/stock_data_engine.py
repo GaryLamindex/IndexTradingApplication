@@ -134,7 +134,6 @@ class ibkr_stock_data_io_engine:
     # get data by passing tin the start timestamp and the end timestamp
     # there may be request limit for this function, while the limit if set by TWS
     """just the helper function, NOT called directly"""
-
     def get_historical_data_helper(self, ticker, end_timestamp, duration, bar_size, regular_trading_hour):
         """
         end_timestamp: an unix timestamp

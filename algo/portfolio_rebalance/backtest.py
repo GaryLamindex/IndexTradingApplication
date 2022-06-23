@@ -107,7 +107,7 @@ class backtest(object):
                 for k, v in backtest_spec.items():
                     spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-                run_file = self.run_file_dir+spec_str+'.csv'
+                run_file = self.run_file_dir + spec_str + '.csv'
                 if os.path.exists(run_file):
                     os.remove(Path(run_file))
                 graph_file = self.graph_dir + spec_str + '.png'
@@ -139,7 +139,8 @@ class backtest(object):
         # connect to downloaded ib data to get price data
         row = 0
         timestamps = {}
-        timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
+        timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+            'timestamp']
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
@@ -370,7 +371,7 @@ class backtest(object):
                                         stock_data_dict)
 
     @staticmethod
-    def get_outcomes( dim, target):
+    def get_outcomes(dim, target):
 
         if dim == 2:
             outcomes = []
@@ -388,8 +389,6 @@ class backtest(object):
 
 
 def main():
-
-
     pass
 
 
