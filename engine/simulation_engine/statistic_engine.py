@@ -857,11 +857,14 @@ class statistic_engine:
 
     def get_drawdown_data(self, file_name, range):
 
-        drawdown_dict = {}
+        # drawdown_dict = {}
+        #
+        # drawdown_dict['drawdown_abstract'] = self.get_drawdown_by_range(range ,file_name)
+        # drawdown_dict['drawdown_raw_data'] = self.get_drawdown_raw_data_by_range(file_name, range)
 
-        drawdown_dict['drawdown_abstract'] = self.get_drawdown_by_range(range ,file_name)
-        drawdown_dict['drawdown_raw_data'] = self.get_drawdown_raw_data_by_range(file_name, range)
-        return drawdown_dict
+        drawdown_df = self.get_drawdown_by_range(range ,file_name)
+        drawdown_raw_df = self.get_drawdown_raw_data_by_range(file_name, range)
+        return drawdown_df, drawdown_raw_df
 
     def get_drawdown_by_range(self, range, file_name):
         drawdown_df = pd.DataFrame(
@@ -912,7 +915,8 @@ class statistic_engine:
             list = [max_drawdown, drawdown_period, drawdown_days, recovery_date_info, recovery_days]
             drawdown_df.loc[len(drawdown_df.index)] = list
 
-        return drawdown_df.to_dict()
+        p = (drawdown_df.sort_values(by=['Drawdown'])).reset_index(drop= True)
+        return p
 
     def get_drawdown_raw_data_by_range(self,file_name, range):
         # drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])

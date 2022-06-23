@@ -84,6 +84,21 @@ def main():
     # print("SUCCESS")
     # w.write_one_min_raw_data("3188",temp_list)
 
+    # w = Write_Mongodb('drawdown_data')
+    # df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/stats_data/drawdown_abstract.csv')
+    #
+    # temp_list = df.to_dict(orient='records')
+    # print("SUCCESS")
+    # w.write_one_min_raw_data("backtest_rebalance_margin_wif_max_drawdown_control_0",temp_list)
+
+    w = Write_Mongodb('drawdown_graph_data')
+    df = pd.read_csv(
+        '/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/stats_data/drawdown_raw_data.csv')
+
+    temp_list = df.to_dict(orient='records')
+    print("SUCCESS")
+    w.write_one_min_raw_data("backtest_rebalance_margin_wif_max_drawdown_control_0", temp_list)
+
 
     # w = Write_Mongodb('simulation')
     # w.rename_collection('40_M_60_MSFT_','backtest_portfolio_rebalance_0')

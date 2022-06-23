@@ -254,6 +254,8 @@ class backtest(object):
                 _15_yr_rolling_return = rolling_return_dict.get('15y')
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
 
+                ########## Store drawdown in another csv
+                drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -342,6 +344,9 @@ class backtest(object):
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
+
+        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
+        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
         # # #store data to mongoDB HERE
         # _p = df.to_dict(orient='records')
