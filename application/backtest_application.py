@@ -9,7 +9,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
 tickers = ['BTC', 'ETH']
 initial_amount = 10000
-start_date = dt.datetime(2021, 1, 1, tzinfo=dt.timezone.utc)
+start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
 end_date = dt.datetime(2022, 1, 1, tzinfo=dt.timezone.utc)
 periods_dict = {"start": 20, "end": 21, "step": 1}
 cal_stat = True
