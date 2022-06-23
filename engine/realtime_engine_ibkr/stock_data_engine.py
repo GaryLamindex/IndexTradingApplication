@@ -219,7 +219,7 @@ class ibkr_stock_data_io_engine:
     def get_etf_list(self):
         return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
 
-    def get_dividends(self, tickers, Day):
+    def get_dividends(self, tickers, expire_day):
         for ticker in tickers:
             ticker = ticker.upper()
             ticker_obj = yf.Ticker(ticker)
@@ -242,7 +242,7 @@ class ibkr_stock_data_io_engine:
             for file in dirs:
                 if ticker == re.sub('[^A-Z]', '', file):  # if there exists the csv file of the ticker
                     download_date = datetime.fromtimestamp(int(re.search(r'\d+', file).group())).strftime('%Y/%m/%d')
-                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date, '%Y/%m/%d')).days > Day:
+                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date, '%Y/%m/%d')).days > expire_day:
                         os.remove(os.path.join(self.dividends_data_path, file))  # if csv file is expired, delete it
                     else:
                         expired = False
