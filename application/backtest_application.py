@@ -17,36 +17,36 @@ from engine.simulation_engine import sim_data_io_engine
 from engine.simulation_engine.statistic_engine import statistic_engine
 
 
-# start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-# end_date = dt.datetime(2011, 1, 31)  # YYMMDD
-#
-# strategy = "portfolio_rebalance"
-# mode = "backtest"
-# cal_stat = True
-# quick_test = True
-# wipe_previous_sim_data = True
-# db_mode = {"dynamo_db": False, "local": True}
-# data_freq = "one_min"
-# user_id = 0
-# tickers = ["M", "MSFT"]
-# deposit_amount = 1000000
-# acceptance_range = 0
-# num_tickers = len(tickers)
-# #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-# rebalance_ratio = [[50, 50]]
-#
-# portfolio_rebalance = portfolio_rebalance_backtest(tickers,
-#                                                    deposit_amount,
-#                                                    start_date,
-#                                                    end_date,
-#                                                    cal_stat,
-#                                                    data_freq,
-#                                                    user_id,
-#                                                    db_mode,
-#                                                    quick_test,
-#                                                    acceptance_range, rebalance_ratio)
-#
-# portfolio_rebalance.loop_through_param()
+start_date = dt.datetime(2010, 1, 1)  # YYMMDD
+end_date = dt.datetime(2011, 1, 31)  # YYMMDD
+
+strategy = "portfolio_rebalance"
+mode = "backtest"
+cal_stat = True
+quick_test = True
+wipe_previous_sim_data = True
+db_mode = {"dynamo_db": False, "local": True}
+data_freq = "one_min"
+user_id = 0
+tickers = ["M", "SPY"]
+deposit_amount = 1000000
+acceptance_range = 0
+num_tickers = len(tickers)
+#rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+rebalance_ratio = [[50, 50]]
+
+portfolio_rebalance = portfolio_rebalance_backtest(tickers,
+                                                   deposit_amount,
+                                                   start_date,
+                                                   end_date,
+                                                   cal_stat,
+                                                   data_freq,
+                                                   user_id,
+                                                   db_mode,
+                                                   quick_test,
+                                                   acceptance_range, rebalance_ratio)
+
+portfolio_rebalance.loop_through_param()
 
 
 
@@ -69,7 +69,7 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 # db_mode = {"dynamo_db": False, "local": True}
 # data_freq = "one_min"
 # user_id = 0
- rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
+# rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
 #                                                                                                         initial_amount,
 #                                                                                                         start_date,
 #                                                                                                         end_date,
