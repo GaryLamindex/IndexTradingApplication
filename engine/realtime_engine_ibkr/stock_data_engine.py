@@ -17,6 +17,7 @@ import pathlib
 from failure_handler import connection_handler, connect_tws
 
 import yfinance as yf
+from csv import writer
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
 
@@ -306,24 +307,15 @@ class ibkr_stock_data_io_engine:
         old_df = pd.read_csv(old_csv, index_col=[sort_values_col])
         new_df = pd.read_csv(update_csv, index_col=[sort_values_col])
         common_col = list(set(old_df.columns).intersection(set(new_df.columns)))
-        tmp_df1 = old_df[common_col]
-        tmp_df2 = new_df[common_col]
-        common_col_df = pd.concat([tmp_df1, tmp_df2])
-        common_col_df = common_col_df.drop_duplicates(keep='first')
-        df = pd.concat([old_df, new_df], axis=1)
+        common_col_df = pd.concat([old_df[common_col], new_df[common_col]]).drop_duplicates(keep=False)
+        df2 = pd.concat([common_col_df, old_df[common_col]])
+        df2 = df2[df2.duplicated(keep='last')]
+        df = pd.concat([common_col_df, df2]).drop_duplicates(keep=False)
         for y in common_col:
-            df.drop(y, inplace=True, axis=1)
-        df = pd.concat([common_col_df, df], axis=1)
-        df = df.sort_values(by=[sort_values_col], na_position='last').reset_index()
-        print(df)
-        rows = df.values.tolist()
-        header = []
-        for col in df.columns:
-            header.append(col)
-        with open(old_csv, 'w', encoding='UTF8') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-            writer.writerows(rows)
+            new_df.drop(y, inplace=True, axis=1)
+        df.to_csv(old_csv, mode='a', index=True, header=True)
+
+
 
 
 def main():
