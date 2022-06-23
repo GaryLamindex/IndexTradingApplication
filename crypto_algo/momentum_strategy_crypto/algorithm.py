@@ -1,12 +1,11 @@
 import pandas as pd
-
+import crypto_algo
 
 class momentum_strategy:
     def __init__(self, portfolio_agent):
         self.portfolio_agent = portfolio_agent
-        self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        self.portfolio = self.account_snapshot.get("portfolio")
-        self.total_market_value = self.account_snapshot.get("NetLiquidation")
+        self.overview = self.portfolio_agent.get_overview()
+        self.portfolio = self.portfolio_agent.acc_data.portfolio
 
     # it should return proper format of tuples in a list for self.pending_actions in backtest.py
     def run(self, price_dict, periods_pct_change_dict, timestamp):
@@ -23,14 +22,14 @@ class momentum_strategy:
 
                 # metadata isn't available at this stage
                 # will be accommodated later
-                action = algo.momentum_strategy.backtest.Action.BUY_MKT_ORDER
-                actions_tup = algo.momentum_strategy.backtest.ActionsTuple(timestamp + 86400, action,
+                action = crypto_algo.momentum_strategy_crypto.backtest.Action.BUY_MKT_ORDER
+                actions_tup = crypto_algo.momentum_strategy_crypto.backtest.ActionsTuple(timestamp + 86400, action,
                                                                            {'ticker': ticker,
                                                                             'position_purchase': qty_to_buy})
                 pending_action_list.append(actions_tup)
         else:  # all non-positive, empty all position and won't buy
-            action = algo.momentum_strategy.backtest.Action.CLOSE_ALL
-            actions_tup = algo.momentum_strategy.backtest.ActionsTuple(timestamp + 86400, action, None)
+            action = crypto_algo.momentum_strategy_crypto.backtest.Action.CLOSE_ALL
+            actions_tup = crypto_algo.momentum_strategy_crypto.backtest.ActionsTuple(timestamp + 86400, action, None)
             pending_action_list.append(actions_tup)
 
         return pending_action_list

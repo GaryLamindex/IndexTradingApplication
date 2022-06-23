@@ -5,7 +5,9 @@ import os
 from pathlib import Path
 from enum import Enum
 
+from crypto_algo.momentum_strategy_crypto.algorithm import momentum_strategy
 from engine.crypto_engine.crypto_data_io_engine import crypto_local_engine
+from engine.simulation_engine.simulation_agent import simulation_agent
 from object.backtest_acc_data import backtest_acc_data
 from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_data_engine
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
@@ -123,7 +125,7 @@ class backtest:
         print('start backtest')
         print('Fetch data')
 
-        portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
+        portfolio_data_engine.deposit_cash('funding', initial_amount, start_timestamp)
 
         step = 86400  # 1 day timestamp
 

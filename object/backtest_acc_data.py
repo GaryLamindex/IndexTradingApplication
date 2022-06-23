@@ -32,7 +32,6 @@ class backtest_acc_data(object):
 
         _3188 = {'ticker': '3188', 'initMarginReq': 0.2500, 'maintMarginReq': 0.2000}
         _spy = {'ticker': 'SPY', 'initMarginReq': 0.1091, 'maintMarginReq': 0.992}
-        _qqq = {'ticker': 'QQQ', 'initMarginReq': 0.1315, 'maintMarginReq': 0.1196}
         _govt = {'ticker': 'GOVT', 'initMarginReq': 0.099, 'maintMarginReq': 0.09}
         _shv = {'ticker': 'SHV', 'initMarginReq': 0.099, 'maintMarginReq': 0.09}
         _ivv = {'ticker': 'IVV', 'initMarginReq': 0.1071, 'maintMarginReq': 0.0974}
