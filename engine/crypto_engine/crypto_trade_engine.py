@@ -5,30 +5,59 @@ class crypto_trade_engine:
         self.data_io_engines = data_io_engines
         self.portfolio_data_engine = portfolio_data_engine
 
-    def place_buy_mkt_order(self, ticker, position_purchase, timestamp, price):
-        funding = self.crypto_acc_data.wallet.get('funding')
+    def place_buy_crypto_mkt_order(self, ticker, position_purchase, timestamp, price):
+        old_funding = self.crypto_acc_data.wallet.get('funding')
         transaction_amount = position_purchase * price
 
-        if funding < transaction_amount:  # cannot buy
-            return None
+        if old_funding < transaction_amount:  # cannot buy
+            return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price,
+                    'quantity': position_purchase,
+                    'realized profit': None, 'action': 'rejected'}
 
         # can buy
-        self.crypto_acc_data.wallet['funding'] = funding - transaction_amount
-        self.crypto_acc_data.update_portfolio_item(ticker, position_purchase, 0)
-        return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price, 'quantity': position_purchase,
-                'realized profit': None}
+        ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)
+        if ticker_item:
+            self.crypto_acc_data.update_portfolio_item(ticker, ticker_item['available'] + position_purchase, 0)
+        else:
+            self.crypto_acc_data.update_portfolio_item(ticker, position_purchase, 0)
+        rate_btc = self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'price')
 
-    def place_sell_mkt_order(self, ticker, position_sell, timestamp, price):
+        new_spot = 0
+        for p in self.crypto_acc_data.portfolio:
+            ticker = p['ticker']
+            rate = self.data_io_engines[ticker].get_field_by_timestamp(timestamp, 'price')
+            new_spot += rate * p['available'] / self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'price')
+        new_funding = old_funding - transaction_amount
+        new_net_liquidation = new_spot * rate_btc + new_funding
+        self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
+        return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price, 'quantity': position_purchase,
+                'realized profit': None, 'action': 'filled'}
+
+    def place_sell_crypto_mkt_order(self, ticker, position_sell, timestamp, price):
         ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)
         if ticker_item:  # sell
-            if ticker_item['available'] < position_sell:
-                return None
-            else:
-                funding = self.crypto_acc_data.wallet['funding']
-                self.crypto_acc_data.wallet['funding'] = funding + price * position_sell
+            if ticker_item['available'] < position_sell:  # not enough to sell
+                return {'timestamp': timestamp, 'ticker': ticker, 'side': 'sell', 'price': price,
+                        'quantity': position_sell, 'action': 'rejected'}
+            else:  # enough to sell
                 self.crypto_acc_data.update_portfolio_item(ticker, ticker_item['available'] - position_sell,
                                                            ticker_item['unavailable'])
+
+                old_funding = self.crypto_acc_data.wallet['funding']
+                rate_btc = self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'price')
+                transaction_amount = price * position_sell
+
+                new_spot = 0
+                for p in self.crypto_acc_data.portfolio:
+                    ticker = p['ticker']
+                    rate = self.data_io_engines[ticker].get_field_by_timestamp(timestamp, 'price')
+                    new_spot += rate * p['available'] / self.data_io_engines['BTC'].get_field_by_timestamp(timestamp,
+                                                                                                           'price')
+                new_funding = old_funding + transaction_amount
+                new_net_liquidation = new_spot * rate_btc + new_funding
+                self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
+
                 return {'timestamp': timestamp, 'ticker': ticker, 'side': 'sell', 'price': price,
-                        'quantity': position_sell}
+                        'quantity': position_sell, 'action': 'filled'}
         else:  # short sell
             pass
