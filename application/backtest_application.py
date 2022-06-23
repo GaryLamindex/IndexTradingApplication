@@ -7,18 +7,18 @@ import datetime as dt
 from algo.portfolio_rebalance.backtest import \
     backtest as portfolio_rebalance_backtest
 
-from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
-    backtest as rebalance_margin_wif_max_drawdown_control_backtest
-from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
-from algo.rebalance_margin_wif_maintainance_margin.backtest import \
-    backtest as rebalance_margin_wif_maintainance_margin_backtest
-
-from engine.simulation_engine import sim_data_io_engine
-from engine.simulation_engine.statistic_engine import statistic_engine
+# from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
+#     backtest as rebalance_margin_wif_max_drawdown_control_backtest
+# from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
+# from algo.rebalance_margin_wif_maintainance_margin.backtest import \
+#     backtest as rebalance_margin_wif_maintainance_margin_backtest
+#
+# from engine.simulation_engine import sim_data_io_engine
+# from engine.simulation_engine.statistic_engine import statistic_engine
 
 
 start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-end_date = dt.datetime(2011, 1, 31)  # YYMMDD
+end_date = dt.datetime(2011, 3, 15)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"
@@ -28,7 +28,7 @@ wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
-tickers = ["M", "SPY"]
+tickers = ["M", "MSFT"]
 deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)

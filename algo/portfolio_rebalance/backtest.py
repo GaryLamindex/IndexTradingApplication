@@ -5,6 +5,7 @@ import pandas as pd
 from os import listdir
 from pathlib import Path
 from algo.portfolio_rebalance.algorithm import portfolio_rebalance
+from engine.backtest_engine.dividend_engine import dividend_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from engine.backtest_engine.stock_data_io_engine import local_engine
 from engine.backtest_engine.trade_engine import backtest_trade_engine
@@ -120,11 +121,12 @@ class backtest(object):
                 trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
                 sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
                                              self.tickers)
+                dividend_agent = dividend_engine(self.tickers)
 
                 algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
                                                 self.acceptance_range)
                 self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                                   portfolio_data_engine, sim_agent)
+                                   portfolio_data_engine, sim_agent, dividend_agent)
                 print("Finished Backtest:", backtest_spec)
                 print("-------------------------------------------------------------------------------")
         self.plot_all_file_graph()
@@ -135,7 +137,7 @@ class backtest(object):
             self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
-                      sim_agent):
+                      sim_agent, dividend_engine):
         # connect to downloaded ib data to get price data
         row = 0
         timestamps = {}
@@ -150,7 +152,7 @@ class backtest(object):
                 # input initial cash
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
-
+            # dividend_engine.check_div(timestamp)
             if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
