@@ -8,17 +8,27 @@ class crypto_acc_data():
         self.stock_transaction_record = []
         self.portfolio = []
         self.cashflow_record = []
-        # spot is currently unavailable for backtest
-        # it requires coin to BTC exchange rate
-        self.wallet = {'spot': 0, 'funding': 0}
+        # spot might not be accurate
+        # currently transfer the coin to USDT and to BTC
+        self.wallet = {'spot': 0, 'funding': 0, 'net_liquidation': 0}
+
+    def remove_portfolio_item(self, ticker):
+        self.portfolio = [p for p in self.portfolio if p['ticker'] != ticker]
+
+    def clear_portfolio_item(self):
+        self.portfolio.clear()
 
     def update_portfolio_item(self, ticker, available, unavailable):
         temp_dict = {'ticker': ticker, 'available': available, 'unavailable': unavailable,
                      'total': available + unavailable}
+        for p in self.portfolio:
+            if p['ticker'] == ticker:
+                p.update(temp_dict)
+                return
         self.portfolio.append(temp_dict)
 
-    def update_wallet(self, spot, funding):
-        self.wallet.update({'spot': spot, 'funding': funding})
+    def update_wallet(self, spot, funding, net_liquidation):
+        self.wallet.update({'spot': spot, 'funding': funding, 'net_liquidation': net_liquidation})
 
     def append_cashflow_record(self, timestamp, account_type, transaction_type, amount):
         transaction_type_dict = {0: "Deposit", 1: "Withdraw"}
