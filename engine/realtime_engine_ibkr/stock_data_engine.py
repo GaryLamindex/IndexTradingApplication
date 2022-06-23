@@ -1,7 +1,11 @@
+import csv
 import time
 
 from ib_insync import *
+import time
+import datetime
 import datetime as dt
+from datetime import datetime, timedelta
 import os
 import math
 import pandas as pd
@@ -193,7 +197,7 @@ class ibkr_stock_data_io_engine:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
                     raise Exception
                 else:
-                    return 
+                    return
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -284,6 +288,30 @@ class ibkr_stock_data_io_engine:
         for ticker in tickers:
             self.get_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
             print("successfully written", ticker)
+
+    def update_csv(self, old_csv, update_csv, sort_values_col):
+        old_df = pd.read_csv(old_csv)
+        new_df = pd.read_csv(update_csv)
+        common_col = list(set(old_df.columns).intersection(set(new_df.columns)))
+        tmp1_df = old_df
+        tmp2_df = new_df
+        old_df = old_df[common_col]
+        new_df = new_df[common_col]
+        df = pd.concat([old_df, new_df]).drop_duplicates().reset_index(drop=True)
+        old_df = tmp1_df
+        new_df = tmp2_df
+        df = pd.merge(df, old_df, how='left')
+        df = pd.merge(df, new_df, how='left')
+        df = df.sort_values(by=[sort_values_col], inplace=True)
+        print(df)
+        # rows = df.values.tolist()
+        # header = []
+        # for col in df.columns:
+        #     header.append(col)
+        # with open(old_csv, 'w', encoding='UTF8') as f:
+        #     writer = csv.writer(f)
+        #     writer.writerow(header)
+        #     writer.writerows(rows)
 
 
 def main():

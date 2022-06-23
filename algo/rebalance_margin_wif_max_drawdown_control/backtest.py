@@ -1,3 +1,4 @@
+import csv
 import os
 import pathlib
 from datetime import datetime
@@ -15,6 +16,7 @@ from engine.simulation_engine import sim_data_io_engine
 from engine.aws_engine.dynamo_db_engine import dynamo_db_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.simulation_engine.statistic_engine import statistic_engine
+from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 
 from engine.visualisation_engine import graph_plotting_engine
@@ -61,7 +63,6 @@ class backtest(object):
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.tickers = tickers
-        # self.marketCol = f'{self.tickers[0]} marketPrice'
         self.initial_amount = initial_amount
         self.start_timestamp = datetime.timestamp(start_date)
         self.end_timestamp = datetime.timestamp(end_date)
@@ -184,7 +185,7 @@ class backtest(object):
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
-                marketCol = f'marketPrice_{self.tickers[idx]}'
+                marketCol = f'marketPrice_{self.tickers[0]}'
                 costCol = f'costBasis_{self.tickers[idx]}'
                 valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
@@ -341,6 +342,12 @@ class backtest(object):
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv")
+
+        #store data to mongoDB HERE
+        wmdb = Write_Mongodb()
+
+        df['name'] = self.table_name
+        wmdb.write_Strategies(df.to_dict(orient='records'))
         pass
 
     #

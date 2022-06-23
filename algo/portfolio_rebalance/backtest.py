@@ -210,19 +210,20 @@ class backtest(object):
                 _5_yr_max_drawdown = max_drawdown_dict.get("5y")
                 _ytd_max_drawdown = max_drawdown_dict.get("ytd")
 
-                # alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
-                # inception_alpha = alpha_dict.get('inception')
-                # _1_yr_alpha = alpha_dict.get('1y')
-                # _3_yr_alpha = alpha_dict.get('3y')
-                # _5_yr_alpha = alpha_dict.get('5y')
-                # _ytd_alpha = alpha_dict.get('ytd')
+                marketCol = f"marketPrice_{self.tickers[0]}"
+                alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
+                inception_alpha = alpha_dict.get('inception')
+                _1_yr_alpha = alpha_dict.get('1y')
+                _3_yr_alpha = alpha_dict.get('3y')
+                _5_yr_alpha = alpha_dict.get('5y')
+                _ytd_alpha = alpha_dict.get('ytd')
 
-                # volatility_dict = stat_engine.get_volatility_data(file_name, marketCol)
-                # inception_volatility = volatility_dict.get('inception')
-                # _1_yr_volatility = volatility_dict.get('1y')
-                # _3_yr_volatility = volatility_dict.get('3y')
-                # _5_yr_volatility = volatility_dict.get('5y')
-                # _ytd_volatility = volatility_dict.get('ytd')
+                volatility_dict = stat_engine.get_volatility_data(file_name, marketCol)
+                inception_volatility = volatility_dict.get('inception')
+                _1_yr_volatility = volatility_dict.get('1y')
+                _3_yr_volatility = volatility_dict.get('3y')
+                _5_yr_volatility = volatility_dict.get('5y')
+                _ytd_volatility = volatility_dict.get('ytd')
 
                 win_rate_dict = stat_engine.get_win_rate_data(file_name)
                 inception_win_rate = win_rate_dict.get('inception')
@@ -276,12 +277,12 @@ class backtest(object):
                     "Since Inception Max Drawdown": inception_max_drawdown, "YTD Max Drawdown": _ytd_max_drawdown,
                     "1 Yr Max Drawdown": _1_yr_max_drawdown, "3 Yr Max Drawdown": _3_yr_max_drawdown,
                     "5 Yr Max Drawdown": _5_yr_max_drawdown,
-                    # "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
-                    # "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
-                    # "5 Yr Alpha": _5_yr_alpha,
-                    # "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
-                    # "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
-                    # "5 Yr Volatility": _5_yr_volatility,
+                    "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
+                    "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
+                    "5 Yr Alpha": _5_yr_alpha,
+                    "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
+                    "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
+                    "5 Yr Volatility": _5_yr_volatility,
                     "Since Inception Win Rate": inception_win_rate, "YTD Win Rate": _ytd_win_rate,
                     "1 Yr Win Rate": _1_yr_win_rate, "3 Yr Win Rate": _3_yr_win_rate,
                     "5 Yr Win Rate": _5_yr_win_rate,

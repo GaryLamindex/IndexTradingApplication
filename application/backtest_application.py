@@ -63,6 +63,10 @@ backtest.loop_through_params()
 # cal_stat = True
 # quick_test = True
 # wipe_previous_sim_data = True
+# rabalance_dict = {"start": 60, "end": 70, "step": 10}
+# maintain_dict = {"start": 50, "end": 60, "step": 10}
+# max_drawdown_ratio_dict = {"start": 5, "end": 7, "step": 2}
+# purchase_exliq_ratio_dict = {"start": 500, "end": 502, "step": 2}
 # db_mode = {"dynamo_db": False, "local": True}
 # data_freq = "one_min"
 # user_id = 0

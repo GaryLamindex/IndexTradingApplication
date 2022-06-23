@@ -32,9 +32,12 @@ def main():
     # for etf in etf_list['Ticker']:
     #     engine.get_historical_data_by_range(etf, 0,
     #                                         datetime(2022, 6, 9, tzinfo=timezone.utc).timestamp(), '1 min', False)
-    ticker = pd.read_csv('/Users/percychui/Library/Containers/com.microsoft.Excel/Data/Downloads/ticker name.csv')
-    ticker_array = ticker["Ticker"].to_numpy()
-    engine.get_dividends(ticker_array)
+    # ticker = pd.read_csv('/Users/percychui/Library/Containers/com.microsoft.Excel/Data/Downloads/ticker name.csv')
+    # ticker_array = ticker["Ticker"].to_numpy()
+    # engine.get_dividends(ticker_array)
+    engine.update_csv('/Users/percychui/Downloads/test1.csv', '/Users/percychui/Downloads/test2.csv', 'food')
+
+
 
 if __name__ == "__main__":
     main()
