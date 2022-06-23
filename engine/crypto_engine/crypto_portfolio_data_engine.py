@@ -25,4 +25,11 @@ class crypto_portfolio_data_engine:
 
     def get_overview(self):
         overview = {}
-        overview.update()
+        overview.update(self.acc_data.wallet)
+        for p in self.acc_data.portfolio:
+            temp_list = p.copy()
+            ticker = temp_list['ticker']
+            del temp_list['ticker']
+            res = {f'{str(key)}_{ticker}': val for key, val in temp_list.items()}
+            overview.update(res)
+        return overview

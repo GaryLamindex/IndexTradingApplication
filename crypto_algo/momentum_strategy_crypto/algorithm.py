@@ -16,7 +16,7 @@ class momentum_strategy:
         if (df['pct_change'] > 0).any():  # at least one can buy
             df_largest = df['pct_change'].nlargest(1, 'all')
             for ticker, pct_change in df_largest.iteritems():
-                cash = self.portfolio_agent.get_account_snapshot().get('TotalCashValue')
+                cash = self.portfolio_agent.get_overview().get('funding')
                 cur_price = price_dict[ticker]
                 qty_to_buy = int(cash / cur_price * 0.9)
 
