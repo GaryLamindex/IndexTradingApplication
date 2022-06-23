@@ -7,18 +7,18 @@ import datetime as dt
 from algo.portfolio_rebalance.backtest import \
     backtest as portfolio_rebalance_backtest
 
-from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
-    backtest as rebalance_margin_wif_max_drawdown_control_backtest
-from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
-from algo.rebalance_margin_wif_maintainance_margin.backtest import \
-    backtest as rebalance_margin_wif_maintainance_margin_backtest
-
-from engine.simulation_engine import sim_data_io_engine
-from engine.simulation_engine.statistic_engine import statistic_engine
+# from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
+#     backtest as rebalance_margin_wif_max_drawdown_control_backtest
+# from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
+# from algo.rebalance_margin_wif_maintainance_margin.backtest import \
+#     backtest as rebalance_margin_wif_maintainance_margin_backtest
+#
+# from engine.simulation_engine import sim_data_io_engine
+# from engine.simulation_engine.statistic_engine import statistic_engine
 
 
 start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-end_date = dt.datetime(2011, 3, 31)  # YYMMDD
+end_date = dt.datetime(2011, 3, 15)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"
@@ -33,7 +33,7 @@ deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)
 #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[20, 80]]
+rebalance_ratio = [[50, 50]]
 
 portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    deposit_amount,
