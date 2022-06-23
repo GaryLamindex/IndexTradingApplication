@@ -4,6 +4,7 @@ from datetime import datetime
 import sys
 import pathlib
 
+import numpy as np
 import pandas as pd
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
@@ -258,7 +259,7 @@ class simulation_agent(object):
                 writer.writerow(self.list_header)
                 temp_row = []
                 for item in self.list_header:
-                    temp_row.append(run_dict.get(item, ' '))
+                    temp_row.append(run_dict.get(item, np.NaN))
                 writer.writerow(temp_row)
 
         else:

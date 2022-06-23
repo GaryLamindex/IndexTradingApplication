@@ -254,9 +254,11 @@ class backtest(object):
                 _15_yr_rolling_return = rolling_return_dict.get('15y')
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
 
-                drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
-                drawdown_abstract = drawdown_dict.get('drawdown_abstract')
-                drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
+                ########## Store drawdown in another csv
+                drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
+                # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
+                # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
 
                 average_win_day_dict = stat_engine.get_average_win_day_data(file_name)
                 inception_average_win_day = average_win_day_dict.get('inception')
@@ -299,7 +301,7 @@ class backtest(object):
                     "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
                     "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
                     "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return,
-                    "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
+                    #"Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
 
                     "Since Inception Average Win Per Day": inception_average_win_day,
                     "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
@@ -329,7 +331,7 @@ class backtest(object):
                "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
                "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
                "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
-               "Drawdown_abstract","Drawdown_raw_data",
+               # "Drawdown_abstract","Drawdown_raw_data",
                "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
@@ -337,17 +339,20 @@ class backtest(object):
                "Composite"
         ]
 
-        df = pd.DataFrame(data_list, columns=col)
-        pd.set_option("max_colwidth", 10000)
+        df = pd.DataFrame(data= data_list, columns=col)
+        #pd.set_option("max_colwidth", 10000)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
-        df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv")
+        df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-        #store data to mongoDB HERE
-        wmdb = Write_Mongodb()
+        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
+        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
-        df['name'] = self.table_name
-        wmdb.write_Strategies(df.to_dict(orient='records'))
+        # # #store data to mongoDB HERE
+        # _p = df.to_dict(orient='records')
+        # wmdb = Write_Mongodb()
+        # wmdb.write_one_min_raw_data('Strategies', _p)
+        # # wmdb.write_Strategies(df.to_dict(orient='records'))
         pass
 
     #

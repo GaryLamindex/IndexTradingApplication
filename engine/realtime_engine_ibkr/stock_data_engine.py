@@ -1,11 +1,12 @@
 import csv
 import time
 
+import re
 from ib_insync import *
 import time
 import datetime
 import datetime as dt
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import math
 import pandas as pd
@@ -218,11 +219,13 @@ class ibkr_stock_data_io_engine:
     def get_etf_list(self):
         return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
 
-    def get_dividends(self, tickers):
+    def get_dividends(self, tickers, expire_day):
         for ticker in tickers:
             ticker = ticker.upper()
             ticker_obj = yf.Ticker(ticker)
             dividends = pd.DataFrame(ticker_obj.dividends)
+            dirs = os.listdir(self.dividends_data_path)
+            today = datetime.today().strftime('%Y/%m/%d')
 
             timestamps = []
 
@@ -235,8 +238,18 @@ class ibkr_stock_data_io_engine:
             dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
             if not os.path.exists(self.dividends_data_path):
                 os.mkdir(self.dividends_data_path)
-            dividends.to_csv(
-                f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day).timestamp())}.csv')
+            expired = True
+            for file in dirs:
+                if ticker == re.sub('[^A-Z]', '', file):  # if there exists the csv file of the ticker
+                    download_date = datetime.fromtimestamp(int(re.search(r'\d+', file).group())).strftime('%Y/%m/%d')
+                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date, '%Y/%m/%d')).days > expire_day:
+                        os.remove(os.path.join(self.dividends_data_path, file))  # if csv file is expired, delete it
+                    else:
+                        expired = False
+                    break
+            if expired:  # if csv file is expired or doesn't exist, download the new csv file
+                dividends.to_csv(
+                    f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day, tzinfo=dt.timezone.utc).timestamp())}.csv')
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
@@ -290,28 +303,27 @@ class ibkr_stock_data_io_engine:
             print("successfully written", ticker)
 
     def update_csv(self, old_csv, update_csv, sort_values_col):
-        old_df = pd.read_csv(old_csv)
-        new_df = pd.read_csv(update_csv)
+        old_df = pd.read_csv(old_csv, index_col=[sort_values_col])
+        new_df = pd.read_csv(update_csv, index_col=[sort_values_col])
         common_col = list(set(old_df.columns).intersection(set(new_df.columns)))
-        tmp1_df = old_df
-        tmp2_df = new_df
-        old_df = old_df[common_col]
-        new_df = new_df[common_col]
-        df = pd.concat([old_df, new_df]).drop_duplicates().reset_index(drop=True)
-        old_df = tmp1_df
-        new_df = tmp2_df
-        df = pd.merge(df, old_df, how='left')
-        df = pd.merge(df, new_df, how='left')
-        df = df.sort_values(by=[sort_values_col], inplace=True)
+        tmp_df1 = old_df[common_col]
+        tmp_df2 = new_df[common_col]
+        common_col_df = pd.concat([tmp_df1, tmp_df2])
+        common_col_df = common_col_df.drop_duplicates(keep='first')
+        df = pd.concat([old_df, new_df], axis=1)
+        for y in common_col:
+            df.drop(y, inplace=True, axis=1)
+        df = pd.concat([common_col_df, df], axis=1)
+        df = df.sort_values(by=[sort_values_col], na_position='last').reset_index()
         print(df)
-        # rows = df.values.tolist()
-        # header = []
-        # for col in df.columns:
-        #     header.append(col)
-        # with open(old_csv, 'w', encoding='UTF8') as f:
-        #     writer = csv.writer(f)
-        #     writer.writerow(header)
-        #     writer.writerows(rows)
+        rows = df.values.tolist()
+        header = []
+        for col in df.columns:
+            header.append(col)
+        with open(old_csv, 'w', encoding='UTF8') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerows(rows)
 
 
 def main():

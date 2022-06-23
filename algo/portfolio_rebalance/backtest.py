@@ -331,10 +331,13 @@ class backtest(object):
                ]
 
         df = pd.DataFrame(data_list, columns=col)
-        pd.set_option("max_colwidth", 10000)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
-        df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv")
+        df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
+
+        #df to mongodb
+
+
         pass
 
     #
