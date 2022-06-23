@@ -8,20 +8,21 @@ from enum import Enum
 from crypto_algo.momentum_strategy_crypto.algorithm import momentum_strategy
 from engine.crypto_engine.crypto_data_io_engine import crypto_local_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
-from object.backtest_acc_data import backtest_acc_data
 from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_data_engine
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
+from object.crypto_acc_data import crypto_acc_data
 
 
 class Action(Enum):
     # market order
     BUY_MKT_ORDER = 1
     SELL_MKT_ORDER = 2
-    CLOSE_ALL = 3
+    CLOSE_POSITION = 3
+    CLOSE_ALL = 4
 
     # limit order
-    BUY_LMT_ORDER = 4
-    SELL_LMT_ORDER = 5
+    BUY_LMT_ORDER = 5
+    SELL_LMT_ORDER = 6
 
 
 class ActionsTuple:
@@ -102,7 +103,7 @@ class backtest:
             if os.path.exists(graph_file):
                 os.remove(Path(graph_file))
 
-            acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+            acc_data = crypto_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
                                          self.table_name, spec_str)
             portfolio_data_engine = crypto_portfolio_data_engine(acc_data, self.tickers)
             trade_agent = crypto_trade_engine(acc_data, self.crypto_data_engines, portfolio_data_engine)
@@ -136,6 +137,10 @@ class backtest:
             self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
 
     def run(self, timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine):
+        if timestamp == 1602460800:
+            a = 0
+            b = 1
+            pass
         pct_change_dict = {}
         price_dict = {}
         sim_meta_data = {}
@@ -156,7 +161,7 @@ class backtest:
         for a in temp_actions:
             heapq.heappush(self.pending_actions, a)
 
-        while self.pending_actions[0][0] == timestamp:
+        while len(self.pending_actions) != 0 and self.pending_actions[0][0] >= timestamp:
             cur_action = self.pending_actions[0][1]
             func_params = self.pending_actions[0][2]
             action_msg = None
@@ -166,20 +171,27 @@ class backtest:
                 last = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['price'].item()
                 action_msg = trade_agent.place_buy_crypto_mkt_order(ticker,
                                                                     func_params['position_purchase'],
-                                                                    {ticker: {'timestamp': timestamp,
-                                                                              'last': last}})
+                                                                    timestamp, last)
             elif cur_action == Action.CLOSE_ALL:
                 portfolio = portfolio_data_engine.acc_data.portfolio
                 for p in portfolio:
                     ticker = p['ticker']
-                    cur_position = p['position']
-                    if cur_position >= 1:
+                    cur_position = p['available']
+                    if cur_position > 0:
                         open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['price'].item()
                         action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
-                                                                             {'timestamp': timestamp,
-                                                                              'open': open_price})
+                                                                             timestamp, open_price)
+                    portfolio_data_engine.acc_data.clear_portfolio_item()
+            elif cur_action == Action.CLOSE_POSITION:
+                ticker = func_params['ticker']
+                ticker_item = portfolio_data_engine.acc_data.check_if_ticker_exist_in_portfolio(ticker)
+                cur_position = ticker_item['available']
+                open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['price'].item()
+                action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
+                                                                     timestamp, open_price)
+                portfolio_data_engine.acc_data.remove_portfolio_item(ticker)
             if action_msg is not None:
-                sim_agent.append_run_data_to_db(timestamp, portfolio_data_engine.get_account_snapshot(),
+                sim_agent.append_run_data_to_db(timestamp, portfolio_data_engine.get_overview(),
                                                 [action_msg], sim_meta_data, stock_data_dict)
             heapq.heappop(self.pending_actions)
 

@@ -5,12 +5,14 @@ import pandas as pd
 from os import listdir
 from pathlib import Path
 from algo.portfolio_rebalance.algorithm import portfolio_rebalance
+from engine.backtest_engine.dividend_engine import dividend_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from engine.backtest_engine.stock_data_io_engine import local_engine
 from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.simulation_engine import sim_data_io_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.simulation_engine.statistic_engine import statistic_engine
+from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
 
@@ -120,11 +122,12 @@ class backtest(object):
                 trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
                 sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
                                              self.tickers)
+                dividend_agent = dividend_engine(self.tickers)
 
                 algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
                                                 self.acceptance_range)
                 self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                                   portfolio_data_engine, sim_agent)
+                                   portfolio_data_engine, sim_agent, dividend_agent)
                 print("Finished Backtest:", backtest_spec)
                 print("-------------------------------------------------------------------------------")
         self.plot_all_file_graph()
@@ -135,7 +138,7 @@ class backtest(object):
             self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
-                      sim_agent):
+                      sim_agent, dividend_engine):
         # connect to downloaded ib data to get price data
         row = 0
         timestamps = {}
@@ -150,7 +153,7 @@ class backtest(object):
                 # input initial cash
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
-
+            # dividend_engine.check_div(timestamp)
             if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent)
@@ -246,9 +249,9 @@ class backtest(object):
                 _15_yr_rolling_return = rolling_return_dict.get('15y')
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
 
-                drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
-                drawdown_abstract = drawdown_dict.get('drawdown_abstract')
-                drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
+                drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
+                # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
 
                 average_win_day_dict = stat_engine.get_average_win_day_data(file_name)
                 inception_average_win_day = average_win_day_dict.get('inception')
@@ -291,7 +294,7 @@ class backtest(object):
                     "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
                     "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
                     "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return,
-                    "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
+                    # "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
 
                     "Since Inception Average Win Per Day": inception_average_win_day,
                     "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
@@ -322,7 +325,7 @@ class backtest(object):
                "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
                "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
                "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
-               "Drawdown_abstract", "Drawdown_raw_data",
+               # "Drawdown_abstract", "Drawdown_raw_data",
                "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
@@ -335,9 +338,12 @@ class backtest(object):
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-        #df to mongodb
+        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
+        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
-
+        # _p = df.to_dict(orient='records')
+        # wmdb = Write_Mongodb()
+        # wmdb.write_one_min_raw_data('Strategies', _p)
         pass
 
     #

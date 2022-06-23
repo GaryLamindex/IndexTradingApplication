@@ -7,18 +7,18 @@ import datetime as dt
 from algo.portfolio_rebalance.backtest import \
     backtest as portfolio_rebalance_backtest
 
-from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
-    backtest as rebalance_margin_wif_max_drawdown_control_backtest
-from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
-from algo.rebalance_margin_wif_maintainance_margin.backtest import \
-    backtest as rebalance_margin_wif_maintainance_margin_backtest
-
-from engine.simulation_engine import sim_data_io_engine
-from engine.simulation_engine.statistic_engine import statistic_engine
+# from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
+#     backtest as rebalance_margin_wif_max_drawdown_control_backtest
+# from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
+# from algo.rebalance_margin_wif_maintainance_margin.backtest import \
+#     backtest as rebalance_margin_wif_maintainance_margin_backtest
+#
+# from engine.simulation_engine import sim_data_io_engine
+# from engine.simulation_engine.statistic_engine import statistic_engine
 
 
 start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-end_date = dt.datetime(2011, 1, 31)  # YYMMDD
+end_date = dt.datetime(2011, 3, 15)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"
@@ -69,7 +69,7 @@ portfolio_rebalance.loop_through_param()
 # db_mode = {"dynamo_db": False, "local": True}
 # data_freq = "one_min"
 # user_id = 0
- rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
+# rebalance_margin_wif_max_drawdown_control_backtest = rebalance_margin_wif_max_drawdown_control_backtest(tickers,
 #                                                                                                         initial_amount,
 #                                                                                                         start_date,
 #                                                                                                         end_date,
@@ -82,7 +82,7 @@ portfolio_rebalance.loop_through_param()
 #                                                                                                         user_id,
 #                                                                                                         db_mode,
 #                                                                                                         quick_test)
- rebalance_margin_wif_max_drawdown_control_backtest.loop_through_param()
+# rebalance_margin_wif_max_drawdown_control_backtest.loop_through_param()
 
 # tickers = ['SPY']
 # # dataFreq = ["1 secs", "5 secs", "10 secs", "15 secs", "30 secs", "1 min", "2 mins", "3 mins", "5 mins", "10 mins", "15 mins", "20 mins", "30 mins", "1 hour", "2 hours", "3 hours", "4 hours", "8 hours", "1 day", "1W", "1M"]
