@@ -22,21 +22,12 @@ def main():
     # to the earliest timestamp in the csv file -> run the program again
 
     # The following two lines are fetching stock/forex data
-    # engine.get_historical_data_by_range("QQQ", 0, datetime.timestamp(
-    #     datetime(year=2022, month=6, day=1, tzinfo=timezone.utc)), "1 min", False)
-
     # engine.get_historical_currency_rate_by_range('USD', 'HKD', 946702800, 1590700500)
     # engine.get_sehk_historical_data_by_range('3188', 1351215000, 1351216020, '1 min', True)
 
-    # etf_list = engine.get_etf_list()
-    # for etf in etf_list['Ticker']:
-    #     engine.get_historical_data_by_range(etf, 0,
-    #                                         datetime(2022, 6, 9, tzinfo=timezone.utc).timestamp(), '1 min', False)
-    # ticker = pd.read_csv('/Users/percychui/Library/Containers/com.microsoft.Excel/Data/Downloads/ticker name.csv')
-    # ticker_array = ticker["Ticker"].to_numpy()
-    # engine.get_dividends(ticker_array, 1)
-    # engine.update_csv('/Users/percychui/Downloads/test1.csv', '/Users/percychui/Downloads/test2.csv', 'date')
-
+    etf_list = engine.get_etf_list()
+    for etf in etf_list['Ticker']:
+        engine.get_historical_data_by_range(etf, 0, datetime(2022, 6, 12).timestamp(), '1 min', False)
 
 
 if __name__ == "__main__":

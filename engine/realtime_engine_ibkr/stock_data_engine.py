@@ -208,11 +208,8 @@ class ibkr_stock_data_io_engine:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
                     raise Exception
                 else:
-                    return
-            if current_end_timestamp == end_timestamp:
-                three_weeks_data = True
-            else:
-                three_weeks_data = False
+                    self.grab_data_retry_attempt = 0
+                    return 
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
