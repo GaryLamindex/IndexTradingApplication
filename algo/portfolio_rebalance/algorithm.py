@@ -9,7 +9,7 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-
+from crypto_algo.momentum_strategy_crypto.backtest import Action, ActionsTuple
 
 
 class portfolio_rebalance:
@@ -56,10 +56,10 @@ class portfolio_rebalance:
                 if ticker_info.get("ticker") == ticker:
                     hold_flag = True
                     current_market_price = ticker_info.get("marketPrice")
-                    target_position = int((self.net_liquidation * (percentage/100)) / current_market_price)
+                    target_position = int((self.net_liquidation * (percentage / 100)) / current_market_price)
                     self.target_market_positions.update({ticker: target_position})
-            if(hold_flag == False):
-                for ticker_name , market_price in realtime_stock_data_dict.items():
+            if (hold_flag == False):
+                for ticker_name, market_price in realtime_stock_data_dict.items():
                     if ticker_name == ticker:
                         current_market_price = market_price.get('last')
                         target_position = int((self.net_liquidation * (percentage / 100)) / current_market_price)
@@ -83,14 +83,16 @@ class portfolio_rebalance:
                 self.sell_list.append([ticker_info.get("ticker"), current_position])
         for ticker in unmodified_tickers:
             self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
-        realtime_stock_data_dict["timestamp"] = timestamp
+        #realtime_stock_data_dict["timestamp"] = timestamp
         for ticker in self.sell_list:
-
-            action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
+            action_msg = ActionsTuple(timestamp, Action.SELL_MKT_ORDER,
+                                      {'ticker': ticker[0], 'position_sell': ticker[1]})
+            # action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
         for ticker in self.buy_list:
-
-            action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
+            action_msg = ActionsTuple(timestamp, Action.BUY_MKT_ORDER,
+                                      {'ticker': ticker[0], 'position_purchase': ticker[1]})
+            # action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
 
         return self.action_msgs.copy()
@@ -107,24 +109,24 @@ class portfolio_rebalance:
                 # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(days=+relative_delta)
                 if datetime_obj.day != self.last_exec_datetime_obj.day and datetime_obj > self.last_exec_datetime_obj:
                     self.last_exec_datetime_obj = datetime_obj
-                    #print(
-                        #f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
+                    # print(
+                    # f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
                     return True
                 else:
-                    #print(
-                        #f"check_exec: False. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
+                    # print(
+                    # f"check_exec: False. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
                     return False
 
             elif freq == "Monthly":
-                #next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(months=+relative_delta)
+                # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(months=+relative_delta)
                 if datetime_obj.month != self.last_exec_datetime_obj.month and datetime_obj > self.last_exec_datetime_obj:
-                    #print(
-                        #f"check_exec: True. last_exec_datetime_obj.month={self.last_exec_datetime_obj.month}; datetime_obj.month={datetime_obj.month}")
+                    # print(
+                    # f"check_exec: True. last_exec_datetime_obj.month={self.last_exec_datetime_obj.month}; datetime_obj.month={datetime_obj.month}")
                     self.last_exec_datetime_obj = datetime_obj
                     return True
                 else:
-                    #print(
-                        #f"check_exec: False. last_exec_datetime_obj.month={self.last_exec_datetime_obj.month}; datetime_obj.month={datetime_obj.month}")
+                    # print(
+                    # f"check_exec: False. last_exec_datetime_obj.month={self.last_exec_datetime_obj.month}; datetime_obj.month={datetime_obj.month}")
                     return False
 
 

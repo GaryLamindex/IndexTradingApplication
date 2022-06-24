@@ -15,6 +15,7 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
+from crypto_algo.momentum_strategy_crypto.backtest import Action, ActionsTuple
 
 
 class backtest(object):
@@ -127,7 +128,7 @@ class backtest(object):
                 algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
                                                 self.acceptance_range)
                 self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                                   portfolio_data_engine, sim_agent, dividend_agent)
+                                   portfolio_data_engine, sim_agent, dividend_agent, trade_agent)
                 print("Finished Backtest:", backtest_spec)
                 print("-------------------------------------------------------------------------------")
         self.plot_all_file_graph()
@@ -138,7 +139,7 @@ class backtest(object):
             self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
-                      sim_agent, dividend_engine):
+                      sim_agent, dividend_engine, trade_agent):
         # connect to downloaded ib data to get price data
         row = 0
         timestamps = {}
@@ -153,12 +154,17 @@ class backtest(object):
                 # input initial cash
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
-            # dividend_engine.check_div(timestamp)
+            portfolio = portfolio_data_engine.get_portfolio()
+            total_dividend = dividend_engine.check_div(timestamp, portfolio)
+            if total_dividend != 0:
+                portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
+
+
             if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
-                    self.run(timestamp, algorithm, sim_agent)
+                    self.run(timestamp, algorithm, sim_agent, trade_agent)
             else:
-                self.run(timestamp, algorithm, sim_agent)
+                self.run(timestamp, algorithm, sim_agent, trade_agent)
 
     def check_rebalance_ratio(self):
         total_ratio = 0
@@ -355,7 +361,7 @@ class backtest(object):
     #         _data = stats_agent.cal_month_to_month_breakdown(file)
     #     pass
 
-    def run(self, timestamp, algorithm, sim_agent):
+    def run(self, timestamp, algorithm, sim_agent, trade_agent):
         stock_data_dict = {}
         sim_meta_data = {}
         for ticker in self.tickers:
@@ -372,8 +378,22 @@ class backtest(object):
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
         # input database and historical data into algo
         action_msgs = algorithm.run(stock_data_dict, timestamp)
-
-        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+        action_record = []
+        for action_msg in action_msgs:
+            action = action_msg[1]
+            if action == Action.SELL_MKT_ORDER:
+                temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg[2].get("ticker"),
+                                                                            action_msg[2].get("position_sell"),
+                                                                            {"timestamp": action_msg[0]})
+                action_record.append(temp_action_record)
+        for action_msg in action_msgs:
+            action = action_msg[1]
+            if action == Action.BUY_MKT_ORDER:
+                temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg[2].get("ticker"),
+                                                                           action_msg[2].get("position_purchase"),
+                                                                           {"timestamp": action_msg[0]})
+                action_record.append(temp_action_record)
+        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
                                         stock_data_dict)
 
     @staticmethod
