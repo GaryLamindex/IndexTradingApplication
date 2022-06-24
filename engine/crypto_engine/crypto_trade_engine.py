@@ -17,16 +17,17 @@ class crypto_trade_engine:
         # can buy
         ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)
         if ticker_item:
-            self.crypto_acc_data.update_portfolio_item(ticker, ticker_item['available'] + position_purchase, 0)
+            self.crypto_acc_data.update_portfolio_item(ticker, ticker_item['available'] + position_purchase,
+                                                       ticker_item['unavailable'])
         else:
             self.crypto_acc_data.update_portfolio_item(ticker, position_purchase, 0)
-        rate_btc = self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'price')
+        rate_btc = self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'Open')
 
         new_spot = 0
         for p in self.crypto_acc_data.portfolio:
             ticker = p['ticker']
-            rate = self.data_io_engines[ticker].get_field_by_timestamp(timestamp, 'price')
-            new_spot += rate * p['available'] / self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'price')
+            rate = self.data_io_engines[ticker].get_field_by_timestamp(timestamp, 'Open')
+            new_spot += rate * p['available'] / self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'Open')
         new_funding = old_funding - transaction_amount
         new_net_liquidation = new_spot * rate_btc + new_funding
         self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
@@ -44,15 +45,15 @@ class crypto_trade_engine:
                                                            ticker_item['unavailable'])
 
                 old_funding = self.crypto_acc_data.wallet['funding']
-                rate_btc = self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'price')
+                rate_btc = self.data_io_engines['BTC'].get_field_by_timestamp(timestamp, 'Open')
                 transaction_amount = price * position_sell
 
                 new_spot = 0
                 for p in self.crypto_acc_data.portfolio:
                     ticker = p['ticker']
-                    rate = self.data_io_engines[ticker].get_field_by_timestamp(timestamp, 'price')
+                    rate = self.data_io_engines[ticker].get_field_by_timestamp(timestamp, 'Open')
                     new_spot += rate * p['available'] / self.data_io_engines['BTC'].get_field_by_timestamp(timestamp,
-                                                                                                           'price')
+                                                                                                           'Open')
                 new_funding = old_funding + transaction_amount
                 new_net_liquidation = new_spot * rate_btc + new_funding
                 self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
