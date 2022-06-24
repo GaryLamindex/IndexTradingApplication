@@ -19,8 +19,12 @@ class crypto_acc_data():
         self.portfolio.clear()
 
     def update_portfolio_item(self, ticker, available, unavailable):
+        total = available + unavailable
+        if total == 0:
+            self.remove_portfolio_item(ticker)
+            return
         temp_dict = {'ticker': ticker, 'available': available, 'unavailable': unavailable,
-                     'total': available + unavailable}
+                     'total': total}
         for p in self.portfolio:
             if p['ticker'] == ticker:
                 p.update(temp_dict)

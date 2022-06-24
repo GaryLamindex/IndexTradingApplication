@@ -16,9 +16,11 @@ class momentum_strategy:
 
         if (df['pct_change'] > 0).any():  # at least one can buy
             df_temp = df.dropna(subset='pct_change')
-            df_largest = df_temp['pct_change'].nlargest(1, 'all')
+            if df_temp.shape[0] <= 1:
+                return []
+            df_largest = df_temp['pct_change'].nlargest(1)
             for ticker, pct_change in df_largest.iteritems():
-                # TODO: need to change
+                # TODO: buggy: should loop thru portfolio instead
                 if self.portfolio_agent.acc_data.check_if_ticker_exist_in_portfolio(ticker):
                     action = crypto_algo.momentum_strategy_crypto.backtest.Action.CLOSE_POSITION
                     actions_tup = crypto_algo.momentum_strategy_crypto.backtest.ActionsTuple(timestamp + 86400, action,
