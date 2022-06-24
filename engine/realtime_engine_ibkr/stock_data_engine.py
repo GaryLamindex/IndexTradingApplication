@@ -194,7 +194,6 @@ class ibkr_stock_data_io_engine:
 
         connect_tws(self.ib_instance)
 
-        three_weeks_data = False  # To check whether the required dataset is within three weeks
 
         while current_end_timestamp > start_timestamp:
             current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
@@ -209,7 +208,8 @@ class ibkr_stock_data_io_engine:
                     raise Exception
                 else:
                     self.grab_data_retry_attempt = 0
-                    return 
+                    return
+
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -228,12 +228,9 @@ class ibkr_stock_data_io_engine:
         current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                        regular_trading_hour)
         current_data_df = util.df(current_data)
-        if three_weeks_data:
-            current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
-        else:
-            current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
-            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
-            current_data_df = pd.concat(old_df, current_data_df).drop_duplicates().sort_values(by=['timestamp'])
+        current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
+        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        current_data_df = pd.concat(current_data_df, old_df).drop_duplicates().sort_values(by=['timestamp'])
         current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
 
         # adding a column of timestamp
