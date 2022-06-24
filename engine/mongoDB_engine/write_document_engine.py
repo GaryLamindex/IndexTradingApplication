@@ -33,9 +33,6 @@ class Write_Mongodb:
         except:
             print("WARNING: Could not connect to MongoDB")
 
-    # def rename_collection(self,_collection, name):
-    #     self.mongo.rename_collection(_collection,name)
-
     def write_drawdown_data(self, strategy_name, drawdown_abstract_df):
         """write drawdown_data database, plesase store abstract data rather than raw data """
         self.db = self.conn[self.drawdown_data]
