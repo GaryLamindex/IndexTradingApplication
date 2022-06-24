@@ -2,6 +2,8 @@ import csv
 import time
 
 import re
+
+import numpy as np
 from ib_insync import *
 import time
 import datetime
@@ -13,6 +15,8 @@ import pandas as pd
 
 import sys
 import pathlib
+
+from numpy.random._examples.cffi.extending import vals
 
 from failure_handler import connection_handler, connect_tws
 
@@ -135,6 +139,7 @@ class ibkr_stock_data_io_engine:
     # get data by passing tin the start timestamp and the end timestamp
     # there may be request limit for this function, while the limit if set by TWS
     """just the helper function, NOT called directly"""
+
     def get_historical_data_helper(self, ticker, end_timestamp, duration, bar_size, regular_trading_hour):
         """
         end_timestamp: an unix timestamp
@@ -177,7 +182,9 @@ class ibkr_stock_data_io_engine:
     # e.g. {"QQQ":[{timestamp, ohlc},{timestamp, ohlc}],"SPY"[{timestamp, ohlc},{timestamp, ohlc}]...}
     @connection_handler
     def get_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
-
+        file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
+        if file_exist:
+            os.remove(f"{self.ticker_data_path}/{ticker}.csv")
         first_row = self.get_first_row_of_data(ticker)
         if first_row is not None:
             end_timestamp = first_row['timestamp']
@@ -210,8 +217,17 @@ class ibkr_stock_data_io_engine:
             # adding a column of timestamp
             current_data_df['timestamp'] = current_data_df[['date']].apply(
                 lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
+            if current_data_df['timestamp'].iloc[0] <= start_timestamp:
+                current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
+                if file_exist:  # file already exist
+                    old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+                    current_data_df = pd.concat(old_df, current_data_df).sort_values(by=['timestamp'])
+                current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False, header=True)
+                break
             # write to csv
-            self.write_df_to_csv(ticker, current_data_df)
+            current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+                                   header=True)  # write the current data with header
+            print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
         # adding a column of timestamp
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
@@ -243,7 +259,8 @@ class ibkr_stock_data_io_engine:
             for file in dirs:
                 if ticker == re.sub('[^A-Z]', '', file):  # if there exists the csv file of the ticker
                     download_date = datetime.fromtimestamp(int(re.search(r'\d+', file).group())).strftime('%Y/%m/%d')
-                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date, '%Y/%m/%d')).days > expire_day:
+                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date,
+                                                                                 '%Y/%m/%d')).days > expire_day:
                         os.remove(os.path.join(self.dividends_data_path, file))  # if csv file is expired, delete it
                     else:
                         expired = False
@@ -311,11 +328,12 @@ class ibkr_stock_data_io_engine:
         df2 = pd.concat([common_col_df, old_df[common_col]])
         df2 = df2[df2.duplicated(keep='last')]
         df = pd.concat([common_col_df, df2]).drop_duplicates(keep=False)
+        rows = df.values.tolist()
         for y in common_col:
             new_df.drop(y, inplace=True, axis=1)
-        df.to_csv(old_csv, mode='a', index=True, header=True)
-
-
+        with open(old_csv, 'a+', newline='') as f:
+            append_writer = writer(f)
+            append_writer.writerow(rows)
 
 
 def main():

@@ -35,7 +35,8 @@ def main():
     # ticker = pd.read_csv('/Users/percychui/Library/Containers/com.microsoft.Excel/Data/Downloads/ticker name.csv')
     # ticker_array = ticker["Ticker"].to_numpy()
     # engine.get_dividends(ticker_array, 1)
-    engine.update_csv('/Users/percychui/Downloads/test1.csv', '/Users/percychui/Downloads/test2.csv', 'date')
+    # engine.update_csv('/Users/percychui/Downloads/test1.csv', '/Users/percychui/Downloads/test2.csv', 'date')
+
 
 
 if __name__ == "__main__":
