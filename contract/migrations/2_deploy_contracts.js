@@ -8,7 +8,7 @@ async function doDeploy(deployer){
     await deployer.deploy(FixidityLib);
     await deployer.deploy(DateUtils);
     await deployer.deploy(StringLib);
-    
+
     await deployer.link(StringLib, StringUtils);
     await deployer.deploy(StringUtils);
 

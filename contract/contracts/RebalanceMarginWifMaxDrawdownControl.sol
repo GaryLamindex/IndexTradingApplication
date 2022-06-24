@@ -24,17 +24,8 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
     int256 maxDrawdown = int256(5) * FixidityLib.fixed1() / int256(1000);
     ActionMsg[] public actionMsgs;
 
-    constructor(RealTimeTickerData[] memory _realTimeTickersData){
-//        lastExecutedTimestamp = block.timestamp;
-        for (uint i=0; i < _realTimeTickersData.length; i++){
-            RealTimeTickerData memory tickerData = _realTimeTickersData[i];
-            string memory tickerName = tickerData.tickerName;
-            maxDrawdownDodge[tickerName] = false;
-            benchmarkDrawdownPrice[tickerName] = 0;
-            liquidateTickerQty[tickerName] = 0;
-            maxStockPrice[tickerName] = 0;
-            liquidateTickerPrice[tickerName] = 0;
-        }
+    constructor(){
+
     }
 
     function run(RealTimeTickerData[] memory _tickerData, uint256 _timeStamp, PortfolioData memory _portfolioData, PortfolioHolding[] memory _portfolioHoldings) public returns (ActionMsg[] memory){
@@ -104,6 +95,20 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
 
     function renewContractState(RealTimeTickerData[] memory _tickersData, uint256 _timeStamp, PortfolioData memory _portfolioData, PortfolioHolding[] memory _portfolioHoldings) private{
         timestamp = _timeStamp;
+
+        //        lastExecutedTimestamp = block.timestamp;
+        if(loop == 0){
+            for (uint i=0; i < _tickersData.length; i++){
+                RealTimeTickerData memory tickerData = _tickersData[i];
+                string memory tickerName = tickerData.tickerName;
+                maxDrawdownDodge[tickerName] = false;
+                benchmarkDrawdownPrice[tickerName] = 0;
+                liquidateTickerQty[tickerName] = 0;
+                maxStockPrice[tickerName] = 0;
+                liquidateTickerPrice[tickerName] = 0;
+            }
+        }
+
 
         RealTimeTickerData[] storage _realTimeTickerArray = realTimeTickersData[_timeStamp];
         for (uint i = 0; i < _tickersData.length; i++) {
