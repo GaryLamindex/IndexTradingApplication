@@ -4,12 +4,12 @@ import pandas as pd
 
 class crypto_local_engine:
     def __init__(self, ticker):
-        self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/ticker_data/crypto_daily"
-        self.ticker = ticker
-        self.full_ticker_df = pd.read_csv(f'{self.filepath}/{ticker.lower()}-usd-max.csv')
-        self.full_ticker_df['snapped_at'] = pd.to_datetime(self.full_ticker_df['snapped_at'],
-                                                           format='%Y-%m-%d %H:%M:%S %Z')
-        self.full_ticker_df['timestamp'] = self.full_ticker_df['snapped_at'].apply(lambda x: x.timestamp())
+        self.crypto_daily_path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + \
+                                 '/ticker_data/crypto_daily'
+        self.ticker = ticker.upper()
+        self.full_ticker_df = pd.read_csv(f'{self.crypto_daily_path}/{self.ticker}.csv')
+        self.full_ticker_df['Date'] = pd.to_datetime(self.full_ticker_df['Date'], format='%Y-%m-%d')
+        self.full_ticker_df['timestamp'] = self.full_ticker_df['Date'].apply(lambda x: int(x.timestamp()))
 
     def get_n_days_data(self, timestamp, n):
         start_timestamp = timestamp - 86400 * n
@@ -24,7 +24,8 @@ class crypto_local_engine:
     def get_ticker_item_by_timestamp(self, timestamp):
         ticker_row = self.full_ticker_df[self.full_ticker_df['timestamp'] == timestamp].reset_index(drop=True)
         if ticker_row.empty:
-            return None
+            column_names = ticker_row.columns
+            return {name: None for name in column_names}
         else:
             return ticker_row.to_dict(orient='index')[0]
 
@@ -36,7 +37,7 @@ class crypto_local_engine:
 
     def get_pct_change_by_timestamp(self, periods, timestamp):
         df = self.get_full_ticker_df()
-        df['pct_change'] = df['price'].pct_change(periods=periods)
+        df['pct_change'] = df['Open'].pct_change(periods=periods)
         row_df = df.loc[df['timestamp'] == timestamp, 'pct_change']
         if row_df.empty:
             return None

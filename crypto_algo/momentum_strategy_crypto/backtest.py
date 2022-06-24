@@ -137,24 +137,23 @@ class backtest:
             self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
 
     def run(self, timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine):
-        if timestamp == 1602460800:
-            a = 0
-            b = 1
-            pass
         pct_change_dict = {}
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
         for ticker in self.tickers:
             ticker_engine = self.crypto_data_engines[ticker]
-            price = ticker_engine.get_field_by_timestamp(timestamp, 'price')
-            if price is not None:
+
+            pct_change_dict.update({ticker: ticker_engine.get_pct_change_by_timestamp(period, timestamp)})
+            sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
+            price = ticker_engine.get_field_by_timestamp(timestamp, 'Open')
+            if price is None:
+                stock_data_dict.update({ticker: {'last': None}})
+                price_dict.update({ticker: None})
+                continue
+            else:
                 stock_data_dict.update({ticker: {'last': price}})
                 price_dict.update({ticker: price})
-                pct_change_dict.update({ticker: ticker_engine.get_pct_change_by_timestamp(period, timestamp)})
-                sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
-            else:
-                return
 
         # algorithm.run() should return proper format of tuples in a list for self.pending_actions
         temp_actions = algorithm.run(price_dict, pct_change_dict, timestamp)
@@ -168,7 +167,7 @@ class backtest:
 
             if cur_action == Action.BUY_MKT_ORDER:
                 ticker = func_params['ticker']
-                last = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['price'].item()
+                last = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
                 action_msg = trade_agent.place_buy_crypto_mkt_order(ticker,
                                                                     func_params['position_purchase'],
                                                                     timestamp, last)
@@ -177,19 +176,16 @@ class backtest:
                 for p in portfolio:
                     ticker = p['ticker']
                     cur_position = p['available']
-                    if cur_position > 0:
-                        open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['price'].item()
-                        action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
-                                                                             timestamp, open_price)
-                    portfolio_data_engine.acc_data.clear_portfolio_item()
+                    open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
+                    action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
+                                                                         timestamp, open_price)
             elif cur_action == Action.CLOSE_POSITION:
                 ticker = func_params['ticker']
                 ticker_item = portfolio_data_engine.acc_data.check_if_ticker_exist_in_portfolio(ticker)
                 cur_position = ticker_item['available']
-                open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['price'].item()
+                open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
                 action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
                                                                      timestamp, open_price)
-                portfolio_data_engine.acc_data.remove_portfolio_item(ticker)
             if action_msg is not None:
                 sim_agent.append_run_data_to_db(timestamp, portfolio_data_engine.get_overview(),
                                                 [action_msg], sim_meta_data, stock_data_dict)
