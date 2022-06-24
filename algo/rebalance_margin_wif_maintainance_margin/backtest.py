@@ -248,8 +248,8 @@ class backtest(object):
 
             sim_meta_data = {}
 
-            if algorithm.account_snapshot["GrossPositionValue"] != 0:
-                ExcessLiquidity_to_GrossPositionValue = algorithm.account_snapshot["ExcessLiquidity"] / algorithm.account_snapshot["GrossPositionValue"]
+            if algorithm.overview["GrossPositionValue"] != 0:
+                ExcessLiquidity_to_GrossPositionValue = algorithm.overview["ExcessLiquidity"] / algorithm.overview["GrossPositionValue"]
             else:
                 ExcessLiquidity_to_GrossPositionValue = 0
 

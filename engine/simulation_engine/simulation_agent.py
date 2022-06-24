@@ -4,6 +4,7 @@ from datetime import datetime
 import sys
 import pathlib
 
+import numpy as np
 import pandas as pd
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()))
@@ -258,7 +259,7 @@ class simulation_agent(object):
                 writer.writerow(self.list_header)
                 temp_row = []
                 for item in self.list_header:
-                    temp_row.append(run_dict.get(item, ' '))
+                    temp_row.append(run_dict.get(item, None))
                 writer.writerow(temp_row)
 
         else:
@@ -278,7 +279,7 @@ class simulation_agent(object):
                     #then write data we need
                     temp_row = []
                     for item in self.list_header:
-                        temp_row.append(run_dict.get(item, ' '))
+                        temp_row.append(run_dict.get(item, None))
                     writer.writerow(temp_row)
 
                 self.header_update = False
@@ -290,7 +291,7 @@ class simulation_agent(object):
                     writer = csv.writer(f)
                     temp_row = []
                     for item in self.list_header:
-                        temp_row.append(run_dict.get(item, ' '))
+                        temp_row.append(run_dict.get(item, None))
                     writer.writerow(temp_row)
 
 

@@ -1,5 +1,7 @@
 import pandas as pd
-from engine.mongoDB_engine import mongdb_engine
+from IndexTradingApplication.engine.mongoDB_engine import mongodb_engine
+from IndexTradingApplication.engine.simulation_engine import statistic_engine
+
 
 class api_data_io_engine:
     timestamp = []
@@ -9,18 +11,19 @@ class api_data_io_engine:
         self.input_df = _input_df
         self.timestamp = _timestamp
 
-    def get_netliquidation_df(self):
-        output_df = pd.DataFrame(columns=['timestamp','NetLiquidation'])
-        #Code below
-        output_df = self.input_df[['timestamp', 'NetLiquidation']].copy()
-        return output_df
+    def get_netliquidation_json(self):
+        temp_df = self.input_df[['timestamp', 'NetLiquidation']].copy()
+        output_json = self.convert_df_to_json(temp_df)
+        return output_json
 
-    def get_buy_sell_info_df(self):
-        buysell_df = pd.DataFrame(columns=['timestamp', 'buy/sell', 'quantity', 'price', 'totalAmount'])
-        # Code below
+    def get_buy_sell_info_json(self):
+        temp_df = self.input_df[['timestamp', 'buy/sell', 'quantity', 'price', 'totalAmount']].copy()
+        output_json = self.convert_df_to_json(temp_df)
+        return output_json
 
+    def get_drawdown_json(self):
 
-        return buysell_df
+        return drawdown_json
 
     def get_mulitple_info_dict(self):
         output_dict ={}

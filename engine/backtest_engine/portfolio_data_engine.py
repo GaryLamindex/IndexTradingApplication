@@ -1,6 +1,3 @@
-from datetime import datetime
-
-
 class backtest_portfolio_data_engine(object):
     acc_data = None
 
@@ -17,8 +14,14 @@ class backtest_portfolio_data_engine(object):
         self.update_acc_data()
 
         self.acc_data.append_cashflow_record(timestamp, amount, 0)
-
         print('Cash deposit :', amount)
+
+    def deposit_dividend(self, amount, timestamp):
+        self.deposit_cash(amount, timestamp)
+        
+        #TODO:return action message to append in run_data csv to show dividend deposit
+        #sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data, stock_data_dict)
+
 
     def withdraw_cash(self, amount, timestamp):
         mkt_value = self.acc_data.mkt_value
