@@ -4,8 +4,8 @@ contract Object {
 
     struct RealTimeTickerData{
         string tickerName;
-        uint256 bidPrice;
-        uint256 last;
+        int256 bidPrice;
+        int256 last;
     }
 
     struct ActionMsg{
@@ -24,22 +24,40 @@ contract Object {
         string ExchangeRate;
 
         //margin_acc
-        uint256 FullInitMarginReq;
-        uint256 FullMainMarginReq;
+        int256 FullInitMarginReq;
+        int256 FullMainMarginReq;
 
         //trading_funds
-        uint256 AvailableFunds;
-        uint256 ExcessLiquidity;
-        uint256 BuyingPower;
-        uint256 Leverage;
-        uint256 EquityWithLoanValue;
+        int256 AvailableFunds;
+        int256 ExcessLiquidity;
+        int256 BuyingPower;
+        int256 Leverage;
+        int256 EquityWithLoanValue;
 
         //mkt_value
-        uint256 TotalCashValue;
-        uint256 NetDividend;
-        uint256 NetLiquidation;
-        uint256 UnrealizedPnL;
-        uint256 RealizedPnL;
-        uint256 GrossPositionValue;
+        int256 TotalCashValue;
+        int256 NetDividend;
+        int256 NetLiquidation;
+        int256 UnrealizedPnL;
+        int256 RealizedPnL;
+        int256 GrossPositionValue;
+
+
     }
+
+    //ticker portfolio
+    struct PortfolioHolding{
+        string tickerName;
+        int256 position;
+        int256 marketPrice;
+        int256 averageCost;
+        int256 marketValue;
+        int256 realizedPNL;
+        int256 unrealizedPNL;
+        int256 initMarginReq;
+        int256 maintMarginReq;
+        int256 costBasis;
+    }
+
+
 }

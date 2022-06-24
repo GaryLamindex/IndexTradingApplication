@@ -10,6 +10,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\real_time_data\26_1_2022\account_record.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\real_time_data\account_record.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

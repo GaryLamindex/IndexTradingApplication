@@ -60,8 +60,11 @@ class backtest_trade_engine(object):
         if position>0:
             averageCost = costBasis / position
         marketValue = ticker_open_price * position
-        initMarginReq = costBasis * self.backtest_acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
-        maintMarginReq = costBasis * self.backtest_acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
+
+        margin_info_ticker_item = self.backtest_acc_data.get_margin_info_ticker_item(ticker)
+        initMarginReq = costBasis * margin_info_ticker_item.get("initMarginReq")
+        maintMarginReq = costBasis * margin_info_ticker_item.get("maintMarginReq")
+
 
         # Update shares portfolio info
         updated_portfolio = {"ticker": ticker, "position": position, "costBasis": costBasis, "averageCost": averageCost, "marketValue": marketValue,
@@ -95,7 +98,7 @@ class backtest_trade_engine(object):
            # print('stock not exist, sell action rejected')
             ticker = ""
             transaction_amount = 0
-            msg = {'state':'0', 'ticker': ticker, 'action': 'none', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+            msg = {'state':'0', 'ticker': ticker, 'action': 'rejected', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
             return msg
 
         portfolio_ticker_item = self.backtest_acc_data.get_portfolio_ticker_item(ticker)
@@ -103,9 +106,9 @@ class backtest_trade_engine(object):
 
         if orig_position < position_sell:
            # print('shares not enough, sell action rejected')
-            ticker = ""
+            ticker = "this?"
             transaction_amount = 0
-            msg = {'state':'0', 'ticker': ticker, 'action': 'none', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+            msg = {'state':'0', 'ticker': ticker, 'action': 'rejected', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
             return msg
 
         transaction_amount = position_sell * ticker_open_price
@@ -120,8 +123,10 @@ class backtest_trade_engine(object):
         realizedPNL = position * (ticker_open_price - averageCost)
         unrealizedPNL = ticker_item.get("unrealizedPNL") - realizedPNL
         marketValue = ticker_open_price * position
-        initMarginReq = costBasis * self.backtest_acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
-        maintMarginReq = costBasis * self.backtest_acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
+
+        margin_info_ticker_item = self.backtest_acc_data.get_margin_info_ticker_item(ticker)
+        initMarginReq = costBasis * margin_info_ticker_item.get("initMarginReq")
+        maintMarginReq = costBasis * margin_info_ticker_item.get("maintMarginReq")
 
         # Update shares portfolio info
         updated_portfolio = {"ticker": ticker, "position": position, "costBasis": costBasis, "averageCost": averageCost,
@@ -146,3 +151,4 @@ class backtest_trade_engine(object):
         meta_data = {"ticker_open_price" : ticker_price, "timestamp":timestamp}
         action_msg = self.place_sell_stock_mkt_order(ticker, share_sold, meta_data)
         return action_msg
+    

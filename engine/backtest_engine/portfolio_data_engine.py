@@ -1,6 +1,3 @@
-from datetime import datetime
-
-
 class backtest_portfolio_data_engine(object):
     acc_data = None
 
@@ -94,8 +91,12 @@ class backtest_portfolio_data_engine(object):
         for ticker in tickers:
             ticker_item = self.acc_data.get_portfolio_ticker_item(ticker)
             costBasis = ticker_item.get("costBasis")
-            ticker_init_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
-            ticker_mnt_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
+            try:
+                ticker_init_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("initMarginReq")
+                ticker_mnt_margin = costBasis * self.acc_data.get_margin_info_ticker_item(ticker).get("maintMarginReq")
+            except AttributeError:
+                ticker_init_margin = costBasis
+                ticker_mnt_margin = costBasis
             self.acc_data.update_portfolio_item(ticker, None, None, None, None, None, None, ticker_init_margin,
                                                 ticker_mnt_margin, None)
 
@@ -132,7 +133,7 @@ class backtest_portfolio_data_engine(object):
             temp_list = stock_item.copy()  # get a copy of the stock_item dictionary
             ticker = temp_list["ticker"]
             del temp_list['ticker']  # get rid of the "ticker" column, since the csv does NOT contain this attribute
-            res = {f"{ticker} {str(key)}": val for key, val in temp_list.items()}
+            res = {f"{str(key)}_{ticker}": val for key, val in temp_list.items()}
             account_snapshot.update(res)
 
         return account_snapshot

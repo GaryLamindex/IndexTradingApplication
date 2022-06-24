@@ -164,7 +164,7 @@ library DateUtils {
    }
 
    // functions to split date strings into component slice objects
-   function splitISOslice(string memory _dt) private pure returns (strings.slice[3]) {
+   function splitISOslice(string memory _dt) private pure returns (strings.slice[3] memory) {
 
      strings.slice[3] memory sArr;
 
@@ -178,7 +178,7 @@ library DateUtils {
      return sArr;
    }
 
-   function splitTimeSlice(string memory _time) private pure returns (strings.slice[3]) {
+   function splitTimeSlice(string memory _time) private pure returns (strings.slice[3] memory) {
 
      strings.slice[3] memory sArr;
 
@@ -565,7 +565,7 @@ library DateUtils {
                            uint8 _m,
                            uint8 _d)
                            private pure
-                           returns (strings.slice[]) {
+                           returns (strings.slice[] memory) {
 
      strings.slice[] memory sYMD = new strings.slice[](3);
 
@@ -607,11 +607,7 @@ library DateUtils {
     @return month Returns month as `uint8`
     @return day Returns day as `uint8`
    */
-   function convertTimestampToYMD(uint256 _dt)
-                                  internal pure
-                                  returns (uint16 year,
-                                           uint8 month,
-                                           uint8 day) {
+   function convertTimestampToYMD(uint256 _dt)internal pure returns (uint16 year,uint8 month,uint8 day) {
 
      uint256 secondsRemaining = _dt;
 
@@ -630,14 +626,7 @@ library DateUtils {
     @return minute Returns minute as `uint8`
     @return second Returns second as `uint8`
    */
-   function convertTimestampToYMDHMS(uint256 _dt)
-                                     internal pure
-                                     returns (uint16 year,
-                                              uint8 month,
-                                              uint8 day,
-                                              uint8 hour,
-                                              uint8 minute,
-                                              uint8 second) {
+   function convertTimestampToYMDHMS(uint256 _dt) internal pure returns (uint16 year,uint8 month,uint8 day,uint8 hour,uint8 minute,uint8 second) {
 
      uint256 secondsRemaining = _dt;
 
@@ -654,7 +643,7 @@ library DateUtils {
     @param _dt Date as timestamp integer
     @return Returns date as ISO date string ("yyyy-mm-dd")
    */
-   function convertTimestampToDateString(uint256 _dt) internal pure returns (string) {
+   function convertTimestampToDateString(uint256 _dt) internal pure returns (string memory) {
 
      uint16 year;
      uint8 month;
@@ -669,7 +658,7 @@ library DateUtils {
     @param _dt Date as timestamp integer
     @return Returns date as date and time string ("yyyy-mm-dd hh:mm:ss")
    */
-   function convertTimestampToDateTimeString(uint256 _dt) internal pure returns (string) {
+   function convertTimestampToDateTimeString(uint256 _dt) internal pure returns (string memory) {
 
      uint16 year;
      uint8 month;
@@ -787,7 +776,7 @@ library DateUtils {
                                    uint8 _month,
                                    uint8 _day)
                                    internal pure
-                                   returns (string) {
+                                   returns (string memory) {
 
      require(isValidYMD(_year, _month, _day));
 
@@ -822,7 +811,7 @@ library DateUtils {
                                           uint8 _minute,
                                           uint8 _second)
                                           internal pure
-                                          returns (string) {
+                                          returns (string memory) {
 
      require(isValidYMDHMS(_year, _month, _day, _hour, _minute, _second));
 

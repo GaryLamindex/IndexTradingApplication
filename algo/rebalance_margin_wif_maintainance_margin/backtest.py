@@ -142,7 +142,6 @@ class backtest(object):
                         print("start backtest")
                         self.cal_all_file_return()
 
-
     def cal_all_file_return(self):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
@@ -243,10 +242,14 @@ class backtest(object):
 
             # input database and historical data into algo
             action_msgs = algorithm.run(stock_data_dict, timestamp)
+            # TODO: store action msgs
+
+            # TODO: check and exec action msgs
+
             sim_meta_data = {}
 
-            if algorithm.account_snapshot["GrossPositionValue"] != 0:
-                ExcessLiquidity_to_GrossPositionValue = algorithm.account_snapshot["ExcessLiquidity"] / algorithm.account_snapshot["GrossPositionValue"]
+            if algorithm.overview["GrossPositionValue"] != 0:
+                ExcessLiquidity_to_GrossPositionValue = algorithm.overview["ExcessLiquidity"] / algorithm.overview["GrossPositionValue"]
             else:
                 ExcessLiquidity_to_GrossPositionValue = 0
 
