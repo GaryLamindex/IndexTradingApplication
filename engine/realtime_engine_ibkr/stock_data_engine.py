@@ -193,6 +193,7 @@ class ibkr_stock_data_io_engine:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
                     raise Exception
                 else:
+                    self.grab_data_retry_attempt = 0
                     return 
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
