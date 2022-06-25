@@ -17,7 +17,8 @@ with open(compiled_contract_path) as file:
     contract_abi = contract_json['abi']
 
 contract = web3.eth.contract(address = deployed_contract_address, abi=contract_abi)
-_tickerData = [[("tickerName", "SPY"),("bidPrice",1), ("last",2)],[("tickerName", "QQQ"),("bidPrice",3), ("last",4)]]
+# _tickerData = [[("tickerName", "SPY"),("bidPrice",1), ("last",2)],[("tickerName", "QQQ"),("bidPrice",3), ("last",4)]]
+_tickerData = [["SPY",1,2],["QQQ",1,4]]
 _timeStamp = 123
 _portfolioData = [
     ("AccountCode",0),
