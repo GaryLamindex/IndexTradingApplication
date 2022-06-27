@@ -9,7 +9,7 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from crypto_algo.momentum_strategy_crypto.backtest import Action, ActionsTuple
+from object.action_data import Action, ActionsTuple
 
 
 class portfolio_rebalance:

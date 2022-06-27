@@ -1,3 +1,6 @@
+from object.action_data import BinanceActionMessage, BinanceAction, BinanceActionState
+
+
 class crypto_trade_engine:
 
     def __init__(self, crypto_acc_data, data_io_engines, portfolio_data_engine):
@@ -10,9 +13,11 @@ class crypto_trade_engine:
         transaction_amount = position_purchase * price
 
         if old_funding < transaction_amount:  # cannot buy
-            return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price,
-                    'quantity': position_purchase,
-                    'realized profit': None, 'action': 'rejected'}
+            return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY, position_purchase, price, 0, BinanceActionState.FAIL)
+
+            # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price,
+            #         'quantity': position_purchase,
+            #         'realized profit': None, 'action': 'rejected'}
 
         # can buy
         ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)
@@ -31,8 +36,9 @@ class crypto_trade_engine:
         new_funding = old_funding - transaction_amount
         new_net_liquidation = new_spot * rate_btc + new_funding
         self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
-        return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price, 'quantity': position_purchase,
-                'realized profit': None, 'action': 'filled'}
+        return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY, position_purchase, price, None, BinanceActionState.FILLED)
+        # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price, 'quantity': position_purchase,
+        #         'realized profit': None, 'action': 'filled'}
 
     def place_sell_crypto_mkt_order(self, ticker, position_sell, timestamp, price):
         ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)
@@ -58,7 +64,8 @@ class crypto_trade_engine:
                 new_net_liquidation = new_spot * rate_btc + new_funding
                 self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
 
-                return {'timestamp': timestamp, 'ticker': ticker, 'side': 'sell', 'price': price,
-                        'quantity': position_sell, 'action': 'filled'}
+                return BinanceActionMessage(timestamp, ticker, BinanceAction.SELL, position_sell, price, None, BinanceActionState.FILLED)
+                # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'sell', 'price': price,
+                #         'quantity': position_sell, 'action': 'filled'}
         else:  # short sell
             pass

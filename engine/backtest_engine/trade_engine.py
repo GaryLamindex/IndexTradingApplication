@@ -1,3 +1,5 @@
+from object.action_data import Action, ActionsTuple, ActionMessage, ActionState
+from object.ticker_data import IBTickerData
 class backtest_trade_engine(object):
     backtest_acc_data = None
     portfolio_data_engine = None
@@ -42,12 +44,11 @@ class backtest_trade_engine(object):
            # print("amount required:",transaction_amount,'; not enough buy_pwr, buy position is rejected')
             ticker = ""
             transaction_amount = 0
-            msg = {'state':'0','ticker': ticker, 'action': 'rejected', 'totalQuantity': position_purchase, 'avgPrice': None}
+            msg = ActionMessage(ActionState.FAIL, ticker, Action.BUY_MKT_ORDER, None, None)
             return msg
 
         if self.backtest_acc_data.check_if_ticker_exist_in_portfolio(ticker) == False:
-            _init_stock = {'ticker': ticker, 'position': 0, "marketPrice": 0, 'averageCost': 0, "marketValue": 0,
-                           "realizedPNL": 0, "unrealizedPNL": 0, 'initMarginReq': 0, 'maintMarginReq': 0, "costBasis":0}
+            _init_stock = IBTickerData(ticker, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             portfolio.append(_init_stock)
 
         TotalCashValue -= transaction_amount
@@ -67,9 +68,10 @@ class backtest_trade_engine(object):
 
 
         # Update shares portfolio info
-        updated_portfolio = {"ticker": ticker, "position": position, "costBasis": costBasis, "averageCost": averageCost, "marketValue": marketValue,
-                             "initMarginReq": initMarginReq, "maintMarginReq": maintMarginReq}
-        self.backtest_acc_data.update_portfolio_ticker_item(updated_portfolio)
+        updated_ticker_item = IBTickerData(ticker, position, ticker_open_price, averageCost, marketValue, costBasis, None, None, initMarginReq, maintMarginReq)
+        # updated_portfolio = {"ticker": ticker, "position": position, "costBasis": costBasis, "averageCost": averageCost, "marketValue": marketValue,
+        #                      "initMarginReq": initMarginReq, "maintMarginReq": maintMarginReq}
+        self.backtest_acc_data.update_portfolio_ticker_item(updated_ticker_item)
         mkt_value.update({"TotalCashValue": TotalCashValue})
 
         # Record stock transaction
@@ -82,8 +84,8 @@ class backtest_trade_engine(object):
         # Update Mkt Value & Margin
         self.portfolio_data_engine.update_acc_data()
 
-        action_msg = {'state':'1','ticker': ticker, 'action': 'Buy', 'totalQuantity': position_purchase, 'avgPrice':ticker_open_price}
-        return action_msg
+        msg = ActionMessage(ActionState.SUCCESS, ticker, Action.BUY_MKT_ORDER, position_purchase, ticker_open_price)
+        return msg
 
     def place_sell_stock_mkt_order(self, ticker, position_sell, backtest_data):
         mkt_value = self.backtest_acc_data.mkt_value
@@ -96,9 +98,7 @@ class backtest_trade_engine(object):
 
         if self.backtest_acc_data.check_if_ticker_exist_in_portfolio(ticker) == False:
            # print('stock not exist, sell action rejected')
-            ticker = ""
-            transaction_amount = 0
-            msg = {'state':'0', 'ticker': ticker, 'action': 'rejected', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+            msg = ActionMessage(ActionState.FAIL, ticker, Action.SELL_MKT_ORDER, None, None)
             return msg
 
         portfolio_ticker_item = self.backtest_acc_data.get_portfolio_ticker_item(ticker)
@@ -106,9 +106,7 @@ class backtest_trade_engine(object):
 
         if orig_position < position_sell:
            # print('shares not enough, sell action rejected')
-            ticker = "this?"
-            transaction_amount = 0
-            msg = {'state':'0', 'ticker': ticker, 'action': 'rejected', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+            msg = ActionMessage(ActionState.FAIL, ticker, Action.SELL_MKT_ORDER, None, None)
             return msg
 
         transaction_amount = position_sell * ticker_open_price
@@ -129,10 +127,11 @@ class backtest_trade_engine(object):
         maintMarginReq = costBasis * margin_info_ticker_item.get("maintMarginReq")
 
         # Update shares portfolio info
-        updated_portfolio = {"ticker": ticker, "position": position, "costBasis": costBasis, "averageCost": averageCost,
-                             "marketValue": marketValue,"realizedPNL": realizedPNL, "unrealizedPNL": unrealizedPNL, "marketValue": marketValue,
-                             "initMarginReq": initMarginReq, "maintMarginReq": maintMarginReq}
-        self.backtest_acc_data.update_portfolio_ticker_item(updated_portfolio)
+        updated_ticker_item = IBTickerData(ticker, position, ticker_open_price, averageCost, marketValue, costBasis, unrealizedPNL, realizedPNL, initMarginReq, maintMarginReq)
+        # updated_portfolio = {"ticker": ticker, "position": position, "costBasis": costBasis, "averageCost": averageCost,
+        #                      "marketValue": marketValue,"realizedPNL": realizedPNL, "unrealizedPNL": unrealizedPNL, "marketValue": marketValue,
+        #                      "initMarginReq": initMarginReq, "maintMarginReq": maintMarginReq}
+        self.backtest_acc_data.update_portfolio_ticker_item(updated_ticker_item)
         mkt_value.update({"TotalCashValue": TotalCashValue})
 
         # Update Mkt Value & Margin
@@ -144,7 +143,7 @@ class backtest_trade_engine(object):
 
 
        # print("ticker sold: ", ticker)
-        msg = {'state':'1','ticker': ticker, 'action': 'sell', 'totalQuantity': position_sell, 'avgPrice':ticker_open_price}
+        msg = ActionMessage(ActionState.SUCCESS, ticker, Action.SELL_MKT_ORDER, position_sell, ticker_open_price)
         return msg
 
     def place_sell_stock_limit_order(self, ticker, share_sold, ticker_price, timestamp):

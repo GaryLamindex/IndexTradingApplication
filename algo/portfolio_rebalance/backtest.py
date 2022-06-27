@@ -15,7 +15,8 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
-from crypto_algo.momentum_strategy_crypto.backtest import Action, ActionsTuple
+from object.action_data import Action, ActionsTuple
+
 
 
 class backtest(object):
@@ -31,7 +32,6 @@ class backtest(object):
     rebalance_dict = {}
     tickers = []
     initial_amount = 0
-    check_ratio = False
     stock_data_engines = {}
     timestamps = []
     rebalance_ratio = []
@@ -77,22 +77,6 @@ class backtest(object):
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
-            # list_of_run_files = listdir(self.run_file_dir)
-            # list_of_stats_data = listdir(self.stats_data_dir)
-            # list_of_acc_data = listdir(self.acc_data_dir)
-            # list_of_transact_data = listdir(self.transact_data_dir)
-            # list_of_graph = listdir(self.graph_dir)
-
-            # for file in list_of_run_files:
-            #     os.remove(Path(f"{self.run_file_dir}/{file}"))
-            # for file in list_of_stats_data:
-            #     os.remove(Path(f"{self.stats_data_dir}/{file}"))
-            # for file in list_of_acc_data:
-            #     os.remove(Path(f"{self.acc_data_dir}/{file}"))
-            # for file in list_of_transact_data:
-            #     os.remove(Path(f"{self.transact_data_dir}/{file}"))
-            # for file in list_of_graph:
-            #             #     os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
         # loop through all the rebalance requirement
@@ -103,13 +87,14 @@ class backtest(object):
             self.rebalance_dict = {}
             for ticker_num in range(num_tickers):
                 self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
-            self.check_rebalance_ratio()
-            if self.check_ratio:
+
+            if self.check_rebalance_ratio():
                 backtest_spec = self.rebalance_dict
                 spec_str = ""
                 for k, v in backtest_spec.items():
                     spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
+                #remove if exist
                 run_file = self.run_file_dir + spec_str + '.csv'
                 if os.path.exists(run_file):
                     os.remove(Path(run_file))
@@ -167,15 +152,18 @@ class backtest(object):
                 self.run(timestamp, algorithm, sim_agent, trade_agent)
 
     def check_rebalance_ratio(self):
+        check_ratio = False
         total_ratio = 0
         for k, v in self.rebalance_dict.items():
             ratio = v / 100
             total_ratio += ratio
         if total_ratio != 1:
             print("total ratio is not 100%")
-            self.check_ratio = False
         else:
-            self.check_ratio = True
+            check_ratio = True
+        return check_ratio
+
+
 
     def plot_all_file_graph(self):
         print("plot_graph")
@@ -376,8 +364,10 @@ class backtest(object):
             # div_data_dict.update({ticker + ' div amount': ticker_div})
 
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
-        # input database and historical data into algo
+        # input database and historical data into algo and get action msgs
         action_msgs = algorithm.run(stock_data_dict, timestamp)
+
+        #execute action msgs
         action_record = []
         for action_msg in action_msgs:
             action = action_msg[1]
