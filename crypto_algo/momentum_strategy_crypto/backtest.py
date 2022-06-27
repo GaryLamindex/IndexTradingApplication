@@ -3,7 +3,6 @@ import pathlib
 import heapq
 import os
 from pathlib import Path
-from enum import Enum
 
 from crypto_algo.momentum_strategy_crypto.algorithm import momentum_strategy
 from engine.crypto_engine.crypto_data_io_engine import crypto_local_engine
@@ -11,14 +10,7 @@ from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_data_engine
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
 from object.crypto_acc_data import crypto_acc_data
-from object.action_data import Action, ActionsTuple
-
-
-def check_timestamp_is_same_day(timestamp, start_timestamp):
-    if timestamp.year == start_timestamp.year and timestamp.month == start_timestamp.month and timestamp.day == start_timestamp.day:
-        return True
-    else:
-        return False
+from object.action_data import BinanceAction, BinanceActionsTuple
 
 
 class backtest:
@@ -82,7 +74,7 @@ class backtest:
                 os.remove(Path(graph_file))
 
             acc_data = crypto_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                         self.table_name, spec_str)
+                                       self.table_name, spec_str)
             portfolio_data_engine = crypto_portfolio_data_engine(acc_data, self.tickers)
             trade_agent = crypto_trade_engine(acc_data, self.crypto_data_engines, portfolio_data_engine)
             sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine, self.tickers)
@@ -106,16 +98,12 @@ class backtest:
 
         portfolio_data_engine.deposit_cash('funding', initial_amount, start_timestamp)
 
-        # step = 86400  # 1 day timestamp
-        last_run_timestamp = start_timestamp
-        for timestamp in range(start_timestamp, end_timestamp):
-            if not check_timestamp_is_same_day(timestamp, last_run_timestamp):
-                print('start new day')
-                _date = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
-                _time = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-                print('#' * 20, _date, ":", _time, '#' * 20)
-                self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
-                last_run_timestamp = timestamp
+        step = 86400  # 1 day timestamp
+        for timestamp in range(start_timestamp, end_timestamp, step):
+            _date = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
+            _time = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
+            print('#' * 20, _date, ":", _time, '#' * 20)
+            self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
 
     def run(self, timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine):
         pct_change_dict = {}
@@ -148,13 +136,13 @@ class backtest:
             func_params = self.pending_actions[0][2]
             action_msg = None
 
-            if cur_action == Action.BUY_MKT_ORDER:
+            if cur_action == BinanceAction.BUY_MKT_ORDER:
                 ticker = func_params['ticker']
                 last = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
                 action_msg = trade_agent.place_buy_crypto_mkt_order(ticker,
                                                                     func_params['position_purchase'],
                                                                     timestamp, last)
-            elif cur_action == Action.CLOSE_ALL:
+            elif cur_action == BinanceAction.CLOSE_ALL:
                 portfolio = portfolio_data_engine.acc_data.portfolio
                 for p in portfolio:
                     ticker = p['ticker']
@@ -162,7 +150,7 @@ class backtest:
                     open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
                     action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
                                                                          timestamp, open_price)
-            elif cur_action == Action.CLOSE_POSITION:
+            elif cur_action == BinanceAction.CLOSE_POSITION:
                 ticker = func_params['ticker']
                 ticker_item = portfolio_data_engine.acc_data.check_if_ticker_exist_in_portfolio(ticker)
                 cur_position = ticker_item['available']

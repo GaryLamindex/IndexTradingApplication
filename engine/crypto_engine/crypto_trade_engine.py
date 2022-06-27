@@ -36,7 +36,8 @@ class crypto_trade_engine:
         new_funding = old_funding - transaction_amount
         new_net_liquidation = new_spot * rate_btc + new_funding
         self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
-        return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY, position_purchase, price, None, BinanceActionState.FILLED)
+        return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY_MKT_ORDER,
+                                    position_purchase, price, None, BinanceActionState.FILLED)
         # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price, 'quantity': position_purchase,
         #         'realized profit': None, 'action': 'filled'}
 
@@ -64,7 +65,8 @@ class crypto_trade_engine:
                 new_net_liquidation = new_spot * rate_btc + new_funding
                 self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
 
-                return BinanceActionMessage(timestamp, ticker, BinanceAction.SELL, position_sell, price, None, BinanceActionState.FILLED)
+                return BinanceActionMessage(timestamp, ticker, BinanceAction.SELL_MKT_ORDER,
+                                            position_sell, price, None, BinanceActionState.FILLED)
                 # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'sell', 'price': price,
                 #         'quantity': position_sell, 'action': 'filled'}
         else:  # short sell

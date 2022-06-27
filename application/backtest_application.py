@@ -16,11 +16,11 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # from engine.simulation_engine.statistic_engine import statistic_engine
 
 path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
-tickers = []
-filelist = os.listdir(path)
-for filename in filelist:
-    if not filename.startswith('.'):
-        tickers.append(os.path.splitext(filename)[0])
+tickers = ['btc', 'eth']
+# filelist = os.listdir(path)
+# for filename in filelist:
+#     if not filename.startswith('.'):
+#         tickers.append(os.path.splitext(filename)[0])
 initial_amount = 10000
 start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
 end_date = dt.datetime(2022, 1, 1, tzinfo=dt.timezone.utc)
