@@ -205,12 +205,17 @@ class backtest(object):
                 _5_yr_sortino = sortino_dict.get('5y')
                 _ytd_sortino = sortino_dict.get('ytd')
 
-                return_dict = stat_engine.get_return_data(file_name)
+                return_dict , return_inflation_adj_dict = stat_engine.get_return_data(file_name)
                 inception_return = return_dict.get("inception")
                 _1_yr_return = return_dict.get("1y")
                 _3_yr_return = return_dict.get("3y")
                 _5_yr_return = return_dict.get("5y")
                 _ytd_return = return_dict.get("ytd")
+                inflation_adj_inception_return = return_inflation_adj_dict.get('inception')
+                inflation_adj_1_yr_return = return_inflation_adj_dict.get('1y')
+                inflation_adj_3_yr_return = return_inflation_adj_dict.get('3y')
+                inflation_adj_5_yr_return = return_inflation_adj_dict.get('5y')
+                inflation_adj_ytd_return = return_inflation_adj_dict.get('ytd')
 
                 max_drawdown_dict = stat_engine.get_max_drawdown_data(file_name)
                 inception_max_drawdown = max_drawdown_dict.get("inception")
@@ -274,12 +279,20 @@ class backtest(object):
                 _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
                 _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
 
+                last_nlv = stat_engine.get_last_nlv(file_name)
+
                 composite_dict = stat_engine.get_composite_data(file_name)
 
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
-                    "Since Inception Return": inception_return, "Since Inception Sharpe": inception_sharpe,
+                    "Since Inception Return": inception_return,
+                    'inflation adj YTD Return': inflation_adj_ytd_return,
+                    'inflation adj 1 Yr Return': inflation_adj_1_yr_return,
+                    'inflation adj 3 Yr Return': inflation_adj_3_yr_return,
+                    'inflation adj 5 yr Return': inflation_adj_5_yr_return,
+                    'inflation adj Inception Return': inflation_adj_inception_return,
+                    "Since Inception Sharpe": inception_sharpe,
                     "YTD Sharpe": _ytd_sharpe,
                     "1 Yr Sharpe": _1_yr_sharpe, "3 Yr Sharpe": _3_yr_sharpe, "5 Yr Sharpe": _5_yr_sharpe,
                     'Since Inception Sortino': inception_sortino, 'YTD Sortino': _ytd_sortino,
@@ -309,6 +322,7 @@ class backtest(object):
                     "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
                     "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
                     "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
+                    "last nlv": last_nlv,
 
                     "Composite": composite_dict
 
@@ -336,7 +350,8 @@ class backtest(object):
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
-               "Composite"
+               "last nlv",
+               "Composite",
         ]
 
         df = pd.DataFrame(data= data_list, columns=col)
