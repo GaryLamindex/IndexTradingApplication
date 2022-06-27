@@ -2,12 +2,12 @@ import certifi
 from pymongo import MongoClient
 
 class Api_Mongodb_2:
-    db =""
-    conn=""
+    db = ""
+    conn= ""
     def __init__(self):
         try:
             self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
-            print(f"Successful connection to database: {self.db.name}")
+            print("Successful connection to mongoClient")
         except:
             print("WARNING: Could not connect to MongoDB")
 
@@ -31,7 +31,7 @@ class Api_Mongodb_2:
 
 def main():
     a = Api_Mongodb_2()
-    a.all_algo_1a()
-    # a.all_algo_4a()
+    # a.all_algo_1a()
+    a.all_algo_4a()
 if __name__ == "__main__":
         main()
