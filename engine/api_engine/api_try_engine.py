@@ -56,8 +56,8 @@ class Api_Mongodb:
 
 def main():
     a = Api_Mongodb()
-    # a.all_algo_1a()
-    a.all_algo_1b()
+    a.all_algo_1a()
+    # a.all_algo_1b()
 
 
 if __name__ == "__main__":
