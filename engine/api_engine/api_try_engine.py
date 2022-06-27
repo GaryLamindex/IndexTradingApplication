@@ -1,43 +1,135 @@
-from IndexTradingApplication.engine.mongoDB_engine.mongodb_engine import mongodb_engine
+import certifi
+from pymongo import MongoClient
+from bson.json_util import dumps
 from flask import Flask, app
 from flask_restful import Api, Resource
 
-# @app.route('/mainpage')
-def all_algo_1a():
-    mongo = mongodb_engine("simulation")
-    col = mongo.db.backtest_portfolio_rebalance_0
-    data = col.find({}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-    for x in data: print(x)
-    return data
+class Api_Mongodb:
+    def __init__(self):
+        try:
+            self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
+            print("Successful connection to mongoClient")
+        except:
+            print("WARNING: Could not connect to MongoDB")
 
-def all_algo_1b():
-    mongo = mongodb_engine()
-    col = mongo.db.Strategies
-    data1 = col.find({}, {"_id": 0, "strategy_name": 1, "YTD Sharpe": 1, "5 Yr Sharpe": 1, "YTD Return": 1, "5 Yr Return": 1, "Margin Ratio": 1}).limit(2).sort("YTD Return", -1)
-    data2 = col.find({}, {"_id": 0, "strategy_name": 1, "YTD Sharpe": 1, "5 Yr Sharpe": 1, "YTD Return": 1, "5 Yr Return": 1, "Margin Ratio": 1}).limit(2).sort("YTD Return", 1)
-    temp1 = []
-    for x in data1:
-        print(x)
-        temp1.append(x)
-    temp2 = []
-    for x in data2:
-        print(x)
-        temp2.append(x)
-    final = {}
-    final["top"] = temp1
-    final ["bottom"] = temp2
-    print(final)
-    # for x in data2: print(x)
-    # print({"top": data1, "bottom": data2})
-    return {data1, data2}
+    # @app.route('/mainpage')
+    def all_algo_1a(self):
+        self.db = self.conn["simulation"]
+        col = self.db.backtest_portfolio_rebalance_0
+        cursor = col.find({}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+        # list_cur = list(cursor)
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
 
-def convert_df_to_json(self, df):
-    json_file = df.to_json(orient='records')
-    return json_file
+    def all_algo_1b(self):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Strategies
+        cursor1 = col.find({}, {"_id": 0, "strategy_name": 1, "YTD Sharpe": 1, "5 Yr Sharpe": 1, "YTD Return": 1, "5 Yr Return": 1, "Margin Ratio": 1, "last nlv": 1}).limit(2).sort("YTD Return", -1)
+        cursor2 = col.find({}, {"_id": 0, "strategy_name": 1, "YTD Sharpe": 1, "5 Yr Sharpe": 1, "YTD Return": 1, "5 Yr Return": 1, "Margin Ratio": 1, "last nlv": 1}).limit(2).sort("YTD Return", 1)
+        list_cur1 = list(cursor1)
+        list_cur2 = list(cursor2)
+        final = {}
+        final["top"] = list_cur1
+        final["bottom"] = list_cur2
+        json_data = dumps(final)
+        print(json_data)
+        return json_data
+
+    def all_algo_1c(self, tags=""):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Strategies
+        if tags == "popular":
+            cursor = col.find({"tags":{"$in":["popular"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
+        elif tags == "geo_focus":
+            cursor = col.find({"tags":{"$in":["geo_focus"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
+        elif tags == "votility_rider":
+            cursor = col.find({"tags":{"$in":["votility_rider"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
+        elif tags == "long_term_value":
+            cursor = col.find({"tags":{"$in":["long_term_value"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
+        elif tags == "drawdown_protection":
+            cursor = col.find({"tags":{"$in":["drawdown_protection"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
+        else:
+            cursor = col.find({}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2a(self):
+        self.db = self.conn["simulation"]
+        col = self.db.backtest_portfolio_rebalance_0
+        cursor = col.find({}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2b(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Strategies
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Since Inception Return": 1, "1 Yr Sharpe": 1, "5 Yr Sharpe": 1, "YTD Sharpe": 1, "1 Yr Return": 1, "5 Yr Return": 1, "YTD Return": 1, "YTD Sortino": 1, "YTD Max Drawdown": 1, "YTD Volatility": 1, "YTD Win Rate": 1, "YTD Average Win Per Day": 1, "YTD Profit Loss Ratio": 1, "Margin Ratio": 1, "last nlv": 1}).limit(1)
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2c(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Strategies
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1}).limit(1)
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2d(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Strategies
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1,"strategy_name": 1}).limit(1)
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2e(self, client_name="neoculturetech"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Clients
+        cursor = col.find({"client_name": client_name}, {"_id": 0, "transactions": 1}).limit(1)
+        transac_list = cursor[0]["transactions"]
+        # print(transac_list)
+        col = self.db.Transactions
+        cursor = col.find({"transaction_id": {"$in": transac_list}}, {"_id": 0, "date_time": 1, "ETF_ticker": 1, "action": 1, "price": 1, "quantity": 1, "total_amount": 1, "strategy_name": 1})
+        json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2f(self, ETF_ticker="3188"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.ETF
+        cursor1 = col.find({"ETF_ticker": ETF_ticker}, {"_id": 0, "ETF_ticker": 1, "ETF_name": 1, "price": 1, "price_change": 1, "price_%change": 1, "volatility": 1, "return": 1, "dividend_yield": 1, "price_earnings": 1, "field": 1}).limit(1)
+        self.db = self.conn["one_min_raw_data"]
+        col = self.db[ETF_ticker]
+        cursor2 = col.find({}, {"_id": 0, "timestamp": 1, "close": 1}).limit(10)  #limit 10 for testing
+        list_cur1 = list(cursor1)
+        list_cur2 = list(cursor2)
+        final = {}
+        final["details"] = list_cur1
+        final["graph"] = list_cur2
+        json_data = dumps(final)
+        print(json_data)
+        return json_data
+
+    # def convert_df_to_json(self, df):
+    #     json_file = df.to_json(orient='records')
+    #     return json_file
 
 def main():
-    # all_algo_1a()
-    all_algo_1b()
+    a = Api_Mongodb()
+    # a.all_algo_1a()
+    # a.all_algo_1b()
+    # a.all_algo_1c("")
+    # a.user_acc_2a()
+    # a.user_acc_2b()
+    # a.user_acc_2c()
+    # a.user_acc_2d()
+    # a.user_acc_2e()
+    # a.user_acc_2f()
 
 if __name__ == "__main__":
-    main()
+        main()

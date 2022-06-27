@@ -1,3 +1,5 @@
+import datetime
+
 import pandas as pd
 import numpy as np
 import os
@@ -112,10 +114,13 @@ class statistic_engine:
 
         starting_net_liquidity = \
             inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].min()]['NetLiquidation'].values[0]
+        starting_ts = inception_df['timestamp'].min()
         ending_net_liquidity = \
             inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['NetLiquidation'].values[0]
+        ending_ts = inception_df['timestamp'].max()
         print(f"starting_net_liquidity:{starting_net_liquidity}; ending_net_liquidity:{ending_net_liquidity}")
-        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
+        no_of_years = (dt.datetime.fromtimestamp(ending_ts) - dt.datetime.fromtimestamp(starting_ts)).days / 365
+        return ((ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, no_of_years)
 
     def get_return_ytd(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
@@ -124,7 +129,7 @@ class statistic_engine:
         month = last_day.month
         day = last_day.day
         range = [f"{year}-01-01", f"{year}-{month}-{day}"]
-        return self.get_return_by_range(range, file_name)
+        return (self.get_return_by_range(range, file_name) , month/12)
 
     # return a dictionary of all return info (ytd, 1y, 3y, 5y and inception)
     def get_return_data(self, file_name):
@@ -136,13 +141,21 @@ class statistic_engine:
         day_string = f"{year}-{month}-{day}"
 
         return_dict = {}
-        return_dict["ytd"] = self.get_return_ytd(file_name)
+        return_inflation_adj_dict = {}
+        return_dict["ytd"] , yr = self.get_return_ytd(file_name)
+        return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / (1.03 ** yr) - 1
         return_dict["1y"] = self.get_return_by_period(day_string, "1y", file_name)
+        return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / 1.03 - 1
         return_dict["3y"] = self.get_return_by_period(day_string, "3y", file_name)
+        return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / 1.03**3 - 1
         return_dict["5y"] = self.get_return_by_period(day_string, "5y", file_name)
-        return_dict["inception"] = self.get_return_inception(file_name)
+        return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / 1.03 ** 5 - 1
+        return_dict["inception"] , yr = self.get_return_inception(file_name)
+        return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / 1.03 ** yr - 1
 
-        return return_dict
+
+
+        return (return_dict, return_inflation_adj_dict)
 
     # simply use the discrete calculation for sharpe
     # annualize all the results
@@ -1115,6 +1128,26 @@ class statistic_engine:
 
         return composite
 
+    def get_last_nlv(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        nlv = full_df[full_df['timestamp'] == full_df['timestamp'].max()]['NetLiquidation'].values[0]
+        return nlv
+
+    def get_last_daily_change(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df['date'] = pd.to_datetime(full_df['date'])
+        mask = full_df[(full_df['date'].max() - full_df['date'])/ np.timedelta64(1,'D') < 1]
+        daily = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1])/mask['NetLiquidation'].iloc[0]
+        return daily
+
+    def get_last_monthly_change(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df['date'] = pd.to_datetime(full_df['date'])
+        mask = full_df[(full_df['date'].max() - full_df['date']) / np.timedelta64(1, 'M') < 1]
+        monthly = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1]) / mask['NetLiquidation'].iloc[0]
+        return monthly
+
+
 
 def main():
     engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
@@ -1122,6 +1155,7 @@ def main():
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
     range = ["2019-12-1", "2022-4-29"]
+    #print(my_stat_engine.get_last_monthly_change('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
     # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
@@ -1153,7 +1187,7 @@ def main():
     # print('volatility :' + str(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
     # # print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
     # # my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
-    print(my_stat_engine.get_drawdown_data( '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range))
+    #print(my_stat_engine.get_drawdown_data( '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range))
     # # print(my_stat_engine.composite('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # #print('max drawdown :' + str(my_stat_engine.get_max_drawdown_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
     # print('rolling return :' + str(my_stat_engine.get_rolling_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range)))
@@ -1175,6 +1209,7 @@ def main():
     # # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_composite_data('50_SPY_50_IVV_'))
+    #print(my_stat_engine.get_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
 
 if __name__ == "__main__":
     main()
