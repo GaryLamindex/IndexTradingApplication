@@ -1133,6 +1133,20 @@ class statistic_engine:
         nlv = full_df[full_df['timestamp'] == full_df['timestamp'].max()]['NetLiquidation'].values[0]
         return nlv
 
+    def get_last_daily_change(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df['date'] = pd.to_datetime(full_df['date'])
+        mask = full_df[(full_df['date'].max() - full_df['date'])/ np.timedelta64(1,'D') < 1]
+        daily = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1])/mask['NetLiquidation'].iloc[0]
+        return daily
+
+    def get_last_monthly_change(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df['date'] = pd.to_datetime(full_df['date'])
+        mask = full_df[(full_df['date'].max() - full_df['date']) / np.timedelta64(1, 'M') < 1]
+        monthly = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1]) / mask['NetLiquidation'].iloc[0]
+        return monthly
+
 
 
 def main():
@@ -1141,7 +1155,7 @@ def main():
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
     range = ["2019-12-1", "2022-4-29"]
-    print(my_stat_engine.get_last_nlv('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    #print(my_stat_engine.get_last_monthly_change('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
     # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))

@@ -66,13 +66,21 @@ class Write_Mongodb:
             coll.insert_many(run_records)
         return
 
-    def write_strategies(self, strategy_name, all_file_return_df):
+    def write_strategies(self, strategy_name, all_file_return_df, strategy_initial, video_link, documents_link,
+                         tags_array, rating_dict):
         """write Strategies collection in rainydrop"""
         self.db = self.conn[self.rainydrop]
         coll = self.db[self.strategies]
         if coll.count_documents({'strategy_name':strategy_name}) > 0:
             print('document already exist in Strategies')
         else:
+            all_file_return_df['strategy_initial'] = strategy_initial
+            all_file_return_df['strategy_name'] = strategy_name
+            all_file_return_df['video_link'] = video_link
+            all_file_return_df['documents_link'] = documents_link
+            all_file_return_df['tags_array'] = tags_array
+            all_file_return_df['rating_dict'] = rating_dict
+            all_file_return_df['subscribers num'] = 0
             all_file_return_record = all_file_return_df.to_dict(orient='records')
             coll.insert_many(all_file_return_record)
         return
@@ -121,12 +129,13 @@ class Write_Mongodb:
             coll.insert_many(transaction_records)
         return
 
-    def write_new_backtest_result(self, strategy_name, drawdown_abstract_df, drawdown_raw_df, run_df, all_file_return_df):
+    def write_new_backtest_result(self, strategy_name, drawdown_abstract_df, drawdown_raw_df, run_df, all_file_return_df,
+                                  strategy_initial, video_link, documents_link, tags_array, rating_dict):
         """call whenever upload new backtest data, initiate everything"""
         self.write_drawdown_data(strategy_name, drawdown_abstract_df)
         self.write_drawdown_graph_data(strategy_name, drawdown_raw_df)
         self.write_simulation(strategy_name, run_df)
-        self.write_strategies(strategy_name, all_file_return_df)
+        self.write_strategies(strategy_name, all_file_return_df, strategy_initial, video_link, documents_link, tags_array, rating_dict)
         return
 
 
@@ -160,15 +169,19 @@ def main():
     # print("SUCCESS")
     # w.write_one_min_raw_data("backtest_rebalance_margin_wif_max_drawdown_control_0",temp_list)
 
-    w = Write_Mongodb('rainydrop')
+    w = Write_Mongodb()
     #df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_portfolio_rebalance_0/stats_data/all_file_return.csv')
 
     #temp_list = df.to_dict(orient='records')
+    w.db = w.conn['rainydrop']
+
+    w.coll = w.db['Strategies']
     print("SUCCESS")
     #w.write_one_min_raw_data("Strategies", temp_list)
-    w.mongo.db.Strategies.update_many({"Backtest Spec":"50_M_50_MSFT_"},{"$set":{"Rating.next20_portfolio":3.3}})
-    w.mongo.db.Strategies.update_many({"Backtest Spec": "20_M_80_MSFT_"},
-                                      {"$set": {"Rating.future_tech_portfolio": 5}})
+    w.coll.update_many({},{"$set":{"last daily change":0.02567}})
+    w.coll.update_many({}, {"$set": {"last monthly change": 0.14987567}})
+    # w.mongo.db.Strategies.update_many({"Backtest Spec": "20_M_80_MSFT_"},
+    #                                   {"$set": {"Rating.future_tech_portfolio": 5}})
 
 
 

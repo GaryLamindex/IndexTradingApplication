@@ -280,6 +280,8 @@ class backtest(object):
                 _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
 
                 last_nlv = stat_engine.get_last_nlv(file_name)
+                last_daily = stat_engine.get_last_daily_change(file_name)
+                last_monthly = stat_engine.get_last_daily_change(file_name)
 
                 composite_dict = stat_engine.get_composite_data(file_name)
 
@@ -322,7 +324,7 @@ class backtest(object):
                     "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
                     "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
                     "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
-                    "last nlv": last_nlv,
+                    "last nlv": last_nlv,"last daily change":last_daily,"last monthly change":last_monthly,
 
                     "Composite": composite_dict
 
@@ -350,7 +352,7 @@ class backtest(object):
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
-               "last nlv",
+               "last nlv", "last daily change", "last monthly change",
                "Composite",
         ]
 

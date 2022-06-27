@@ -1,15 +1,18 @@
 import certifi
+import pymongo.errors
 from pymongo import MongoClient
 from flask import Flask, app
-from flask_restful import Api, Resource
+#from flask_restful import Api, Resource
 
 class Api_Mongodb:
     def __init__(self):
         try:
             self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
             print(f"Successful connection to mongoClient")
-        except:
+        except pymongo.errors.ConfigurationError as e:
             print("WARNING: Could not connect to MongoDB")
+            print(e)
+            return
 
     # @app.route('/mainpage')
     def all_algo_1a(self):

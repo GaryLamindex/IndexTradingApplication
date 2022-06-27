@@ -6,7 +6,8 @@ class Api_Mongodb_2:
     conn=""
     def __init__(self):
         try:
-            self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
+            self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/'
+                                    '?retryWrites=true&w=majority',tlsCAFile=certifi.where())
             print(f"Successful connection to database: {self.db.name}")
         except:
             print("WARNING: Could not connect to MongoDB")
