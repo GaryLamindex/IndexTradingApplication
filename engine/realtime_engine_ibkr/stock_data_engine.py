@@ -81,8 +81,7 @@ class ibkr_stock_data_io_engine:
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
         self.ticker_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
-        self.dividends_data_path = str(
-            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
+
         self.etf_list_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/etf_list.csv'
 
@@ -240,38 +239,7 @@ class ibkr_stock_data_io_engine:
     def get_etf_list(self):
         return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
 
-    def get_dividends(self, tickers, expire_day):
-        for ticker in tickers:
-            ticker = ticker.upper()
-            ticker_obj = yf.Ticker(ticker)
-            dividends = pd.DataFrame(ticker_obj.dividends)
-            dirs = os.listdir(self.dividends_data_path)
-            today = datetime.today().strftime('%Y/%m/%d')
 
-            timestamps = []
-
-            for index in dividends.index:
-                timestamps.append(int(index.timestamp()))
-
-            dividends['timestamp'] = timestamps
-
-            today_dt = dt.datetime.now()
-            dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
-            if not os.path.exists(self.dividends_data_path):
-                os.mkdir(self.dividends_data_path)
-            expired = True
-            for file in dirs:
-                if ticker == re.sub('[^A-Z]', '', file):  # if there exists the csv file of the ticker
-                    download_date = datetime.fromtimestamp(int(re.search(r'\d+', file).group())).strftime('%Y/%m/%d')
-                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date,
-                                                                                 '%Y/%m/%d')).days > expire_day:
-                        os.remove(os.path.join(self.dividends_data_path, file))  # if csv file is expired, delete it
-                    else:
-                        expired = False
-                    break
-            if expired:  # if csv file is expired or doesn't exist, download the new csv file
-                dividends.to_csv(
-                    f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day, tzinfo=dt.timezone.utc).timestamp())}.csv')
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):

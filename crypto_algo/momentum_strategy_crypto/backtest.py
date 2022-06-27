@@ -11,7 +11,7 @@ from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_data_engine
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
 from object.crypto_acc_data import crypto_acc_data
-from object.action_data import Action, ActionsTuple
+from object.action_data import IBAction, IBActionsTuple
 
 
 def check_timestamp_is_same_day(timestamp, start_timestamp):

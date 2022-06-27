@@ -1,4 +1,4 @@
-from object.action_data import Action, ActionsTuple, ActionMessage, ActionState
+from object.action_data import IBAction, IBActionsTuple, IBActionMessage, IBActionState
 from object.ticker_data import IBTickerData
 class backtest_trade_engine(object):
     backtest_acc_data = None
@@ -44,7 +44,7 @@ class backtest_trade_engine(object):
            # print("amount required:",transaction_amount,'; not enough buy_pwr, buy position is rejected')
             ticker = ""
             transaction_amount = 0
-            msg = ActionMessage(ActionState.FAIL, ticker, Action.BUY_MKT_ORDER, None, None)
+            msg = IBActionMessage(IBActionState.FAIL, ticker, IBAction.BUY_MKT_ORDER, None, None)
             return msg
 
         if self.backtest_acc_data.check_if_ticker_exist_in_portfolio(ticker) == False:
@@ -84,7 +84,7 @@ class backtest_trade_engine(object):
         # Update Mkt Value & Margin
         self.portfolio_data_engine.update_acc_data()
 
-        msg = ActionMessage(ActionState.SUCCESS, ticker, Action.BUY_MKT_ORDER, position_purchase, ticker_open_price)
+        msg = ActionMessage(ActionState.SUCCESS, ticker, IBAction.BUY_MKT_ORDER, position_purchase, ticker_open_price)
         return msg
 
     def place_sell_stock_mkt_order(self, ticker, position_sell, backtest_data):
@@ -98,7 +98,7 @@ class backtest_trade_engine(object):
 
         if self.backtest_acc_data.check_if_ticker_exist_in_portfolio(ticker) == False:
            # print('stock not exist, sell action rejected')
-            msg = ActionMessage(ActionState.FAIL, ticker, Action.SELL_MKT_ORDER, None, None)
+            msg = IBActionMessage(IBActionState.FAIL, ticker, IBAction.SELL_MKT_ORDER, None, None)
             return msg
 
         portfolio_ticker_item = self.backtest_acc_data.get_portfolio_ticker_item(ticker)
@@ -106,7 +106,7 @@ class backtest_trade_engine(object):
 
         if orig_position < position_sell:
            # print('shares not enough, sell action rejected')
-            msg = ActionMessage(ActionState.FAIL, ticker, Action.SELL_MKT_ORDER, None, None)
+            msg = IBActionMessage(IBActionState.FAIL, ticker, IBAction.SELL_MKT_ORDER, None, None)
             return msg
 
         transaction_amount = position_sell * ticker_open_price
@@ -143,7 +143,7 @@ class backtest_trade_engine(object):
 
 
        # print("ticker sold: ", ticker)
-        msg = ActionMessage(ActionState.SUCCESS, ticker, Action.SELL_MKT_ORDER, position_sell, ticker_open_price)
+        msg = IBActionMessage(IBActionState.SUCCESS, ticker, IBAction.SELL_MKT_ORDER, position_sell, ticker_open_price)
         return msg
 
     def place_sell_stock_limit_order(self, ticker, share_sold, ticker_price, timestamp):
