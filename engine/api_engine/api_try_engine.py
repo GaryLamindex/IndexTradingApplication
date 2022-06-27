@@ -40,17 +40,17 @@ class Api_Mongodb:
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
         if tags == "popular":
-            cursor = col.find({"tags":{"$in":["popular"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last nlv":1})
+            cursor = col.find({"tags":{"$in":["popular"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
         elif tags == "geo_focus":
-            cursor = col.find({"tags":{"$in":["geo_focus"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last nlv":1})
+            cursor = col.find({"tags":{"$in":["geo_focus"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
         elif tags == "votility_rider":
-            cursor = col.find({"tags":{"$in":["votility_rider"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last nlv":1})
+            cursor = col.find({"tags":{"$in":["votility_rider"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
         elif tags == "long_term_value":
-            cursor = col.find({"tags":{"$in":["long_term_value"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last nlv":1})
+            cursor = col.find({"tags":{"$in":["long_term_value"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
         elif tags == "drawdown_protection":
-            cursor = col.find({"tags":{"$in":["drawdown_protection"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last nlv":1})
+            cursor = col.find({"tags":{"$in":["drawdown_protection"]}}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
         else:
-            cursor = col.find({}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last nlv":1})
+            cursor = col.find({}, {"_id":0, "strategy_name":1, "strategy_initial":1, "last daily change":1, "last monthly change": 1})
         json_data = dumps(cursor)
         print(json_data)
         return json_data
@@ -63,35 +63,55 @@ class Api_Mongodb:
         print(json_data)
         return json_data
 
-    def user_acc_2b(self, name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
+    def user_acc_2b(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        cursor = col.find({"strategy_name": name}, {"_id": 0, "Since Inception Return": 1, "1 Yr Sharpe": 1, "5 Yr Sharpe": 1, "YTD Sharpe": 1, "1 Yr Return": 1, "5 Yr Return": 1, "YTD Return": 1, "YTD Sortino": 1, "YTD Max Drawdown": 1, "YTD Volatility": 1, "YTD Win Rate": 1, "YTD Average Win Per Day": 1, "YTD Profit Loss Ratio": 1, "Margin Ratio": 1, "last nlv": 1}).limit(1)
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Since Inception Return": 1, "1 Yr Sharpe": 1, "5 Yr Sharpe": 1, "YTD Sharpe": 1, "1 Yr Return": 1, "5 Yr Return": 1, "YTD Return": 1, "YTD Sortino": 1, "YTD Max Drawdown": 1, "YTD Volatility": 1, "YTD Win Rate": 1, "YTD Average Win Per Day": 1, "YTD Profit Loss Ratio": 1, "Margin Ratio": 1, "last nlv": 1}).limit(1)
         json_data = dumps(cursor)
         print(json_data)
         return json_data
 
-    def user_acc_2c(self, name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
+    def user_acc_2c(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        cursor = col.find({"strategy_name": name}, {"_id": 0, "Composite": 1}).limit(1)
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1}).limit(1)
         json_data = dumps(cursor)
         print(json_data)
         return json_data
 
-    def user_acc_2d(self, name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
+    def user_acc_2d(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        cursor = col.find({"strategy_name": name}, {"_id": 0, "Composite": 1,"strategy_name": 1}).limit(1)
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1,"strategy_name": 1}).limit(1)
         json_data = dumps(cursor)
         print(json_data)
         return json_data
 
-    def user_acc_2e(self, name=""):
-        self.db = self.conn["Transactions"]
-        col = self.db.Strategies
-        cursor = col.find({"strategy_name": name}, {"_id": 0, "Composite": 1,"strategy_name": 1}).limit(1)
+    def user_acc_2e(self, client_name="neoculturetech"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Clients
+        cursor = col.find({"client_name": client_name}, {"_id": 0, "transactions": 1}).limit(1)
+        transac_list = cursor[0]["transactions"]
+        # print(transac_list)
+        col = self.db.Transactions
+        cursor = col.find({"transaction_id": {"$in": transac_list}}, {"_id": 0, "date_time": 1, "ETF_ticker": 1, "action": 1, "price": 1, "quantity": 1, "total_amount": 1, "strategy_name": 1})
         json_data = dumps(cursor)
+        print(json_data)
+        return json_data
+
+    def user_acc_2f(self, ETF_ticker="3188"):
+        self.db = self.conn["rainydrop"]
+        col = self.db.ETF
+        cursor1 = col.find({"ETF_ticker": ETF_ticker}, {"_id": 0, "ETF_ticker": 1, "ETF_name": 1, "price": 1, "price_change": 1, "price_%change": 1, "volatility": 1, "return": 1, "dividend_yield": 1, "price_earnings": 1, "field": 1}).limit(1)
+        self.db = self.conn["one_min_raw_data"]
+        col = self.db[ETF_ticker]
+        cursor2 = col.find({}, {"_id": 0, "timestamp": 1, "close": 1}).limit(10)  #limit 10 for testing
+        list_cur1 = list(cursor1)
+        list_cur2 = list(cursor2)
+        final = {}
+        final["details"] = list_cur1
+        final["graph"] = list_cur2
+        json_data = dumps(final)
         print(json_data)
         return json_data
 
@@ -108,6 +128,8 @@ def main():
     # a.user_acc_2b()
     # a.user_acc_2c()
     # a.user_acc_2d()
-    a.user_acc_2e()
+    # a.user_acc_2e()
+    # a.user_acc_2f()
+
 if __name__ == "__main__":
         main()
