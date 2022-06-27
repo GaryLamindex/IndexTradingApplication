@@ -1742,7 +1742,7 @@ class backtest_acc_data(object):
         return ticker_item
 
     def update_portfolio_ticker_item(self, ticker_item):
-        ticker = ticker_item.get("ticker")
+        ticker = ticker_item.__getdict__.get("ticker")
         for item in self.portfolio:
             if item.get("ticker") == ticker:
                 item.update((k, v) for k, v in ticker_item.items() if v is not None)

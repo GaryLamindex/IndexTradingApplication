@@ -11,36 +11,14 @@ from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_data_engine
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
 from object.crypto_acc_data import crypto_acc_data
+from object.action_data import Action, ActionsTuple
 
 
-class Action(Enum):
-    # market order
-    BUY_MKT_ORDER = 1
-    SELL_MKT_ORDER = 2
-    CLOSE_POSITION = 3
-    CLOSE_ALL = 4
-
-    # limit order
-    BUY_LMT_ORDER = 5
-    SELL_LMT_ORDER = 6
-
-
-class ActionsTuple:
-    def __init__(self, timestamp, action_enum, args_dict):
-        self.timestamp = timestamp
-        self.action_enum = action_enum
-        self.args_dict = args_dict
-
-    def __lt__(self, other):
-        return self.timestamp < other.timestamp
-
-    def __getitem__(self, item):
-        if item == 0:
-            return self.timestamp
-        elif item == 1:
-            return self.action_enum
-        elif item == 2:
-            return self.args_dict
+def check_timestamp_is_same_day(timestamp, start_timestamp):
+    if timestamp.year == start_timestamp.year and timestamp.month == start_timestamp.month and timestamp.day == start_timestamp.day:
+        return True
+    else:
+        return False
 
 
 class backtest:
@@ -128,13 +106,16 @@ class backtest:
 
         portfolio_data_engine.deposit_cash('funding', initial_amount, start_timestamp)
 
-        step = 86400  # 1 day timestamp
-
-        for timestamp in range(start_timestamp, end_timestamp, step):
-            _date = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
-            _time = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-            print('#' * 20, _date, ":", _time, '#' * 20)
-            self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
+        # step = 86400  # 1 day timestamp
+        last_run_timestamp = start_timestamp
+        for timestamp in range(start_timestamp, end_timestamp):
+            if not check_timestamp_is_same_day(timestamp, last_run_timestamp):
+                print('start new day')
+                _date = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
+                _time = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
+                print('#' * 20, _date, ":", _time, '#' * 20)
+                self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
+                last_run_timestamp = timestamp
 
     def run(self, timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine):
         pct_change_dict = {}
@@ -156,7 +137,9 @@ class backtest:
                 price_dict.update({ticker: price})
 
         # algorithm.run() should return proper format of tuples in a list for self.pending_actions
-        temp_actions = algorithm.run(price_dict, pct_change_dict, timestamp)
+
+        # gary:  algo should ONLY take price_dict. All the pct change should be calculated in the algo
+        temp_actions = algorithm.run(price_dict, timestamp)
         for a in temp_actions:
             heapq.heappush(self.pending_actions, a)
 
