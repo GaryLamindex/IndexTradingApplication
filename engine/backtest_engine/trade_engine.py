@@ -26,14 +26,16 @@ class backtest_trade_engine(object):
         portfolio = self.backtest_acc_data.portfolio
         stock_transaction_record = self.backtest_acc_data.stock_transaction_record
 
-        if meta_data[ticker]['last'] != None:
+        if ticker in meta_data.keys():
             ticker_open_price = meta_data[ticker]['last']
             timestamp = meta_data.get("timestamp")
+
         else:
             timestamp = meta_data.get("timestamp")
             ticker_item = self.stock_data_io_engines[ticker].get_ticker_item_by_timestamp(timestamp)
             ticker_open_price = ticker_item.get("open")
-            #print("ticker_open_price", ticker_open_price)
+            # print("ticker_open_price", ticker_open_price)
+
 
         transaction_amount = position_purchase * ticker_open_price
         BuyingPower = trading_funds.get("BuyingPower")
@@ -84,7 +86,9 @@ class backtest_trade_engine(object):
         # Update Mkt Value & Margin
         self.portfolio_data_engine.update_acc_data()
 
-        msg = ActionMessage(ActionState.SUCCESS, ticker, IBAction.BUY_MKT_ORDER, position_purchase, ticker_open_price)
+        msg = IBActionMessage(IBActionState.SUCCESS, timestamp, None, ticker,
+                              IBAction.BUY_MKT_ORDER, ticker_open_price,
+                              position_purchase, ticker_open_price, None, None)
         return msg
 
     def place_sell_stock_mkt_order(self, ticker, position_sell, backtest_data):

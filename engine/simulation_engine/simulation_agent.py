@@ -173,7 +173,7 @@ class simulation_agent(object):
         sim_data_res = {}
         ticker_data_res = {}
         for action_msg in action_msgs:
-            temp_list = action_msg.copy()
+            temp_list = action_msg.__getdict__()
             if not temp_list['action'] == 'rejected': #accpeted the then do
                 #print("temp_list:", temp_list)
                 action_ticker = temp_list["ticker"]
