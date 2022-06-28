@@ -182,8 +182,10 @@ class ibkr_stock_data_io_engine:
     @connection_handler
     def get_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
         file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
-        if file_exist:
-            os.remove(f"{self.ticker_data_path}/{ticker}.csv")
+        if file_exist:  # if file already exist, check which date does the file updated to
+            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+            old_df = old_df.sort_values(by=['timestamp'])
+            update_date = old_df["timestamp"].iloc[-1]
         first_row = self.get_first_row_of_data(ticker)
         if first_row is not None:
             end_timestamp = first_row['timestamp']
@@ -192,7 +194,6 @@ class ibkr_stock_data_io_engine:
         current_end_timestamp = end_timestamp
 
         connect_tws(self.ib_instance)
-
 
         while current_end_timestamp > start_timestamp:
             current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
@@ -212,13 +213,16 @@ class ibkr_stock_data_io_engine:
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
+            current_data_df = util.df(current_data)
+            current_data_df['timestamp'] = current_data_df[['date']].apply(
+                lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
+            if file_exist:
+                if current_data_df["timestamp"].iloc[0] <= update_date:
+                    break
             current_end_timestamp = front_timestamp
             # sleep(10) # wait to fetch another batch of data
             self.ib_instance.sleep(0)  # refresh the ib instance
-            current_data_df = util.df(current_data)  # convert into df
             # adding a column of timestamp
-            current_data_df['timestamp'] = current_data_df[['date']].apply(
-                lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
             # write to csv
             current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                    header=True)  # write the current data with header
@@ -240,8 +244,6 @@ class ibkr_stock_data_io_engine:
 
     def get_etf_list(self):
         return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
-
-
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
