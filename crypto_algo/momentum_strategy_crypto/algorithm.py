@@ -1,5 +1,4 @@
 import pandas as pd
-import crypto_algo
 from object.action_data import BinanceAction, BinanceActionsTuple
 
 

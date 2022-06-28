@@ -126,14 +126,13 @@ class backtest:
 
         # algorithm.run() should return proper format of tuples in a list for self.pending_actions
 
-        # gary:  algo should ONLY take price_dict. All the pct change should be calculated in the algo
-        temp_actions = algorithm.run(price_dict, timestamp)
+        temp_actions = algorithm.run(price_dict, pct_change_dict, timestamp)
         for a in temp_actions:
             heapq.heappush(self.pending_actions, a)
 
-        while len(self.pending_actions) != 0 and self.pending_actions[0][0] >= timestamp:
-            cur_action = self.pending_actions[0][1]
-            func_params = self.pending_actions[0][2]
+        while len(self.pending_actions) != 0 and self.pending_actions[0].timestamp >= timestamp:
+            cur_action = self.pending_actions[0].action_enum
+            func_params = self.pending_actions[0].args_dict
             action_msg = None
 
             if cur_action == BinanceAction.BUY_MKT_ORDER:

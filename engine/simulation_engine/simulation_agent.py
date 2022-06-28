@@ -198,7 +198,7 @@ class simulation_agent(object):
                         self.list_header.append(key)
                         self.header_update = True
 
-        #print(action_dicts)
+        # print(action_dicts)
 
         try:
             del ticker_data['timestamp']

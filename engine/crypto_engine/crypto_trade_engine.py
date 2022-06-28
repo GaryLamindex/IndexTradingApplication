@@ -13,7 +13,8 @@ class crypto_trade_engine:
         transaction_amount = position_purchase * price
 
         if old_funding < transaction_amount:  # cannot buy
-            return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY, position_purchase, price, 0, BinanceActionState.FAIL)
+            return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY_MKT_ORDER,
+                                        position_purchase, price, 0, BinanceActionState.REJECTED)
 
             # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price,
             #         'quantity': position_purchase,
