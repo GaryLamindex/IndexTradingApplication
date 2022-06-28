@@ -12,9 +12,11 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.simulation_engine import sim_data_io_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.simulation_engine.statistic_engine import statistic_engine
-from engine.mongoDB_engine.write_document_engine import Write_Mongodb
+# from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
+from object.action_data import IBAction, IBActionsTuple
+
 
 
 class backtest(object):
@@ -30,7 +32,6 @@ class backtest(object):
     rebalance_dict = {}
     tickers = []
     initial_amount = 0
-    check_ratio = False
     stock_data_engines = {}
     timestamps = []
     rebalance_ratio = []
@@ -76,22 +77,6 @@ class backtest(object):
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
-            # list_of_run_files = listdir(self.run_file_dir)
-            # list_of_stats_data = listdir(self.stats_data_dir)
-            # list_of_acc_data = listdir(self.acc_data_dir)
-            # list_of_transact_data = listdir(self.transact_data_dir)
-            # list_of_graph = listdir(self.graph_dir)
-
-            # for file in list_of_run_files:
-            #     os.remove(Path(f"{self.run_file_dir}/{file}"))
-            # for file in list_of_stats_data:
-            #     os.remove(Path(f"{self.stats_data_dir}/{file}"))
-            # for file in list_of_acc_data:
-            #     os.remove(Path(f"{self.acc_data_dir}/{file}"))
-            # for file in list_of_transact_data:
-            #     os.remove(Path(f"{self.transact_data_dir}/{file}"))
-            # for file in list_of_graph:
-            #             #     os.remove(Path(f"{self.graph_dir}/{file}"))
 
     def loop_through_param(self):
         # loop through all the rebalance requirement
@@ -102,13 +87,14 @@ class backtest(object):
             self.rebalance_dict = {}
             for ticker_num in range(num_tickers):
                 self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
-            self.check_rebalance_ratio()
-            if self.check_ratio:
+
+            if self.check_rebalance_ratio():
                 backtest_spec = self.rebalance_dict
                 spec_str = ""
                 for k, v in backtest_spec.items():
                     spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
+                #remove if exist
                 run_file = self.run_file_dir + spec_str + '.csv'
                 if os.path.exists(run_file):
                     os.remove(Path(run_file))
@@ -127,7 +113,7 @@ class backtest(object):
                 algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
                                                 self.acceptance_range)
                 self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                                   portfolio_data_engine, sim_agent, dividend_agent)
+                                   portfolio_data_engine, sim_agent, dividend_agent, trade_agent)
                 print("Finished Backtest:", backtest_spec)
                 print("-------------------------------------------------------------------------------")
         self.plot_all_file_graph()
@@ -138,7 +124,7 @@ class backtest(object):
             self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
-                      sim_agent, dividend_engine):
+                      sim_agent, dividend_engine, trade_agent):
         # connect to downloaded ib data to get price data
         row = 0
         timestamps = {}
@@ -153,23 +139,31 @@ class backtest(object):
                 # input initial cash
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
-            # dividend_engine.check_div(timestamp)
+            portfolio = portfolio_data_engine.get_portfolio()
+            total_dividend = dividend_engine.check_div(timestamp, portfolio)
+            if total_dividend != 0:
+                portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
+
+
             if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
-                    self.run(timestamp, algorithm, sim_agent)
+                    self.run(timestamp, algorithm, sim_agent, trade_agent)
             else:
-                self.run(timestamp, algorithm, sim_agent)
+                self.run(timestamp, algorithm, sim_agent, trade_agent)
 
     def check_rebalance_ratio(self):
+        check_ratio = False
         total_ratio = 0
         for k, v in self.rebalance_dict.items():
             ratio = v / 100
             total_ratio += ratio
         if total_ratio != 1:
             print("total ratio is not 100%")
-            self.check_ratio = False
         else:
-            self.check_ratio = True
+            check_ratio = True
+        return check_ratio
+
+
 
     def plot_all_file_graph(self):
         print("plot_graph")
@@ -355,7 +349,7 @@ class backtest(object):
     #         _data = stats_agent.cal_month_to_month_breakdown(file)
     #     pass
 
-    def run(self, timestamp, algorithm, sim_agent):
+    def run(self, timestamp, algorithm, sim_agent, trade_agent):
         stock_data_dict = {}
         sim_meta_data = {}
         for ticker in self.tickers:
@@ -370,10 +364,26 @@ class backtest(object):
             # div_data_dict.update({ticker + ' div amount': ticker_div})
 
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
-        # input database and historical data into algo
+        # input database and historical data into algo and get action msgs
         action_msgs = algorithm.run(stock_data_dict, timestamp)
 
-        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_msgs, sim_meta_data,
+        #execute action msgs
+        action_record = []
+        for action_msg in action_msgs:
+            action = action_msg.__getattr__(action_enum)
+            if action == IBAction.SELL_MKT_ORDER:
+                temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg[2].get("ticker"),
+                                                                            action_msg[2].get("position_sell"),
+                                                                            {"timestamp": action_msg[0]})
+                action_record.append(temp_action_record)
+        for action_msg in action_msgs:
+            action = action_msg[1]
+            if action == IBAction.BUY_MKT_ORDER:
+                temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg[2].get("ticker"),
+                                                                           action_msg[2].get("position_purchase"),
+                                                                           {"timestamp": action_msg[0]})
+                action_record.append(temp_action_record)
+        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
                                         stock_data_dict)
 
     @staticmethod

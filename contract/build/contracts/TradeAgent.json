@@ -4487,20 +4487,20 @@
     "absolutePath": "project:/contracts/agents/TradeAgent.sol",
     "exportedSymbols": {
       "FixidityLib": [
-        5735
+        5736
       ],
       "Object": [
         109
       ],
       "TradeAgent": [
-        1454
+        1455
       ]
     },
-    "id": 1455,
+    "id": 1456,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1375,
+        "id": 1376,
         "literals": [
           "solidity",
           "^",
@@ -4513,10 +4513,10 @@
       {
         "absolutePath": "project:/contracts/Object.sol",
         "file": "../Object.sol",
-        "id": 1376,
+        "id": 1377,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1455,
+        "scope": 1456,
         "sourceUnit": 110,
         "src": "25:23:3",
         "symbolAliases": [],
@@ -4525,11 +4525,11 @@
       {
         "absolutePath": "project:/contracts/utils/FixidityLib.sol",
         "file": "../utils/FixidityLib.sol",
-        "id": 1377,
+        "id": 1378,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1455,
-        "sourceUnit": 5736,
+        "scope": 1456,
+        "sourceUnit": 5737,
         "src": "50:34:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -4539,13 +4539,13 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 1378,
+              "id": 1379,
               "name": "Object",
               "nodeType": "IdentifierPath",
               "referencedDeclaration": 109,
               "src": "111:6:3"
             },
-            "id": 1379,
+            "id": 1380,
             "nodeType": "InheritanceSpecifier",
             "src": "111:6:3"
           }
@@ -4554,9 +4554,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 1454,
+        "id": 1455,
         "linearizedBaseContracts": [
-          1454,
+          1455,
           109
         ],
         "name": "TradeAgent",
@@ -4565,23 +4565,23 @@
         "nodes": [
           {
             "body": {
-              "id": 1415,
+              "id": 1416,
               "nodeType": "Block",
               "src": "301:385:3",
               "statements": [
                 {
                   "assignments": [
-                    1394
+                    1395
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1394,
+                      "id": 1395,
                       "mutability": "mutable",
                       "name": "_transactionAmount",
                       "nameLocation": "319:18:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1415,
+                      "scope": 1416,
                       "src": "312:25:3",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -4590,7 +4590,7 @@
                         "typeString": "int256"
                       },
                       "typeName": {
-                        "id": 1393,
+                        "id": 1394,
                         "name": "int256",
                         "nodeType": "ElementaryTypeName",
                         "src": "312:6:3",
@@ -4602,15 +4602,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1400,
+                  "id": 1401,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1397,
+                        "id": 1398,
                         "name": "_targetSharePurchase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1383,
+                        "referencedDeclaration": 1384,
                         "src": "361:20:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4618,11 +4618,11 @@
                         }
                       },
                       {
-                        "id": 1398,
+                        "id": 1399,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1385,
+                        "referencedDeclaration": 1386,
                         "src": "383:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4642,32 +4642,32 @@
                         }
                       ],
                       "expression": {
-                        "id": 1395,
+                        "id": 1396,
                         "name": "FixidityLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5735,
+                        "referencedDeclaration": 5736,
                         "src": "340:11:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5735_$",
+                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5736_$",
                           "typeString": "type(library FixidityLib)"
                         }
                       },
-                      "id": 1396,
+                      "id": 1397,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "multiply",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 5672,
+                      "referencedDeclaration": 5673,
                       "src": "340:20:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_pure$_t_int256_$_t_int256_$returns$_t_int256_$",
                         "typeString": "function (int256,int256) pure returns (int256)"
                       }
                     },
-                    "id": 1399,
+                    "id": 1400,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4687,17 +4687,17 @@
                 },
                 {
                   "assignments": [
-                    1403
+                    1404
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1403,
+                      "id": 1404,
                       "mutability": "mutable",
                       "name": "buy_msg",
                       "nameLocation": "435:7:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1415,
+                      "scope": 1416,
                       "src": "418:24:3",
                       "stateVariable": false,
                       "storageLocation": "memory",
@@ -4706,10 +4706,10 @@
                         "typeString": "struct Object.ActionMsg"
                       },
                       "typeName": {
-                        "id": 1402,
+                        "id": 1403,
                         "nodeType": "UserDefinedTypeName",
                         "pathNode": {
-                          "id": 1401,
+                          "id": 1402,
                           "name": "ActionMsg",
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 54,
@@ -4725,15 +4725,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1412,
+                  "id": 1413,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1405,
+                        "id": 1406,
                         "name": "_tickerName",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1381,
+                        "referencedDeclaration": 1382,
                         "src": "467:11:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -4741,11 +4741,11 @@
                         }
                       },
                       {
-                        "id": 1406,
+                        "id": 1407,
                         "name": "_timestamp",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1387,
+                        "referencedDeclaration": 1388,
                         "src": "491:10:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -4754,7 +4754,7 @@
                       },
                       {
                         "hexValue": "427579",
-                        "id": 1407,
+                        "id": 1408,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4769,11 +4769,11 @@
                         "value": "Buy"
                       },
                       {
-                        "id": 1408,
+                        "id": 1409,
                         "name": "_targetSharePurchase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1383,
+                        "referencedDeclaration": 1384,
                         "src": "543:20:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4781,11 +4781,11 @@
                         }
                       },
                       {
-                        "id": 1409,
+                        "id": 1410,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1385,
+                        "referencedDeclaration": 1386,
                         "src": "588:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4793,11 +4793,11 @@
                         }
                       },
                       {
-                        "id": 1410,
+                        "id": 1411,
                         "name": "_transactionAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1394,
+                        "referencedDeclaration": 1395,
                         "src": "631:18:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4832,7 +4832,7 @@
                           "typeString": "int256"
                         }
                       ],
-                      "id": 1404,
+                      "id": 1405,
                       "name": "ActionMsg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
@@ -4843,7 +4843,7 @@
                         "typeString": "type(struct Object.ActionMsg storage pointer)"
                       }
                     },
-                    "id": 1411,
+                    "id": 1412,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4870,26 +4870,26 @@
                 },
                 {
                   "expression": {
-                    "id": 1413,
+                    "id": 1414,
                     "name": "buy_msg",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 1403,
+                    "referencedDeclaration": 1404,
                     "src": "671:7:3",
                     "typeDescriptions": {
                       "typeIdentifier": "t_struct$_ActionMsg_$54_memory_ptr",
                       "typeString": "struct Object.ActionMsg memory"
                     }
                   },
-                  "functionReturnParameters": 1392,
-                  "id": 1414,
+                  "functionReturnParameters": 1393,
+                  "id": 1415,
                   "nodeType": "Return",
                   "src": "664:14:3"
                 }
               ]
             },
             "functionSelector": "4f8ac98d",
-            "id": 1416,
+            "id": 1417,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -4897,17 +4897,17 @@
             "nameLocation": "133:26:3",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1388,
+              "id": 1389,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1381,
+                  "id": 1382,
                   "mutability": "mutable",
                   "name": "_tickerName",
                   "nameLocation": "174:11:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1416,
+                  "scope": 1417,
                   "src": "160:25:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -4916,7 +4916,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 1380,
+                    "id": 1381,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "160:6:3",
@@ -4929,12 +4929,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1383,
+                  "id": 1384,
                   "mutability": "mutable",
                   "name": "_targetSharePurchase",
                   "nameLocation": "194:20:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1416,
+                  "scope": 1417,
                   "src": "187:27:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4943,7 +4943,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1382,
+                    "id": 1383,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "187:6:3",
@@ -4956,12 +4956,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1385,
+                  "id": 1386,
                   "mutability": "mutable",
                   "name": "_transactionTickerPrice",
                   "nameLocation": "223:23:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1416,
+                  "scope": 1417,
                   "src": "216:30:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4970,7 +4970,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1384,
+                    "id": 1385,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "216:6:3",
@@ -4983,12 +4983,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1387,
+                  "id": 1388,
                   "mutability": "mutable",
                   "name": "_timestamp",
                   "nameLocation": "256:10:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1416,
+                  "scope": 1417,
                   "src": "248:18:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4997,7 +4997,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1386,
+                    "id": 1387,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "248:7:3",
@@ -5012,17 +5012,17 @@
               "src": "159:108:3"
             },
             "returnParameters": {
-              "id": 1392,
+              "id": 1393,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1391,
+                  "id": 1392,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1416,
+                  "scope": 1417,
                   "src": "284:16:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -5031,10 +5031,10 @@
                     "typeString": "struct Object.ActionMsg"
                   },
                   "typeName": {
-                    "id": 1390,
+                    "id": 1391,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 1389,
+                      "id": 1390,
                       "name": "ActionMsg",
                       "nodeType": "IdentifierPath",
                       "referencedDeclaration": 54,
@@ -5052,7 +5052,7 @@
               ],
               "src": "283:18:3"
             },
-            "scope": 1454,
+            "scope": 1455,
             "src": "124:562:3",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -5060,23 +5060,23 @@
           },
           {
             "body": {
-              "id": 1452,
+              "id": 1453,
               "nodeType": "Block",
               "src": "868:380:3",
               "statements": [
                 {
                   "assignments": [
-                    1431
+                    1432
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1431,
+                      "id": 1432,
                       "mutability": "mutable",
                       "name": "_transactionAmount",
                       "nameLocation": "886:18:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1452,
+                      "scope": 1453,
                       "src": "879:25:3",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -5085,7 +5085,7 @@
                         "typeString": "int256"
                       },
                       "typeName": {
-                        "id": 1430,
+                        "id": 1431,
                         "name": "int256",
                         "nodeType": "ElementaryTypeName",
                         "src": "879:6:3",
@@ -5097,15 +5097,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1437,
+                  "id": 1438,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1434,
+                        "id": 1435,
                         "name": "_targetShareSell",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1420,
+                        "referencedDeclaration": 1421,
                         "src": "928:16:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5113,11 +5113,11 @@
                         }
                       },
                       {
-                        "id": 1435,
+                        "id": 1436,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1422,
+                        "referencedDeclaration": 1423,
                         "src": "946:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5137,32 +5137,32 @@
                         }
                       ],
                       "expression": {
-                        "id": 1432,
+                        "id": 1433,
                         "name": "FixidityLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5735,
+                        "referencedDeclaration": 5736,
                         "src": "907:11:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5735_$",
+                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5736_$",
                           "typeString": "type(library FixidityLib)"
                         }
                       },
-                      "id": 1433,
+                      "id": 1434,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "multiply",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 5672,
+                      "referencedDeclaration": 5673,
                       "src": "907:20:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_pure$_t_int256_$_t_int256_$returns$_t_int256_$",
                         "typeString": "function (int256,int256) pure returns (int256)"
                       }
                     },
-                    "id": 1436,
+                    "id": 1437,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5182,17 +5182,17 @@
                 },
                 {
                   "assignments": [
-                    1440
+                    1441
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1440,
+                      "id": 1441,
                       "mutability": "mutable",
                       "name": "sell_msg",
                       "nameLocation": "998:8:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1452,
+                      "scope": 1453,
                       "src": "981:25:3",
                       "stateVariable": false,
                       "storageLocation": "memory",
@@ -5201,10 +5201,10 @@
                         "typeString": "struct Object.ActionMsg"
                       },
                       "typeName": {
-                        "id": 1439,
+                        "id": 1440,
                         "nodeType": "UserDefinedTypeName",
                         "pathNode": {
-                          "id": 1438,
+                          "id": 1439,
                           "name": "ActionMsg",
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 54,
@@ -5220,15 +5220,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1449,
+                  "id": 1450,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1442,
+                        "id": 1443,
                         "name": "_tickerName",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1418,
+                        "referencedDeclaration": 1419,
                         "src": "1031:11:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -5236,11 +5236,11 @@
                         }
                       },
                       {
-                        "id": 1443,
+                        "id": 1444,
                         "name": "_timestamp",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1424,
+                        "referencedDeclaration": 1425,
                         "src": "1055:10:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -5249,7 +5249,7 @@
                       },
                       {
                         "hexValue": "53656c6c",
-                        "id": 1444,
+                        "id": 1445,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5264,11 +5264,11 @@
                         "value": "Sell"
                       },
                       {
-                        "id": 1445,
+                        "id": 1446,
                         "name": "_targetShareSell",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1420,
+                        "referencedDeclaration": 1421,
                         "src": "1108:16:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5276,11 +5276,11 @@
                         }
                       },
                       {
-                        "id": 1446,
+                        "id": 1447,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1422,
+                        "referencedDeclaration": 1423,
                         "src": "1149:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5288,11 +5288,11 @@
                         }
                       },
                       {
-                        "id": 1447,
+                        "id": 1448,
                         "name": "_transactionAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1431,
+                        "referencedDeclaration": 1432,
                         "src": "1192:18:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5327,7 +5327,7 @@
                           "typeString": "int256"
                         }
                       ],
-                      "id": 1441,
+                      "id": 1442,
                       "name": "ActionMsg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
@@ -5338,7 +5338,7 @@
                         "typeString": "type(struct Object.ActionMsg storage pointer)"
                       }
                     },
-                    "id": 1448,
+                    "id": 1449,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5365,26 +5365,26 @@
                 },
                 {
                   "expression": {
-                    "id": 1450,
+                    "id": 1451,
                     "name": "sell_msg",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 1440,
+                    "referencedDeclaration": 1441,
                     "src": "1232:8:3",
                     "typeDescriptions": {
                       "typeIdentifier": "t_struct$_ActionMsg_$54_memory_ptr",
                       "typeString": "struct Object.ActionMsg memory"
                     }
                   },
-                  "functionReturnParameters": 1429,
-                  "id": 1451,
+                  "functionReturnParameters": 1430,
+                  "id": 1452,
                   "nodeType": "Return",
                   "src": "1225:15:3"
                 }
               ]
             },
             "functionSelector": "14ea6c19",
-            "id": 1453,
+            "id": 1454,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -5392,17 +5392,17 @@
             "nameLocation": "703:27:3",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1425,
+              "id": 1426,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1418,
+                  "id": 1419,
                   "mutability": "mutable",
                   "name": "_tickerName",
                   "nameLocation": "745:11:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1453,
+                  "scope": 1454,
                   "src": "731:25:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -5411,7 +5411,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 1417,
+                    "id": 1418,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "731:6:3",
@@ -5424,12 +5424,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1420,
+                  "id": 1421,
                   "mutability": "mutable",
                   "name": "_targetShareSell",
                   "nameLocation": "765:16:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1453,
+                  "scope": 1454,
                   "src": "758:23:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5438,7 +5438,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1419,
+                    "id": 1420,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "758:6:3",
@@ -5451,12 +5451,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1422,
+                  "id": 1423,
                   "mutability": "mutable",
                   "name": "_transactionTickerPrice",
                   "nameLocation": "790:23:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1453,
+                  "scope": 1454,
                   "src": "783:30:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5465,7 +5465,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1421,
+                    "id": 1422,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "783:6:3",
@@ -5478,12 +5478,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1424,
+                  "id": 1425,
                   "mutability": "mutable",
                   "name": "_timestamp",
                   "nameLocation": "823:10:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1453,
+                  "scope": 1454,
                   "src": "815:18:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5492,7 +5492,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1423,
+                    "id": 1424,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "815:7:3",
@@ -5507,17 +5507,17 @@
               "src": "730:104:3"
             },
             "returnParameters": {
-              "id": 1429,
+              "id": 1430,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1428,
+                  "id": 1429,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1453,
+                  "scope": 1454,
                   "src": "851:16:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -5526,10 +5526,10 @@
                     "typeString": "struct Object.ActionMsg"
                   },
                   "typeName": {
-                    "id": 1427,
+                    "id": 1428,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 1426,
+                      "id": 1427,
                       "name": "ActionMsg",
                       "nodeType": "IdentifierPath",
                       "referencedDeclaration": 54,
@@ -5547,14 +5547,14 @@
               ],
               "src": "850:18:3"
             },
-            "scope": 1454,
+            "scope": 1455,
             "src": "694:554:3",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 1455,
+        "scope": 1456,
         "src": "88:1167:3",
         "usedErrors": []
       }
@@ -5567,7 +5567,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-06-20T10:46:36.862Z",
+  "updatedAt": "2022-06-22T10:02:08.648Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

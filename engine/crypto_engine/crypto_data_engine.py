@@ -10,6 +10,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import yfinance as yf
+from pycoingecko import CoinGeckoAPI
 
 
 class crypto_data_engine:
@@ -159,11 +161,24 @@ class crypto_data_engine:
             print('daily crypto data not found')
             return None
 
+    def get_yfinance_max_historical_data(self, ticker):
+        btc = yf.Ticker(f'{ticker}-USD')
+        hist = btc.history(period='max')
+        return hist
+
+    def download_all_crypto_data(self):
+        cg = CoinGeckoAPI()
+        coins_list = cg.get_coins_list()
+        for coin in coins_list:
+            symbol = coin['symbol']
+            df = self.get_yfinance_max_historical_data(symbol)
+            if not df.empty:
+                df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+
 
 def main():
     engine = crypto_data_engine()
-    data = engine.get_crypto_daily_data('BTC')
-    print(data)
+    engine.download_all_crypto_data()
 
 
 if __name__ == '__main__':

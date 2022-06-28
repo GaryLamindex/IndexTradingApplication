@@ -81,8 +81,7 @@ class ibkr_stock_data_io_engine:
         # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
         self.ticker_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
-        self.dividends_data_path = str(
-            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
+
         self.etf_list_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/etf_list.csv'
 
@@ -194,6 +193,7 @@ class ibkr_stock_data_io_engine:
 
         connect_tws(self.ib_instance)
 
+
         while current_end_timestamp > start_timestamp:
             current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                            regular_trading_hour)
@@ -207,7 +207,8 @@ class ibkr_stock_data_io_engine:
                     raise Exception
                 else:
                     self.grab_data_retry_attempt = 0
-                    return 
+                    return
+
             front_timestamp = current_data[0].date.timestamp()
             # historical_data = current_data + historical_data # put the new data in front
             print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -218,17 +219,20 @@ class ibkr_stock_data_io_engine:
             # adding a column of timestamp
             current_data_df['timestamp'] = current_data_df[['date']].apply(
                 lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
-            if current_data_df['timestamp'].iloc[0] <= start_timestamp:
-                current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
-                if file_exist:  # file already exist
-                    old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
-                    current_data_df = pd.concat(old_df, current_data_df).sort_values(by=['timestamp'])
-                current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False, header=True)
-                break
             # write to csv
             current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                    header=True)  # write the current data with header
             print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
+
+        current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
+                                                       regular_trading_hour)
+        current_data_df = util.df(current_data)
+        current_data_df['timestamp'] = current_data_df[['date']].apply(
+            lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
+        current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
+        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        current_data_df = pd.concat(current_data_df, old_df).drop_duplicates().sort_values(by=['timestamp'])
+        current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
 
         # adding a column of timestamp
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
@@ -237,38 +241,7 @@ class ibkr_stock_data_io_engine:
     def get_etf_list(self):
         return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
 
-    def get_dividends(self, tickers, expire_day):
-        for ticker in tickers:
-            ticker = ticker.upper()
-            ticker_obj = yf.Ticker(ticker)
-            dividends = pd.DataFrame(ticker_obj.dividends)
-            dirs = os.listdir(self.dividends_data_path)
-            today = datetime.today().strftime('%Y/%m/%d')
 
-            timestamps = []
-
-            for index in dividends.index:
-                timestamps.append(int(index.timestamp()))
-
-            dividends['timestamp'] = timestamps
-
-            today_dt = dt.datetime.now()
-            dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
-            if not os.path.exists(self.dividends_data_path):
-                os.mkdir(self.dividends_data_path)
-            expired = True
-            for file in dirs:
-                if ticker == re.sub('[^A-Z]', '', file):  # if there exists the csv file of the ticker
-                    download_date = datetime.fromtimestamp(int(re.search(r'\d+', file).group())).strftime('%Y/%m/%d')
-                    if (datetime.strptime(today, '%Y/%m/%d') - datetime.strptime(download_date,
-                                                                                 '%Y/%m/%d')).days > expire_day:
-                        os.remove(os.path.join(self.dividends_data_path, file))  # if csv file is expired, delete it
-                    else:
-                        expired = False
-                    break
-            if expired:  # if csv file is expired or doesn't exist, download the new csv file
-                dividends.to_csv(
-                    f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day, tzinfo=dt.timezone.utc).timestamp())}.csv')
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
