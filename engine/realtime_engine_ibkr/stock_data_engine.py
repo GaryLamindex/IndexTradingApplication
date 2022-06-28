@@ -227,6 +227,8 @@ class ibkr_stock_data_io_engine:
         current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                        regular_trading_hour)
         current_data_df = util.df(current_data)
+        current_data_df['timestamp'] = current_data_df[['date']].apply(
+            lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
         current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
         old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
         current_data_df = pd.concat(current_data_df, old_df).drop_duplicates().sort_values(by=['timestamp'])
