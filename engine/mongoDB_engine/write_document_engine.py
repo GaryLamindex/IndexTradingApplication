@@ -178,11 +178,11 @@ def main():
     w.coll = w.db['Strategies']
     print("SUCCESS")
     #w.write_one_min_raw_data("Strategies", temp_list)
-    w.coll.update_many({},{"$set":{"last daily change":0.02567}})
-    w.coll.update_many({}, {"$set": {"last monthly change": 0.14987567}})
+    # w.coll.update_many({},{"$set":{"last daily change":0.02567}})
+    # w.coll.update_many({}, {"$set": {"last monthly change": 0.14987567}})
     # w.mongo.db.Strategies.update_many({"Backtest Spec": "20_M_80_MSFT_"},
     #                                   {"$set": {"Rating.future_tech_portfolio": 5}})
-
+    # w.coll.update_many({},{"$set":{"trader_name": ""}})
 
 
     # w = Write_Mongodb('simulation')

@@ -12,6 +12,15 @@ class Api_Mongodb_3:
         except:
             print("WARNING: Could not connect to MongoDB")
 
+    def all_algo_3i(self, strategy_name='backtest_rebalance_margin_wif_max_drawdown_control_0'):
+        self.db = self.conn["rainydrop"]
+        col = self.db.Strategies
+        cursor1 = col.find({"strategy_name":strategy_name}, {"_id":0 ,"Rating": 1})
+        list_cur1 = list(cursor1)
+        json_data = dumps(list_cur1)
+        print(json_data)
+        return json_data
+
 
     def all_algo_3j(self, strategy_name='backtest_rebalance_margin_wif_max_drawdown_control_0'):
         self.db = self.conn["rainydrop"]
@@ -50,6 +59,7 @@ def main():
     # a.user_acc_2d()
     # a.user_acc_2e()
     # a.user_acc_2f()
+    a.all_algo_3i()
     # a.all_algo_3j()
     # a.all_algo_3k()
 
