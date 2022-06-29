@@ -18,7 +18,7 @@ class Api_Mongodb_2:
             print("WARNING: Could not connect to MongoDB")
 
     # @app.route('/mainpage')
-    def all_algo_3b(self):
+    def indv_algo_3b(self):
         self.db = self.conn["simulation"]
         col = self.db.backtest_portfolio_rebalance_0
         data = col.find({}, {"_id": 0, "timestamp": 1, "NetLiquidation": 1}).sort("_id", 1)
@@ -26,7 +26,7 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-    def all_algo_3d(self):
+    def indv_algo_3d(self):
         self.db = self.conn["drawdown_graph_data"]
         col = self.db.backtest_portfolio_rebalance_0
         data = col.find({}, {"_id": 0, "timestamp": 1, "drawdown": 1}).sort("_id", 1)
@@ -34,7 +34,7 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-    def all_algo_3e(self):
+    def indv_algo_3e(self):
         self.db = self.conn["drawdown_data"]
         col = self.db.backtest_portfolio_rebalance_0
         data = col.find({}, {"_id": 0, "Drawdown": 1, "Drawdown period": 1, "Drawdown days": 1, "Recovery date": 1,
@@ -43,7 +43,7 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-    def all_algo_3f(self):
+    def indv_algo_3f(self):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
         data = col.find({}, {"_id": 0, "Since Inception Return": 1,"1 Yr Rolling Return": 1, "2 Yr Rolling Return": 1,
@@ -121,7 +121,21 @@ class Api_Mongodb_2:
         avglist = [one_yr_avg, two_yr_avg, three_yr_avg, five_yr_avg, seven_yr_avg, ten_yr_avg, fifteen_yr_avg, twenty_yr_avg]
         bestlist = [one_yr_max, two_yr_max, three_yr_max, five_yr_max, seven_yr_max, ten_yr_max, fifteen_yr_max, twenty_yr_max]
         worstlist = [one_yr_min, two_yr_min, three_yr_min , five_yr_min, seven_yr_min, ten_yr_min, fifteen_yr_min, twenty_yr_min]
-        neglist = [one_yr_neg_periods, two_yr_neg_periods, three_yr_neg_periods, five_yr_neg_periods, seven_yr_neg_periods, one_yr_neg_periods, one_yr_neg_periods]
+        neglist = [one_yr_neg_periods, two_yr_neg_periods, three_yr_neg_periods, five_yr_neg_periods, seven_yr_neg_periods, ten_yr_neg_periods, fifteen_yr_neg_periods, twenty_yr_neg_periods]
+        final_avglist = list()
+        tmp_list = list()
+        for x in avglist:
+            for y in tmp_list:
+                tmp_list.append(avglist[x][y])
+            final_avglist.append()    
+        df["Average(%)"] = avglist
+        df["Best(%)"] = bestlist
+        df["Worst(%)"] = worstlist
+        df["Negative Periods"] = neglist
+        json_data = self.convert_df_to_json(df)
+        print(json_data)
+        return json_data
+
 
 
     def all_algo_4a(self):
@@ -178,11 +192,11 @@ def main():
     a = Api_Mongodb_2()
     # a.all_algo_4a()
     # a.all_algo_4b()
-    # a.all_algo_4c()
-    # a.all_algo_3b()
-    # a.all_algo_3d()
-    # a.all_algo_3e()
-    a.all_algo_3f()
+    a.all_algo_4c()
+    # a.indv_algo_3b()
+    # a.indv_algo_3d()
+    # a.indv_algo_3e()
+    a.indv_algo_3f()
 
 
 if __name__ == "__main__":
