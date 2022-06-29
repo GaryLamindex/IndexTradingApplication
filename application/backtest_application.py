@@ -1,6 +1,6 @@
 import sys
 import pathlib
-# from crypto_algo.momentum_strategy_crypto.backtest import backtest as momentum_strategy_backtest
+from crypto_algo.momentum_strategy_crypto.backtest import backtest as momentum_strategy_backtest
 import datetime as dt
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
