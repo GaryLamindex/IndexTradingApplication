@@ -147,7 +147,9 @@ class backtest_trade_engine(object):
 
 
        # print("ticker sold: ", ticker)
-        msg = IBActionMessage(IBActionState.SUCCESS, ticker, IBAction.SELL_MKT_ORDER, position_sell, ticker_open_price)
+        msg = IBActionMessage(IBActionState.SUCCESS, timestamp, None, ticker,
+                              IBAction.SELL_MKT_ORDER, ticker_open_price,
+                              position_sell, ticker_open_price, None, None)
         return msg
 
     def place_sell_stock_limit_order(self, ticker, share_sold, ticker_price, timestamp):
