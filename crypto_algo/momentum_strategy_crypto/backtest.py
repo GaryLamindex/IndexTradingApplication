@@ -20,6 +20,7 @@ class backtest:
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.periods_dict = period_dict
+        tickers = [t.upper() for t in tickers]
         self.tickers = tickers
         self.initial_amount = initial_amount
         self.start_timestamp = int(start_date.timestamp())
