@@ -83,8 +83,7 @@ class Api_Mongodb_2:
         ten_yr_neg_periods = list()
         fifteen_yr_neg_periods = list()
         twenty_yr_neg_periods = list()
-        df["Rolling Period"] = ["1 Year", "2 Years", "3 Years", "5 Years", "7 Years", "10 Years", "15 Years",
-                                "20 Years"]
+
         for x in data:
             one_yr_avg.append(x["1 Yr Rolling Return"].get("average_annual_return"))
             two_yr_avg.append(x["2 Yr Rolling Return"].get("average_annual_return"))
@@ -123,15 +122,38 @@ class Api_Mongodb_2:
         worstlist = [one_yr_min, two_yr_min, three_yr_min , five_yr_min, seven_yr_min, ten_yr_min, fifteen_yr_min, twenty_yr_min]
         neglist = [one_yr_neg_periods, two_yr_neg_periods, three_yr_neg_periods, five_yr_neg_periods, seven_yr_neg_periods, ten_yr_neg_periods, fifteen_yr_neg_periods, twenty_yr_neg_periods]
         final_avglist = list()
+        final_bestlist = list()
+        final_worstlist = list()
+        final_neglist = list()
         tmp_list = list()
-        for x in avglist:
-            for y in tmp_list:
-                tmp_list.append(avglist[x][y])
-            final_avglist.append()    
-        df["Average(%)"] = avglist
-        df["Best(%)"] = bestlist
-        df["Worst(%)"] = worstlist
-        df["Negative Periods"] = neglist
+        for x in range(0, len(one_yr_avg)):
+            for y in range(0, len(avglist)):
+                tmp_list.append(avglist[y][x])
+            final_avglist.append(tmp_list.copy())
+            tmp_list.clear()
+        for x in range(0, len(one_yr_max)):
+            for y in range(0, len(bestlist)):
+                tmp_list.append(bestlist[y][x])
+            final_bestlist.append(tmp_list.copy())
+            tmp_list.clear()
+        for x in range(0, len(one_yr_min)):
+            for y in range(0, len(worstlist)):
+                tmp_list.append(worstlist[y][x])
+            final_worstlist.append(tmp_list.copy())
+            tmp_list.clear()
+        for x in range(0, len(one_yr_neg_periods)):
+            for y in range(0, len(neglist)):
+                tmp_list.append(neglist[y][x])
+            final_neglist.append(tmp_list.copy())
+            tmp_list.clear()
+        rolling_list = ["1 Year", "2 Years", "3 Years", "5 Years", "7 Years", "10 Years", "15 Years",
+                        "20 Years"]
+        rolling_list = list(map(lambda b: rolling_list, one_yr_avg))
+        df["Rolling Period"] = rolling_list
+        df["Average(%)"] = final_avglist
+        df["Best(%)"] = final_bestlist
+        df["Worst(%)"] = final_worstlist
+        df["Negative Periods"] = final_neglist
         json_data = self.convert_df_to_json(df)
         print(json_data)
         return json_data
@@ -190,13 +212,14 @@ class Api_Mongodb_2:
 
 def main():
     a = Api_Mongodb_2()
-    # a.all_algo_4a()
-    # a.all_algo_4b()
-    a.all_algo_4c()
-    # a.indv_algo_3b()
-    # a.indv_algo_3d()
-    # a.indv_algo_3e()
+    a.indv_algo_3b()
+    a.indv_algo_3d()
+    a.indv_algo_3e()
     a.indv_algo_3f()
+    a.all_algo_4a()
+    a.all_algo_4b()
+    a.all_algo_4c()
+
 
 
 if __name__ == "__main__":
