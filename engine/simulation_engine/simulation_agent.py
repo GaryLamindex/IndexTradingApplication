@@ -173,23 +173,23 @@ class simulation_agent(object):
         sim_data_res = {}
         ticker_data_res = {}
         for action_msg in action_msgs:
-            temp_list = action_msg.__getdict__()
-            if not temp_list['action'] == 'rejected': #accpeted the then do
+            action_msg_dict = action_msg.__getdict__()
+            if not action_msg_dict['action'] == 'rejected': #accpeted the then do
                 #print("temp_list:", temp_list)
-                action_ticker = temp_list["ticker"]
+                action_ticker = action_msg_dict["ticker"]
                 try:
-                    del action_msg[
+                    del action_msg_dict[
                         'ticker']  # get rid of the "ticker" column, since the csv does NOT contain this attribute
-                    del action_msg['orderId']
-                    del action_msg['lmtPrice']
-                    del action_msg['exchange']
-                    del action_msg['timestamp']
+                    del action_msg_dict['orderId']
+                    del action_msg_dict['lmtPrice']
+                    del action_msg_dict['exchange']
+                    del action_msg_dict['timestamp']
                 except KeyError:
                     pass
 
                 # Mark, change the code here as you like, so that giving a better representations in tickers snapshots
                 #The action_msg has a null val so the output has 4 collumns of (key)_null BUG
-                action_res = {f"{str(key)}_{action_ticker}": val for key, val in action_msg.items()}
+                action_res = {f"{str(key)}_{action_ticker}": val for key, val in action_msg_dict.items()}
                 action_dicts.update(action_res)  # action_dicts|action_res
 
                 # then action_dicts
