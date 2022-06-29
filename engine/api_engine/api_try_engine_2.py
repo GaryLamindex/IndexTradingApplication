@@ -2,6 +2,7 @@ import certifi
 from pymongo import MongoClient
 from bson.json_util import dumps
 import pandas as pd
+from dateutil import parser
 
 
 class Api_Mongodb_2:
@@ -39,14 +40,49 @@ class Api_Mongodb_2:
         col = self.db.backtest_portfolio_rebalance_0
         data = col.find({}, {"_id": 0, "Drawdown": 1, "Drawdown period": 1, "Drawdown days": 1, "Recovery date": 1,
                              "Recovery days": 1}).sort("_id", 1)
-        json_data = dumps(data)
+        drawdown = list()
+        drawdown_start = list()
+        drawdown_end = list()
+        drawdown_month = list()
+        recovery_end = list()
+        recovery_month = list()
+        total_month = list()
+        for x in data:
+            drawdown.append(x["Drawdown"])
+            date = x["Drawdown period"].replace("\"", "").replace('[', '').replace(']', '').replace("'", "").split(',',
+                                                                                                                   1)
+            drawdown_start.append(date[0])
+            drawdown_end.append(date[1])
+            date[0] = parser.parse(date[0])
+            date[1] = parser.parse(date[1])
+            drawdown_month.append((date[1].year - date[0].year) * 12 + date[1].month - date[0].month)
+            if self.isNaN(x["Recovery date"]):
+                recovery_end.append(float('nan'))
+                recovery_month.append(float('nan'))
+                total_month.append((date[1].year - date[0].year) * 12 + date[1].month - date[0].month)
+            else:
+                date2 = parser.parse(x["Recovery date"])
+                recovery_end.append(date2)
+                recovery_month.append((date2.year - date[0].year) * 12 + date2.month - date[0].month)
+                total_month.append((date[1].year - date[0].year) * 12 + date[1].month - date[0].month + (
+                        date2.year - date[0].year) * 12 + date2.month - date[0].month)
+
+        df = pd.DataFrame()
+        df["Drawdown"] = drawdown
+        df["Drawdown start"] = drawdown_start
+        df["Drawdown bottom"] = drawdown_end
+        df["Drawdown months"] = drawdown_month
+        df["Recovery end"] = recovery_end
+        df["Recovery months"] = recovery_month
+        df["Total month"] = total_month
+        json_data = self.convert_df_to_json(df)
         print(json_data)
         return json_data
 
     def indv_algo_3f(self):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({}, {"_id": 0, "Since Inception Return": 1,"1 Yr Rolling Return": 1, "2 Yr Rolling Return": 1,
+        data = col.find({}, {"_id": 0, "Since Inception Return": 1, "1 Yr Rolling Return": 1, "2 Yr Rolling Return": 1,
                              "3 Yr Rolling Return": 1, "5 Yr Rolling Return": 1, "7 Yr Rolling Return": 1,
                              "10 Yr Rolling Return": 1, "15 Yr Rolling Return": 1,
                              "20 Yr Rolling Return": 1}).sort("_id", 1)
@@ -117,10 +153,14 @@ class Api_Mongodb_2:
             ten_yr_neg_periods.append(x["10 Yr Rolling Return"].get("negative_periods"))
             fifteen_yr_neg_periods.append(x["15 Yr Rolling Return"].get("negative_periods"))
             twenty_yr_neg_periods.append(x["20 Yr Rolling Return"].get("negative_periods"))
-        avglist = [one_yr_avg, two_yr_avg, three_yr_avg, five_yr_avg, seven_yr_avg, ten_yr_avg, fifteen_yr_avg, twenty_yr_avg]
-        bestlist = [one_yr_max, two_yr_max, three_yr_max, five_yr_max, seven_yr_max, ten_yr_max, fifteen_yr_max, twenty_yr_max]
-        worstlist = [one_yr_min, two_yr_min, three_yr_min , five_yr_min, seven_yr_min, ten_yr_min, fifteen_yr_min, twenty_yr_min]
-        neglist = [one_yr_neg_periods, two_yr_neg_periods, three_yr_neg_periods, five_yr_neg_periods, seven_yr_neg_periods, ten_yr_neg_periods, fifteen_yr_neg_periods, twenty_yr_neg_periods]
+        avglist = [one_yr_avg, two_yr_avg, three_yr_avg, five_yr_avg, seven_yr_avg, ten_yr_avg, fifteen_yr_avg,
+                   twenty_yr_avg]
+        bestlist = [one_yr_max, two_yr_max, three_yr_max, five_yr_max, seven_yr_max, ten_yr_max, fifteen_yr_max,
+                    twenty_yr_max]
+        worstlist = [one_yr_min, two_yr_min, three_yr_min, five_yr_min, seven_yr_min, ten_yr_min, fifteen_yr_min,
+                     twenty_yr_min]
+        neglist = [one_yr_neg_periods, two_yr_neg_periods, three_yr_neg_periods, five_yr_neg_periods,
+                   seven_yr_neg_periods, ten_yr_neg_periods, fifteen_yr_neg_periods, twenty_yr_neg_periods]
         final_avglist = list()
         final_bestlist = list()
         final_worstlist = list()
@@ -158,8 +198,6 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-
-
     def all_algo_4a(self):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
@@ -168,7 +206,7 @@ class Api_Mongodb_2:
         percentage = list()
         name = list()
         for x in data:
-            percentage.append(list(x["Composite"].values()))
+            percentage.append(x["Composite"])
             name.append(list(x["Composite"].keys()))
         df["ETF_percentage"] = percentage
         df["ETF_name"] = name
@@ -185,7 +223,7 @@ class Api_Mongodb_2:
         name = list()
         strategy = list()
         for x in data:
-            percentage.append(list(x["Composite"].values()))
+            percentage.append(x["Composite"])
             name.append(list(x["Composite"].keys()))
             strategy.append(x["strategy_name"])
         df["weight"] = percentage
@@ -195,10 +233,13 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
+    def isNaN(self, string):
+        return string != string
+
     def all_algo_4c(self):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({}, {"_id": 0, "1 Year Return": 1, "3 Year Return": 1, "5 Year Return": 1, "YTD Return": 1,
+        data = col.find({}, {"_id": 0, "1 Yr Return": 1, "3 Yr Return": 1, "5 Yr Return": 1, "YTD Return": 1,
                              "Since Inception Return": 1, "1 Yr adj return": 1, "3 Yr adj return": 1,
                              "5 Yr adj return": 1}).sort("_id", 1)
         json_data = dumps(data)
@@ -219,7 +260,6 @@ def main():
     a.all_algo_4a()
     a.all_algo_4b()
     a.all_algo_4c()
-
 
 
 if __name__ == "__main__":
