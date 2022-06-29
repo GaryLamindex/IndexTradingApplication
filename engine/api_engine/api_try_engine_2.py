@@ -206,7 +206,7 @@ class Api_Mongodb_2:
         percentage = list()
         name = list()
         for x in data:
-            percentage.append(x["Composite"])
+            percentage.append(list(x["Composite"].values()))
             name.append(list(x["Composite"].keys()))
         df["ETF_percentage"] = percentage
         df["ETF_name"] = name
