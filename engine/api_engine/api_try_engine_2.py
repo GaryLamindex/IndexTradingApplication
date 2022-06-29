@@ -217,17 +217,14 @@ class Api_Mongodb_2:
     def all_algo_4b(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1, "strategy_name": 1}).sort("_id", 1)
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1,"strategy_name": 1}).limit(1)
         df = pd.DataFrame()
-        percentage = list()
-        name = list()
-        strategy = list()
-        for x in data:
-            percentage.append(x["Composite"])
-            name.append(list(x["Composite"].keys()))
-            strategy.append(x["strategy_name"])
+        for x in cursor:
+            percentage = list(x["Composite"].values())
+            ETF = list(x["Composite"].keys())
+            strategy= x["strategy_name"]
         df["weight"] = percentage
-        df["ETF_ticker, ETF_name"] = name
+        df["ETF_ticker, ETF_name"] = ETF
         df["strategy_name"] = strategy
         json_data = self.convert_df_to_json(df)
         print(json_data)
@@ -253,13 +250,13 @@ class Api_Mongodb_2:
 
 def main():
     a = Api_Mongodb_2()
-    a.indv_algo_3b()
-    a.indv_algo_3d()
-    a.indv_algo_3e()
-    a.indv_algo_3f()
+    # a.indv_algo_3b()
+    # a.indv_algo_3d()
+    # a.indv_algo_3e()
+    # a.indv_algo_3f()
     a.all_algo_4a()
     a.all_algo_4b()
-    a.all_algo_4c()
+    # a.all_algo_4c()
 
 
 if __name__ == "__main__":
