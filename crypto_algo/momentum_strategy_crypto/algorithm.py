@@ -1,5 +1,5 @@
 import pandas as pd
-import crypto_algo
+from object.action_data import BinanceAction, BinanceActionsTuple
 
 
 class momentum_strategy:
@@ -22,9 +22,8 @@ class momentum_strategy:
             for ticker, pct_change in df_largest.iteritems():
                 # TODO: buggy: should loop thru portfolio instead
                 if self.portfolio_agent.acc_data.check_if_ticker_exist_in_portfolio(ticker):
-                    action = crypto_algo.momentum_strategy_crypto.backtest.Action.CLOSE_POSITION
-                    actions_tup = crypto_algo.momentum_strategy_crypto.backtest.ActionsTuple(timestamp + 86400, action,
-                                                                                             {'ticker': ticker})
+                    actions_tup = BinanceActionsTuple(timestamp + 86400, BinanceAction.CLOSE_POSITION,
+                                                      {'ticker': ticker})
 
             for ticker, pct_change in df_largest.iteritems():
                 cash = self.portfolio_agent.get_overview().get('funding')
@@ -37,14 +36,11 @@ class momentum_strategy:
 
                 # metadata isn't available at this stage
                 # will be accommodated later
-                action = crypto_algo.momentum_strategy_crypto.backtest.Action.BUY_MKT_ORDER
-                actions_tup = crypto_algo.momentum_strategy_crypto.backtest.ActionsTuple(timestamp + 86400, action,
-                                                                                         {'ticker': ticker,
-                                                                                          'position_purchase':
-                                                                                              qty_to_buy})
+                action = BinanceAction.BUY_MKT_ORDER
+                actions_tup = BinanceActionsTuple(timestamp + 86400, BinanceAction.BUY_MKT_ORDER,
+                                                  {'ticker': ticker, 'position_purchase': qty_to_buy})
         else:  # all non-positive, empty all position and won't buy
-            action = crypto_algo.momentum_strategy_crypto.backtest.Action.CLOSE_ALL
-            actions_tup = crypto_algo.momentum_strategy_crypto.backtest.ActionsTuple(timestamp + 86400, action, None)
+            actions_tup = BinanceActionsTuple(timestamp + 86400, BinanceAction.CLOSE_ALL, None)
 
         if actions_tup is not None:
             pending_action_list.append(actions_tup)

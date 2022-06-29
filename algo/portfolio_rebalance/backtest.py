@@ -370,18 +370,18 @@ class backtest(object):
         #execute action msgs
         action_record = []
         for action_msg in action_msgs:
-            action = action_msg.__getattr__(action_enum)
+            action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
-                temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg[2].get("ticker"),
-                                                                            action_msg[2].get("position_sell"),
-                                                                            {"timestamp": action_msg[0]})
+                temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
+                                                                            action_msg.args_dict.get("position_sell"),
+                                                                            {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         for action_msg in action_msgs:
-            action = action_msg[1]
+            action = action_msg.action_enum
             if action == IBAction.BUY_MKT_ORDER:
-                temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg[2].get("ticker"),
-                                                                           action_msg[2].get("position_purchase"),
-                                                                           {"timestamp": action_msg[0]})
+                temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
+                                                                           action_msg.args_dict.get("position_purchase"),
+                                                                           {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
                                         stock_data_dict)

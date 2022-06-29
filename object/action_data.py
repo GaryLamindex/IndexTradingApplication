@@ -1,23 +1,18 @@
 from enum import Enum
 
 
-class IBAction(Enum):
-    # market order
-    BUY_MKT_ORDER = 1
-    SELL_MKT_ORDER = 2
-    CLOSE_POSITION = 3
-    CLOSE_ALL = 4
+class ActionMessage:
+    def __init__(self):
+        pass
 
-    # limit order
-    BUY_LMT_ORDER = 5
-    SELL_LMT_ORDER = 6
+    def __getattr__(self, item):
+        return self.__dict__[item]
 
-class IBActionState(Enum):
-    FAIL = 0
-    SUCCESS = 1
+    def __getdict__(self):
+        return self.__dict__
 
 
-class IBActionsTuple:
+class ActionTuple:
     def __init__(self, timestamp, action_enum, args_dict):
         self.timestamp = timestamp
         self.action_enum = action_enum
@@ -31,17 +26,34 @@ class IBActionsTuple:
 
     def __getattr__(self, item):
         return self.__dict__[item]
-    #
-    # def __getitem__(self, item):
-    #     if item == 0:
-    #         return self.timestamp
-    #     elif item == 1:
-    #         return self.action_enum
-    #     elif item == 2:
-    #         return self.args_dict
 
-class IBActionMessage:
-    def __init__(self, state, timestamp, orderId, ticker, action, lmtPrice, totalQuantity, avgPrice, exchange, commission):
+
+class IBAction(Enum):
+    # market order
+    BUY_MKT_ORDER = 1
+    SELL_MKT_ORDER = 2
+    CLOSE_POSITION = 3
+    CLOSE_ALL = 4
+
+    # limit order
+    BUY_LMT_ORDER = 5
+    SELL_LMT_ORDER = 6
+
+
+class IBActionState(Enum):
+    FAIL = 0
+    SUCCESS = 1
+
+
+class IBActionsTuple(ActionTuple):
+    def __init__(self, timestamp, action_enum, args_dict):
+        super().__init__(timestamp, action_enum, args_dict)
+
+
+class IBActionMessage(ActionMessage):
+    def __init__(self, state, timestamp, orderId, ticker, action, lmtPrice, totalQuantity, avgPrice, exchange,
+                 commission):
+        super().__init__()
         self.state = state
         self.timestamp = timestamp
         self.ticker = ticker
@@ -53,11 +65,10 @@ class IBActionMessage:
         self.orderId = orderId
         self.lmtPrice = lmtPrice
 
-    def __getattr__(self, item):
-        return self.__dict__[item]
 
-class BinanceActionMessage:
-    def __init__(self, timestamp, ticker, side, price,quantity, realized_profit, action):
+class BinanceActionMessage(ActionMessage):
+    def __init__(self, timestamp, ticker, side, price, quantity, realized_profit, action):
+        super().__init__()
         self.timestamp = timestamp
         self.ticker = ticker
         self.side = side
@@ -66,12 +77,25 @@ class BinanceActionMessage:
         self.realized_profit = realized_profit
         self.action = action
 
-    def __getattr__(self, item):
-        return self.__dict__[item]
 
 class BinanceAction(Enum):
-    SELL = 0
-    BUY = 1
+    # market order
+    BUY_MKT_ORDER = 1
+    SELL_MKT_ORDER = 2
+    CLOSE_POSITION = 3
+    CLOSE_ALL = 4
+
+    # limit order
+    BUY_LMT_ORDER = 5
+    SELL_LMT_ORDER = 6
+
+
 class BinanceActionState(Enum):
     REJECTED = 0
     FILLED = 1
+
+
+class BinanceActionsTuple(ActionTuple):
+    def __init__(self, timestamp, action_enum, args_dict):
+        super().__init__(timestamp, action_enum, args_dict)
+

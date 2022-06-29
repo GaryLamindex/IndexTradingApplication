@@ -181,14 +181,18 @@ class ibkr_stock_data_io_engine:
     # e.g. {"QQQ":[{timestamp, ohlc},{timestamp, ohlc}],"SPY"[{timestamp, ohlc},{timestamp, ohlc}]...}
     @connection_handler
     def get_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
+        a = True
+        b = True
         file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
         if file_exist:  # if file already exist, check which date does the file updated to
-            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
-            old_df = old_df.sort_values(by=['timestamp'])
-            update_date = old_df["timestamp"].iloc[-1]
-        first_row = self.get_first_row_of_data(ticker)
-        if first_row is not None:
-            end_timestamp = first_row['timestamp']
+            a = False
+            check_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+            check_df = check_df.drop_duplicates().sort_values(by=['timestamp'])
+            update_date = check_df["timestamp"].iloc[-1]
+            check_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
+        # first_row = self.get_first_row_of_data(ticker)
+        # if first_row is not None:
+        #     end_timestamp = first_row['timestamp']
 
         # historical_data = []
         current_end_timestamp = end_timestamp
@@ -216,31 +220,70 @@ class ibkr_stock_data_io_engine:
             current_data_df = util.df(current_data)
             current_data_df['timestamp'] = current_data_df[['date']].apply(
                 lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
-            if file_exist:
+            if not a:
                 if current_data_df["timestamp"].iloc[0] <= update_date:
+                    current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+                                           header=False)  # write the current data with header
                     break
+            elif b:
+                current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='w', index=False,
+                                       header=True)  # write the current data with header
+                b = False
+                continue
             current_end_timestamp = front_timestamp
             # sleep(10) # wait to fetch another batch of data
             self.ib_instance.sleep(0)  # refresh the ib instance
             # adding a column of timestamp
             # write to csv
             current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
-                                   header=True)  # write the current data with header
-            print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
+                                   header=False)  # write the current data with header
 
-        current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
-                                                       regular_trading_hour)
-        current_data_df = util.df(current_data)
-        current_data_df['timestamp'] = current_data_df[['date']].apply(
-            lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
-        current_data_df = current_data_df.loc[current_data_df["timestamp"] >= start_timestamp]
         old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
-        current_data_df = pd.concat(current_data_df, old_df).drop_duplicates().sort_values(by=['timestamp'])
-        current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
-
+        old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
+        old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
+        old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
+        if old_df["timestamp"].iloc[0] != start_timestamp:
+            timestamp = old_df["timestamp"].iloc[0]
+            print(f"start fetching data from {int(start_timestamp)} to {int (timestamp)}")
+            self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0],  ticker, '1 min', False)
+        print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
         # adding a column of timestamp
         # historical_data['timestamp'] = historical_data[['date']].apply(lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
         # list(map(lambda x: {"date":x.date,"timestamp":x.date.replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(),"open":x.open,"high":x.high,"low":x.low,"close":x.close,"volume":x.volume,"average":x.average,"barCount":x.barCount},historical_data[ticker]))
+
+    def get_data_by_range(self, start_timestamp, end_timestamp,  ticker, bar_size, regular_trading_hour):
+        current_end_timestamp = end_timestamp
+
+
+        connect_tws(self.ib_instance)
+        while current_end_timestamp > start_timestamp:
+            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
+                                                           regular_trading_hour)
+
+            if len(current_data) == 0:
+                current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
+                                                               regular_trading_hour)
+            if len(current_data) == 0:
+                if self.grab_data_retry_attempt <= 5:
+                    self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
+                    continue
+                else:
+                    self.grab_data_retry_attempt = 0
+                    break
+            front_timestamp = current_data[0].date.timestamp()
+            print(f"Fetched three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
+            current_data_df = util.df(current_data)
+            current_data_df['timestamp'] = current_data_df[['date']].apply(
+                lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
+            current_end_timestamp = front_timestamp
+            self.ib_instance.sleep(0)
+            current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+                                   header=False)
+        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
+        old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
+        old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
+
 
     def get_etf_list(self):
         return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
