@@ -79,10 +79,10 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-    def indv_algo_3f(self):
+    def indv_algo_3f(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({}, {"_id": 0, "Since Inception Return": 1, "1 Yr Rolling Return": 1, "2 Yr Rolling Return": 1,
+        data = col.find({"strategy_name": strategy_name}, {"_id": 0, "Since Inception Return": 1, "1 Yr Rolling Return": 1, "2 Yr Rolling Return": 1,
                              "3 Yr Rolling Return": 1, "5 Yr Rolling Return": 1, "7 Yr Rolling Return": 1,
                              "10 Yr Rolling Return": 1, "15 Yr Rolling Return": 1,
                              "20 Yr Rolling Return": 1}).sort("_id", 1)
@@ -198,10 +198,10 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-    def all_algo_4a(self):
+    def all_algo_4a(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({}, {"_id": 0, "Composite": 1}).sort("_id", 1)
+        data = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1}).sort("_id", 1)
         df = pd.DataFrame()
         percentage = list()
         name = list()
@@ -214,10 +214,10 @@ class Api_Mongodb_2:
         print(json_data)
         return json_data
 
-    def all_algo_4b(self):
+    def all_algo_4b(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({}, {"_id": 0, "Composite": 1, "strategy_name": 1}).sort("_id", 1)
+        data = col.find({"strategy_name": strategy_name}, {"_id": 0, "Composite": 1, "strategy_name": 1}).sort("_id", 1)
         df = pd.DataFrame()
         percentage = list()
         name = list()
@@ -236,10 +236,10 @@ class Api_Mongodb_2:
     def isNaN(self, string):
         return string != string
 
-    def all_algo_4c(self):
+    def all_algo_4c(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        data = col.find({}, {"_id": 0, "1 Yr Return": 1, "3 Yr Return": 1, "5 Yr Return": 1, "YTD Return": 1,
+        data = col.find({"strategy_name": strategy_name}, {"_id": 0, "1 Yr Return": 1, "3 Yr Return": 1, "5 Yr Return": 1, "YTD Return": 1,
                              "Since Inception Return": 1, "1 Yr adj return": 1, "3 Yr adj return": 1,
                              "5 Yr adj return": 1}).sort("_id", 1)
         json_data = dumps(data)
