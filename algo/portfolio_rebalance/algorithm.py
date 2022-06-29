@@ -9,7 +9,7 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from object.action_data import Action, ActionsTuple
+from object.action_data import IBAction, IBActionsTuple
 
 
 class portfolio_rebalance:
@@ -85,12 +85,12 @@ class portfolio_rebalance:
             self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
         #realtime_stock_data_dict["timestamp"] = timestamp
         for ticker in self.sell_list:
-            action_msg = ActionsTuple(timestamp, Action.SELL_MKT_ORDER,
+            action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
                                       {'ticker': ticker[0], 'position_sell': ticker[1]})
             # action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
         for ticker in self.buy_list:
-            action_msg = ActionsTuple(timestamp, Action.BUY_MKT_ORDER,
+            action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
                                       {'ticker': ticker[0], 'position_purchase': ticker[1]})
             # action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)

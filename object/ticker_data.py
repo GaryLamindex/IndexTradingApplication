@@ -20,3 +20,6 @@ class IBTickerData:
     def __setitem__(self, key, value):
         self.__dict__[key] = value
 
+    # def get_dict(self):
+    #     return self.__dict__
+

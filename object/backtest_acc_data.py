@@ -1668,7 +1668,128 @@ class backtest_acc_data(object):
         _msft = {'ticker': 'MSFT', 'initMarginReq': 0.1696, 'maintMarginReq': 0.1542}
         _xhyd = {'ticker': 'XHYD', 'initMarginReq': 0.2788, 'maintMarginReq': 0.2535}
 
-        self.margin_info = [_m,_msft,_3188, _spy, _ivv, _vti, _voo, _qqq, _vtv, _agg, _bnd, _vug, _ijr, _vig, _ijh, _iwf, _iwd, _iwm, _vo, _vym, _xle, _vgt, _vb, _vnq, _xlk, _itot, _bsv, _xlv, _schd, _xlf, _lqd, _rsp, _tip, _ivw, _schx, _iwr, _mub, _dia, _iwb, _usmv, _vv, _ive, _shy, _vbr, _dvy, _dgro, _esgu, _sdy, _igsb, _qual, _vtip, _mbb, _schb, _tlt, _mdy, _jpst, _shv, _ief, _govt, _iusb, _bil, _voe, _xlu, _vteb, _pff, _xly, _schp, _vht, _xlp, _vgsh, _dfac, _vmbs, _scha, _schg, _xli, _splg, _iws, _vxf, _tqqq, _spyv, _hdv, _hyg, _iwn, _vbk, _spyg, _fvd, _stip, _biv, _iwp, _gslc, _iusv, _iusg, _mgk, _iwv, _mtum, _fndx, _iei, _splv, _nobl, _vlue, _xlc, _jepi, _schv, _vot, _iwo, _vfh, _vde, _schm, _vgit, _rdvy, _ijs, _arkk, _scho, _spyd, _sub, _jnk, _ftcs, _oef, _smh, _soxx, _xlb, _ushy, _ijj, _schz, _schr, _spsb, _ibb, _amlp, _dfat, _iyw, _ihi, _ijk, _fpe, _vong, _voog, _qyld, _moat, _cowz, _vonv, _usig, _dgrw, _vdc, _icsh, _schh, _spab, _xbi, _vpu, _fnda, _esgv, _xop, _prf, _usfr, _vtwo, _mgv, _pgx, _ftec, _dfus, _spib, _sptm, _istb, _cibr, _xlre, _sptl, _lmbs, _ijt, _shyg, _spmd, _bkln, _shm, _vcr, _iyr, _fdn, _igv, _ftsm, _iwy, _pave, _near, _spsm, _hylb, _vclt, _dfas, _blv, _qqqm, _slyv, _sphd, _cwb, _fixd, _rpv, _spmb, _tfi, _ewu, _sjnk, _oneq, _igm, _oih, _skyy, _dsi, _ita, _mgc, _kre, _sphq, _ftsl, _vaw, _avuv, _qld, _spti, _vglt, _vis, _susa, _ioo, _ixj, _ixn, _angl, _spts, _dln, _sso, _iye, _bond, _sqqq, _hyd, _susl, _don, _xt, _vox, _reet, _fdl, _xme, _jets, _faln, _voov, _sgov, _bsco, _ussg, _spip, _nrgu, _iyh, _fhlc, _vone, _amj, _emlp, _vusb, _icf, _upro, _spxl, _kbe, _vnla, _ryt, _jhmm, _arkg, _gvi, _sh, _slqd, _rpg, _totl, _pbus, _gbil, _fas, _dfau, _avus, _tlh, _usrt, _slyg, _schk, _iyf, _qcln, _omfl, _tdtt, _kbwb, _pffd, _xlg, _fmb, _icvt, _fxz, _bscm, _fxn, _pza, _aor, _futy, _rwr, _eagg, _cdc, _vrp, _prfz, _tecl, _ptlc, _qtec, _ifra, _cmf, _des, _bab, _hys, _feny, _hymb, _frel, _iev, _itm, _tdiv, _vioo, _hyls, _sly, _fez, _iyg, _hack, _uup, _komp, _ewg, _ilcg, _pho, _xyld, _qdf, _fxr, _ibdo, _fncl, _aom, _ibdp, _stpz, _arkw, _ivol, _mdyg, _iyy, _mdyv, _ihf, _bbmc, _tilt, _iwx, _itb, _bscp, _esml, _ibdn, _iglb, _usmc, _divo, _tipx, _nulv, _ewl, _ivoo, _hndl, _rwl, _tbt, _fxh, _ldur, _ftxn, _xar, _eufn, _iyk, _iyj, _lctu, _ppa, _pgf, _pej, _pkw, _mlpa, _tna, _ksa, _sdog, _pey, _tflo, _fbt, _viov, _fxo, _ryld, _fdvv, _srvr, _pdp, _spyx, _lqdh, _gush, _fta, _arkq, _uitb, _xmlv, _dhs, _ibdq, _bbre, _fiw, _qlta, _ige, _vthr, _fxl, _bug, _ieo, _edv, _fpx, _fdis, _sds, _xsd, _fex, _psq, _xhb, _lrgf, _bbus, _regl, _iyt, _fcg, _dtd, _hydw, _psk, _fsta, _imcg, _mlpx, _qqew, _pbw, _idu, _bscq, _aggy, _flql, _nusc, _smlf, _pfxf, _htrb, _fnx, _kxi, _iwc, _ibdr, _rez, _sect, _cfo, _iat, _calf, _iwl, _spgp, _ftc, _sdvy, _xmmo, _susc, _uvxy, _vtwv, _aok, _ryh, _hygv, _drsk, _qus, _gto, _smdv, _qqqj, _fyx, _ftxg, _rem, _vfva, _rdiv, _rwj, _phb, _oney, _ivov, _eusb, _pwv, _nulg, _erx, _ilcb, _tdtf, _ilcv, _snpe, _imcb, _muni, _labu, _ezm, _jhml, _ousa, _fngu, _ntsx, _iyc, _xslv, _jmbs, _pcef, _ewq, _cltl, _eqal, _qvml, _dstl, _smmv, _dial, _ibds, _ivog, _qai, _ptbd, _ipay, _qqqe, _spxu, _fidu, _div, _rye, _cmbs, _xsvm, _pfm, _clou, _altl, _fxg, _wcld, _bsjn, _ptnq, _sphy, _bsjm, _psc, _nusi, _vrig, _udow, _gsew, _gigb, _ighg, _uyg, _lglv, _eps, _ltpz, _krma, _aces, _tbf, _fdrr, _psi, _agz, _lvhd, _sphb, _ees, _jval, _gsus, _vtwg, _xtn, _pwb, _bizd, _corp, _tpyp, _splb, _fcom, _rhs, _cfa, _usxf, _onev, _tmv, _pwz, _syld, _ihak, _pjan, _vtc, _cath, _ewd, _pnqi, _pffa, _rtm, _rom, _fmat, _mna, _smmu, _vxx, _nyf, _jpus, _dbeu, _kng, _fval, _bbsc, _viog, _imcv, _ftls, _ewp, _spxs, _vuse, _bsjo, _spd, _ryf, _bklc, _mdiv, _csm, _efiv, _plw, _swan, _gsst, _ibdt, _kie, _fxd, _mj, _ssus, _aivl, _acio, _bscr, _ptmc, _pmay, _cape, _tail, _fndb, _rwm, _xntk, _iai, _bufd, _svxy, _bbh, _ihe, _gssc, _eusa, _kbwd, _fdlo, _ibmk, _tmfc, _iqsu, _smmd, _zroz, _ibml, _gbf, _shyd, _fctr, _xhe, _ttt, _psct, _schi, _iez, _iyz, _flgv, _ryu, _rous, _fxu, _dwas, _qdef, _ddm, _iscv, _rgi, _ig, _tza, _pxe, _qid, _jqua, _xes, _sfy, _bsjp, _agzd, _smb, _size, _rwk, _jhsc, _ulst, _schj, _ustb, _adme, _eza, _ibmm, _avlv, _pref, _vbnd, _sret, _mear, _vote, _xrt, _spdn, _sdow, _gnma, _yyy, _dusa, _amza, _ujan, _psch, _numg, _mmin, _iscg, _sjb, _clsc, _numv, _xmhq, _onln, _ftsd, _soxs, _papr, _tecb, _iak, _pjp, _inds, _ffeb, _rzv, _kbwy, _vixy, _vceb, _clrg, _usdu, _pxi, _fmhi, _cdl, _ccor, _bkag, _nuag, _rcd, _tmf, _dfeb, _oneo, _dfnm, _vsda, _pbj, _ulvm, _fcpi, _lgh, _pfix, _fny, _csb, _rfg, _bibl, _sixh, _def, _dpst, _pio, _bulz, _hmop, _usvm, _pfeb, _qqh, _fsmb, _just, _dfe, _ldsf, _mmit, _divb, _fqal, _urty, _ovl, _govz, _ftxo, _gal, _ibuy, _pjun, _ibmn, _dog, _jpme, _bscs, _xmvm, _nubd, _vlu, _fvc, _ibdu, _fdd, _dig, _tur, _mlpb, _pmar, _skor, _pth, _fyt, _py, _usd, _fnk, _jmom, _psep, _fapr, _tchp, _xsw, _eql, _iltb, _poct, _palc, _mstb, _taxf, _psj, _fumb, _atmp, _qval, _dgrs, _fdec, _dbmf, _cgcp, _ixp, _ibd, _flv, _valq, _xlsr, _prnt, _she, _djd, _dapr, _pdec, _jpse, _pbe, _fri, _flbl, _usmf, _dfen, _mln, _cza, _qgro, _hyzd, _mort, _tdsb, _iscb, _xvv, _ptf, _fmar, _cure, _fyc, _yld, _dfip, _ibte, _psce, _csml, _vfmo, _pnov, _bjan, _must, _spff, _smlv, _tipz, _deed, _psp, _fcvt, _fab, _oscv, _qvmm, _tbx, _airr, _fad, _igbh, _xph, _nail, _idna, _vfqy, _slvo, _dfnl, _esg, _pyz, _uwm, _tphd, _epol, _wfhy, _ttac, _lrge, _emnt, _umi, _ddec, _gnom, _spvu, _bmay, _tok, _ausf, _ibmo, _tplc, _paug, _edoc, _pffv, _jsmd, _cacg, _pawz, _hlal, _qlv, _fjan, _hegd, _hybb, _etho, _ghyb, _hygh, _sixa, _pjul, _gtip, _dali, _xmpt, _ousm, _sval, _fdm, _foct, _omfs, _rth, _xsmo, _pfld, _lsat, _dmar, _deus, _igeb, _ibtd, _bndc, _aiq, _btal, _hyxf, _vfmf, _gvip, _eprf, _ffty, _faz, _rfv, _spus, _eden, _fjul, _srty, _vsmv, _korp, _wtmf, _sixl, _xitk, _ewre, _vrai, _lsaf, _rvnu, _kbwp, _jmub, _ibdv, _bfor, _tdvg, _ppty, _pkb, _ftxr, _hyhg, _psr, _imtb, _fmf, _hdge, _bsep, _stot, _fdg, _pst, _doct, _qlc, _prn, _pbtp, _pifi, _esga, _ius, _edow, _fllv, _bsct, _rigs, _ocio, _fsep, _ieus, _pbp, _mvv, _psl, _fbgx, _aieq, _afif, _hydb, _aesr, _nure, _ffti, _ryj, _hybl, _ewmc, _miln, _eqwl, _bapr, _fcal, _balt, _twm, _bfeb, _tecs, _cvy, _ibhc, _norw, _htec, _ismd, _njan, _sqew, _shag, _baug, _risr, _rxl, _ibmp, _risn, _rfda, _qqxt, _buff, _svol, _fbcv, _fngo, _eqrr, _rzg, _qqqn, _ibnd, _pzt, _hknd, _psff, _tdv, _fdmo, _netl, _bkmc, _ietc, _fisr, _chgx, _mbsd, _flmb, _ucrd, _kce, _ign, _pwc, _dxd, _dsep, _utrn, _ghyg, _putw, _qaba, _webl, _inkm, _dvol, _ure, _spbc, _xout, _bjul, _ibtg, _amub, _gmom, _boct, _sbio, _sspy, _nuhy, _qmom, _mfus, _drip, _dwaw, _phyl, _husv, _joet, _flmi, _bib, _xhs, _bndd, _hyld, _fngd, _owns, _schq, _dfnv, _teqi, _xvol, _minc, _jsml, _bdec, _bmar, _ftxl, _spmo, _cefs, _ibhb, _vixm, _shyl, _qdec, _fibr, _dwus, _cya, _byld, _hsrt, _smig, _amna, _azbj, _kbwr, _htab, _fsz, _bjun, _ibmq, _ddiv, _onof, _drn, _bnku, _psci, _mmtm, _ufo, _szne, _djul, _ibtf, _pui, _ibtk, _ibdw, _arb, _fku, _uapr, _rfci, _xjh, _pxj, _ewo, _ibtb, _fsmd, _dynf, _ibhd, _armr, _csf, _labd, _bils, _buzz, _dalt, _pffr, _bsmm, _bnov, _dew, _hips, _bscu, _resp, _mrgr, _eudg, _spdv, _acsi, _spyc, _ffiu, _ibdd, _wbiy, _hibl, _jdiv, _mmlg, _ovb, _tple, _evx, _mgmt, _dura, _vegn, _uym, _rinf, _noct, _usep, _azaj, _umay, _bitq, _sixs, _napr, _trnd, _ewus, _pvi, _soxq, _vfmv, _spvm, _amtr, _iigd, _uoct, _bsmo, _iuss, _tphe, _csd, _bkch, _bsmp, _qdiv, _flqm, _ewsc, _ovt, _tyo, _bsmn, _qylg, _recs, _bkse, _xtl, _midu, _sent, _vxz, _lqdb, _drv, _ifed, _fngs, _xrlv, _btec, _qdpl, _lbay, _njul, _retl, _tpsc, _bdcz, _guru, _wfh, _qmar, _utes, _jhmt, _romo, _dblv, _spuu, _pfi, _arcm, _wiz, _sfyx, _sbnd, _fthi, _pset, _qpx, _qvms, _vamo, _lead, _umar, _hdg, _deep, _dweq, _udec, _ufeb, _mmca, _koct, _lkor, _ery, _pscc, _nrgd, _homz, _oeur, _pteu, _vflq, _hewg, _bsjr, _java, _feig, _wbif, _pab, _bkhy, _hyrm, _zig, _aqgx, _shus, _pxq, _udn, _sfig, _azbo, _igld, _mino, _pscf, _jhms, _ibhe, _enor, _wbii, _wfig, _mbox, _jhmh, _lsst, _azao, _obnd, _wbig, _vega, _tagg, _pink, _tgrw, _jhme, _tya, _pbnd, _pbs, _stnc, _nacp, _bsmq, _ibth, _iehs, _pbsm, _tbux, _alty, _ihyf, _tdsa, _roof, _sims, _sspx, _tpor, _mtgp, _scdl, _teng, _pamc, _hold, _rffc, _lfeq, _ieih, _ciz, _ubt, _xylg, _tctl, _ujul, _fevr, _mbnd, _klcd, _rrh, _jib, _fftg, _ewco, _bsce, _nusa, _lgov, _pfig, _saa, _dfhy, _fhys, _scrd, _pws, _mvrl, _entr, _gfgf, _pez, _ffsg, _ibce, _iwdl, _avmu, _womn, _pval, _acvf, _ffhg, _vpc, _umdd, _aspy, _sihy, _dug, _dbv, _esgs, _qjun, _rafe, _revs, _iigv, _idiv, _fedl, _ewgs, _fcef, _uaug, _mlpo, _fite, _jmin, _cws, _thy, _usml, _xshq, _pscd, _frty, _tgif, _kvle, _marb, _nflt, _srs, _ujun, _qspt, _germ, _fovl, _xshd, _qull, _sxqg, _dfnd, _xweb, _xjr, _bkui, _cdx, _want, _glry, _rwvg, _dvlu, _rosc, _nulc, _clse, _dxge, _spxe, _jusa, _qcon, _dusl, _cpi, _rdog, _sepz, _kcca, _rnsc, _ovlh, _jhmf, _jhmb, _csa, _alfa, _htus, _rbnd, _utsl, _fcsh, _wbit, _pscu, _xbap, _egis, _inmu, _hlge, _fgm, _ibhf, _kscd, _riet, _spax, _pype, _snug, _smcp, _hymu, _bscv, _upw, _jctr, _ibbq, _rnlc, _sogu, _clix, _iwfl, _tspa, _spmv, _qqd, _pscm, _eshy, _xrmi, _bsmr, _ftxh, _bsms, _qdyn, _jhmu, _erm, _rek, _ylde, _qls, _psmm, _esus, _efnl, _ecln, _bsjs, _azbl, _totr, _ewk, _mnm, _ujb, _rokt, _reit, _spxb, _rndv, _oppx, _sdei, _lrnz, _hylv, _ssly, _demz, _jhma, _sqlv, _clds, _hewu, _gsig, _iwml, _qqqa, _bsmt, _rnmc, _eaok, _ftds, _dboc, _jhcb, _sef, _tyd, _psmj, _ibti, _rtai, _gk, _mtul, _fehy, _usbf, _adfi, _uxi, _ust, _bout, _iedi, _xpnd, _ibtj, _iecs, _elqd, _psmo, _dbeh, _psmr, _sfyf, _hyup, _feus, _minn, _maga, _lyfe, _hsmv, _skf, _jhpi, _jhpi, _spak, _bbc, _amom, _augz, _xbjl, _vabs, _flqs, _jhcs, _qmn, _plrg, _pill, _xtjl, _flrg, _qtjl, _rew, _gldb, _ovm, _jhmc, _pex, _psmc, _imlp, _ftqi, _avsc, _ucc, _pscw, _zecp, _smi, _jhmi, _bbp, _julz, _bsmu, _lopp, _mig, _bsmv, _psfm, _bnkd, _myy, _tmdv, _xjun, _azal, _qarp, _dbja, _mide, _fsig, _ibhg, _ieme, _bis, _spuc, _tsja, _qrmi, _qrft, _fmny, _roro, _bsjt, _qtap, _dbgr, _spxn, _ffnd, _smle, _gbdv, _scc, _aaa, _boss, _psfj, _pgro, _spxt, _midf, _hytr, _heet, _bul, _smdy, _iefn, _dwpp, _eqop, _cldl, _tpay, _uslb, _dwmc, _xdsq, _tsoc, _berz, _bkus, _mbbb, _qed, _usi, _xdqq, _uge, _ovs, _dsoc, _xtap, _fltn, _bad, _vnmc, _lvol, _iqm, _indf, _decz, _ecoz, _ibtl, _rspy, _qqc, _syus, _bedz, _jojo, _cbse, _stlv, _rwgv, _smdd, _hval, _pfut, _sbb, _spxz, _xdap, _octz, _escr, _hyin, _esgy, _eaom, _aprz, _mid, _pldr, _ivlc, _psfo, _pltl, _nvq, _sdga, _fsst, _nscs, _marz, _virs, _jre, _pscq, _hdiv, _ssg, _tfjl, _tbjl, _cbls, _aflg, _itan, _pscj, _xdjl, _nwlg, _usvt, _mayz, _janz, _dsja, _sdd, _amer, _rec, _wwow, _pexl, _trdf, _qclr, _spxv, _wil, _xclr, _vsl, _dwat, _junz, _cfcv, _lopx, _fldz, _nife, _jfwd, _febz, _rxd, _fedx, _gblo, _wgro, _ooto, _xtr, _mjus, _maax, _fivr, _ggrw, _mzz, _useq, _rodi, _afsm, _weix, _afmc, _szk, _liv, _smn, _sij, _sdp, _qtr, _ltl, _skyu, _trpl, _stlg, _eeh, _hhh, _aggh, _dspc, _gbgr, _epre, _ailv, _ailg, _xhyc, _xhyh, _xhyt, _xhyd]
+        self.margin_info = [_m, _msft, _3188, _spy, _ivv, _vti, _voo, _qqq, _vtv, _agg, _bnd, _vug, _ijr, _vig, _ijh,
+                            _iwf, _iwd, _iwm, _vo, _vym, _xle, _vgt, _vb, _vnq, _xlk, _itot, _bsv, _xlv, _schd, _xlf,
+                            _lqd, _rsp, _tip, _ivw, _schx, _iwr, _mub, _dia, _iwb, _usmv, _vv, _ive, _shy, _vbr, _dvy,
+                            _dgro, _esgu, _sdy, _igsb, _qual, _vtip, _mbb, _schb, _tlt, _mdy, _jpst, _shv, _ief, _govt,
+                            _iusb, _bil, _voe, _xlu, _vteb, _pff, _xly, _schp, _vht, _xlp, _vgsh, _dfac, _vmbs, _scha,
+                            _schg, _xli, _splg, _iws, _vxf, _tqqq, _spyv, _hdv, _hyg, _iwn, _vbk, _spyg, _fvd, _stip,
+                            _biv, _iwp, _gslc, _iusv, _iusg, _mgk, _iwv, _mtum, _fndx, _iei, _splv, _nobl, _vlue, _xlc,
+                            _jepi, _schv, _vot, _iwo, _vfh, _vde, _schm, _vgit, _rdvy, _ijs, _arkk, _scho, _spyd, _sub,
+                            _jnk, _ftcs, _oef, _smh, _soxx, _xlb, _ushy, _ijj, _schz, _schr, _spsb, _ibb, _amlp, _dfat,
+                            _iyw, _ihi, _ijk, _fpe, _vong, _voog, _qyld, _moat, _cowz, _vonv, _usig, _dgrw, _vdc, _icsh,
+                            _schh, _spab, _xbi, _vpu, _fnda, _esgv, _xop, _prf, _usfr, _vtwo, _mgv, _pgx, _ftec, _dfus,
+                            _spib, _sptm, _istb, _cibr, _xlre, _sptl, _lmbs, _ijt, _shyg, _spmd, _bkln, _shm, _vcr,
+                            _iyr, _fdn, _igv, _ftsm, _iwy, _pave, _near, _spsm, _hylb, _vclt, _dfas, _blv, _qqqm, _slyv,
+                            _sphd, _cwb, _fixd, _rpv, _spmb, _tfi, _ewu, _sjnk, _oneq, _igm, _oih, _skyy, _dsi, _ita,
+                            _mgc, _kre, _sphq, _ftsl, _vaw, _avuv, _qld, _spti, _vglt, _vis, _susa, _ioo, _ixj, _ixn,
+                            _angl, _spts, _dln, _sso, _iye, _bond, _sqqq, _hyd, _susl, _don, _xt, _vox, _reet, _fdl,
+                            _xme, _jets, _faln, _voov, _sgov, _bsco, _ussg, _spip, _nrgu, _iyh, _fhlc, _vone, _amj,
+                            _emlp, _vusb, _icf, _upro, _spxl, _kbe, _vnla, _ryt, _jhmm, _arkg, _gvi, _sh, _slqd, _rpg,
+                            _totl, _pbus, _gbil, _fas, _dfau, _avus, _tlh, _usrt, _slyg, _schk, _iyf, _qcln, _omfl,
+                            _tdtt, _kbwb, _pffd, _xlg, _fmb, _icvt, _fxz, _bscm, _fxn, _pza, _aor, _futy, _rwr, _eagg,
+                            _cdc, _vrp, _prfz, _tecl, _ptlc, _qtec, _ifra, _cmf, _des, _bab, _hys, _feny, _hymb, _frel,
+                            _iev, _itm, _tdiv, _vioo, _hyls, _sly, _fez, _iyg, _hack, _uup, _komp, _ewg, _ilcg, _pho,
+                            _xyld, _qdf, _fxr, _ibdo, _fncl, _aom, _ibdp, _stpz, _arkw, _ivol, _mdyg, _iyy, _mdyv, _ihf,
+                            _bbmc, _tilt, _iwx, _itb, _bscp, _esml, _ibdn, _iglb, _usmc, _divo, _tipx, _nulv, _ewl,
+                            _ivoo, _hndl, _rwl, _tbt, _fxh, _ldur, _ftxn, _xar, _eufn, _iyk, _iyj, _lctu, _ppa, _pgf,
+                            _pej, _pkw, _mlpa, _tna, _ksa, _sdog, _pey, _tflo, _fbt, _viov, _fxo, _ryld, _fdvv, _srvr,
+                            _pdp, _spyx, _lqdh, _gush, _fta, _arkq, _uitb, _xmlv, _dhs, _ibdq, _bbre, _fiw, _qlta, _ige,
+                            _vthr, _fxl, _bug, _ieo, _edv, _fpx, _fdis, _sds, _xsd, _fex, _psq, _xhb, _lrgf, _bbus,
+                            _regl, _iyt, _fcg, _dtd, _hydw, _psk, _fsta, _imcg, _mlpx, _qqew, _pbw, _idu, _bscq, _aggy,
+                            _flql, _nusc, _smlf, _pfxf, _htrb, _fnx, _kxi, _iwc, _ibdr, _rez, _sect, _cfo, _iat, _calf,
+                            _iwl, _spgp, _ftc, _sdvy, _xmmo, _susc, _uvxy, _vtwv, _aok, _ryh, _hygv, _drsk, _qus, _gto,
+                            _smdv, _qqqj, _fyx, _ftxg, _rem, _vfva, _rdiv, _rwj, _phb, _oney, _ivov, _eusb, _pwv, _nulg,
+                            _erx, _ilcb, _tdtf, _ilcv, _snpe, _imcb, _muni, _labu, _ezm, _jhml, _ousa, _fngu, _ntsx,
+                            _iyc, _xslv, _jmbs, _pcef, _ewq, _cltl, _eqal, _qvml, _dstl, _smmv, _dial, _ibds, _ivog,
+                            _qai, _ptbd, _ipay, _qqqe, _spxu, _fidu, _div, _rye, _cmbs, _xsvm, _pfm, _clou, _altl, _fxg,
+                            _wcld, _bsjn, _ptnq, _sphy, _bsjm, _psc, _nusi, _vrig, _udow, _gsew, _gigb, _ighg, _uyg,
+                            _lglv, _eps, _ltpz, _krma, _aces, _tbf, _fdrr, _psi, _agz, _lvhd, _sphb, _ees, _jval, _gsus,
+                            _vtwg, _xtn, _pwb, _bizd, _corp, _tpyp, _splb, _fcom, _rhs, _cfa, _usxf, _onev, _tmv, _pwz,
+                            _syld, _ihak, _pjan, _vtc, _cath, _ewd, _pnqi, _pffa, _rtm, _rom, _fmat, _mna, _smmu, _vxx,
+                            _nyf, _jpus, _dbeu, _kng, _fval, _bbsc, _viog, _imcv, _ftls, _ewp, _spxs, _vuse, _bsjo,
+                            _spd, _ryf, _bklc, _mdiv, _csm, _efiv, _plw, _swan, _gsst, _ibdt, _kie, _fxd, _mj, _ssus,
+                            _aivl, _acio, _bscr, _ptmc, _pmay, _cape, _tail, _fndb, _rwm, _xntk, _iai, _bufd, _svxy,
+                            _bbh, _ihe, _gssc, _eusa, _kbwd, _fdlo, _ibmk, _tmfc, _iqsu, _smmd, _zroz, _ibml, _gbf,
+                            _shyd, _fctr, _xhe, _ttt, _psct, _schi, _iez, _iyz, _flgv, _ryu, _rous, _fxu, _dwas, _qdef,
+                            _ddm, _iscv, _rgi, _ig, _tza, _pxe, _qid, _jqua, _xes, _sfy, _bsjp, _agzd, _smb, _size,
+                            _rwk, _jhsc, _ulst, _schj, _ustb, _adme, _eza, _ibmm, _avlv, _pref, _vbnd, _sret, _mear,
+                            _vote, _xrt, _spdn, _sdow, _gnma, _yyy, _dusa, _amza, _ujan, _psch, _numg, _mmin, _iscg,
+                            _sjb, _clsc, _numv, _xmhq, _onln, _ftsd, _soxs, _papr, _tecb, _iak, _pjp, _inds, _ffeb,
+                            _rzv, _kbwy, _vixy, _vceb, _clrg, _usdu, _pxi, _fmhi, _cdl, _ccor, _bkag, _nuag, _rcd, _tmf,
+                            _dfeb, _oneo, _dfnm, _vsda, _pbj, _ulvm, _fcpi, _lgh, _pfix, _fny, _csb, _rfg, _bibl, _sixh,
+                            _def, _dpst, _pio, _bulz, _hmop, _usvm, _pfeb, _qqh, _fsmb, _just, _dfe, _ldsf, _mmit,
+                            _divb, _fqal, _urty, _ovl, _govz, _ftxo, _gal, _ibuy, _pjun, _ibmn, _dog, _jpme, _bscs,
+                            _xmvm, _nubd, _vlu, _fvc, _ibdu, _fdd, _dig, _tur, _mlpb, _pmar, _skor, _pth, _fyt, _py,
+                            _usd, _fnk, _jmom, _psep, _fapr, _tchp, _xsw, _eql, _iltb, _poct, _palc, _mstb, _taxf, _psj,
+                            _fumb, _atmp, _qval, _dgrs, _fdec, _dbmf, _cgcp, _ixp, _ibd, _flv, _valq, _xlsr, _prnt,
+                            _she, _djd, _dapr, _pdec, _jpse, _pbe, _fri, _flbl, _usmf, _dfen, _mln, _cza, _qgro, _hyzd,
+                            _mort, _tdsb, _iscb, _xvv, _ptf, _fmar, _cure, _fyc, _yld, _dfip, _ibte, _psce, _csml,
+                            _vfmo, _pnov, _bjan, _must, _spff, _smlv, _tipz, _deed, _psp, _fcvt, _fab, _oscv, _qvmm,
+                            _tbx, _airr, _fad, _igbh, _xph, _nail, _idna, _vfqy, _slvo, _dfnl, _esg, _pyz, _uwm, _tphd,
+                            _epol, _wfhy, _ttac, _lrge, _emnt, _umi, _ddec, _gnom, _spvu, _bmay, _tok, _ausf, _ibmo,
+                            _tplc, _paug, _edoc, _pffv, _jsmd, _cacg, _pawz, _hlal, _qlv, _fjan, _hegd, _hybb, _etho,
+                            _ghyb, _hygh, _sixa, _pjul, _gtip, _dali, _xmpt, _ousm, _sval, _fdm, _foct, _omfs, _rth,
+                            _xsmo, _pfld, _lsat, _dmar, _deus, _igeb, _ibtd, _bndc, _aiq, _btal, _hyxf, _vfmf, _gvip,
+                            _eprf, _ffty, _faz, _rfv, _spus, _eden, _fjul, _srty, _vsmv, _korp, _wtmf, _sixl, _xitk,
+                            _ewre, _vrai, _lsaf, _rvnu, _kbwp, _jmub, _ibdv, _bfor, _tdvg, _ppty, _pkb, _ftxr, _hyhg,
+                            _psr, _imtb, _fmf, _hdge, _bsep, _stot, _fdg, _pst, _doct, _qlc, _prn, _pbtp, _pifi, _esga,
+                            _ius, _edow, _fllv, _bsct, _rigs, _ocio, _fsep, _ieus, _pbp, _mvv, _psl, _fbgx, _aieq,
+                            _afif, _hydb, _aesr, _nure, _ffti, _ryj, _hybl, _ewmc, _miln, _eqwl, _bapr, _fcal, _balt,
+                            _twm, _bfeb, _tecs, _cvy, _ibhc, _norw, _htec, _ismd, _njan, _sqew, _shag, _baug, _risr,
+                            _rxl, _ibmp, _risn, _rfda, _qqxt, _buff, _svol, _fbcv, _fngo, _eqrr, _rzg, _qqqn, _ibnd,
+                            _pzt, _hknd, _psff, _tdv, _fdmo, _netl, _bkmc, _ietc, _fisr, _chgx, _mbsd, _flmb, _ucrd,
+                            _kce, _ign, _pwc, _dxd, _dsep, _utrn, _ghyg, _putw, _qaba, _webl, _inkm, _dvol, _ure, _spbc,
+                            _xout, _bjul, _ibtg, _amub, _gmom, _boct, _sbio, _sspy, _nuhy, _qmom, _mfus, _drip, _dwaw,
+                            _phyl, _husv, _joet, _flmi, _bib, _xhs, _bndd, _hyld, _fngd, _owns, _schq, _dfnv, _teqi,
+                            _xvol, _minc, _jsml, _bdec, _bmar, _ftxl, _spmo, _cefs, _ibhb, _vixm, _shyl, _qdec, _fibr,
+                            _dwus, _cya, _byld, _hsrt, _smig, _amna, _azbj, _kbwr, _htab, _fsz, _bjun, _ibmq, _ddiv,
+                            _onof, _drn, _bnku, _psci, _mmtm, _ufo, _szne, _djul, _ibtf, _pui, _ibtk, _ibdw, _arb, _fku,
+                            _uapr, _rfci, _xjh, _pxj, _ewo, _ibtb, _fsmd, _dynf, _ibhd, _armr, _csf, _labd, _bils,
+                            _buzz, _dalt, _pffr, _bsmm, _bnov, _dew, _hips, _bscu, _resp, _mrgr, _eudg, _spdv, _acsi,
+                            _spyc, _ffiu, _ibdd, _wbiy, _hibl, _jdiv, _mmlg, _ovb, _tple, _evx, _mgmt, _dura, _vegn,
+                            _uym, _rinf, _noct, _usep, _azaj, _umay, _bitq, _sixs, _napr, _trnd, _ewus, _pvi, _soxq,
+                            _vfmv, _spvm, _amtr, _iigd, _uoct, _bsmo, _iuss, _tphe, _csd, _bkch, _bsmp, _qdiv, _flqm,
+                            _ewsc, _ovt, _tyo, _bsmn, _qylg, _recs, _bkse, _xtl, _midu, _sent, _vxz, _lqdb, _drv, _ifed,
+                            _fngs, _xrlv, _btec, _qdpl, _lbay, _njul, _retl, _tpsc, _bdcz, _guru, _wfh, _qmar, _utes,
+                            _jhmt, _romo, _dblv, _spuu, _pfi, _arcm, _wiz, _sfyx, _sbnd, _fthi, _pset, _qpx, _qvms,
+                            _vamo, _lead, _umar, _hdg, _deep, _dweq, _udec, _ufeb, _mmca, _koct, _lkor, _ery, _pscc,
+                            _nrgd, _homz, _oeur, _pteu, _vflq, _hewg, _bsjr, _java, _feig, _wbif, _pab, _bkhy, _hyrm,
+                            _zig, _aqgx, _shus, _pxq, _udn, _sfig, _azbo, _igld, _mino, _pscf, _jhms, _ibhe, _enor,
+                            _wbii, _wfig, _mbox, _jhmh, _lsst, _azao, _obnd, _wbig, _vega, _tagg, _pink, _tgrw, _jhme,
+                            _tya, _pbnd, _pbs, _stnc, _nacp, _bsmq, _ibth, _iehs, _pbsm, _tbux, _alty, _ihyf, _tdsa,
+                            _roof, _sims, _sspx, _tpor, _mtgp, _scdl, _teng, _pamc, _hold, _rffc, _lfeq, _ieih, _ciz,
+                            _ubt, _xylg, _tctl, _ujul, _fevr, _mbnd, _klcd, _rrh, _jib, _fftg, _ewco, _bsce, _nusa,
+                            _lgov, _pfig, _saa, _dfhy, _fhys, _scrd, _pws, _mvrl, _entr, _gfgf, _pez, _ffsg, _ibce,
+                            _iwdl, _avmu, _womn, _pval, _acvf, _ffhg, _vpc, _umdd, _aspy, _sihy, _dug, _dbv, _esgs,
+                            _qjun, _rafe, _revs, _iigv, _idiv, _fedl, _ewgs, _fcef, _uaug, _mlpo, _fite, _jmin, _cws,
+                            _thy, _usml, _xshq, _pscd, _frty, _tgif, _kvle, _marb, _nflt, _srs, _ujun, _qspt, _germ,
+                            _fovl, _xshd, _qull, _sxqg, _dfnd, _xweb, _xjr, _bkui, _cdx, _want, _glry, _rwvg, _dvlu,
+                            _rosc, _nulc, _clse, _dxge, _spxe, _jusa, _qcon, _dusl, _cpi, _rdog, _sepz, _kcca, _rnsc,
+                            _ovlh, _jhmf, _jhmb, _csa, _alfa, _htus, _rbnd, _utsl, _fcsh, _wbit, _pscu, _xbap, _egis,
+                            _inmu, _hlge, _fgm, _ibhf, _kscd, _riet, _spax, _pype, _snug, _smcp, _hymu, _bscv, _upw,
+                            _jctr, _ibbq, _rnlc, _sogu, _clix, _iwfl, _tspa, _spmv, _qqd, _pscm, _eshy, _xrmi, _bsmr,
+                            _ftxh, _bsms, _qdyn, _jhmu, _erm, _rek, _ylde, _qls, _psmm, _esus, _efnl, _ecln, _bsjs,
+                            _azbl, _totr, _ewk, _mnm, _ujb, _rokt, _reit, _spxb, _rndv, _oppx, _sdei, _lrnz, _hylv,
+                            _ssly, _demz, _jhma, _sqlv, _clds, _hewu, _gsig, _iwml, _qqqa, _bsmt, _rnmc, _eaok, _ftds,
+                            _dboc, _jhcb, _sef, _tyd, _psmj, _ibti, _rtai, _gk, _mtul, _fehy, _usbf, _adfi, _uxi, _ust,
+                            _bout, _iedi, _xpnd, _ibtj, _iecs, _elqd, _psmo, _dbeh, _psmr, _sfyf, _hyup, _feus, _minn,
+                            _maga, _lyfe, _hsmv, _skf, _jhpi, _jhpi, _spak, _bbc, _amom, _augz, _xbjl, _vabs, _flqs,
+                            _jhcs, _qmn, _plrg, _pill, _xtjl, _flrg, _qtjl, _rew, _gldb, _ovm, _jhmc, _pex, _psmc,
+                            _imlp, _ftqi, _avsc, _ucc, _pscw, _zecp, _smi, _jhmi, _bbp, _julz, _bsmu, _lopp, _mig,
+                            _bsmv, _psfm, _bnkd, _myy, _tmdv, _xjun, _azal, _qarp, _dbja, _mide, _fsig, _ibhg, _ieme,
+                            _bis, _spuc, _tsja, _qrmi, _qrft, _fmny, _roro, _bsjt, _qtap, _dbgr, _spxn, _ffnd, _smle,
+                            _gbdv, _scc, _aaa, _boss, _psfj, _pgro, _spxt, _midf, _hytr, _heet, _bul, _smdy, _iefn,
+                            _dwpp, _eqop, _cldl, _tpay, _uslb, _dwmc, _xdsq, _tsoc, _berz, _bkus, _mbbb, _qed, _usi,
+                            _xdqq, _uge, _ovs, _dsoc, _xtap, _fltn, _bad, _vnmc, _lvol, _iqm, _indf, _decz, _ecoz,
+                            _ibtl, _rspy, _qqc, _syus, _bedz, _jojo, _cbse, _stlv, _rwgv, _smdd, _hval, _pfut, _sbb,
+                            _spxz, _xdap, _octz, _escr, _hyin, _esgy, _eaom, _aprz, _mid, _pldr, _ivlc, _psfo, _pltl,
+                            _nvq, _sdga, _fsst, _nscs, _marz, _virs, _jre, _pscq, _hdiv, _ssg, _tfjl, _tbjl, _cbls,
+                            _aflg, _itan, _pscj, _xdjl, _nwlg, _usvt, _mayz, _janz, _dsja, _sdd, _amer, _rec, _wwow,
+                            _pexl, _trdf, _qclr, _spxv, _wil, _xclr, _vsl, _dwat, _junz, _cfcv, _lopx, _fldz, _nife,
+                            _jfwd, _febz, _rxd, _fedx, _gblo, _wgro, _ooto, _xtr, _mjus, _maax, _fivr, _ggrw, _mzz,
+                            _useq, _rodi, _afsm, _weix, _afmc, _szk, _liv, _smn, _sij, _sdp, _qtr, _ltl, _skyu, _trpl,
+                            _stlg, _eeh, _hhh, _aggh, _dspc, _gbgr, _epre, _ailv, _ailg, _xhyc, _xhyh, _xhyt, _xhyd]
         self.acc_data_json_file_path = str(pathlib.Path(
             __file__).parent.parent.parent.parent.resolve()) + f"/user_id_{self.user_id}/backtest/acc_data/{self.table_name}/{spec_str}.json"
 
@@ -1689,7 +1810,7 @@ class backtest_acc_data(object):
                     item.update((k, v) for k, v in updating_portfolio_dict.items() if v is not None)
                     update = True
                     break
-            if update==False:
+            if update == False:
                 self.portfolio.append(updating_portfolio_dict)
 
     def append_stock_transaction_record(self, ticker, timestamp, transaction_type, position_purchase, ticker_open_price,
@@ -1742,10 +1863,13 @@ class backtest_acc_data(object):
         return ticker_item
 
     def update_portfolio_ticker_item(self, ticker_item):
-        ticker = ticker_item.__getdict__.get("ticker")
+        ticker = ticker_item.ticker
         for item in self.portfolio:
             if item.get("ticker") == ticker:
-                item.update((k, v) for k, v in ticker_item.items() if v is not None)
+                ticker_dict = ticker_item.__getdict__()
+                for k, v in ticker_dict.items():
+                    if v is not None:
+                        item.update({k: v})
                 break
 
     def get_margin_info_ticker_item(self, ticker):
