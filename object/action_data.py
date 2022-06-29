@@ -55,6 +55,9 @@ class IBActionMessage:
 
     def __getattr__(self, item):
         return self.__dict__[item]
+    
+    def __getdict__(self):
+        return self.__dict__
 
 class BinanceActionMessage:
     def __init__(self, timestamp, ticker, side, price,quantity, realized_profit, action):
