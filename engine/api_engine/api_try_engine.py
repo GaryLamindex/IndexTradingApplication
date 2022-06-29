@@ -15,11 +15,17 @@ class Api_Mongodb:
             print("WARNING: Could not connect to MongoDB")
 
     # @app.route('/mainpage')
-    def all_algo_1a(self, strategy_name="backtest_portfolio_rebalance_0"):
+    # same as user_acc_2a indv_algo_3b
+    def all_algo_1a(self, strategy_name=["backtest_portfolio_rebalance_0","backtest_portfolio_rebalance_1"], timestamp_start=1262275200, timestamp_end=1285935780):
         self.db = self.conn["simulation"]
-        col = self.db[strategy_name]
-        cursor = col.find({}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-        json_data = dumps(cursor)
+        all = {}
+        for x in strategy_name:
+            col = self.db[x]
+            cursor = col.find({"timestamp": {"$lte": timestamp_end,"$gte": timestamp_start}}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+            list_ = list(cursor)
+            # print(list_)
+            all[x] = list_
+        json_data = dumps(all)
         print(json_data)
         return json_data
 
@@ -65,23 +71,31 @@ class Api_Mongodb:
         print(json_data)
         return json_data
 
-    def user_acc_2a(self, strategy_name="backtest_portfolio_rebalance_0"):
+    # same as all_algo_1a() indv_algo_3b
+    def user_acc_2a(self, strategy_name=["backtest_portfolio_rebalance_0","backtest_portfolio_rebalance_1"], timestamp_start=1262275200, timestamp_end=1298937600):
         self.db = self.conn["simulation"]
-        col = self.db[strategy_name]
-        cursor = col.find({}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-        json_data = dumps(cursor)
+        all = {}
+        for x in strategy_name:
+            col = self.db[x]
+            cursor = col.find({"timestamp": {"$lte": timestamp_end, "$gte": timestamp_start}},
+                              {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+            list_ = list(cursor)
+            # print(list_)
+            all[x] = list_
+        json_data = dumps(all)
         print(json_data)
         return json_data
 
     def user_acc_2b(self, strategy_name="backtest_rebalance_margin_wif_max_drawdown_control_0"):
         self.db = self.conn["rainydrop"]
         col = self.db.Strategies
-        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0, "Since Inception Return": 1, "1 Yr Sharpe": 1,
-                                                             "5 Yr Sharpe": 1, "YTD Sharpe": 1, "1 Yr Return": 1,
-                                                             "5 Yr Return": 1, "YTD Return": 1, "YTD Sortino": 1,
-                                                             "YTD Max Drawdown": 1, "YTD Volatility": 1, "YTD Win Rate": 1,
-                                                             "YTD Average Win Per Day": 1, "YTD Profit Loss Ratio": 1,
-                                                             "Margin Ratio": 1, "last nlv": 1}).limit(1)
+        cursor = col.find({"strategy_name": strategy_name}, {"_id": 0,"Since Inception Return": 1, "1 Yr Sharpe": 1,
+                                                             "5 Yr Sharpe": 1, "Since Inception Sharpe": 1, "1 Yr Return":1,
+                                                             "5 Yr Return":1, "YTD Return":1,
+                                                             "Since Inception Sortino": 1, "Since Inception Max Drawdown":1,
+                                                             "Since Inception Volatility":1,"Since Inception Win Rate": 1,
+                                                             "Since Inception Average Win Per Day":1, "Since Inception Profit Loss Ratio":1,
+                                                             "last nlv":1, "Margin Ratio": 1}).limit(1)
         json_data = dumps(cursor)
         print(json_data)
         return json_data
@@ -158,11 +172,18 @@ class Api_Mongodb:
         print(json_data)
         return json_data
 
-    def indv_algo_3b(self, strategy_name="backtest_portfolio_rebalance_0"):
+    # same as all_algo_1a() user_acc_2a()
+    def indv_algo_3b(self, strategy_name=["backtest_portfolio_rebalance_0"], timestamp_start=1262275200, timestamp_end=1298937600):
         self.db = self.conn["simulation"]
-        col = self.db[strategy_name]
-        cursor = col.find({}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-        json_data = dumps(cursor)
+        all = {}
+        for x in strategy_name:
+            col = self.db[x]
+            cursor = col.find({"timestamp": {"$lte": timestamp_end, "$gte": timestamp_start}},
+                              {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+            list_ = list(cursor)
+            # print(list_)
+            all[x] = list_
+        json_data = dumps(all)
         print(json_data)
         return json_data
 
@@ -199,13 +220,16 @@ class Api_Mongodb:
         for x in cursor1:
             percentage = list(x["Composite"].values())
             ETF = list(x["Composite"].keys())
+        # print(percentage,ETF)
         col = self.db.ETF
-        cursor2 = col.find({"label": ETF[0]},{"_id": 0, "div_yield_current_year": 1, "div_yield_last_year": 1})
         div_yield_current_year = list()
         div_yield_last_year = list()
-        for x in cursor2:
-            div_yield_current_year.append(x["div_yield_current_year"])
-            div_yield_last_year.append(x["div_yield_last_year"])
+        for x in ETF:
+            cursor2 = col.find({"label": x},{"_id": 0, "div_yield_current_year": 1, "div_yield_last_year": 1})
+            for x in cursor2:
+                div_yield_current_year.append(x["div_yield_current_year"])
+                div_yield_last_year.append(x["div_yield_last_year"])
+        # print(div_yield_current_year,div_yield_last_year)
         df["ETF"] = ETF
         df["percentage"] = percentage
         df["div_yield_current_year"] = div_yield_current_year
@@ -235,7 +259,7 @@ def main():
     a = Api_Mongodb()
     # a.all_algo_1a()
     # a.all_algo_1b()
-    # a.all_algo_1c("")
+    # a.all_algo_1c()
     # a.user_acc_2a()
     # a.user_acc_2b()
     # a.user_acc_2c()
@@ -245,8 +269,8 @@ def main():
     # a.indv_algo_3a()
     # a.indv_algo_3b()
     # a.indv_algo_3m()
-    # a.indv_algo_3g(
-    a.indv_algo_3h()
+    # a.indv_algo_3g()
+    # a.indv_algo_3h()
 
 if __name__ == "__main__":
         main()
