@@ -252,10 +252,10 @@ def main():
     a = Api_Mongodb_2()
     # a.indv_algo_3b()
     # a.indv_algo_3d()
-    # a.indv_algo_3e()
-    # a.indv_algo_3f()
-    a.all_algo_4a()
-    a.all_algo_4b()
+    a.indv_algo_3e()
+    a.indv_algo_3f()
+    # a.all_algo_4a()
+    # a.all_algo_4b()
     # a.all_algo_4c()
 
 
