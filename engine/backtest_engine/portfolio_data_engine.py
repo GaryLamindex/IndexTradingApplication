@@ -18,6 +18,9 @@ class backtest_portfolio_data_engine(object):
 
     def deposit_dividend(self, amount, timestamp):
         self.deposit_cash(amount, timestamp)
+        original_dividend = self.acc_data.mkt_value.get("NetDividend")
+        self.acc_data.update_mkt_value(None, original_dividend+amount, None, None, None,
+                         None)
         
         #TODO:return action message to append in run_data csv to show dividend deposit
         #sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data, stock_data_dict)

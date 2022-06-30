@@ -140,12 +140,11 @@ class backtest(object):
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
 
-            #TODO: finish dividend distribute but no record will shown in csv,need update later
-            # portfolio = portfolio_data_engine.get_portfolio()
-            # total_dividend = dividend_engine.check_div(timestamp, portfolio)
-            # if total_dividend != 0:
-            #     portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
-
+            if dividend_engine.check_div(timestamp):
+                portfolio = portfolio_data_engine.get_portfolio()
+                total_dividend = dividend_engine.distribute_div(timestamp, portfolio)
+                if total_dividend != 0:
+                    portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
 
             if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
