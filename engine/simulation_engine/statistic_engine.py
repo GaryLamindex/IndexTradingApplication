@@ -142,20 +142,26 @@ class statistic_engine:
 
         return_dict = {}
         return_inflation_adj_dict = {}
+        compound_return_dict = {}
         return_dict["ytd"] , yr = self.get_return_ytd(file_name)
         return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / (1.03 ** yr) - 1
+        compound_return_dict["ytd"] = (return_dict["ytd"]) ** (1/yr) - 1
         return_dict["1y"] = self.get_return_by_period(day_string, "1y", file_name)
         return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / 1.03 - 1
+        compound_return_dict["1y"] = (return_dict["1y"]) ** (1) - 1
         return_dict["3y"] = self.get_return_by_period(day_string, "3y", file_name)
         return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / 1.03**3 - 1
+        compound_return_dict["3y"] = (return_dict["3y"]) ** (1/3) - 1
         return_dict["5y"] = self.get_return_by_period(day_string, "5y", file_name)
         return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / 1.03 ** 5 - 1
+        compound_return_dict["5y"] = (return_dict["5y"]) ** (1/5) - 1
         return_dict["inception"] , yr = self.get_return_inception(file_name)
         return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / 1.03 ** yr - 1
+        compound_return_dict["inception"] = (return_dict["ytd"]) ** (1/yr) - 1
 
 
 
-        return (return_dict, return_inflation_adj_dict)
+        return (return_dict, return_inflation_adj_dict, compound_return_dict)
 
     # simply use the discrete calculation for sharpe
     # annualize all the results
@@ -1247,6 +1253,11 @@ class statistic_engine:
             temp_info = j
         return pos, neg
 
+    def get_net_profit_inception(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+
+        return full_df['NetLiquidation'].iloc[-1] - full_df['NetLiquidation'].iloc[0]
+
 
 def main():
     engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
@@ -1254,7 +1265,7 @@ def main():
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
     range = ["2019-12-1", "2022-4-29"]
-    print(my_stat_engine.get_pos_neg_months('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    print(my_stat_engine.get_net_profit_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_sd_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_sd_by_period('2020-11-30', '1y',
     #                                       '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
