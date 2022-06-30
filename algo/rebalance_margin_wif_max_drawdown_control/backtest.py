@@ -285,6 +285,18 @@ class backtest(object):
 
                 composite_dict = stat_engine.get_composite_data(file_name)
 
+                sd_dict = stat_engine.get_sd_data(file_name)
+                _1_yr_sd = sd_dict.get('1y')
+                _3_yr_sd = sd_dict.get('3y')
+                _5_yr_sd = sd_dict.get('5y')
+                inception_sd = sd_dict.get('inception')
+
+                pos_neg_dict = stat_engine.get_pos_neg_data(file_name)
+                _1_yr_pos_neg = pos_neg_dict.get('1y')
+                _3_yr_pos_neg = pos_neg_dict.get('3y')
+                _5_yr_pos_neg = pos_neg_dict.get('5y')
+                inception_pos_neg = pos_neg_dict.get('inception')
+
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -326,10 +338,18 @@ class backtest(object):
                     "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
                     "last nlv": last_nlv,"last daily change":last_daily,"last monthly change":last_monthly,
 
-                    "Composite": composite_dict
+                    "Composite": composite_dict,
 
+                    "1 yr sd":_1_yr_sd,
+                    "3 yr sd":_3_yr_sd,
+                    "5 yr sd": _5_yr_sd,
+                    "inception sd": inception_sd,
+
+                    "_1_yr_pos_neg": _1_yr_pos_neg,
+                    "_3_yr_pos_neg": _3_yr_pos_neg,
+                    "_5_yr_pos_neg": _5_yr_pos_neg,
+                    "inception_pos_neg": inception_pos_neg
                 }
-
 
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
