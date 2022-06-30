@@ -387,7 +387,10 @@ class backtest(object):
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
                "last nlv", "last daily change", "last monthly change",
                "Composite",
-               "1 yr sd","3 yr sd","5 yr sd","inception sd","_1_yr_pos_neg","_3_yr_pos_neg","_5_yr_pos_neg","inception_pos_neg"
+               "1 yr sd","3 yr sd","5 yr sd","inception sd","_1_yr_pos_neg","_3_yr_pos_neg","_5_yr_pos_neg",
+               "inception_pos_neg","net profit",
+               "compound_inception_return_dict","compound_1_yr_return_dict","compound_3_yr_return_dict",
+               "compound_5_yr_return_dict","compound_ytd_return_dict"
         ]
 
         df = pd.DataFrame(data= data_list, columns=col)

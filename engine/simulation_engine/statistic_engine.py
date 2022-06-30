@@ -1251,7 +1251,7 @@ class statistic_engine:
 
             temp_dt = j['date']
             temp_info = j
-        return pos, neg
+        return {"Positive days": pos, "Negative days": neg}
 
     def get_net_profit_inception(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
