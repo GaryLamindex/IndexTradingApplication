@@ -4,22 +4,27 @@ import roboPunksNFT from "./contracts/RoboPunksNFT.json";
 
 const roboPunksNFTAddress = "0x8f8b8f8b8f8b8f8b8f8b8f8b8f8b8f8b8f8b8f8";
 
-const MainMint = async ({accounts, setAccounts}) => {
+const MainMint = ({accounts, setAccounts}) => {
     const [mintAmount, setMintAmount] = useState(1);
     const isConnected = Boolean(accounts[0])
-    if (!window.ethereum) {
-        return <div>Please install MetaMask</div>;
-    } else {
-        const provider = new ethers.provider.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.CONTRACT(roboPunksNFTAddress, roboPunksNFT.abi, signer);
-        try {
-            const response = await contract.mint(BigNumber.from(mintAmount));
-            console.log("response: ", response);
-        }catch(error) {
-            console.log("error: ", error);
+
+    async function handleMint(){
+        if (!window.ethereum) {
+            return <div>Please install MetaMask</div>;
+        } else {
+            const provider = new ethers.provider.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const contract = new ethers.CONTRACT(roboPunksNFTAddress, roboPunksNFT.abi, signer);
+            try {
+                const response = await contract.mint(BigNumber.from(mintAmount));
+                value:  ethers.utils.parseEther((0.02 * mintAmount).toString());
+                console.log("response: ", response);
+            } catch (error) {
+                console.log("error: ", error);
+            }
         }
     }
+}
 
     const handleDecrement =() => {
         if(mintAmount <= 1)
