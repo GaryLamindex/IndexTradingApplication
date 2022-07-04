@@ -11,6 +11,7 @@ from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_d
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
 from object.crypto_acc_data import crypto_acc_data
 from object.action_data import BinanceAction, BinanceActionsTuple
+from crypto_algo.momentum_strategy_crypto.indicator import Indicator
 
 
 class backtest:
@@ -30,11 +31,16 @@ class backtest:
         self.db_mode = db_mode
 
         self.crypto_data_engines = {}
+        self.indicators = {}
 
-        print('start')
+        print('Start initializing')
         for ticker in tickers:
             self.crypto_data_engines[ticker] = crypto_local_engine(ticker)
-        print('end')
+            print(f'initialized {ticker} io engine')
+            self.indicators[ticker] = Indicator(self.crypto_data_engines[ticker].get_full_ticker_df())
+            print(f'initialized {ticker} indicator')
+
+        print('End initializing')
 
         # self.pending_actions is a heap queue (or priority queue)
         # only ActionsTuple should be stored
@@ -116,8 +122,7 @@ class backtest:
         stock_data_dict = {}
         for ticker in self.tickers:
             ticker_engine = self.crypto_data_engines[ticker]
-            # TODO: call it to indicator.calculate_pct_change()
-            pct_change_dict.update({ticker: ticker_engine.x(period, timestamp)})
+            pct_change_dict.update({ticker: self.indicators[ticker].get_pct_change(period, 'Open', timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             price = ticker_engine.get_field_by_timestamp(timestamp, 'Open')
             if price is None:
