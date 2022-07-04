@@ -53,8 +53,8 @@ class dividend_engine:
 
     def check_div(self, timestamp):
         utc_date = dt.date.fromtimestamp(timestamp)
-        if timestamp+60 == 1282003200:
-            a=1
+        # if timestamp+60 == 1282003200:
+        #     a=1
         return utc_date in self.dividend_date
 
     def distribute_div(self, timestamp, portfolio):
