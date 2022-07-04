@@ -67,7 +67,7 @@ class Write_Mongodb:
         return
 
     def write_strategies(self, strategy_name, all_file_return_df, strategy_initial, video_link, documents_link,
-                         tags_array, rating_dict):
+                         tags_array, rating_dict, margin_ratio):
         """write Strategies collection in rainydrop"""
         self.db = self.conn[self.rainydrop]
         coll = self.db[self.strategies]
@@ -81,6 +81,7 @@ class Write_Mongodb:
             all_file_return_df['tags_array'] = tags_array
             all_file_return_df['rating_dict'] = rating_dict
             all_file_return_df['subscribers num'] = 0
+            all_file_return_df['margin ratio'] = margin_ratio
             all_file_return_record = all_file_return_df.to_dict(orient='records')
             coll.insert_many(all_file_return_record)
         return
@@ -130,12 +131,13 @@ class Write_Mongodb:
         return
 
     def write_new_backtest_result(self, strategy_name, drawdown_abstract_df, drawdown_raw_df, run_df, all_file_return_df,
-                                  strategy_initial, video_link, documents_link, tags_array, rating_dict):
+                                  strategy_initial, video_link, documents_link, tags_array, rating_dict, margin_ratio):
         """call whenever upload new backtest data, initiate everything"""
         self.write_drawdown_data(strategy_name, drawdown_abstract_df)
         self.write_drawdown_graph_data(strategy_name, drawdown_raw_df)
         self.write_simulation(strategy_name, run_df)
-        self.write_strategies(strategy_name, all_file_return_df, strategy_initial, video_link, documents_link, tags_array, rating_dict)
+        self.write_strategies(strategy_name, all_file_return_df, strategy_initial, video_link, documents_link,
+                              tags_array, rating_dict, margin_ratio)
         return
 
 

@@ -2,8 +2,9 @@ import pathlib
 import os
 import re
 import pandas as pd
-import datetime as dt
+import  datetime as dt
 import yfinance as yf
+import numpy as np
 from datetime import datetime
 
 
@@ -13,7 +14,7 @@ class dividend_engine:
     filepath = ""
     portfolio = []
     dividends_data_path = ""
-
+    dividend_date = []
     def __init__(self, tickers):
         self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/ticker_data/dividends"
         self.tickers = tickers
@@ -27,6 +28,10 @@ class dividend_engine:
                 if ticker_name[0] == ticker:
                     temp = pd.read_csv(f"{self.filepath}/{file}")
                     temp["ticker"] = ticker
+                    temp_timestamps = temp["timestamp"].to_numpy()
+                    for timestamp in temp_timestamps:
+                        utc_time = dt.date.fromtimestamp(timestamp)
+                        self.dividend_date.append(utc_time)
                     self.full_dividend_df = pd.concat([self.full_dividend_df, temp])
                     break
 
@@ -46,12 +51,18 @@ class dividend_engine:
         self.tickers.remove(ticker)
         self.full_dividend_df = self.full_dividend_df[self.full_dividend_df["ticker"] != ticker]
 
-    def check_div(self, timestamp, portfolio):
+    def check_div(self, timestamp):
+        utc_date = dt.date.fromtimestamp(timestamp)
+        if timestamp+60 == 1282003200:
+            a=1
+        return utc_date in self.dividend_date
+
+    def distribute_div(self, timestamp, portfolio):
         self.portfolio = portfolio
         total_dividend = 0
         for ticker in self.tickers:
             ticker_dividend_df = self.full_dividend_df[self.full_dividend_df["ticker"] == ticker]
-            ticker_dividend_df = ticker_dividend_df[ticker_dividend_df["timestamp"] == timestamp]
+            ticker_dividend_df = ticker_dividend_df[ticker_dividend_df["timestamp"] == (timestamp+60)]
             if ticker_dividend_df.empty:
                 ticker_dividend = 0
             else:

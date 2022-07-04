@@ -142,20 +142,26 @@ class statistic_engine:
 
         return_dict = {}
         return_inflation_adj_dict = {}
+        compound_return_dict = {}
         return_dict["ytd"] , yr = self.get_return_ytd(file_name)
         return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / (1.03 ** yr) - 1
+        compound_return_dict["ytd"] = (return_dict["ytd"]) ** (1/yr) - 1
         return_dict["1y"] = self.get_return_by_period(day_string, "1y", file_name)
         return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / 1.03 - 1
+        compound_return_dict["1y"] = (return_dict["1y"]) ** (1) - 1
         return_dict["3y"] = self.get_return_by_period(day_string, "3y", file_name)
         return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / 1.03**3 - 1
+        compound_return_dict["3y"] = (return_dict["3y"]) ** (1/3) - 1
         return_dict["5y"] = self.get_return_by_period(day_string, "5y", file_name)
         return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / 1.03 ** 5 - 1
+        compound_return_dict["5y"] = (return_dict["5y"]) ** (1/5) - 1
         return_dict["inception"] , yr = self.get_return_inception(file_name)
         return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / 1.03 ** yr - 1
+        compound_return_dict["inception"] = (return_dict["ytd"]) ** (1/yr) - 1
 
 
 
-        return (return_dict, return_inflation_adj_dict)
+        return (return_dict, return_inflation_adj_dict, compound_return_dict)
 
     # simply use the discrete calculation for sharpe
     # annualize all the results
@@ -1147,6 +1153,110 @@ class statistic_engine:
         monthly = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1]) / mask['NetLiquidation'].iloc[0]
         return monthly
 
+    def get_sd_by_period(self, date, lookback_period, file_name):
+        if lookback_period in ['1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+
+        sd = data_period_df['NetLiquidation'].std() / data_period_df['NetLiquidation'].mean()
+        return sd
+
+    def get_sd_Inception(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+
+        sd = full_df['NetLiquidation'].std() / full_df['NetLiquidation'].mean()
+        return sd
+
+    def get_sd_data(self, file_name):
+        sd_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        sd_dict["1y"] = self.get_sd_by_period(day_string, "1y", file_name)
+        sd_dict["3y"] = self.get_sd_by_period(day_string, "3y", file_name)
+        sd_dict["5y"] = self.get_sd_by_period(day_string, "5y", file_name)
+        sd_dict["inception"] = self.get_sd_Inception(file_name)
+
+        return sd_dict
+
+    def get_pos_neg_data(self, file_name):
+        pos_neg_dict = {}
+        full_df = self.data_engine.get_full_df(file_name)
+        last_day = dt.datetime.fromtimestamp(full_df['timestamp'].max())
+        year = last_day.year
+        month = last_day.month
+        day = last_day.day
+        day_string = f"{year}-{month}-{day}"
+        pos_neg_dict["1y"] = self.get_pos_neg_months_by_period(day_string, "1y", file_name)
+        pos_neg_dict["3y"] = self.get_pos_neg_months_by_period(day_string, "3y", file_name)
+        pos_neg_dict["5y"] = self.get_pos_neg_months_by_period(day_string, "5y", file_name)
+        pos_neg_dict["inception"] = self.get_pos_neg_months_inception(file_name)
+
+        return pos_neg_dict
+
+    def get_pos_neg_months_inception(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+        full_df['date'] = pd.to_datetime(full_df['date'])
+        start_info = full_df.iloc[0]
+        start_dt = full_df['date'][0]
+        temp_dt = full_df['date'][0]
+        temp_info = full_df.iloc[0]
+        pos = 0
+        neg = 0
+
+        for i , j in full_df.iterrows():
+            if start_dt.month != temp_dt.month:
+                print(temp_info['date'])
+                if start_info['NetLiquidation'] > temp_info['NetLiquidation']:
+
+                    pos = pos + 1
+                elif start_info['NetLiquidation'] < temp_info['NetLiquidation']:
+                    neg = neg + 1
+                else:
+                    pass
+
+                start_info = j
+                start_dt = j['date']
+
+            temp_dt = j['date']
+            temp_info = j
+        return pos, neg
+
+    def get_pos_neg_months_by_period(self, date, lookback_period,file_name):
+        if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
+            data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
+
+        start_info = data_period_df.iloc[0]
+        start_dt = data_period_df['date'][0]
+        temp_dt = data_period_df['date'][0]
+        temp_info = data_period_df.iloc[0]
+        pos = 0
+        neg = 0
+
+        for i, j in data_period_df.iterrows():
+            if start_dt.month != temp_dt.month:
+                print(temp_info['date'])
+                if start_info['NetLiquidation'] > temp_info['NetLiquidation']:
+
+                    pos = pos + 1
+                elif start_info['NetLiquidation'] < temp_info['NetLiquidation']:
+                    neg = neg + 1
+                else:
+                    pass
+
+                start_info = j
+                start_dt = j['date']
+
+            temp_dt = j['date']
+            temp_info = j
+        return {"Positive days": pos, "Negative days": neg}
+
+    def get_net_profit_inception(self, file_name):
+        full_df = self.data_engine.get_full_df(file_name)
+
+        return full_df['NetLiquidation'].iloc[-1] - full_df['NetLiquidation'].iloc[0]
 
 
 def main():
@@ -1155,6 +1265,14 @@ def main():
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
     range = ["2019-12-1", "2022-4-29"]
+    print(my_stat_engine.get_net_profit_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    #print(my_stat_engine.get_sd_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_sd_by_period('2020-11-30', '1y',
+    #                                       '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_sd_by_period('2020-11-30', '3y',
+    #                                       '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_sd_by_period('2020-11-30','5y','0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+    # print(my_stat_engine.get_sd_Inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     #print(my_stat_engine.get_last_monthly_change('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
     # print(my_stat_engine.get_return_range(range))
     # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))

@@ -205,7 +205,7 @@ class backtest(object):
                 _5_yr_sortino = sortino_dict.get('5y')
                 _ytd_sortino = sortino_dict.get('ytd')
 
-                return_dict , return_inflation_adj_dict = stat_engine.get_return_data(file_name)
+                return_dict , return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(file_name)
                 inception_return = return_dict.get("inception")
                 _1_yr_return = return_dict.get("1y")
                 _3_yr_return = return_dict.get("3y")
@@ -216,6 +216,11 @@ class backtest(object):
                 inflation_adj_3_yr_return = return_inflation_adj_dict.get('3y')
                 inflation_adj_5_yr_return = return_inflation_adj_dict.get('5y')
                 inflation_adj_ytd_return = return_inflation_adj_dict.get('ytd')
+                compound_inception_return_dict = compound_return_dict.get('inception')
+                compound_1_yr_return_dict = compound_return_dict.get('1y')
+                compound_3_yr_return_dict = compound_return_dict.get('3y')
+                compound_5_yr_return_dict = compound_return_dict.get('5y')
+                compound_ytd_return_dict = compound_return_dict.get('ytd')
 
                 max_drawdown_dict = stat_engine.get_max_drawdown_data(file_name)
                 inception_max_drawdown = max_drawdown_dict.get("inception")
@@ -285,6 +290,20 @@ class backtest(object):
 
                 composite_dict = stat_engine.get_composite_data(file_name)
 
+                sd_dict = stat_engine.get_sd_data(file_name)
+                _1_yr_sd = sd_dict.get('1y')
+                _3_yr_sd = sd_dict.get('3y')
+                _5_yr_sd = sd_dict.get('5y')
+                inception_sd = sd_dict.get('inception')
+
+                pos_neg_dict = stat_engine.get_pos_neg_data(file_name)
+                _1_yr_pos_neg = pos_neg_dict.get('1y')
+                _3_yr_pos_neg = pos_neg_dict.get('3y')
+                _5_yr_pos_neg = pos_neg_dict.get('5y')
+                inception_pos_neg = pos_neg_dict.get('inception')
+
+                net_profit = stat_engine.get_net_profit_inception(file_name)
+
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
@@ -326,10 +345,24 @@ class backtest(object):
                     "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
                     "last nlv": last_nlv,"last daily change":last_daily,"last monthly change":last_monthly,
 
-                    "Composite": composite_dict
+                    "Composite": composite_dict,
 
+                    "1 yr sd":_1_yr_sd,
+                    "3 yr sd":_3_yr_sd,
+                    "5 yr sd": _5_yr_sd,
+                    "inception sd": inception_sd,
+
+                    "1 yr pos neg": _1_yr_pos_neg,
+                    "3 yr pos neg": _3_yr_pos_neg,
+                    "5 yr pos neg": _5_yr_pos_neg,
+                    "inception pos neg": inception_pos_neg,
+                    "net profit": net_profit,
+                    "compound_inception_return_dict": compound_inception_return_dict,
+                    "compound_1_yr_return_dict": compound_1_yr_return_dict,
+                    "compound_3_yr_return_dict": compound_3_yr_return_dict,
+                    "compound_5_yr_return_dict": compound_5_yr_return_dict,
+                    "compound_ytd_return_dict": compound_ytd_return_dict
                 }
-
 
                 # _additional_data = self.cal_additional_data(file_name)
                 # data_list.append(all_file_stats_row | _additional_data)
@@ -354,6 +387,10 @@ class backtest(object):
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
                "last nlv", "last daily change", "last monthly change",
                "Composite",
+               "1 yr sd","3 yr sd","5 yr sd","inception sd","_1_yr_pos_neg","_3_yr_pos_neg","_5_yr_pos_neg",
+               "inception_pos_neg","net profit",
+               "compound_inception_return_dict","compound_1_yr_return_dict","compound_3_yr_return_dict",
+               "compound_5_yr_return_dict","compound_ytd_return_dict"
         ]
 
         df = pd.DataFrame(data= data_list, columns=col)
