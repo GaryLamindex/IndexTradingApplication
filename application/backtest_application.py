@@ -98,7 +98,7 @@ for x in range(len(tickers)):
 # start_date = dt.datetime(2012, 10, 26)  # YYMMDD
 # end_date = dt.datetime(2022, 4, 29)  # YYMMDD
 #
-# strategy = "portfolio_rebalance"
+# strategy = "rebalance_margin_wif_max_drawdown_control"
 # mode = "backtest"
 # cal_stat = True
 # quick_test = True
@@ -122,7 +122,8 @@ for x in range(len(tickers)):
 #                                                                                                         data_freq,
 #                                                                                                         user_id,
 #                                                                                                         db_mode,
-#                                                                                                         quick_test)
+#                                                                                                         quick_test,
+#                                                                                                         store_mongoDB=True)
 # rebalance_margin_wif_max_drawdown_control_backtest.loop_through_param()
 
 # tickers = ['SPY']

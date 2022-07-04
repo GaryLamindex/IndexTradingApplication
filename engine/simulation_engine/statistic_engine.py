@@ -1122,6 +1122,7 @@ class statistic_engine:
         return [average_win_day, average_lose_day]
 
     def get_composite_data(self, file_name):
+        number_of_ETFs = 0
         full_df = self.data_engine.get_full_df(file_name)
         last_day_info = full_df[full_df['timestamp'] == full_df['timestamp'].max()]
         header = [col for col in full_df if col.startswith('marketValue')]
@@ -1131,8 +1132,9 @@ class statistic_engine:
             mkv = last_day_info.iloc[0][i]
             tname = (i.split("_"))[-1]
             composite.update({tname: mkv/gross})
+            number_of_ETFs = number_of_ETFs + 1
 
-        return composite
+        return composite, number_of_ETFs
 
     def get_last_nlv(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
