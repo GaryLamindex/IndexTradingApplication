@@ -2,6 +2,7 @@ import sys
 import pathlib
 from crypto_algo.momentum_strategy_crypto.backtest import backtest as momentum_strategy_backtest
 import datetime as dt
+import pandas as pd
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
@@ -63,28 +64,34 @@ wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
-tickers = ["M", "MSFT"]
+df = pd.read_csv('/Users/percychui/Downloads/scraper.csv')
+df['Weight'] = df['Weight'].str.rstrip('%').astype('float')
+df1 = df.groupby('Strategy Name')['Weight'].apply(list).reset_index(name='Weight')
+df2 = df.groupby('Strategy Name')['Ticker'].apply(list).reset_index(name='Ticker')
+weight = df1['Weight'].values.tolist()
+tickers = df2['Ticker'].values.tolist()
+print(weight)
+print(tickers)
+# tickers = ["M", "MSFT"]
 deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)
-#rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[50, 50]]
+# rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+rebalance_ratio = weight
+# rebalance_ratio = [[50, 50]]
+for x in range(len(tickers)):
+    portfolio_rebalance = portfolio_rebalance_backtest(tickers[x],
+                                                       deposit_amount,
+                                                       start_date,
+                                                       end_date,
+                                                       cal_stat,
+                                                       data_freq,
+                                                       user_id,
+                                                       db_mode,
+                                                       quick_test,
+                                                       acceptance_range, rebalance_ratio[x])
 
-portfolio_rebalance = portfolio_rebalance_backtest(tickers,
-                                                   deposit_amount,
-                                                   start_date,
-                                                   end_date,
-                                                   cal_stat,
-                                                   data_freq,
-                                                   user_id,
-                                                   db_mode,
-                                                   quick_test,
-                                                   acceptance_range, rebalance_ratio)
-
-portfolio_rebalance.loop_through_param()
-
-
-
+    portfolio_rebalance.loop_through_param()
 
 # tickers = ['3188']
 # dataFreq = ["1 secs", "5 secs", "10 secs", "15 secs", "30 secs", "1 min", "2 mins", "3 mins", "5 mins", "10 mins", "15 mins", "20 mins", "30 mins", "1 hour", "2 hours", "3 hours", "4 hours", "8 hours", "1 day", "1W", "1M"]
