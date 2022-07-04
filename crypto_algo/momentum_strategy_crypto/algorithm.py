@@ -19,6 +19,7 @@ class momentum_strategy:
             if df_temp.shape[0] <= 1:
                 return []
             df_largest = df_temp['pct_change'].nlargest(1)
+
             for ticker, pct_change in df_largest.iteritems():
                 # TODO: buggy: should loop thru portfolio instead
                 if self.portfolio_agent.acc_data.check_if_ticker_exist_in_portfolio(ticker):

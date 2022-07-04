@@ -1,3 +1,4 @@
+import os
 import pathlib
 import pandas as pd
 
@@ -7,9 +8,13 @@ class crypto_local_engine:
         self.crypto_daily_path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + \
                                  '/ticker_data/crypto_daily'
         self.ticker = ticker.upper()
-        self.full_ticker_df = pd.read_csv(f'{self.crypto_daily_path}/{self.ticker}.csv')
+        self.df_path = f'{self.crypto_daily_path}/{self.ticker}.csv'
+        self.full_ticker_df = pd.read_csv(self.df_path, engine='pyarrow')
         self.full_ticker_df['Date'] = pd.to_datetime(self.full_ticker_df['Date'], format='%Y-%m-%d')
-        self.full_ticker_df['timestamp'] = self.full_ticker_df['Date'].apply(lambda x: int(x.timestamp()))
+        if 'timestamp' not in self.full_ticker_df.columns:
+            self.full_ticker_df['timestamp'] = self.full_ticker_df['Date'].apply(lambda x: int(x.timestamp()))
+            os.remove(self.df_path)
+            self.full_ticker_df.to_csv(self.df_path)
 
     def get_n_days_data(self, timestamp, n):
         start_timestamp = timestamp - 86400 * n
@@ -31,14 +36,6 @@ class crypto_local_engine:
 
     def get_field_by_timestamp(self, timestamp, field):
         row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp, field]
-        if row_df.empty:
-            return None
-        return row_df.item()
-
-    def get_pct_change_by_timestamp(self, periods, timestamp):
-        df = self.get_full_ticker_df()
-        df['pct_change'] = df['Open'].pct_change(periods=periods)
-        row_df = df.loc[df['timestamp'] == timestamp, 'pct_change']
         if row_df.empty:
             return None
         return row_df.item()
