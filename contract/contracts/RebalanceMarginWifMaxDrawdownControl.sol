@@ -28,6 +28,12 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
 
     }
 
+    function test(RealTimeTickerData[] memory tickerData)public returns(RealTimeTickerData[] memory){
+        emit LogActionMsg("test");
+
+        return tickerData;
+    }
+
     function run(RealTimeTickerData[] memory _tickerData, uint256 _timeStamp, PortfolioData memory _portfolioData, PortfolioHolding[] memory _portfolioHoldings) public returns (ActionMsg[] memory){
 
         require(checkExecution(timestamp));
