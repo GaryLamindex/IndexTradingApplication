@@ -53,7 +53,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
 
 start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-end_date = dt.datetime(2011, 3, 15)  # YYMMDD
+end_date = dt.datetime(2011, 5, 15)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"

@@ -390,7 +390,7 @@ class offline_engine:
     #         writer.writerow(["spec","timestamp"])
 
     def get_full_df(self, file_name):
-        print(f"{self.filepath}/{file_name}.csv")
+        # print(f"{self.filepath}/{file_name}.csv")
         if file_name in self.cache_full_df:
             return self.cache_full_df[file_name]
         else:
@@ -398,7 +398,7 @@ class offline_engine:
             full_df = pd.read_csv(f"{self.filepath}/{file_name}.csv", low_memory=False)
             self.cache_full_df = {file_name: full_df}
             print("getting full_df: done")
-            print(full_df)
+            # print(full_df)
             # with open(f"{self.filepath}/{spec}.csv","a+") as f:
             #     full_df = pd.read_csv(f, engine="python")
         return full_df
@@ -496,12 +496,12 @@ class offline_engine:
         # the case which the file exist
         if (f'{spec_str}.csv' in os.listdir(self.filepath)):
             with open(f'{self.filepath}\\{spec_str}.csv', 'a', newline='') as f:
-                print(f.name)
+                # print(f.name)
                 item_df.to_csv(f, mode='a', index=False, header=False)
         # the case which the file does not exist
         else:
             with open(f'{self.filepath}\\{spec_str}.csv', 'a', newline='') as f:
-                print(f.name)
+                # print(f.name)
                 item_df.to_csv(f, mode='w', index=False, header=True)
 
     def upload_single_sim_data(self, spec_str, item):
@@ -521,12 +521,12 @@ class offline_engine:
         # the case which the file exist
         if (f'{spec_str}.csv' in os.listdir(self.filepath)):
             with open(f'{self.filepath}\\{spec_str}.csv', 'a', newline='') as f:
-                print(f.name)
+                # print(f.name)
                 item_df.to_csv(f, mode='a', index=False, header=False)
         # the case which the file does not exist
         else:
             with open(f'{self.filepath}\\{spec_str}.csv', 'a', newline='') as f:
-                print(f.name)
+                # print(f.name)
                 item_df.to_csv(f, mode='w', index=False, header=True)
 
 

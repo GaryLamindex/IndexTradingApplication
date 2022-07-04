@@ -139,11 +139,12 @@ class backtest(object):
                 # input initial cash
                 portfolio_data_engine.deposit_cash(initial_amount, timestamp)
                 row += 1
-            portfolio = portfolio_data_engine.get_portfolio()
-            total_dividend = dividend_engine.check_div(timestamp, portfolio)
-            if total_dividend != 0:
-                portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
 
+            if dividend_engine.check_div(timestamp):
+                portfolio = portfolio_data_engine.get_portfolio()
+                total_dividend = dividend_engine.distribute_div(timestamp, portfolio)
+                if total_dividend != 0:
+                    portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
 
             if self.quick_test:
                 if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
@@ -193,7 +194,8 @@ class backtest(object):
                 _5_yr_sortino = sortino_dict.get('5y')
                 _ytd_sortino = sortino_dict.get('ytd')
 
-                return_dict = stat_engine.get_return_data(file_name)
+                return_dict_tuple = stat_engine.get_return_data(file_name)
+                return_dict=return_dict_tuple[0]
                 inception_return = return_dict.get("inception")
                 _1_yr_return = return_dict.get("1y")
                 _3_yr_return = return_dict.get("3y")
@@ -329,7 +331,7 @@ class backtest(object):
 
         df = pd.DataFrame(data_list, columns=col)
         df.fillna(0)
-        print(f"{self.path}/stats_data/{self.table_name}.csv")
+        # print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
         drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
@@ -364,6 +366,7 @@ class backtest(object):
             # div_data_dict.update({ticker + ' div amount': ticker_div})
 
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
+
         # input database and historical data into algo and get action msgs
         action_msgs = algorithm.run(stock_data_dict, timestamp)
 
