@@ -30,8 +30,11 @@ class backtest:
         self.db_mode = db_mode
 
         self.crypto_data_engines = {}
+
+        print('start')
         for ticker in tickers:
             self.crypto_data_engines[ticker] = crypto_local_engine(ticker)
+        print('end')
 
         # self.pending_actions is a heap queue (or priority queue)
         # only ActionsTuple should be stored
@@ -113,8 +116,8 @@ class backtest:
         stock_data_dict = {}
         for ticker in self.tickers:
             ticker_engine = self.crypto_data_engines[ticker]
-
-            pct_change_dict.update({ticker: ticker_engine.get_pct_change_by_timestamp(period, timestamp)})
+            # TODO: call it to indicator.calculate_pct_change()
+            pct_change_dict.update({ticker: ticker_engine.x(period, timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             price = ticker_engine.get_field_by_timestamp(timestamp, 'Open')
             if price is None:
