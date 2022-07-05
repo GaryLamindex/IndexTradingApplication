@@ -184,9 +184,7 @@ class ibkr_stock_data_io_engine:
         """
         This function will modify the file to the given range of timestamps for the existing ticker data file without
         deleting the old data. For a non-existent ticker data file, this function will download the non-existent ticker
-        data file to the given range of timestamps. In the end, if there is no more data within a given range of
-        timestamps in IB, a warning will be issued twelve times. The user can ignore it once the system says the CSV file
-        was successfully appended.
+        data file to the given range of timestamps.
         """
         file_existed = False  # check whether there already exist ticker file before running the function
         empty_file = True   # check whether the ticker file is empty
@@ -210,10 +208,11 @@ class ibkr_stock_data_io_engine:
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt <= 5:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
-                    raise Exception
+                    connect_tws(self.ib_instance)
+                    continue
                 else:
                     self.grab_data_retry_attempt = 0
-                    return
+                    break
 
             front_timestamp = current_data[0].date.timestamp()
             current_data_df = util.df(current_data)
@@ -252,13 +251,13 @@ class ibkr_stock_data_io_engine:
             old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
             old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
             old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
-        if old_df["timestamp"].iloc[0] != start_timestamp:  # if the file is not updated to the given start timestamp
-            oldest_timestamp = old_df["timestamp"].iloc[0]
+        if old_df["timestamp"].min() != start_timestamp:  # if the file is not updated to the given start timestamp
+            oldest_timestamp = old_df["timestamp"].min()
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
             if changed:
-                self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, True)
+                self.get_data_by_range(start_timestamp, old_df["timestamp"].min(), ticker, '1 min', False, True)
             else:  # if the file has not been changed
-                self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, False)
+                self.get_data_by_range(start_timestamp, old_df["timestamp"].min(), ticker, '1 min', False, False)
         print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
     def get_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour, changed):
@@ -278,6 +277,7 @@ class ibkr_stock_data_io_engine:
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt < 5:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
+                    connect_tws(self.ib_instance)
                     continue
                 else:
                     self.grab_data_retry_attempt = 0
