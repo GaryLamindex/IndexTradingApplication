@@ -5,6 +5,7 @@ from datetime import datetime
 from os import listdir
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from pandas.core import series
 
@@ -53,9 +54,23 @@ class backtest(object):
 
     stock_data_engines = {}
 
+    store_mongoDB = False
+    strategy_initial = 'None'
+    video_link = 'None'
+    documents_link = 'None'
+    tags_array = []
+    subscribers_num = 0
+    rating_dict = {}
+    margin_ratio = np.NaN
+    trader_name = "None"
+
+
     # maximum ONLY 2 tickers at a time !!!
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict,
-                 max_drawdown_ratio_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode, quick_test):
+                 max_drawdown_ratio_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode, quick_test,
+                 store_mongoDB, strategy_initial= 'None', video_link= 'None', documents_link= 'None',
+                 tags_array=[], subscribers_num=0, rating_dict={},
+                 margin_ratio=np.NaN, trader_name='None'):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "rebalance_margin_wif_max_drawdown_control",
@@ -106,6 +121,18 @@ class backtest(object):
                 os.remove(Path(f"{self.transact_data_dir}/{file}"))
             for file in list_of_graph:
                 os.remove(Path(f"{self.graph_dir}/{file}"))
+
+        if store_mongoDB:
+            self.strategy_initial = strategy_initial
+            self.video_link = video_link
+            self.documents_link = documents_link
+            self.tags_array = tags_array
+            self.subscribers_num = subscribers_num
+            self.rating_dict = rating_dict
+            self.margin_ratio = margin_ratio
+            self.trader_name = trader_name
+
+
 
     def loop_through_param(self):
 
@@ -288,7 +315,7 @@ class backtest(object):
                 last_daily = stat_engine.get_last_daily_change(file_name)
                 last_monthly = stat_engine.get_last_daily_change(file_name)
 
-                composite_dict = stat_engine.get_composite_data(file_name)
+                composite_dict, number_of_ETFs = stat_engine.get_composite_data(file_name)
 
                 sd_dict = stat_engine.get_sd_data(file_name)
                 _1_yr_sd = sd_dict.get('1y')
@@ -346,6 +373,7 @@ class backtest(object):
                     "last nlv": last_nlv,"last daily change":last_daily,"last monthly change":last_monthly,
 
                     "Composite": composite_dict,
+                    "number_of_ETFs": number_of_ETFs,
 
                     "1 yr sd":_1_yr_sd,
                     "3 yr sd":_3_yr_sd,
@@ -386,7 +414,7 @@ class backtest(object):
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
                "last nlv", "last daily change", "last monthly change",
-               "Composite",
+               "Composite","number_of_ETFs",
                "1 yr sd","3 yr sd","5 yr sd","inception sd","_1_yr_pos_neg","_3_yr_pos_neg","_5_yr_pos_neg",
                "inception_pos_neg","net profit",
                "compound_inception_return_dict","compound_1_yr_return_dict","compound_3_yr_return_dict",
@@ -402,11 +430,26 @@ class backtest(object):
         drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
         drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
-        # # #store data to mongoDB HERE
-        # _p = df.to_dict(orient='records')
-        # wmdb = Write_Mongodb()
-        # wmdb.write_one_min_raw_data('Strategies', _p)
-        # # wmdb.write_Strategies(df.to_dict(orient='records'))
+
+
+        # store data to mongoDB HERE
+        if store_mongoDB:
+            p = Write_Mongodb()
+            for file in os.listdir(backtest_data_directory):
+                if file.decode().endswith("csv"):
+                    p.write_new_backtest_result(strategy_name=self.table_info["strategy_name"],
+                                                drawdown_abstract=drawdown_abstract,
+                                                drawdown_raw_df=drawdown_raw_data,
+                                                run_df=file,
+                                                all_file_return_df=df,
+                                                strategy_initial=strategy_initial,
+                                                video_link=video_link,
+                                                documents_link=documents_link,
+                                                tags_array=tags_array,
+                                                rating_dict=rating_dict,
+                                                margin_ratio=margin_ratio,
+                                                subscribers_num=subscribers_num,
+                                                trader_name=trader_name)
         pass
 
     #
