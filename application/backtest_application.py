@@ -36,7 +36,7 @@ backtest.loop_through_params()
 # start_date = dt.datetime(2010, 1, 1)  # YYMMDD
 # end_date = dt.datetime(2011, 3, 15)  # YYMMDD
 
-# strategy = "portfolio_rebalance"
+# strategy = "momentum_strategy"
 # mode = "backtest"
 # initial_amount = 10000
 # start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
