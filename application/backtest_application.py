@@ -16,22 +16,22 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # from engine.simulation_engine import sim_data_io_engine
 # from engine.simulation_engine.statistic_engine import statistic_engine
 
-path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
-tickers = []
-filelist = os.listdir(path)
-for filename in filelist:
-    if not filename.startswith('.'):
-        tickers.append(os.path.splitext(filename)[0])
-initial_amount = 10000
-start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
-end_date = dt.datetime(2022, 1, 1, tzinfo=dt.timezone.utc)
-periods_dict = {"start": 20, "end": 21, "step": 1}
-cal_stat = True
-user_id = 0
-db_mode = {"dynamo_db": False, "local": True}
-backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
-                                      cal_stat, user_id, periods_dict, db_mode)
-backtest.loop_through_params()
+# path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
+# tickers = []
+# filelist = os.listdir(path)
+# for filename in filelist:
+#     if not filename.startswith('.'):
+#         tickers.append(os.path.splitext(filename)[0])
+# initial_amount = 10000
+# start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
+# end_date = dt.datetime(2022, 1, 1, tzinfo=dt.timezone.utc)
+# periods_dict = {"start": 20, "end": 21, "step": 1}
+# cal_stat = True
+# user_id = 0
+# db_mode = {"dynamo_db": False, "local": True}
+# backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
+#                                       cal_stat, user_id, periods_dict, db_mode)
+# backtest.loop_through_params()
 
 
 # start_date = dt.datetime(2010, 1, 1)  # YYMMDD
@@ -65,9 +65,11 @@ data_freq = "one_min"
 user_id = 0
 df = pd.read_csv('/Users/percychui/Downloads/scraper.csv')
 df['Weight'] = df['Weight'].str.rstrip('%').astype('float')
+df = df[df.Weight != 100.0]
 df1 = df.groupby('Strategy Name')['Weight'].apply(list).reset_index(name='Weight')
 df2 = df.groupby('Strategy Name')['Ticker'].apply(list).reset_index(name='Ticker')
 weight = df1['Weight'].values.tolist()
+weight = list(map(lambda y: [y], weight))
 tickers = df2['Ticker'].values.tolist()
 print(weight)
 print(tickers)
@@ -78,7 +80,7 @@ num_tickers = len(tickers)
 # rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
 rebalance_ratio = weight
 # rebalance_ratio = [[50, 50]]
-for x in range(len(tickers)):
+for x in range(-20, -19):
     portfolio_rebalance = portfolio_rebalance_backtest(tickers[x],
                                                        deposit_amount,
                                                        start_date,
