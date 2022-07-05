@@ -12,10 +12,11 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.simulation_engine import sim_data_io_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.simulation_engine.statistic_engine import statistic_engine
-# from engine.mongoDB_engine.write_document_engine import Write_Mongodb
+from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
 from object.action_data import IBAction, IBActionsTuple
+import numpy as np
 
 
 
@@ -37,8 +38,20 @@ class backtest(object):
     rebalance_ratio = []
     quick_test = True
 
+    store_mongoDB = False
+    strategy_initial = 'None'
+    video_link = 'None'
+    documents_link = 'None'
+    tags_array = list()
+    subscribers_num = 0
+    rating_dict = {}
+    margin_ratio = np.NaN
+    trader_name = "None"
+
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range, rebalance_ratio):
+                 db_mode, quick_test, acceptance_range, rebalance_ratio, store_mongoDB, strategy_initial= 'None',
+                 video_link= 'None', documents_link= 'None', tags_array=list(), subscribers_num=0,
+                 rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
@@ -76,6 +89,17 @@ class backtest(object):
                 Path(self.transact_data_dir).mkdir(parents=True, exist_ok=True)
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
+
+            if store_mongoDB:
+                self.store_mongoDB = True
+                self.strategy_initial = strategy_initial
+                self.video_link = video_link
+                self.documents_link = documents_link
+                self.tags_array = tags_array
+                self.subscribers_num = subscribers_num
+                self.rating_dict = rating_dict
+                self.margin_ratio = margin_ratio
+                self.trader_name = trader_name
 
 
     def loop_through_param(self):
@@ -176,6 +200,9 @@ class backtest(object):
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
+                marketCol = f'marketPrice_{self.tickers[0]}'
+                costCol = f'costBasis_{self.tickers[idx]}'
+                valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
@@ -193,13 +220,22 @@ class backtest(object):
                 _5_yr_sortino = sortino_dict.get('5y')
                 _ytd_sortino = sortino_dict.get('ytd')
 
-                return_dict_tuple = stat_engine.get_return_data(file_name)
-                return_dict=return_dict_tuple[0]
+                return_dict, return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(file_name)
                 inception_return = return_dict.get("inception")
                 _1_yr_return = return_dict.get("1y")
                 _3_yr_return = return_dict.get("3y")
                 _5_yr_return = return_dict.get("5y")
                 _ytd_return = return_dict.get("ytd")
+                inflation_adj_inception_return = return_inflation_adj_dict.get('inception')
+                inflation_adj_1_yr_return = return_inflation_adj_dict.get('1y')
+                inflation_adj_3_yr_return = return_inflation_adj_dict.get('3y')
+                inflation_adj_5_yr_return = return_inflation_adj_dict.get('5y')
+                inflation_adj_ytd_return = return_inflation_adj_dict.get('ytd')
+                compound_inception_return_dict = compound_return_dict.get('inception')
+                compound_1_yr_return_dict = compound_return_dict.get('1y')
+                compound_3_yr_return_dict = compound_return_dict.get('3y')
+                compound_5_yr_return_dict = compound_return_dict.get('5y')
+                compound_ytd_return_dict = compound_return_dict.get('ytd')
 
                 max_drawdown_dict = stat_engine.get_max_drawdown_data(file_name)
                 inception_max_drawdown = max_drawdown_dict.get("inception")
@@ -208,7 +244,6 @@ class backtest(object):
                 _5_yr_max_drawdown = max_drawdown_dict.get("5y")
                 _ytd_max_drawdown = max_drawdown_dict.get("ytd")
 
-                marketCol = f"marketPrice_{self.tickers[0]}"
                 alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
                 inception_alpha = alpha_dict.get('inception')
                 _1_yr_alpha = alpha_dict.get('1y')
@@ -232,7 +267,7 @@ class backtest(object):
 
                 dateStringS = datetime.fromtimestamp(self.start_timestamp)
                 dateStringE = datetime.fromtimestamp(self.end_timestamp)
-                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}",
+                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}", \
                               f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
                 rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
                 _1_yr_rolling_return = rolling_return_dict.get('1y')
@@ -244,7 +279,9 @@ class backtest(object):
                 _15_yr_rolling_return = rolling_return_dict.get('15y')
                 _20_yr_rolling_return = rolling_return_dict.get('20y')
 
+                ########## Store drawdown in another csv
                 drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
 
@@ -262,12 +299,36 @@ class backtest(object):
                 _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
                 _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
 
-                composite_dict = stat_engine.get_composite_data(file_name)
+                last_nlv = stat_engine.get_last_nlv(file_name)
+                last_daily = stat_engine.get_last_daily_change(file_name)
+                last_monthly = stat_engine.get_last_daily_change(file_name)
+
+                composite_dict, number_of_ETFs = stat_engine.get_composite_data(file_name)
+
+                sd_dict = stat_engine.get_sd_data(file_name)
+                _1_yr_sd = sd_dict.get('1y')
+                _3_yr_sd = sd_dict.get('3y')
+                _5_yr_sd = sd_dict.get('5y')
+                inception_sd = sd_dict.get('inception')
+
+                pos_neg_dict = stat_engine.get_pos_neg_data(file_name)
+                _1_yr_pos_neg = pos_neg_dict.get('1y')
+                _3_yr_pos_neg = pos_neg_dict.get('3y')
+                _5_yr_pos_neg = pos_neg_dict.get('5y')
+                inception_pos_neg = pos_neg_dict.get('inception')
+
+                net_profit = stat_engine.get_net_profit_inception(file_name)
 
                 all_file_stats_row = {
                     "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
                     "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
-                    "Since Inception Return": inception_return, "Since Inception Sharpe": inception_sharpe,
+                    "Since Inception Return": inception_return,
+                    'inflation adj YTD Return': inflation_adj_ytd_return,
+                    'inflation adj 1 Yr Return': inflation_adj_1_yr_return,
+                    'inflation adj 3 Yr Return': inflation_adj_3_yr_return,
+                    'inflation adj 5 yr Return': inflation_adj_5_yr_return,
+                    'inflation adj Inception Return': inflation_adj_inception_return,
+                    "Since Inception Sharpe": inception_sharpe,
                     "YTD Sharpe": _ytd_sharpe,
                     "1 Yr Sharpe": _1_yr_sharpe, "3 Yr Sharpe": _3_yr_sharpe, "5 Yr Sharpe": _5_yr_sharpe,
                     'Since Inception Sortino': inception_sortino, 'YTD Sortino': _ytd_sortino,
@@ -299,9 +360,26 @@ class backtest(object):
                     "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
                     "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio,
                     "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
+                    "last nlv": last_nlv, "last daily change": last_daily, "last monthly change": last_monthly,
 
-                    "Composite": composite_dict
+                    "Composite": composite_dict,
+                    "number_of_ETFs": number_of_ETFs,
 
+                    "1 yr sd": _1_yr_sd,
+                    "3 yr sd": _3_yr_sd,
+                    "5 yr sd": _5_yr_sd,
+                    "inception sd": inception_sd,
+
+                    "1 yr pos neg": _1_yr_pos_neg,
+                    "3 yr pos neg": _3_yr_pos_neg,
+                    "5 yr pos neg": _5_yr_pos_neg,
+                    "inception pos neg": inception_pos_neg,
+                    "net profit": net_profit,
+                    "compound_inception_return_dict": compound_inception_return_dict,
+                    "compound_1_yr_return_dict": compound_1_yr_return_dict,
+                    "compound_3_yr_return_dict": compound_3_yr_return_dict,
+                    "compound_5_yr_return_dict": compound_5_yr_return_dict,
+                    "compound_ytd_return_dict": compound_ytd_return_dict
                 }
 
                 # _additional_data = self.cal_additional_data(file_name)
@@ -320,25 +398,49 @@ class backtest(object):
                "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
                "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
                "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
-               # "Drawdown_abstract", "Drawdown_raw_data",
+               # "Drawdown_abstract","Drawdown_raw_data",
                "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
                "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
-               "Composite"
+               "last nlv", "last daily change", "last monthly change",
+               "Composite", "number_of_ETFs",
+               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "_1_yr_pos_neg", "_3_yr_pos_neg", "_5_yr_pos_neg",
+               "inception_pos_neg", "net profit",
+               "compound_inception_return_dict", "compound_1_yr_return_dict", "compound_3_yr_return_dict",
+               "compound_5_yr_return_dict", "compound_ytd_return_dict"
                ]
 
-        df = pd.DataFrame(data_list, columns=col)
+        df = pd.DataFrame(data=data_list, columns=col)
+        # pd.set_option("max_colwidth", 10000)
         df.fillna(0)
-        # print(f"{self.path}/stats_data/{self.table_name}.csv")
+        print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
         drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
         drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
-        # _p = df.to_dict(orient='records')
-        # wmdb = Write_Mongodb()
-        # wmdb.write_one_min_raw_data('Strategies', _p)
+        # store data to mongoDB HERE
+        if self.store_mongoDB:
+            print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
+            p = Write_Mongodb()
+            for file in os.listdir(backtest_data_directory):
+                if file.decode().endswith("csv"):
+                    csv_path = Path(self.run_file_dir, file.decode())
+                    a = pd.read_csv(csv_path)
+                    p.write_new_backtest_result(strategy_name=self.table_name,
+                                                drawdown_abstract_df=drawdown_abstract,
+                                                drawdown_raw_df=drawdown_raw_data,
+                                                run_df=a,
+                                                all_file_return_df=df,
+                                                strategy_initial=self.strategy_initial,
+                                                video_link=self.video_link,
+                                                documents_link=self.documents_link,
+                                                tags_array=self.tags_array,
+                                                rating_dict=self.rating_dict,
+                                                margin_ratio=self.margin_ratio,
+                                                subscribers_num=self.subscribers_num,
+                                                trader_name=self.trader_name)
         pass
 
     #

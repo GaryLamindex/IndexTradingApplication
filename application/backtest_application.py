@@ -105,12 +105,40 @@ wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
+df = pd.read_csv('/Users/percychui/Downloads/scraper.csv')
+df['Weight'] = df['Weight'].str.rstrip('%').astype('float')
+df = df[df.Weight != 100.0]
+df1 = df.groupby('Strategy Name')['Weight'].apply(list).reset_index(name='Weight')
+df2 = df.groupby('Strategy Name')['Ticker'].apply(list).reset_index(name='Ticker')
+weight = df1['Weight'].values.tolist()
+weight = list(map(lambda y: [y], weight))
+tickers = df2['Ticker'].values.tolist()
+print(weight)
+print(tickers)
+# tickers = ["M", "MSFT"]
+deposit_amount = 1000000
+acceptance_range = 0
+num_tickers = len(tickers)
+# rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+rebalance_ratio = weight
+# rebalance_ratio = [[50, 50]]
+for x in range(-20, -19):
+    portfolio_rebalance = portfolio_rebalance_backtest(tickers[x],
+                                                       deposit_amount,
+                                                       start_date,
+                                                       end_date,
+                                                       cal_stat,
+                                                       data_freq,
+                                                       user_id,
+                                                       db_mode,
+                                                       quick_test,
+                                                       acceptance_range, rebalance_ratio[x])
 tickers = ["M", "MSFT"]
 deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)
 #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[50, 50]]
+rebalance_ratio = [[20, 80]]
 
 portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    deposit_amount,
@@ -121,7 +149,17 @@ portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    user_id,
                                                    db_mode,
                                                    quick_test,
-                                                   acceptance_range, rebalance_ratio)
+                                                   acceptance_range, rebalance_ratio,
+                                                   store_mongoDB=True,
+                                                   strategy_initial='this is 20 80 m and msft portfolio',
+                                                   video_link='https://www.youtube.com',
+                                                   documents_link='https://google.com',
+                                                   tags_array=None,
+                                                   subscribers_num=3,
+                                                   rating_dict=None,
+                                                   margin_ratio=3.24,
+                                                   trader_name='Fai'
+                                                   )
 
 portfolio_rebalance.loop_through_param()
 
