@@ -110,7 +110,7 @@ deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)
 #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[50, 50]]
+rebalance_ratio = [[20, 80]]
 
 portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    deposit_amount,
@@ -121,7 +121,17 @@ portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                    user_id,
                                                    db_mode,
                                                    quick_test,
-                                                   acceptance_range, rebalance_ratio)
+                                                   acceptance_range, rebalance_ratio,
+                                                   store_mongoDB=True,
+                                                   strategy_initial='this is 20 80 m and msft portfolio',
+                                                   video_link='https://www.youtube.com',
+                                                   documents_link='https://google.com',
+                                                   tags_array=None,
+                                                   subscribers_num=3,
+                                                   rating_dict=None,
+                                                   margin_ratio=3.24,
+                                                   trader_name='Fai'
+                                                   )
 
 portfolio_rebalance.loop_through_param()
 
