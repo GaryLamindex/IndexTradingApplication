@@ -433,7 +433,7 @@ class backtest(object):
 
 
         # store data to mongoDB HERE
-        if store_mongoDB:
+        if self.store_mongoDB:
             p = Write_Mongodb()
             for file in os.listdir(backtest_data_directory):
                 if file.decode().endswith("csv"):

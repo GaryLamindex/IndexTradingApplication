@@ -9,6 +9,7 @@ const NavBar = ({ accounts, setAccounts }) => {
         setAccounts(accounts);
     }
 
+
     return (
         <div>
             <div>Facebook</div>
@@ -24,6 +25,8 @@ const NavBar = ({ accounts, setAccounts }) => {
             ) : (
                 <button onClick={connectAccount}>Connect</button>
             )}
+
+
         </div>
         );
 };

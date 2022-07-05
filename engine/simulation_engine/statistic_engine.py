@@ -72,16 +72,22 @@ class statistic_engine:
         # get the sliced frame for the given lookback_period
         if lookback_period == "1d":
             data_period_df = self.data_engine.get_data_by_period(date, "1d", file_name)
+            lp = 1/365
         elif lookback_period == "1m":
             data_period_df = self.data_engine.get_data_by_period(date, "1m", file_name)
+            lp = 1 / 12
         elif lookback_period == "6m":
             data_period_df = self.data_engine.get_data_by_period(date, "6m", file_name)
+            lp = 1/6
         elif lookback_period == "1y":
             data_period_df = self.data_engine.get_data_by_period(date, "1y", file_name)
+            lp = 1
         elif lookback_period == "3y":
             data_period_df = self.data_engine.get_data_by_period(date, "3y", file_name)
+            lp = 3
         elif lookback_period == "5y":
             data_period_df = self.data_engine.get_data_by_period(date, "5y", file_name)
+            lp = 5
 
         starting_net_liquidity = \
             data_period_df.loc[data_period_df['timestamp'] == data_period_df['timestamp'].min()][
@@ -90,7 +96,8 @@ class statistic_engine:
             data_period_df.loc[data_period_df['timestamp'] == data_period_df['timestamp'].max()][
                 'NetLiquidation'].values[0]
 
-        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
+        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
+               (ending_net_liquidity/starting_net_liquidity)**(1/lp)-1
 
     def get_return_by_range(self, range, file_name):
         # get the sliced data for the given range
@@ -103,10 +110,19 @@ class statistic_engine:
 
         starting_net_liquidity = \
             range_df.loc[range_df['timestamp'] == range_df['timestamp'].min()]['NetLiquidation'].values[0]
+
+        starting_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].min()]['date'].values[0],
+                                       format='%Y-%m-%d')
+
         ending_net_liquidity = \
             range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['NetLiquidation'].values[0]
+        ending_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['date'].values[0],
+                                     format='%Y-%m-%d')
+        days_diff = (ending_date - starting_date).days
 
-        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
+
+        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
+               (ending_net_liquidity/starting_net_liquidity) ** (365/days_diff) - 1
 
     def get_return_inception(self, file_name):
         print("get_return_inception")
@@ -119,8 +135,17 @@ class statistic_engine:
             inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['NetLiquidation'].values[0]
         ending_ts = inception_df['timestamp'].max()
         print(f"starting_net_liquidity:{starting_net_liquidity}; ending_net_liquidity:{ending_net_liquidity}")
+
+        starting_date = pd.to_datetime(
+            inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].min()]['date'].values[0], format='%Y-%m-%d')
+        ending_date = pd.to_datetime(
+            inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['date'].values[0], format='%Y-%m-%d')
+        days_diff = (ending_date - starting_date).days
+
         no_of_years = (dt.datetime.fromtimestamp(ending_ts) - dt.datetime.fromtimestamp(starting_ts)).days / 365
-        return ((ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, no_of_years)
+        return ((ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity,
+                (ending_net_liquidity/starting_net_liquidity) ** (365/days_diff) - 1,
+                no_of_years)
 
     def get_return_ytd(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
@@ -129,7 +154,8 @@ class statistic_engine:
         month = last_day.month
         day = last_day.day
         range = [f"{year}-01-01", f"{year}-{month}-{day}"]
-        return (self.get_return_by_range(range, file_name) , month/12)
+        re, compound_re = self.get_return_by_range(range, file_name)
+        return (re , compound_re, month/12)
 
     # return a dictionary of all return info (ytd, 1y, 3y, 5y and inception)
     def get_return_data(self, file_name):
@@ -139,29 +165,28 @@ class statistic_engine:
         month = last_day.month
         day = last_day.day
         day_string = f"{year}-{month}-{day}"
+        inflation_rate = 0.03
 
         return_dict = {}
         return_inflation_adj_dict = {}
         compound_return_dict = {}
-        return_dict["ytd"] , yr = self.get_return_ytd(file_name)
-        return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / (1.03 ** yr) - 1
-        compound_return_dict["ytd"] = (return_dict["ytd"]) ** (1/yr) - 1
-        return_dict["1y"] = self.get_return_by_period(day_string, "1y", file_name)
-        return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / 1.03 - 1
-        compound_return_dict["1y"] = (return_dict["1y"]) ** (1) - 1
-        return_dict["3y"] = self.get_return_by_period(day_string, "3y", file_name)
-        return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / 1.03**3 - 1
-        compound_return_dict["3y"] = (return_dict["3y"]) ** (1/3) - 1
-        return_dict["5y"] = self.get_return_by_period(day_string, "5y", file_name)
-        return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / 1.03 ** 5 - 1
-        compound_return_dict["5y"] = (return_dict["5y"]) ** (1/5) - 1
-        return_dict["inception"] , yr = self.get_return_inception(file_name)
-        return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / 1.03 ** yr - 1
-        compound_return_dict["inception"] = (return_dict["ytd"]) ** (1/yr) - 1
 
+        return_dict["ytd"] , compound_return_dict['ytd'] ,yr = self.get_return_ytd(file_name)
+        return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / ((1+inflation_rate) ** yr) - 1
 
+        return_dict["1y"] , compound_return_dict['1y']= self.get_return_by_period(day_string, "1y", file_name)
+        return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / (1+inflation_rate) - 1
 
-        return (return_dict, return_inflation_adj_dict, compound_return_dict)
+        return_dict["3y"], compound_return_dict['3y']= self.get_return_by_period(day_string, "3y", file_name)
+        return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / (1+inflation_rate)**3 - 1
+
+        return_dict["5y"], compound_return_dict['5y'] = self.get_return_by_period(day_string, "5y", file_name)
+        return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / (1+inflation_rate) ** 5 - 1
+
+        return_dict["inception"], compound_return_dict['inception'], yr = self.get_return_inception(file_name)
+        return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / (1+inflation_rate) ** yr - 1
+
+        return return_dict, return_inflation_adj_dict, compound_return_dict
 
     # simply use the discrete calculation for sharpe
     # annualize all the results

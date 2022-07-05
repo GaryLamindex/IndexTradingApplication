@@ -24,7 +24,7 @@ const MainMint = ({accounts, setAccounts}) => {
             }
         }
     }
-}
+
 
     const handleDecrement =() => {
         if(mintAmount <= 1)

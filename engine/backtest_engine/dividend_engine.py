@@ -20,6 +20,8 @@ class dividend_engine:
         self.tickers = tickers
         self.dividends_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
+        if not os.path.exists(self.dividends_data_path):
+            os.mkdir(self.dividends_data_path)
         list_of_dividend = os.listdir(self.filepath)
         self.get_dividends(tickers, -1)
         for ticker in self.tickers:
@@ -92,8 +94,7 @@ class dividend_engine:
 
             today_dt = dt.datetime.now()
             dividends = dividends.rename({'Date': 'date', 'Dividends': 'dividends'}, axis=1)
-            if not os.path.exists(self.dividends_data_path):
-                os.mkdir(self.dividends_data_path)
+
             expired = True
             for file in dirs:
                 if ticker == re.sub('[^A-Z]', '', file):  # if there exists the csv file of the ticker
