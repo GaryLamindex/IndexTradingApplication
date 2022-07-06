@@ -18,28 +18,28 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # from engine.simulation_engine import sim_data_io_engine
 # from engine.simulation_engine.statistic_engine import statistic_engine
 
-# path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
-# tickers = []
+path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
+tickers = ['BTC', 'SHIB', 'ETH', 'BURGER', 'VGX']
 # filelist = os.listdir(path)
 # for filename in filelist:
 #     if not filename.startswith('.'):
 #         tickers.append(os.path.splitext(filename)[0])
-# initial_amount = 10000
-# start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
-# end_date = dt.datetime(2022, 1, 1, tzinfo=dt.timezone.utc)
-# periods_dict = {"start": 20, "end": 21, "step": 1}
-# cal_stat = True
-# user_id = 0
-# db_mode = {"dynamo_db": False, "local": True}
-# backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
-#                                       cal_stat, user_id, periods_dict, db_mode)
-# backtest.loop_through_params()
+initial_amount = 100000
+start_date = dt.datetime(2017, 1, 1, tzinfo=dt.timezone.utc)
+end_date = dt.datetime(2022, 6, 23, tzinfo=dt.timezone.utc)
+periods_dict = {"start": 20, "end": 21, "step": 1}
+cal_stat = True
+user_id = 0
+db_mode = {"dynamo_db": False, "local": True}
+backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
+                                      cal_stat, user_id, periods_dict, db_mode)
+backtest.loop_through_params()
 
 
 # start_date = dt.datetime(2010, 1, 1)  # YYMMDD
 # end_date = dt.datetime(2011, 3, 15)  # YYMMDD
 
-# strategy = "momentum_strategy"
+# strategy = "portfolio_rebalance"
 # mode = "backtest"
 # initial_amount = 10000
 # start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)

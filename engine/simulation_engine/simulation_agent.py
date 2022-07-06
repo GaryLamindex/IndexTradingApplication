@@ -193,7 +193,7 @@ class simulation_agent(object):
                 action_dicts.update(action_res)  # action_dicts|action_res
 
                 # then action_dicts
-                for key in action_dicts.keys():
+                for key in action_res.keys():
                     if key not in self.list_header:
                         self.list_header.append(key)
                         self.header_update = True
@@ -209,20 +209,23 @@ class simulation_agent(object):
         for ticker in self.tickers:
             #print("sim_meta_data[ticker].items()")
             #print(sim_meta_data[ticker].items())
+            temp_key = ""
             if len(sim_meta_data) > 0 and ticker in sim_meta_data:
-                sim_data_res.update({f"{str(key)}_{ticker} ": val for key, val in sim_meta_data[ticker].items()})
+                for key, val in sim_meta_data[ticker].items():
+                    sim_data_res.update({f"{str(key)}_{ticker} ": val })
+                    temp_key = f"{str(key)}_{ticker} "
             #draft
-            for key in sim_data_res.keys():
-                if key not in self.list_header:
-                    self.list_header.append(key)
-                    self.header_update = True
+            # for key in sim_data_res.keys():
+            if temp_key not in self.list_header:
+                self.list_header.append(temp_key)
+                self.header_update = True
 
             ticker_data_res.update({f"mktPrice_{ticker} ": ticker_data[ticker]['last']})
             #draft
-            for key in ticker_data_res.keys():
-                if key not in self.list_header:
-                    self.list_header.append(key)
-                    self.header_update = True
+            # for key in ticker_data_res.keys():
+            if f"mktPrice_{ticker} " not in self.list_header:
+                self.list_header.append(f"mktPrice_{ticker} ")
+                self.header_update = True
 
         # print("sim_data_res")
         # print(sim_data_res)

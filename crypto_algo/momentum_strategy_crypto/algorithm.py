@@ -10,6 +10,8 @@ class momentum_strategy:
     # it should return proper format of tuples in a list for self.pending_actions in backtest.py
     def run(self, price_dict, periods_pct_change_dict, timestamp):
         df = pd.DataFrame.from_dict(periods_pct_change_dict, orient='index', columns=['pct_change'])
+        df.dropna(inplace=True)
+
         actions_tup = None
 
         pending_action_list = []
@@ -19,6 +21,9 @@ class momentum_strategy:
             if df_temp.shape[0] <= 1:
                 return []
             df_largest = df_temp['pct_change'].nlargest(1)
+
+            for p in self.portfolio:
+                pass
 
             for ticker, pct_change in df_largest.iteritems():
                 # TODO: buggy: should loop thru portfolio instead
