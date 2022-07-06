@@ -151,7 +151,6 @@ class backtest(object):
                       sim_agent, dividend_engine, trade_agent):
         # connect to downloaded ib data to get price data
         row = 0
-        timestamps = {}
         timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
         for timestamp in timestamps:
