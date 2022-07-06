@@ -430,7 +430,7 @@ class backtest(object):
         drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
         # store data to mongoDB HERE
-        if store_mongoDB:
+        if self.store_mongoDB:
             p = Write_Mongodb()
             for file in os.listdir(backtest_data_directory):
                 if file.decode().endswith("csv"):
