@@ -40,9 +40,10 @@ def main():
     # df.to_excel("/Users/percychui/Downloads/scraper.xlsx", index=False)
     df = pd.DataFrame()
     array = list()
+    miss = list()
     exist = True
     ticker_data_path = str(
-        pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
+        pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/Rainy Drop/ticker_data/one_min"
     for x in range(0, len(links)):
         soup1 = BeautifulSoup(requests.get(links[x]).text, "lxml")
         table = soup1.find('table',
@@ -58,6 +59,7 @@ def main():
                 file_exist = f"{ticker}.csv" in os.listdir(ticker_data_path)
                 if not file_exist:
                     exist = False
+                    miss.append(ticker)
                 res = {ticker: weight}
                 array.append(res)
         if not exist:
@@ -66,8 +68,10 @@ def main():
             a = "True"
         json_str = json.dumps(array)
         df = pd.concat(
-            [df, pd.DataFrame.from_records([{'Strategy Name': strategy_name, 'Json': json_str, 'Data?': a}])])
+            [df, pd.DataFrame.from_records([{'Strategy Name': strategy_name, 'Json': json_str, 'Data?': a,'File Missed': miss.copy()}])])
         array.clear()
+        miss.clear()
+        exist = True
     df.to_excel("/Users/percychui/Downloads/scraper2.xlsx", index=False)
 
 
