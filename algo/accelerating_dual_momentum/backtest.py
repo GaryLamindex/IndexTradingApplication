@@ -118,7 +118,7 @@ class backtest:
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
             
-
+        
 
     def plot_all_file_graph(self):
         pass
