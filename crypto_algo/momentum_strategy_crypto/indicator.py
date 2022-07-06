@@ -13,4 +13,8 @@ class Indicator:
         if col_name not in self.evaluated_dict.keys():
             self.df[f'pct_change_{col_name}'] = self.df[col_name].pct_change(periods=periods)
             self.evaluated_dict[col_name] = True
-        return self.df.loc[self.df['timestamp'] == timestamp, f'pct_change_{col_name}']
+        temp = self.df.loc[self.df['timestamp'] == timestamp, f'pct_change_{col_name}']
+
+        if temp.shape[0] != 0:
+            return self.df.loc[self.df['timestamp'] == timestamp, f'pct_change_{col_name}'].item()
+        return None

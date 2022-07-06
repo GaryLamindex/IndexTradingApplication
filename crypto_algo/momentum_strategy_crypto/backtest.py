@@ -10,8 +10,9 @@ from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.crypto_engine.crypto_portfolio_data_engine import crypto_portfolio_data_engine
 from engine.crypto_engine.crypto_trade_engine import crypto_trade_engine
 from object.crypto_acc_data import crypto_acc_data
-from object.action_data import BinanceAction, BinanceActionsTuple
+from object.action_data import BinanceAction
 from crypto_algo.momentum_strategy_crypto.indicator import Indicator
+from engine.visualisation_engine import graph_plotting_engine
 
 
 class backtest:
@@ -94,6 +95,7 @@ class backtest:
                                period, portfolio_data_engine, sim_agent, trade_agent)
             print('finished backtest:', backtest_spec)
 
+            self.plot_all_file_graph()
             if self.cal_stat:
                 self.cal_all_file_return()
 
@@ -172,3 +174,8 @@ class backtest:
 
     def cal_all_file_return(self):
         pass
+
+    def plot_all_file_graph(self):
+        print("plot_graph")
+        graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "net_liquidation",
+                                                      f"{self.path}/{self.table_name}/graph")

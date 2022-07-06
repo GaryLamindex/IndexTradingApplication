@@ -64,11 +64,10 @@ class backtest(object):
     margin_ratio = np.NaN
     trader_name = "None"
 
-
     # maximum ONLY 2 tickers at a time !!!
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict,
                  max_drawdown_ratio_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode, quick_test,
-                 store_mongoDB, strategy_initial= 'None', video_link= 'None', documents_link= 'None',
+                 store_mongoDB, strategy_initial='None', video_link='None', documents_link='None',
                  tags_array=[], subscribers_num=0, rating_dict={},
                  margin_ratio=np.NaN, trader_name='None'):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
@@ -131,8 +130,6 @@ class backtest(object):
             self.rating_dict = rating_dict
             self.margin_ratio = margin_ratio
             self.trader_name = trader_name
-
-
 
     def loop_through_param(self):
 
@@ -232,7 +229,7 @@ class backtest(object):
                 _5_yr_sortino = sortino_dict.get('5y')
                 _ytd_sortino = sortino_dict.get('ytd')
 
-                return_dict , return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(file_name)
+                return_dict, return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(file_name)
                 inception_return = return_dict.get("inception")
                 _1_yr_return = return_dict.get("1y")
                 _3_yr_return = return_dict.get("3y")
@@ -362,21 +359,23 @@ class backtest(object):
                     "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
                     "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
                     "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return,
-                    #"Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
+                    # "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
 
                     "Since Inception Average Win Per Day": inception_average_win_day,
                     "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
-                    "3 Yr Average Win Per Day": _3_yr_average_win_day, "5 Yr Average Win Per Day": _5_yr_average_win_day,
+                    "3 Yr Average Win Per Day": _3_yr_average_win_day,
+                    "5 Yr Average Win Per Day": _5_yr_average_win_day,
                     "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
                     "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
-                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio, "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
-                    "last nlv": last_nlv,"last daily change":last_daily,"last monthly change":last_monthly,
+                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio,
+                    "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
+                    "last nlv": last_nlv, "last daily change": last_daily, "last monthly change": last_monthly,
 
                     "Composite": composite_dict,
                     "number_of_ETFs": number_of_ETFs,
 
-                    "1 yr sd":_1_yr_sd,
-                    "3 yr sd":_3_yr_sd,
+                    "1 yr sd": _1_yr_sd,
+                    "3 yr sd": _3_yr_sd,
                     "5 yr sd": _5_yr_sd,
                     "inception sd": inception_sd,
 
@@ -414,23 +413,21 @@ class backtest(object):
                "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
                "last nlv", "last daily change", "last monthly change",
-               "Composite","number_of_ETFs",
-               "1 yr sd","3 yr sd","5 yr sd","inception sd","_1_yr_pos_neg","_3_yr_pos_neg","_5_yr_pos_neg",
-               "inception_pos_neg","net profit",
-               "compound_inception_return_dict","compound_1_yr_return_dict","compound_3_yr_return_dict",
-               "compound_5_yr_return_dict","compound_ytd_return_dict"
-        ]
+               "Composite", "number_of_ETFs",
+               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "_1_yr_pos_neg", "_3_yr_pos_neg", "_5_yr_pos_neg",
+               "inception_pos_neg", "net profit",
+               "compound_inception_return_dict", "compound_1_yr_return_dict", "compound_3_yr_return_dict",
+               "compound_5_yr_return_dict", "compound_ytd_return_dict"
+               ]
 
-        df = pd.DataFrame(data= data_list, columns=col)
-        #pd.set_option("max_colwidth", 10000)
+        df = pd.DataFrame(data=data_list, columns=col)
+        # pd.set_option("max_colwidth", 10000)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
         drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
         drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
-
-
 
         # store data to mongoDB HERE
         if store_mongoDB:
