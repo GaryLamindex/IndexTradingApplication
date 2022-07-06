@@ -102,7 +102,22 @@ class backtest:
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm,
                            portfolio_data_engine, sim_agent, dividend_agent, trade_agent):
-        pass
+        if len(self.tickers) != 2:
+            print('This strategy only works for two tickers')
+            exit(0)
+        print('start backtest')
+        print('Fetch data')
+        portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
+        series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+            'timestamp']
+        series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
+            'timestamp']
+        timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
+        for timestamp in timestamps:
+            _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
+            _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
+            print('#' * 20, _date, ":", _time, '#' * 20)
+            
 
 
     def plot_all_file_graph(self):
