@@ -594,9 +594,12 @@ class statistic_engine:
 
             start_ts = dt.datetime.timestamp(rolling_start_dt)
             end_ts = dt.datetime.timestamp(rolling_end_dt)
+            try:
+                start_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] >= start_ts].index[0]]
+                end_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] <= end_ts].index[-1]]
+            except IndexError:
+                return None
 
-            start_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] >= start_ts].index[0]]
-            end_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] <= end_ts].index[-1]]
             temprrs = start_info_df['NetLiquidation']
             temprre = end_info_df['NetLiquidation']
 
@@ -1147,17 +1150,21 @@ class statistic_engine:
         return [average_win_day, average_lose_day]
 
     def get_composite_data(self, file_name):
-        number_of_ETFs = 0
-        full_df = self.data_engine.get_full_df(file_name)
-        last_day_info = full_df[full_df['timestamp'] == full_df['timestamp'].max()]
-        header = [col for col in full_df if col.startswith('marketValue')]
-        gross = last_day_info.iloc[0]['GrossPositionValue']
-        composite = {}
-        for i in header:
-            mkv = last_day_info.iloc[0][i]
-            tname = (i.split("_"))[-1]
-            composite.update({tname: mkv/gross})
-            number_of_ETFs = number_of_ETFs + 1
+        try:
+            number_of_ETFs = 0
+            full_df = self.data_engine.get_full_df(file_name)
+            last_day_info = full_df[full_df['timestamp'] == full_df['timestamp'].max()]
+            header = [col for col in full_df if col.startswith('marketValue')]
+            gross = last_day_info.iloc[0]['GrossPositionValue']
+            composite = {}
+            for i in header:
+                mkv = last_day_info.iloc[0][i]
+                tname = (i.split("_"))[-1]
+                composite.update({tname: mkv/gross})
+                number_of_ETFs = number_of_ETFs + 1
+        except KeyError:
+            composite = None
+            number_of_ETFs = 0
 
         return composite, number_of_ETFs
 

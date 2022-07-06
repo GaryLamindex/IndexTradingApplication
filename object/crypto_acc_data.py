@@ -10,7 +10,7 @@ class crypto_acc_data():
         self.cashflow_record = []
         # spot might not be accurate
         # currently transfer the coin to USDT and to BTC
-        self.wallet = {'spot': 0, 'funding': 0, 'net_liquidation': 0}
+        self.wallet = {'spot': 0, 'funding': 0, 'NetLiquidation': 0}
 
     def remove_portfolio_item(self, ticker):
         self.portfolio = [p for p in self.portfolio if p['ticker'] != ticker]
@@ -31,8 +31,8 @@ class crypto_acc_data():
                 return
         self.portfolio.append(temp_dict)
 
-    def update_wallet(self, spot, funding, net_liquidation):
-        self.wallet.update({'spot': spot, 'funding': funding, 'net_liquidation': net_liquidation})
+    def update_wallet(self, spot, funding, NetLiquidation):
+        self.wallet.update({'spot': spot, 'funding': funding, 'NetLiquidation': NetLiquidation})
 
     def append_cashflow_record(self, timestamp, account_type, transaction_type, amount):
         transaction_type_dict = {0: "Deposit", 1: "Withdraw"}

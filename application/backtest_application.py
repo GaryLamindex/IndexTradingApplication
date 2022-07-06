@@ -23,8 +23,8 @@ tickers = ['BTC', 'SHIB', 'ETH', 'BURGER', 'VGX']
 #     if not filename.startswith('.'):
 #         tickers.append(os.path.splitext(filename)[0])
 initial_amount = 100000
-start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
-end_date = dt.datetime(2022, 1, 1, tzinfo=dt.timezone.utc)
+start_date = dt.datetime(2017, 1, 1, tzinfo=dt.timezone.utc)
+end_date = dt.datetime(2022, 6, 23, tzinfo=dt.timezone.utc)
 periods_dict = {"start": 20, "end": 21, "step": 1}
 cal_stat = True
 user_id = 0
