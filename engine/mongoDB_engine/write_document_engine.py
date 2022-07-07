@@ -1,5 +1,8 @@
+import json
+
 from pymongo import MongoClient
 import certifi
+import requests
 import pandas as pd
 
 
@@ -174,14 +177,14 @@ def main():
     # print("SUCCESS")
     # w.write_one_min_raw_data("backtest_rebalance_margin_wif_max_drawdown_control_0",temp_list)
 
-    w = Write_Mongodb()
-    #df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_portfolio_rebalance_0/stats_data/all_file_return.csv')
-
-    #temp_list = df.to_dict(orient='records')
-    w.db = w.conn['rainydrop']
-
-    w.coll = w.db['Strategies']
-    print("SUCCESS")
+    # w = Write_Mongodb()
+    # #df = pd.read_csv('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_portfolio_rebalance_0/stats_data/all_file_return.csv')
+    #
+    # #temp_list = df.to_dict(orient='records')
+    # w.db = w.conn['rainydrop']
+    #
+    # w.coll = w.db['Strategies']
+    # print("SUCCESS")
     #w.write_one_min_raw_data("Strategies", temp_list)
     # w.coll.update_many({},{"$set":{"last daily change":0.02567}})
     # w.coll.update_many({}, {"$set": {"last monthly change": 0.14987567}})
@@ -216,7 +219,9 @@ def main():
     # strategies_df = pd.DataFrame(data=strategies_data)
     # _dict = strategies_df.to_dict(orient='records')
     # w.write_Strategies(_dict)
-    #
+
+    data = json.dumps({'ETF_percentage': 0.2391,'ETF_label': 'HELLO'})
+    requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
     return
 
 if __name__ == "__main__":
