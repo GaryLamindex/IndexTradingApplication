@@ -5,6 +5,7 @@ import pandas as pd
 from os import listdir
 from pathlib import Path
 from algo.accelerating_dual_momentum.algorithm import accelerating_dual_momentum
+from algo.accelerating_dual_momentum.indicator import Indicator
 from engine.backtest_engine.dividend_engine import dividend_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from engine.backtest_engine.stock_data_io_engine import local_engine
@@ -31,6 +32,7 @@ class backtest:
     bond = ""
     initial_amount = 0
     stock_data_engines = {}
+    indicators = {}
 
     def __init__(self, tickers, bond, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode):
@@ -47,8 +49,11 @@ class backtest:
         self.data_freq = data_freq
         self.db_mode = db_mode
         self.bond = bond
+        self.indicators = {}
+
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+            self.indicators[ticker] = Indicator(self.stock_data_engines[ticker].get_full_ticker_df())
         self.stock_data_engines[self.bond] = local_engine(self.bond, self.data_freq)
         if db_mode.get("local"):
 
@@ -101,7 +106,7 @@ class backtest:
             self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm,
-                           portfolio_data_engine, sim_agent, dividend_agent, trade_agent):
+                      portfolio_data_engine, sim_agent, dividend_agent, trade_agent):
         if len(self.tickers) != 2:
             print('This strategy only works for two tickers')
             exit(0)
@@ -117,13 +122,30 @@ class backtest:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
-            
-        
+            self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
+
+    def run(self, timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine):
+        pct_change_dict = {}
+        price_dict = {}
+        sim_meta_data = {}
+        stock_data_dict = {}
+        for ticker in self.tickers:
+            ticker_engine = self.stock_data_engines[ticker]
+            pct_change_dict.update({ticker: {1: self.indicators[ticker].get_pct_change(1, 'Open', timestamp)}})
+            pct_change_dict.update({ticker: {3: self.indicators[ticker].get_pct_change(3, 'Open', timestamp)}})
+            pct_change_dict.update({ticker: {6: self.indicators[ticker].get_pct_change(6, 'Open', timestamp)}})
+            sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
+            price = ticker_engine.get_field_by_timestamp(timestamp, 'Open')
+            if price is None:
+                stock_data_dict.update({ticker: {'last': None}})
+                price_dict.update({ticker: None})
+                continue
+            else:
+                stock_data_dict.update({ticker: {'last': price}})
+                price_dict.update({ticker: price})
 
     def plot_all_file_graph(self):
         pass
 
     def cal_all_file_return(self):
         pass
-
-
