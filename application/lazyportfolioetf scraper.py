@@ -51,9 +51,9 @@ def main():
         for row in table.tbody.find_all('tr'):
             columns = row.find_all('td')
             if columns != []:
-                weight = columns[0].b.contents[0]
-                weight = float(weight.replace("%", ""))
-                ticker = columns[2].b.contents[0]
+                weight = str(columns[0].b.contents[0])
+                weight = weight.replace("%", "")
+                ticker = str(columns[2].b.contents[0])
                 strategy_name = soup1.title.string
                 strategy_name = strategy_name.replace(': ETF allocation and returns', '')
                 file_exist = f"{ticker}.csv" in os.listdir(ticker_data_path)
@@ -61,14 +61,14 @@ def main():
                     exist = False
                     miss.append(ticker)
                 res = {ticker: weight}
+                res = json.dumps(res)
                 array.append(res)
         if not exist:
             a = "False"
         else:
             a = "True"
-        json_str = json.dumps(array)
         df = pd.concat(
-            [df, pd.DataFrame.from_records([{'Strategy Name': strategy_name, 'Json': json_str, 'Data?': a,'File Missed': miss.copy()}])])
+            [df, pd.DataFrame.from_records([{'Strategy Name': strategy_name, 'Json': array.copy(), 'Data?': a,'File Missed': miss.copy()}])])
         array.clear()
         miss.clear()
         exist = True
