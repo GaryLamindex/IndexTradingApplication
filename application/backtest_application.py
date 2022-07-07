@@ -9,31 +9,31 @@ import os
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
-# from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
-#     backtest as rebalance_margin_wif_max_drawdown_control_backtest
-# from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
-# from algo.rebalance_margin_wif_maintainance_margin.backtest import \
-#     backtest as rebalance_margin_wif_maintainance_margin_backtest
-#
-# from engine.simulation_engine import sim_data_io_engine
-# from engine.simulation_engine.statistic_engine import statistic_engine
+from algo.rebalance_margin_wif_max_drawdown_control.backtest import \
+    backtest as rebalance_margin_wif_max_drawdown_control_backtest
+from algo.rebalance_margin_never_sell.backtest import backtest as rebalance_margin_never_sell_backtest
+from algo.rebalance_margin_wif_maintainance_margin.backtest import \
+    backtest as rebalance_margin_wif_maintainance_margin_backtest
 
-path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
-tickers = ['BTC', 'SHIB', 'ETH', 'BURGER', 'VGX']
+from engine.simulation_engine import sim_data_io_engine
+from engine.simulation_engine.statistic_engine import statistic_engine
+
+# path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
+# tickers = ['BTC', 'SHIB', 'ETH', 'BURGER', 'VGX']
 # filelist = os.listdir(path)
 # for filename in filelist:
 #     if not filename.startswith('.'):
 #         tickers.append(os.path.splitext(filename)[0])
-initial_amount = 100000
-start_date = dt.datetime(2017, 1, 1, tzinfo=dt.timezone.utc)
-end_date = dt.datetime(2022, 6, 23, tzinfo=dt.timezone.utc)
-periods_dict = {"start": 20, "end": 21, "step": 1}
-cal_stat = True
-user_id = 0
-db_mode = {"dynamo_db": False, "local": True}
-backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
-                                      cal_stat, user_id, periods_dict, db_mode)
-backtest.loop_through_params()
+# initial_amount = 100000
+# start_date = dt.datetime(2017, 1, 1, tzinfo=dt.timezone.utc)
+# end_date = dt.datetime(2022, 6, 23, tzinfo=dt.timezone.utc)
+# periods_dict = {"start": 20, "end": 21, "step": 1}
+# cal_stat = True
+# user_id = 0
+# db_mode = {"dynamo_db": False, "local": True}
+# backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
+#                                       cal_stat, user_id, periods_dict, db_mode)
+# backtest.loop_through_params()
 
 
 # start_date = dt.datetime(2010, 1, 1)  # YYMMDD
@@ -67,6 +67,82 @@ backtest.loop_through_params()
 # user_id = 0
 
 
+# from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
+#
+# start_date = dt.datetime(2018, 1, 1)  # YYMMDD
+# end_date = dt.datetime(2019, 3, 15)  # YYMMDD
+#
+# strategy = "portfolio_rebalance"
+# mode = "backtest"
+# cal_stat = True
+# quick_test = True
+# wipe_previous_sim_data = True
+# db_mode = {"dynamo_db": False, "local": True}
+# data_freq = "one_min"
+# user_id = 0
+# df = pd.read_csv('/Users/percychui/Downloads/scraper2.csv')
+# df = df.loc[df["File Missed"] == "[]"]
+# dict = df["Json"].tolist()
+# tmp = list()
+# tickers = list()
+# weight = list()
+# for x in range(len(dict)):
+#     dict[x] = literal_eval(dict[x])
+# check = list()
+# for x in range(len(dict)):
+#     check.append(len(dict[x]))
+# df["Check"] = check
+# df = df.loc[df["Check"] != 1]
+# dict = df["Json"].tolist()
+# for x in range(len(dict)):
+#     dict[x] = literal_eval(dict[x])
+#
+# for x in range(len(dict)):
+#     for y in range(len(dict[x])):
+#         dict[x][y] = json.loads(dict[x][y])
+#         tmp.append(list(dict[x][y].keys()))
+#     tmp = [x for xs in tmp for x in xs]
+#     tickers.append(tmp.copy())
+#     tmp.clear()
+# for x in range(len(dict)):
+#     for y in range(len(dict[x])):
+#         tmp1 = list(dict[x][y].values())
+#         tmp1 = [float(x) for x in tmp1]
+#         tmp.append(tmp1)
+#     tmp = [x for xs in tmp for x in xs]
+#     weight.append(tmp.copy())
+#     tmp.clear()
+#
+# weight = list(map(lambda x: [x], weight))
+# # tickers = ["M", "MSFT"]
+# deposit_amount = 1000000
+# acceptance_range = 0
+# num_tickers = len(tickers)
+# # rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+# rebalance_ratio = weight
+# # rebalance_ratio = [[50, 50]]
+# print(weight)
+# print(tickers)
+# for x in range(len(dict)):
+#     portfolio_rebalance = portfolio_rebalance_backtest(tickers[x],
+#                                                        deposit_amount,
+#                                                        start_date,
+#                                                        end_date,
+#                                                        cal_stat,
+#                                                        data_freq,
+#                                                        user_id,
+#                                                        db_mode,
+#                                                        quick_test,
+#                                                        acceptance_range, rebalance_ratio[x], store_mongoDB=True,
+#                                                        strategy_initial='this is 20 80 m and msft portfolio',
+#                                                        video_link='https://www.youtube.com',
+#                                                        documents_link='https://google.com',
+#                                                        tags_array=None,
+#                                                        subscribers_num=3,
+#                                                        rating_dict=None,
+#                                                        margin_ratio=3.24,
+#                                                        trader_name='Fai')
+#     portfolio_rebalance.loop_through_param()
 from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
 
 start_date = dt.datetime(2018, 1, 1)  # YYMMDD
@@ -78,10 +154,10 @@ cal_stat = True
 quick_test = True
 wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
-data_freq = "one_min"
+data_freq = "one_day"
 user_id = 0
 df = pd.read_csv('/Users/percychui/Downloads/scraper2.csv')
-df = df.loc[df["File Missed"] == "[]"]
+df.drop([54, 57, 59, 80, 97, 102], axis=0, inplace=True)
 dict = df["Json"].tolist()
 tmp = list()
 tickers = list()
@@ -96,6 +172,7 @@ df = df.loc[df["Check"] != 1]
 dict = df["Json"].tolist()
 for x in range(len(dict)):
     dict[x] = literal_eval(dict[x])
+
 
 for x in range(len(dict)):
     for y in range(len(dict[x])):

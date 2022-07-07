@@ -162,7 +162,7 @@ class crypto_data_engine:
             return None
 
     def get_yfinance_max_historical_data(self, ticker):
-        btc = yf.Ticker(f'{ticker}-USD')
+        btc = yf.Ticker(ticker)
         hist = btc.history(period='max')
         return hist
 
@@ -178,7 +178,22 @@ class crypto_data_engine:
 
 def main():
     engine = crypto_data_engine()
-    engine.download_all_crypto_data()
+    # engine.download_all_crypto_data()
+    ticker_data_path = str(
+        pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_day"
+    etf_list_path = str(
+        pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/scraper.csv'
+    etf_list = pd.read_csv(etf_list_path)
+    for etf in etf_list['Ticker']:
+        df = engine.get_yfinance_max_historical_data(etf)
+        index_list = df.index.tolist()
+        timestamp = list()
+        for x in range(len(index_list)):
+            timestamp.append(int(index_list[x].timestamp()))
+        df['timestamp'] = timestamp
+        df = df.rename(columns={'Open': 'open'})
+        df.to_csv(f"{ticker_data_path}/{etf}.csv", index=True, header=True)
+
 
 
 if __name__ == '__main__':
