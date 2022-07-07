@@ -101,9 +101,9 @@ class backtest:
                                period, portfolio_data_engine, sim_agent, trade_agent)
             print('finished backtest:', backtest_spec)
 
-            self.plot_all_file_graph()
-            if self.cal_stat:
-                self.cal_all_file_return()
+        self.plot_all_file_graph()
+        if self.cal_stat:
+            self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm,
                       period, portfolio_data_engine, sim_agent, trade_agent):
