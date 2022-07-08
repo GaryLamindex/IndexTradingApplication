@@ -1,6 +1,7 @@
 import os
 import pathlib
 from datetime import datetime
+from datetime import timedelta
 import pandas as pd
 from os import listdir
 from pathlib import Path
@@ -51,9 +52,37 @@ class backtest:
         self.bond = bond
         self.indicators = {}
 
+        one_month_delta = timedelta(weeks=4)
+        three_month_delta = timedelta(weeks=12)
+        six_month_delta = timedelta(weeks=24)
+        one_month_before = start_date - one_month_delta
+        one_month_before_timestamp = datetime.timestamp(one_month_before)
+        three_month_before = start_date - three_month_delta
+        three_month_before_timestamp = datetime.timestamp(three_month_before)
+        six_month_before = start_date - six_month_delta
+        six_month_before_timestamp = datetime.timestamp(six_month_before)
+
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
-            self.indicators[ticker] = Indicator(self.stock_data_engines[ticker].get_full_ticker_df())
+            self.indicators[ticker] = Indicator(pd.DataFrame())
+            six_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
+                six_month_before_timestamp)
+            while six_month_ticker_items is None:
+                six_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
+                    six_month_before_timestamp+1)
+            three_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
+                three_month_before_timestamp)
+            while three_month_ticker_items is None:
+                three_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
+                    three_month_before_timestamp+1)
+            one_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
+                one_month_before_timestamp)
+            while one_month_ticker_items is None:
+                one_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
+                    one_month_before_timestamp+1)
+            self.indicators[ticker].append_into_df(six_month_ticker_items)
+            self.indicators[ticker].append_into_df(three_month_ticker_items)
+            self.indicators[ticker].append_into_df(one_month_ticker_items)
         self.stock_data_engines[self.bond] = local_engine(self.bond, self.data_freq)
         if db_mode.get("local"):
 
@@ -122,7 +151,8 @@ class backtest:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
-            self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
+            if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
+                self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
 
     def run(self, timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine):
         pct_change_dict = {}
@@ -131,11 +161,13 @@ class backtest:
         stock_data_dict = {}
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
-            pct_change_dict.update({ticker: {1: self.indicators[ticker].get_pct_change(1, 'Open', timestamp)}})
-            pct_change_dict.update({ticker: {3: self.indicators[ticker].get_pct_change(3, 'Open', timestamp)}})
-            pct_change_dict.update({ticker: {6: self.indicators[ticker].get_pct_change(6, 'Open', timestamp)}})
+            pct_change_dict.update({ticker: {1: self.indicators[ticker].get_pct_change(1, 'open', timestamp)}})
+            pct_change_dict.update({ticker: {3: self.indicators[ticker].get_pct_change(2, 'open', timestamp)}})
+            pct_change_dict.update({ticker: {6: self.indicators[ticker].get_pct_change(3, 'open', timestamp)}})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
-            price = ticker_engine.get_field_by_timestamp(timestamp, 'Open')
+            ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
+            self.indicators[ticker].append_into_df(ticker_items)
+            price = ticker_items.get('open')
             if price is None:
                 stock_data_dict.update({ticker: {'last': None}})
                 price_dict.update({ticker: None})
