@@ -200,8 +200,7 @@ rebalance_ratio = weight
 # rebalance_ratio = [[50, 50]]
 print(weight)
 print(tickers)
-for x in range(len(dict)):
-    portfolio_rebalance = portfolio_rebalance_backtest(tickers[x],
+portfolio_rebalance = portfolio_rebalance_backtest(tickers[2],
                                                        deposit_amount,
                                                        start_date,
                                                        end_date,
@@ -210,7 +209,7 @@ for x in range(len(dict)):
                                                        user_id,
                                                        db_mode,
                                                        quick_test,
-                                                       acceptance_range, rebalance_ratio[x], store_mongoDB=True,
+                                                       acceptance_range, rebalance_ratio[2], store_mongoDB=False,
                                                        strategy_initial='this is 20 80 m and msft portfolio',
                                                        video_link='https://www.youtube.com',
                                                        documents_link='https://google.com',
@@ -219,7 +218,7 @@ for x in range(len(dict)):
                                                        rating_dict=None,
                                                        margin_ratio=3.24,
                                                        trader_name='Fai')
-    portfolio_rebalance.loop_through_param()
+portfolio_rebalance.loop_through_param()
 # tickers = ["M", "MSFT"]
 # deposit_amount = 1000000
 # acceptance_range = 0
