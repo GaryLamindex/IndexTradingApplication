@@ -169,6 +169,7 @@ class backtest:
             elif cur_action == BinanceAction.CLOSE_POSITION:
                 ticker = func_params['ticker']
                 ticker_item = portfolio_data_engine.acc_data.check_if_ticker_exist_in_portfolio(ticker)
+                # TODO: why ticker_item is None
                 cur_position = ticker_item['available']
                 open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
                 action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
