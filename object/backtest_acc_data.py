@@ -1667,6 +1667,33 @@ class backtest_acc_data(object):
         _m = {'ticker': 'M', 'initMarginReq': 0.2834, 'maintMarginReq': 0.2577}
         _msft = {'ticker': 'MSFT', 'initMarginReq': 0.1696, 'maintMarginReq': 0.1542}
         _xhyd = {'ticker': 'XHYD', 'initMarginReq': 0.2788, 'maintMarginReq': 0.2535}
+        _dwx = {'ticker': 'DWX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _eem = {'ticker': 'EEM', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _vgk = {'ticker': 'VGK', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _vpl = {'ticker': 'VPL', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _gltr = {'ticker': 'GLTR', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _vt = {'ticker': 'VT', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _bndx = {'ticker': 'BNDX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _emb = {'ticker': 'EMB', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dls = {'ticker': 'DLS', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _efv = {'ticker': 'EFV', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _gsg = {'ticker': 'GSG', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _efa = {'ticker': 'EFA', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _vea = {'ticker': 'VEA', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _veu = {'ticker': 'VEU', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _scz = {'ticker': 'SCZ', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _imtm = {'ticker': 'IMTM', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dfusx = {'ticker': 'DFUSX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dfeox = {'ticker': 'DFEOX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dfalx = {'ticker': 'DFALX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dfcex = {'ticker': 'DFCEX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dfiex = {'ticker': 'DFIEX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dipsx = {'ticker': 'DIPSX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dfihx = {'ticker': 'DFIHX', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _gld = {'ticker': 'GLD', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _ugl = {'ticker': 'UGL', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _dbc = {'ticker': 'DBC', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
+        _capd = {'ticker': 'CAPD', 'initMarginReq': 1.0000, 'maintMarginReq': 1.0000}
 
         self.margin_info = [_m, _msft, _3188, _spy, _ivv, _vti, _voo, _qqq, _vtv, _agg, _bnd, _vug, _ijr, _vig, _ijh,
                             _iwf, _iwd, _iwm, _vo, _vym, _xle, _vgt, _vb, _vnq, _xlk, _itot, _bsv, _xlv, _schd, _xlf,
@@ -1789,7 +1816,9 @@ class backtest_acc_data(object):
                             _pexl, _trdf, _qclr, _spxv, _wil, _xclr, _vsl, _dwat, _junz, _cfcv, _lopx, _fldz, _nife,
                             _jfwd, _febz, _rxd, _fedx, _gblo, _wgro, _ooto, _xtr, _mjus, _maax, _fivr, _ggrw, _mzz,
                             _useq, _rodi, _afsm, _weix, _afmc, _szk, _liv, _smn, _sij, _sdp, _qtr, _ltl, _skyu, _trpl,
-                            _stlg, _eeh, _hhh, _aggh, _dspc, _gbgr, _epre, _ailv, _ailg, _xhyc, _xhyh, _xhyt, _xhyd]
+                            _stlg, _eeh, _hhh, _aggh, _dspc, _gbgr, _epre, _ailv, _ailg, _xhyc, _xhyh, _xhyt, _xhyd,
+                            _dwx, _eem, _vgk, _vpl, _gltr, _vt, _bndx, _emb, _dls, _efv, _gsg, _efa, _vea, _veu, _scz,
+                            _imtm, _dfusx, _dfeox, _dfalx, _dfcex, _dfiex, _dipsx, _dfihx, _gld, _ugl, _dbc, _capd]
         self.acc_data_json_file_path = str(pathlib.Path(
             __file__).parent.parent.parent.parent.resolve()) + f"/user_id_{self.user_id}/backtest/acc_data/{self.table_name}/{spec_str}.json"
 
@@ -1873,7 +1902,7 @@ class backtest_acc_data(object):
                 break
 
     def get_margin_info_ticker_item(self, ticker):
-        margin_info_item = next((item for item in self.margin_info if item['ticker'] == ticker), None)
+        margin_info_item = next((item for item in self.margin_info if item["ticker"] == ticker), None)
         return margin_info_item
 
     def return_acc_data(self):
