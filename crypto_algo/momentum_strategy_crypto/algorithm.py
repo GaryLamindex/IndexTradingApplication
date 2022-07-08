@@ -20,21 +20,20 @@ class momentum_strategy:
             df_temp = df.dropna(subset='pct_change')
             if df_temp.shape[0] <= 1:
                 return []
-            df_largest = df_temp['pct_change'].nlargest(1)
+            n_positive = df.loc[df['pct_change'] > 0].shape[0]
+            n_max = max(n_positive, 30)
+            df_largest = df_temp['pct_change'].nlargest(n_max)
 
             for p in self.portfolio:
-                pass
-
-            for ticker, pct_change in df_largest.iteritems():
-                # TODO: buggy: should loop thru portfolio instead
-                if self.portfolio_agent.acc_data.check_if_ticker_exist_in_portfolio(ticker):
+                if p['ticker'] not in df_largest.index:
                     actions_tup = BinanceActionsTuple(timestamp + 86400, BinanceAction.CLOSE_POSITION,
-                                                      {'ticker': ticker})
+                                                      {'ticker': p['ticker']})
 
             for ticker, pct_change in df_largest.iteritems():
-                cash = self.portfolio_agent.get_overview().get('funding')
+                total_num = df_largest.shape[0]
+                cash = self.portfolio_agent.get_overview().get('funding') / total_num
                 cur_price = price_dict[ticker]
-                qty_to_buy = int(cash / cur_price * 0.99)
+                qty_to_buy = int(cash / cur_price)
 
                 # only for integral qty_to_buy
                 if qty_to_buy == 0:
