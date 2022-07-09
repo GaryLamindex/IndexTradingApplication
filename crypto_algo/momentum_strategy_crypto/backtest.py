@@ -101,9 +101,9 @@ class backtest:
                                period, portfolio_data_engine, sim_agent, trade_agent)
             print('finished backtest:', backtest_spec)
 
-            self.plot_all_file_graph()
-            if self.cal_stat:
-                self.cal_all_file_return()
+        self.plot_all_file_graph()
+        if self.cal_stat:
+            self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm,
                       period, portfolio_data_engine, sim_agent, trade_agent):
@@ -169,6 +169,7 @@ class backtest:
             elif cur_action == BinanceAction.CLOSE_POSITION:
                 ticker = func_params['ticker']
                 ticker_item = portfolio_data_engine.acc_data.check_if_ticker_exist_in_portfolio(ticker)
+                # TODO: why ticker_item is None
                 cur_position = ticker_item['available']
                 open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
                 action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
