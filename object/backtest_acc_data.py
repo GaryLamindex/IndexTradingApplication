@@ -1888,6 +1888,8 @@ class backtest_acc_data(object):
             return False
 
     def get_portfolio_ticker_item(self, ticker):
+        if ticker == "DWX":
+            a=0
         ticker_item = next((item for item in self.portfolio if item['ticker'] == ticker), None)
         return ticker_item
 

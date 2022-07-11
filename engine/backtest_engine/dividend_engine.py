@@ -110,13 +110,18 @@ class dividend_engine:
                     f'{self.dividends_data_path}/{ticker}_{int(dt.datetime(today_dt.year, today_dt.month, today_dt.day, tzinfo=dt.timezone.utc).timestamp())}.csv')
 
 
-# def main():
+def main():
 # dividend_agent = dividend_engine(["AAPL"], 547689600, 1651795200,
 #                                  [{'ticker': "AAPL", 'position': 88},{'ticker': "QQQ", 'position': 50}])
 # dividend_agent.input_ticker("QQQ")
 # dividend = dividend_agent.check_div(1541635200)
 # print(dividend)
-
+    etf_list_path = str(
+        pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/scraper.csv'
+    etf_list = pd.read_csv(etf_list_path)
+    etf_list = etf_list["Ticker"].values.tolist()
+    engine = dividend_engine(etf_list)
+    engine.get_dividends(etf_list, -1)
 
 if __name__ == "__main__":
-    pass
+    main()
