@@ -35,6 +35,10 @@ class portfolio_rebalance:
         self.acceptance_range = acceptance_range
         self.portfolio = self.account_snapshot.get("portfolio")
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
+        self.target_market_positions = {}
+        self.buy_list = []
+        self.sell_list = []
+        self.net_liquidation = 0
 
     def run(self, realtime_stock_data_dict, timestamp):
 

@@ -144,8 +144,9 @@ class backtest(object):
         list_of_stats_data = listdir(self.stats_data_dir)
         for file in list_of_stats_data:
             os.remove(Path(f"{self.stats_data_dir}/{file}"))
+        current_file = spec_str + '.csv'
         if self.cal_stat:
-            self.cal_all_file_return()
+            self.cal_all_file_return(current_file)
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent, dividend_engine, trade_agent):
@@ -181,7 +182,7 @@ class backtest(object):
         for k, v in self.rebalance_dict.items():
             ratio = v / 100
             total_ratio += ratio
-        if total_ratio != 1:
+        if abs((1 - total_ratio)) > 0.01:
             print("total ratio is not 100%")
         else:
             check_ratio = True
@@ -194,15 +195,15 @@ class backtest(object):
         graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "NetLiquidation",
                                                       f"{self.path}/{self.table_name}/graph")
 
-    def cal_all_file_return(self):
+    def cal_all_file_return(self, current_file):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
-            if file.decode().endswith("csv"):
+            if file.decode().endswith("csv") and current_file == file.decode():
                 marketCol = f'marketPrice_{self.tickers[0]}'
-                costCol = f'costBasis_{self.tickers[idx]}'
-                valueCol = f'marketValue_{self.tickers[idx]}'
+                # costCol = f'costBasis_{self.tickers[idx]}'
+                # valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
