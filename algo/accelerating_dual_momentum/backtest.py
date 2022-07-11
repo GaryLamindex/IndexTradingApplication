@@ -176,6 +176,7 @@ class backtest:
                 stock_data_dict.update({ticker: {'last': price}})
                 price_dict.update({ticker: price})
 
+
     def plot_all_file_graph(self):
         pass
 
