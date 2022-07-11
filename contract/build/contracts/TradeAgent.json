@@ -134,9 +134,9 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_tickerName\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"_targetSharePurchase\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"_transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"_timestamp\",\"type\":\"uint256\"}],\"name\":\"placeBuyStockLimitOrderMsg\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"tickerName\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"transactionType\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"positionAction\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionAmount\",\"type\":\"int256\"}],\"internalType\":\"struct Object.ActionMsg\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_tickerName\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"_targetShareSell\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"_transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"_timestamp\",\"type\":\"uint256\"}],\"name\":\"placeSellStockLimitOrderMsg\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"tickerName\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"transactionType\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"positionAction\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionAmount\",\"type\":\"int256\"}],\"internalType\":\"struct Object.ActionMsg\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/agents/TradeAgent.sol\":\"TradeAgent\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/Object.sol\":{\"keccak256\":\"0x6f13e9d49f499923eeb5bdafdbf13fc1abc26b054324d3c7a6952d9ac70a6a9f\",\"urls\":[\"bzz-raw://145cd917d82d99e8090d9a32c87d1554a6235f89f4b484ee97e52affdbacf6fb\",\"dweb:/ipfs/QmesDV32DofcpSCQdUnjJ1br8NbC98cCFMHAfT882nVLMM\"]},\"project:/contracts/agents/TradeAgent.sol\":{\"keccak256\":\"0xb8f6d93d4f9c7a7b672d2edf3440018a1a262e3097fc5eaab325a4b34a6cf9a5\",\"urls\":[\"bzz-raw://e14697c50385175c29a8c9398e4203871c76b689e75eca6ce9a6783dc8a7aaae\",\"dweb:/ipfs/QmQHKb5QJwRdbyBT9idZxVU8YAAWfdsFokbPXZkek36SbK\"]},\"project:/contracts/utils/FixidityLib.sol\":{\"keccak256\":\"0x68851a3832ee4703bc3cadbfb2796b9e55e22474c721d777a79502b9d0c2c7de\",\"urls\":[\"bzz-raw://f054b8bf1441f4064e4b2149e60c9340be1d0793ae013c57c5395b689651914d\",\"dweb:/ipfs/QmaG3XwsiPyUTx44AMoM8pQaek5nzn5BSSuoxkUiw342Na\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b50610714806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806314ea6c191461003b5780634f8ac98d1461006b575b600080fd5b61005560048036038101906100509190610489565b61009b565b6040516100629190610642565b60405180910390f35b61008560048036038101906100809190610489565b610194565b6040516100929190610642565b60405180910390f35b6100a361028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016100de929190610673565b602060405180830381865af41580156100fb573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061011f91906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600481526020017f53656c6c0000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b61019c61028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016101d7929190610673565b602060405180830381865af41580156101f4573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061021891906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600381526020017f427579000000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b6040518060c001604052806060815260200160008152602001606081526020016000815260200160008152602001600081525090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b61032a826102e1565b810181811067ffffffffffffffff82111715610349576103486102f2565b5b80604052505050565b600061035c6102c3565b90506103688282610321565b919050565b600067ffffffffffffffff821115610388576103876102f2565b5b610391826102e1565b9050602081019050919050565b82818337600083830152505050565b60006103c06103bb8461036d565b610352565b9050828152602081018484840111156103dc576103db6102dc565b5b6103e784828561039e565b509392505050565b600082601f830112610404576104036102d7565b5b81356104148482602086016103ad565b91505092915050565b6000819050919050565b6104308161041d565b811461043b57600080fd5b50565b60008135905061044d81610427565b92915050565b6000819050919050565b61046681610453565b811461047157600080fd5b50565b6000813590506104838161045d565b92915050565b600080600080608085870312156104a3576104a26102cd565b5b600085013567ffffffffffffffff8111156104c1576104c06102d2565b5b6104cd878288016103ef565b94505060206104de8782880161043e565b93505060406104ef8782880161043e565b925050606061050087828801610474565b91505092959194509250565b600081519050919050565b600082825260208201905092915050565b60005b8381101561054657808201518184015260208101905061052b565b83811115610555576000848401525b50505050565b60006105668261050c565b6105708185610517565b9350610580818560208601610528565b610589816102e1565b840191505092915050565b61059d81610453565b82525050565b6105ac8161041d565b82525050565b600060c08301600083015184820360008601526105cf828261055b565b91505060208301516105e46020860182610594565b50604083015184820360408601526105fc828261055b565b915050606083015161061160608601826105a3565b50608083015161062460808601826105a3565b5060a083015161063760a08601826105a3565b508091505092915050565b6000602082019050818103600083015261065c81846105b2565b905092915050565b61066d8161041d565b82525050565b60006040820190506106886000830185610664565b6106956020830184610664565b9392505050565b6000815190506106ab81610427565b92915050565b6000602082840312156106c7576106c66102cd565b5b60006106d58482850161069c565b9150509291505056fea2646970667358221220966d24d1771db893cc490f6fd7703238eeeff15a08db1576c6d8d332bfe996c664736f6c634300080d0033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c806314ea6c191461003b5780634f8ac98d1461006b575b600080fd5b61005560048036038101906100509190610489565b61009b565b6040516100629190610642565b60405180910390f35b61008560048036038101906100809190610489565b610194565b6040516100929190610642565b60405180910390f35b6100a361028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016100de929190610673565b602060405180830381865af41580156100fb573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061011f91906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600481526020017f53656c6c0000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b61019c61028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016101d7929190610673565b602060405180830381865af41580156101f4573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061021891906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600381526020017f427579000000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b6040518060c001604052806060815260200160008152602001606081526020016000815260200160008152602001600081525090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b61032a826102e1565b810181811067ffffffffffffffff82111715610349576103486102f2565b5b80604052505050565b600061035c6102c3565b90506103688282610321565b919050565b600067ffffffffffffffff821115610388576103876102f2565b5b610391826102e1565b9050602081019050919050565b82818337600083830152505050565b60006103c06103bb8461036d565b610352565b9050828152602081018484840111156103dc576103db6102dc565b5b6103e784828561039e565b509392505050565b600082601f830112610404576104036102d7565b5b81356104148482602086016103ad565b91505092915050565b6000819050919050565b6104308161041d565b811461043b57600080fd5b50565b60008135905061044d81610427565b92915050565b6000819050919050565b61046681610453565b811461047157600080fd5b50565b6000813590506104838161045d565b92915050565b600080600080608085870312156104a3576104a26102cd565b5b600085013567ffffffffffffffff8111156104c1576104c06102d2565b5b6104cd878288016103ef565b94505060206104de8782880161043e565b93505060406104ef8782880161043e565b925050606061050087828801610474565b91505092959194509250565b600081519050919050565b600082825260208201905092915050565b60005b8381101561054657808201518184015260208101905061052b565b83811115610555576000848401525b50505050565b60006105668261050c565b6105708185610517565b9350610580818560208601610528565b610589816102e1565b840191505092915050565b61059d81610453565b82525050565b6105ac8161041d565b82525050565b600060c08301600083015184820360008601526105cf828261055b565b91505060208301516105e46020860182610594565b50604083015184820360408601526105fc828261055b565b915050606083015161061160608601826105a3565b50608083015161062460808601826105a3565b5060a083015161063760a08601826105a3565b508091505092915050565b6000602082019050818103600083015261065c81846105b2565b905092915050565b61066d8161041d565b82525050565b60006040820190506106886000830185610664565b6106956020830184610664565b9392505050565b6000815190506106ab81610427565b92915050565b6000602082840312156106c7576106c66102cd565b5b60006106d58482850161069c565b9150509291505056fea2646970667358221220966d24d1771db893cc490f6fd7703238eeeff15a08db1576c6d8d332bfe996c664736f6c634300080d0033",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_tickerName\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"_targetSharePurchase\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"_transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"_timestamp\",\"type\":\"uint256\"}],\"name\":\"placeBuyStockLimitOrderMsg\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"tickerName\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"transactionType\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"positionAction\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionAmount\",\"type\":\"int256\"}],\"internalType\":\"struct Object.ActionMsg\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_tickerName\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"_targetShareSell\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"_transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"uint256\",\"name\":\"_timestamp\",\"type\":\"uint256\"}],\"name\":\"placeSellStockLimitOrderMsg\",\"outputs\":[{\"components\":[{\"internalType\":\"string\",\"name\":\"tickerName\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"transactionType\",\"type\":\"string\"},{\"internalType\":\"int256\",\"name\":\"positionAction\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionTickerPrice\",\"type\":\"int256\"},{\"internalType\":\"int256\",\"name\":\"transactionAmount\",\"type\":\"int256\"}],\"internalType\":\"struct Object.ActionMsg\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/agents/TradeAgent.sol\":\"TradeAgent\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/Object.sol\":{\"keccak256\":\"0x837f1bc7916812c0d1e87eb50a5b0805fc9d71b13820b0d5ddb0d9cb6b14f057\",\"urls\":[\"bzz-raw://dcc7129f12dc5e1d25bd41022d7584f6af3c534629c64701a0a7e38b00720eda\",\"dweb:/ipfs/QmZpYYafeSqNu53YCnwJKnvTDrurUmrmXxMdsej7az2Q23\"]},\"project:/contracts/agents/TradeAgent.sol\":{\"keccak256\":\"0xb8f6d93d4f9c7a7b672d2edf3440018a1a262e3097fc5eaab325a4b34a6cf9a5\",\"urls\":[\"bzz-raw://e14697c50385175c29a8c9398e4203871c76b689e75eca6ce9a6783dc8a7aaae\",\"dweb:/ipfs/QmQHKb5QJwRdbyBT9idZxVU8YAAWfdsFokbPXZkek36SbK\"]},\"project:/contracts/utils/FixidityLib.sol\":{\"keccak256\":\"0x68851a3832ee4703bc3cadbfb2796b9e55e22474c721d777a79502b9d0c2c7de\",\"urls\":[\"bzz-raw://f054b8bf1441f4064e4b2149e60c9340be1d0793ae013c57c5395b689651914d\",\"dweb:/ipfs/QmaG3XwsiPyUTx44AMoM8pQaek5nzn5BSSuoxkUiw342Na\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610714806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806314ea6c191461003b5780634f8ac98d1461006b575b600080fd5b61005560048036038101906100509190610489565b61009b565b6040516100629190610642565b60405180910390f35b61008560048036038101906100809190610489565b610194565b6040516100929190610642565b60405180910390f35b6100a361028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016100de929190610673565b602060405180830381865af41580156100fb573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061011f91906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600481526020017f53656c6c0000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b61019c61028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016101d7929190610673565b602060405180830381865af41580156101f4573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061021891906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600381526020017f427579000000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b6040518060c001604052806060815260200160008152602001606081526020016000815260200160008152602001600081525090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b61032a826102e1565b810181811067ffffffffffffffff82111715610349576103486102f2565b5b80604052505050565b600061035c6102c3565b90506103688282610321565b919050565b600067ffffffffffffffff821115610388576103876102f2565b5b610391826102e1565b9050602081019050919050565b82818337600083830152505050565b60006103c06103bb8461036d565b610352565b9050828152602081018484840111156103dc576103db6102dc565b5b6103e784828561039e565b509392505050565b600082601f830112610404576104036102d7565b5b81356104148482602086016103ad565b91505092915050565b6000819050919050565b6104308161041d565b811461043b57600080fd5b50565b60008135905061044d81610427565b92915050565b6000819050919050565b61046681610453565b811461047157600080fd5b50565b6000813590506104838161045d565b92915050565b600080600080608085870312156104a3576104a26102cd565b5b600085013567ffffffffffffffff8111156104c1576104c06102d2565b5b6104cd878288016103ef565b94505060206104de8782880161043e565b93505060406104ef8782880161043e565b925050606061050087828801610474565b91505092959194509250565b600081519050919050565b600082825260208201905092915050565b60005b8381101561054657808201518184015260208101905061052b565b83811115610555576000848401525b50505050565b60006105668261050c565b6105708185610517565b9350610580818560208601610528565b610589816102e1565b840191505092915050565b61059d81610453565b82525050565b6105ac8161041d565b82525050565b600060c08301600083015184820360008601526105cf828261055b565b91505060208301516105e46020860182610594565b50604083015184820360408601526105fc828261055b565b915050606083015161061160608601826105a3565b50608083015161062460808601826105a3565b5060a083015161063760a08601826105a3565b508091505092915050565b6000602082019050818103600083015261065c81846105b2565b905092915050565b61066d8161041d565b82525050565b60006040820190506106886000830185610664565b6106956020830184610664565b9392505050565b6000815190506106ab81610427565b92915050565b6000602082840312156106c7576106c66102cd565b5b60006106d58482850161069c565b9150509291505056fea2646970667358221220327f11907b78d0aeef8e01450d5be21e2ea431c7a3d8f43dbbd233311784330a64736f6c634300080d0033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c806314ea6c191461003b5780634f8ac98d1461006b575b600080fd5b61005560048036038101906100509190610489565b61009b565b6040516100629190610642565b60405180910390f35b61008560048036038101906100809190610489565b610194565b6040516100929190610642565b60405180910390f35b6100a361028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016100de929190610673565b602060405180830381865af41580156100fb573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061011f91906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600481526020017f53656c6c0000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b61019c61028d565b600073__FixidityLib___________________________633c4308a886866040518363ffffffff1660e01b81526004016101d7929190610673565b602060405180830381865af41580156101f4573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061021891906106b1565b905060006040518060c001604052808881526020018581526020016040518060400160405280600381526020017f427579000000000000000000000000000000000000000000000000000000000081525081526020018781526020018681526020018381525090508092505050949350505050565b6040518060c001604052806060815260200160008152602001606081526020016000815260200160008152602001600081525090565b6000604051905090565b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b61032a826102e1565b810181811067ffffffffffffffff82111715610349576103486102f2565b5b80604052505050565b600061035c6102c3565b90506103688282610321565b919050565b600067ffffffffffffffff821115610388576103876102f2565b5b610391826102e1565b9050602081019050919050565b82818337600083830152505050565b60006103c06103bb8461036d565b610352565b9050828152602081018484840111156103dc576103db6102dc565b5b6103e784828561039e565b509392505050565b600082601f830112610404576104036102d7565b5b81356104148482602086016103ad565b91505092915050565b6000819050919050565b6104308161041d565b811461043b57600080fd5b50565b60008135905061044d81610427565b92915050565b6000819050919050565b61046681610453565b811461047157600080fd5b50565b6000813590506104838161045d565b92915050565b600080600080608085870312156104a3576104a26102cd565b5b600085013567ffffffffffffffff8111156104c1576104c06102d2565b5b6104cd878288016103ef565b94505060206104de8782880161043e565b93505060406104ef8782880161043e565b925050606061050087828801610474565b91505092959194509250565b600081519050919050565b600082825260208201905092915050565b60005b8381101561054657808201518184015260208101905061052b565b83811115610555576000848401525b50505050565b60006105668261050c565b6105708185610517565b9350610580818560208601610528565b610589816102e1565b840191505092915050565b61059d81610453565b82525050565b6105ac8161041d565b82525050565b600060c08301600083015184820360008601526105cf828261055b565b91505060208301516105e46020860182610594565b50604083015184820360408601526105fc828261055b565b915050606083015161061160608601826105a3565b50608083015161062460808601826105a3565b5060a083015161063760a08601826105a3565b508091505092915050565b6000602082019050818103600083015261065c81846105b2565b905092915050565b61066d8161041d565b82525050565b60006040820190506106886000830185610664565b6106956020830184610664565b9392505050565b6000815190506106ab81610427565b92915050565b6000602082840312156106c7576106c66102cd565b5b60006106d58482850161069c565b9150509291505056fea2646970667358221220327f11907b78d0aeef8e01450d5be21e2ea431c7a3d8f43dbbd233311784330a64736f6c634300080d0033",
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [
@@ -4487,20 +4487,20 @@
     "absolutePath": "project:/contracts/agents/TradeAgent.sol",
     "exportedSymbols": {
       "FixidityLib": [
-        5755
+        5797
       ],
       "Object": [
-        109
+        132
       ],
       "TradeAgent": [
-        1474
+        1516
       ]
     },
-    "id": 1475,
+    "id": 1517,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1395,
+        "id": 1437,
         "literals": [
           "solidity",
           "^",
@@ -4513,11 +4513,11 @@
       {
         "absolutePath": "project:/contracts/Object.sol",
         "file": "../Object.sol",
-        "id": 1396,
+        "id": 1438,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1475,
-        "sourceUnit": 110,
+        "scope": 1517,
+        "sourceUnit": 133,
         "src": "25:23:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -4525,11 +4525,11 @@
       {
         "absolutePath": "project:/contracts/utils/FixidityLib.sol",
         "file": "../utils/FixidityLib.sol",
-        "id": 1397,
+        "id": 1439,
         "nameLocation": "-1:-1:-1",
         "nodeType": "ImportDirective",
-        "scope": 1475,
-        "sourceUnit": 5756,
+        "scope": 1517,
+        "sourceUnit": 5798,
         "src": "50:34:3",
         "symbolAliases": [],
         "unitAlias": ""
@@ -4539,13 +4539,13 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 1398,
+              "id": 1440,
               "name": "Object",
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 109,
+              "referencedDeclaration": 132,
               "src": "111:6:3"
             },
-            "id": 1399,
+            "id": 1441,
             "nodeType": "InheritanceSpecifier",
             "src": "111:6:3"
           }
@@ -4554,10 +4554,10 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 1474,
+        "id": 1516,
         "linearizedBaseContracts": [
-          1474,
-          109
+          1516,
+          132
         ],
         "name": "TradeAgent",
         "nameLocation": "97:10:3",
@@ -4565,23 +4565,23 @@
         "nodes": [
           {
             "body": {
-              "id": 1435,
+              "id": 1477,
               "nodeType": "Block",
               "src": "301:385:3",
               "statements": [
                 {
                   "assignments": [
-                    1414
+                    1456
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1414,
+                      "id": 1456,
                       "mutability": "mutable",
                       "name": "_transactionAmount",
                       "nameLocation": "319:18:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1435,
+                      "scope": 1477,
                       "src": "312:25:3",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -4590,7 +4590,7 @@
                         "typeString": "int256"
                       },
                       "typeName": {
-                        "id": 1413,
+                        "id": 1455,
                         "name": "int256",
                         "nodeType": "ElementaryTypeName",
                         "src": "312:6:3",
@@ -4602,15 +4602,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1420,
+                  "id": 1462,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1417,
+                        "id": 1459,
                         "name": "_targetSharePurchase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1403,
+                        "referencedDeclaration": 1445,
                         "src": "361:20:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4618,11 +4618,11 @@
                         }
                       },
                       {
-                        "id": 1418,
+                        "id": 1460,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1405,
+                        "referencedDeclaration": 1447,
                         "src": "383:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4642,32 +4642,32 @@
                         }
                       ],
                       "expression": {
-                        "id": 1415,
+                        "id": 1457,
                         "name": "FixidityLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5755,
+                        "referencedDeclaration": 5797,
                         "src": "340:11:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5755_$",
+                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5797_$",
                           "typeString": "type(library FixidityLib)"
                         }
                       },
-                      "id": 1416,
+                      "id": 1458,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "multiply",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 5692,
+                      "referencedDeclaration": 5734,
                       "src": "340:20:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_pure$_t_int256_$_t_int256_$returns$_t_int256_$",
                         "typeString": "function (int256,int256) pure returns (int256)"
                       }
                     },
-                    "id": 1419,
+                    "id": 1461,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4687,17 +4687,17 @@
                 },
                 {
                   "assignments": [
-                    1423
+                    1465
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1423,
+                      "id": 1465,
                       "mutability": "mutable",
                       "name": "buy_msg",
                       "nameLocation": "435:7:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1435,
+                      "scope": 1477,
                       "src": "418:24:3",
                       "stateVariable": false,
                       "storageLocation": "memory",
@@ -4706,10 +4706,10 @@
                         "typeString": "struct Object.ActionMsg"
                       },
                       "typeName": {
-                        "id": 1422,
+                        "id": 1464,
                         "nodeType": "UserDefinedTypeName",
                         "pathNode": {
-                          "id": 1421,
+                          "id": 1463,
                           "name": "ActionMsg",
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 54,
@@ -4725,15 +4725,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1432,
+                  "id": 1474,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1425,
+                        "id": 1467,
                         "name": "_tickerName",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1401,
+                        "referencedDeclaration": 1443,
                         "src": "467:11:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -4741,11 +4741,11 @@
                         }
                       },
                       {
-                        "id": 1426,
+                        "id": 1468,
                         "name": "_timestamp",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1407,
+                        "referencedDeclaration": 1449,
                         "src": "491:10:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -4754,7 +4754,7 @@
                       },
                       {
                         "hexValue": "427579",
-                        "id": 1427,
+                        "id": 1469,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -4769,11 +4769,11 @@
                         "value": "Buy"
                       },
                       {
-                        "id": 1428,
+                        "id": 1470,
                         "name": "_targetSharePurchase",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1403,
+                        "referencedDeclaration": 1445,
                         "src": "543:20:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4781,11 +4781,11 @@
                         }
                       },
                       {
-                        "id": 1429,
+                        "id": 1471,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1405,
+                        "referencedDeclaration": 1447,
                         "src": "588:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4793,11 +4793,11 @@
                         }
                       },
                       {
-                        "id": 1430,
+                        "id": 1472,
                         "name": "_transactionAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1414,
+                        "referencedDeclaration": 1456,
                         "src": "631:18:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -4832,7 +4832,7 @@
                           "typeString": "int256"
                         }
                       ],
-                      "id": 1424,
+                      "id": 1466,
                       "name": "ActionMsg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
@@ -4843,7 +4843,7 @@
                         "typeString": "type(struct Object.ActionMsg storage pointer)"
                       }
                     },
-                    "id": 1431,
+                    "id": 1473,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -4870,26 +4870,26 @@
                 },
                 {
                   "expression": {
-                    "id": 1433,
+                    "id": 1475,
                     "name": "buy_msg",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 1423,
+                    "referencedDeclaration": 1465,
                     "src": "671:7:3",
                     "typeDescriptions": {
                       "typeIdentifier": "t_struct$_ActionMsg_$54_memory_ptr",
                       "typeString": "struct Object.ActionMsg memory"
                     }
                   },
-                  "functionReturnParameters": 1412,
-                  "id": 1434,
+                  "functionReturnParameters": 1454,
+                  "id": 1476,
                   "nodeType": "Return",
                   "src": "664:14:3"
                 }
               ]
             },
             "functionSelector": "4f8ac98d",
-            "id": 1436,
+            "id": 1478,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -4897,17 +4897,17 @@
             "nameLocation": "133:26:3",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1408,
+              "id": 1450,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1401,
+                  "id": 1443,
                   "mutability": "mutable",
                   "name": "_tickerName",
                   "nameLocation": "174:11:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1436,
+                  "scope": 1478,
                   "src": "160:25:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -4916,7 +4916,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 1400,
+                    "id": 1442,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "160:6:3",
@@ -4929,12 +4929,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1403,
+                  "id": 1445,
                   "mutability": "mutable",
                   "name": "_targetSharePurchase",
                   "nameLocation": "194:20:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1436,
+                  "scope": 1478,
                   "src": "187:27:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4943,7 +4943,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1402,
+                    "id": 1444,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "187:6:3",
@@ -4956,12 +4956,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1405,
+                  "id": 1447,
                   "mutability": "mutable",
                   "name": "_transactionTickerPrice",
                   "nameLocation": "223:23:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1436,
+                  "scope": 1478,
                   "src": "216:30:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4970,7 +4970,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1404,
+                    "id": 1446,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "216:6:3",
@@ -4983,12 +4983,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1407,
+                  "id": 1449,
                   "mutability": "mutable",
                   "name": "_timestamp",
                   "nameLocation": "256:10:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1436,
+                  "scope": 1478,
                   "src": "248:18:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -4997,7 +4997,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1406,
+                    "id": 1448,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "248:7:3",
@@ -5012,17 +5012,17 @@
               "src": "159:108:3"
             },
             "returnParameters": {
-              "id": 1412,
+              "id": 1454,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1411,
+                  "id": 1453,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1436,
+                  "scope": 1478,
                   "src": "284:16:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -5031,10 +5031,10 @@
                     "typeString": "struct Object.ActionMsg"
                   },
                   "typeName": {
-                    "id": 1410,
+                    "id": 1452,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 1409,
+                      "id": 1451,
                       "name": "ActionMsg",
                       "nodeType": "IdentifierPath",
                       "referencedDeclaration": 54,
@@ -5052,7 +5052,7 @@
               ],
               "src": "283:18:3"
             },
-            "scope": 1474,
+            "scope": 1516,
             "src": "124:562:3",
             "stateMutability": "nonpayable",
             "virtual": false,
@@ -5060,23 +5060,23 @@
           },
           {
             "body": {
-              "id": 1472,
+              "id": 1514,
               "nodeType": "Block",
               "src": "868:380:3",
               "statements": [
                 {
                   "assignments": [
-                    1451
+                    1493
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1451,
+                      "id": 1493,
                       "mutability": "mutable",
                       "name": "_transactionAmount",
                       "nameLocation": "886:18:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1472,
+                      "scope": 1514,
                       "src": "879:25:3",
                       "stateVariable": false,
                       "storageLocation": "default",
@@ -5085,7 +5085,7 @@
                         "typeString": "int256"
                       },
                       "typeName": {
-                        "id": 1450,
+                        "id": 1492,
                         "name": "int256",
                         "nodeType": "ElementaryTypeName",
                         "src": "879:6:3",
@@ -5097,15 +5097,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1457,
+                  "id": 1499,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1454,
+                        "id": 1496,
                         "name": "_targetShareSell",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1440,
+                        "referencedDeclaration": 1482,
                         "src": "928:16:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5113,11 +5113,11 @@
                         }
                       },
                       {
-                        "id": 1455,
+                        "id": 1497,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1442,
+                        "referencedDeclaration": 1484,
                         "src": "946:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5137,32 +5137,32 @@
                         }
                       ],
                       "expression": {
-                        "id": 1452,
+                        "id": 1494,
                         "name": "FixidityLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 5755,
+                        "referencedDeclaration": 5797,
                         "src": "907:11:3",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5755_$",
+                          "typeIdentifier": "t_type$_t_contract$_FixidityLib_$5797_$",
                           "typeString": "type(library FixidityLib)"
                         }
                       },
-                      "id": 1453,
+                      "id": 1495,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "multiply",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 5692,
+                      "referencedDeclaration": 5734,
                       "src": "907:20:3",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_pure$_t_int256_$_t_int256_$returns$_t_int256_$",
                         "typeString": "function (int256,int256) pure returns (int256)"
                       }
                     },
-                    "id": 1456,
+                    "id": 1498,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5182,17 +5182,17 @@
                 },
                 {
                   "assignments": [
-                    1460
+                    1502
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1460,
+                      "id": 1502,
                       "mutability": "mutable",
                       "name": "sell_msg",
                       "nameLocation": "998:8:3",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1472,
+                      "scope": 1514,
                       "src": "981:25:3",
                       "stateVariable": false,
                       "storageLocation": "memory",
@@ -5201,10 +5201,10 @@
                         "typeString": "struct Object.ActionMsg"
                       },
                       "typeName": {
-                        "id": 1459,
+                        "id": 1501,
                         "nodeType": "UserDefinedTypeName",
                         "pathNode": {
-                          "id": 1458,
+                          "id": 1500,
                           "name": "ActionMsg",
                           "nodeType": "IdentifierPath",
                           "referencedDeclaration": 54,
@@ -5220,15 +5220,15 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1469,
+                  "id": 1511,
                   "initialValue": {
                     "arguments": [
                       {
-                        "id": 1462,
+                        "id": 1504,
                         "name": "_tickerName",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1438,
+                        "referencedDeclaration": 1480,
                         "src": "1031:11:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -5236,11 +5236,11 @@
                         }
                       },
                       {
-                        "id": 1463,
+                        "id": 1505,
                         "name": "_timestamp",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1444,
+                        "referencedDeclaration": 1486,
                         "src": "1055:10:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -5249,7 +5249,7 @@
                       },
                       {
                         "hexValue": "53656c6c",
-                        "id": 1464,
+                        "id": 1506,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -5264,11 +5264,11 @@
                         "value": "Sell"
                       },
                       {
-                        "id": 1465,
+                        "id": 1507,
                         "name": "_targetShareSell",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1440,
+                        "referencedDeclaration": 1482,
                         "src": "1108:16:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5276,11 +5276,11 @@
                         }
                       },
                       {
-                        "id": 1466,
+                        "id": 1508,
                         "name": "_transactionTickerPrice",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1442,
+                        "referencedDeclaration": 1484,
                         "src": "1149:23:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5288,11 +5288,11 @@
                         }
                       },
                       {
-                        "id": 1467,
+                        "id": 1509,
                         "name": "_transactionAmount",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1451,
+                        "referencedDeclaration": 1493,
                         "src": "1192:18:3",
                         "typeDescriptions": {
                           "typeIdentifier": "t_int256",
@@ -5327,7 +5327,7 @@
                           "typeString": "int256"
                         }
                       ],
-                      "id": 1461,
+                      "id": 1503,
                       "name": "ActionMsg",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
@@ -5338,7 +5338,7 @@
                         "typeString": "type(struct Object.ActionMsg storage pointer)"
                       }
                     },
-                    "id": 1468,
+                    "id": 1510,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -5365,26 +5365,26 @@
                 },
                 {
                   "expression": {
-                    "id": 1470,
+                    "id": 1512,
                     "name": "sell_msg",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 1460,
+                    "referencedDeclaration": 1502,
                     "src": "1232:8:3",
                     "typeDescriptions": {
                       "typeIdentifier": "t_struct$_ActionMsg_$54_memory_ptr",
                       "typeString": "struct Object.ActionMsg memory"
                     }
                   },
-                  "functionReturnParameters": 1449,
-                  "id": 1471,
+                  "functionReturnParameters": 1491,
+                  "id": 1513,
                   "nodeType": "Return",
                   "src": "1225:15:3"
                 }
               ]
             },
             "functionSelector": "14ea6c19",
-            "id": 1473,
+            "id": 1515,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
@@ -5392,17 +5392,17 @@
             "nameLocation": "703:27:3",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1445,
+              "id": 1487,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1438,
+                  "id": 1480,
                   "mutability": "mutable",
                   "name": "_tickerName",
                   "nameLocation": "745:11:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1515,
                   "src": "731:25:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -5411,7 +5411,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 1437,
+                    "id": 1479,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "731:6:3",
@@ -5424,12 +5424,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1440,
+                  "id": 1482,
                   "mutability": "mutable",
                   "name": "_targetShareSell",
                   "nameLocation": "765:16:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1515,
                   "src": "758:23:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5438,7 +5438,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1439,
+                    "id": 1481,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "758:6:3",
@@ -5451,12 +5451,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1442,
+                  "id": 1484,
                   "mutability": "mutable",
                   "name": "_transactionTickerPrice",
                   "nameLocation": "790:23:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1515,
                   "src": "783:30:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5465,7 +5465,7 @@
                     "typeString": "int256"
                   },
                   "typeName": {
-                    "id": 1441,
+                    "id": 1483,
                     "name": "int256",
                     "nodeType": "ElementaryTypeName",
                     "src": "783:6:3",
@@ -5478,12 +5478,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1444,
+                  "id": 1486,
                   "mutability": "mutable",
                   "name": "_timestamp",
                   "nameLocation": "823:10:3",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1515,
                   "src": "815:18:3",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -5492,7 +5492,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 1443,
+                    "id": 1485,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "815:7:3",
@@ -5507,17 +5507,17 @@
               "src": "730:104:3"
             },
             "returnParameters": {
-              "id": 1449,
+              "id": 1491,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1448,
+                  "id": 1490,
                   "mutability": "mutable",
                   "name": "",
                   "nameLocation": "-1:-1:-1",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1515,
                   "src": "851:16:3",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -5526,10 +5526,10 @@
                     "typeString": "struct Object.ActionMsg"
                   },
                   "typeName": {
-                    "id": 1447,
+                    "id": 1489,
                     "nodeType": "UserDefinedTypeName",
                     "pathNode": {
-                      "id": 1446,
+                      "id": 1488,
                       "name": "ActionMsg",
                       "nodeType": "IdentifierPath",
                       "referencedDeclaration": 54,
@@ -5547,14 +5547,14 @@
               ],
               "src": "850:18:3"
             },
-            "scope": 1474,
+            "scope": 1516,
             "src": "694:554:3",
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
           }
         ],
-        "scope": 1475,
+        "scope": 1517,
         "src": "88:1167:3",
         "usedErrors": []
       }
@@ -5567,7 +5567,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-07-05T00:04:12.735Z",
+  "updatedAt": "2022-07-07T13:34:20.512Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

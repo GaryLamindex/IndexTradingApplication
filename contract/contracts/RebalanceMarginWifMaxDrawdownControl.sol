@@ -11,66 +11,118 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
 
     uint256 lastExecutedTimestamp;
     uint256 timestamp;
+
+    string[] tickerNames;
+    mapping (string => bool) tickerExists;
+
     mapping (string => bool) maxDrawdownDodge;
     mapping (string => int256) benchmarkDrawdownPrice;
     mapping (string => int256) liquidateTickerQty;
     mapping (string => int256) maxStockPrice;
     mapping (string => int256) liquidateTickerPrice;
-    mapping (uint256 => RealTimeTickerData[]) realTimeTickersData;
+    mapping (uint256 => mapping(string => RealTimeTickerData)) realTimeTickersData;
+
     mapping (uint256 => PortfolioData)  portfolioData;
-    mapping (uint256 => ActionMsg[]) actionMsgs;
+    mapping (uint256 => mapping(string => ActionMsg)) actionMsgs;
+    mapping (uint256 => mapping(string => PortfolioHolding)) portfolioHoldingsData;
     uint256 loop = 0;
     int256 rebalanceMargin = int256(5) * FixidityLib.fixed1() / int256(100);
     int256 maxDrawdown = int256(5) * FixidityLib.fixed1() / int256(1000);
 
     constructor(){
-
+        tickerNames = ["QQQ", "SPY"];
+        tickerExists["QQQ"] = true;
+        tickerExists["SPY"] = true;
     }
 
-    function inputRealTimeTickerData(string tickerName, int256 bidPrice, int256 last, uint256 timestamp) public {
+    function inputRealTimeTickerData(string memory tickerName, int256 bidPrice, int256 last, uint256 timestamp) public {
         RealTimeTickerData memory tickerData = RealTimeTickerData(tickerName, bidPrice, last);
-        realTimeTickersData[timestamp].push(tickerData);
+        realTimeTickersData[timestamp][tickerName] = tickerData;
+
+        if(loop == 0){
+            maxDrawdownDodge[tickerName] = false;
+            benchmarkDrawdownPrice[tickerName] = 0;
+            liquidateTickerQty[tickerName] = 0;
+            maxStockPrice[tickerName] = 0;
+            liquidateTickerPrice[tickerName] = 0;
+        }
+
+        if (!tickerExists[tickerName]){
+            tickerNames.push(tickerName);
+            tickerExists[tickerName] = true;
+            maxDrawdownDodge[tickerName] = false;
+            benchmarkDrawdownPrice[tickerName] = 0;
+            liquidateTickerQty[tickerName] = 0;
+            maxStockPrice[tickerName] = 0;
+            liquidateTickerPrice[tickerName] = 0;
+        }
+
+
     }
 
-    function inputPortfolioData(string memory AccountCode, string memory Currency, string memory ExchangeRate, int256 FullInitMarginReq, int256 FullMainMarginReq, int256 AvailableFunds, int256 ExcessLiquidity, int256 BuyingPower, int256 Leverage, int256 EquityWithLoanValue, int256 TotalCashValue, int256 NetDividend, int256 NetLiquidation, int256 UnrealizedPnL, int256 RealizedPnL, int256 GrossPositionValue) public {
-        PortfolioData memory portfolioData = PortfolioData(AccountCode, Currency, ExchangeRate, FullInitMarginReq, FullMainMarginReq, AvailableFunds, ExcessLiquidity, BuyingPower, Leverage, EquityWithLoanValue, TotalCashValue, NetDividend, NetLiquidation, UnrealizedPnL, RealizedPnL, GrossPositionValue);
-        portfolioData[timestamp] = portfolioData;
+    function updatePortfolioData(MarginAccount memory marginAcc, TradingFunds memory tradingFunds, MktValue memory mktValue) public {
+        int256 FullInitMarginReq = marginAcc.FullInitMarginReq;
+        int256 FullMainMarginReq = marginAcc.FullMainMarginReq;
+        int256 AvailableFunds = tradingFunds.AvailableFunds;
+        int256 ExcessLiquidity = tradingFunds.ExcessLiquidity;
+        int256 BuyingPower = tradingFunds.BuyingPower;
+        int256 Leverage = tradingFunds.Leverage;
+        int256 EquityWithLoanValue = tradingFunds.EquityWithLoanValue;
+        int256 TotalCashValue = mktValue.TotalCashValue;
+        int256 NetDividend = mktValue.NetDividend;
+        int256 NetLiquidation = mktValue.NetLiquidation;
+        int256 UnrealizedPnL = mktValue.UnrealizedPnL;
+        int256 RealizedPnL = mktValue.RealizedPnL;
+        int256 GrossPositionValue = mktValue.GrossPositionValue;
+
+        PortfolioData memory data = PortfolioData(FullInitMarginReq, FullMainMarginReq, AvailableFunds, ExcessLiquidity, BuyingPower, Leverage, EquityWithLoanValue, TotalCashValue, NetDividend, NetLiquidation, UnrealizedPnL, RealizedPnL, GrossPositionValue);
+        portfolioData[timestamp] = data;
+    }
+
+    function inputMarginAccount(int256 FullInitMarginReq, int256 FullMainMarginReq) public {
+        MarginAccount memory data = MarginAccount(FullInitMarginReq, FullMainMarginReq);
+    }
+
+    function inputTradingFunds(int256 AvailableFunds, int256 ExcessLiquidity, int256 BuyingPower, int256 Leverage, int256 EquityWithLoanValue) public {
+        TradingFunds memory data = TradingFunds(AvailableFunds, ExcessLiquidity, BuyingPower, Leverage, EquityWithLoanValue);
+    }
+
+    function inputMktValue(int256 TotalCashValue, int256 NetDividend, int256 NetLiquidation, int256 UnrealizedPnL, int256 RealizedPnL, int256 GrossPositionValue) public {
+        MktValue memory data = MktValue(TotalCashValue, NetDividend, NetLiquidation, UnrealizedPnL, RealizedPnL, GrossPositionValue);
     }
 
     function updatePortfolioHoldingsData(string memory tickerName, int256 position, int256 marketPrice, int256 averageCost, int256 marketValue, int256 realizedPNL, int256 unrealizedPNL, int256 initMarginReq, int256 maintMarginReq, int256 costBasis) public {
         PortfolioHolding memory portfolioHolding = PortfolioHolding(tickerName, position, marketPrice, averageCost, marketValue, realizedPNL, unrealizedPNL, initMarginReq, maintMarginReq, costBasis);
-        portfolioHoldingsData[timestamp].push(portfolioHolding);
+        portfolioHoldingsData[timestamp][tickerName] = portfolioHolding;
     }
 
-    function getTickerActionMsg(string tickerName, uint256 timestamp) public {
-        ActionMsg memory actionMsg = actionMsgs[timestamp];
-        return (actionMsg.tickerName, actionMsg.timestamp, actionMsg.positionAction, actionMsg.transactionTickerPrice, actionMsg.transactionAmount);
+    function getTickerActionMsg(string memory tickerName, uint256 timestamp) public returns (string memory, uint256, string memory, int256, int256, int256){
+        ActionMsg memory actionMsg = actionMsgs[timestamp][tickerName];
+        return (actionMsg.tickerName, actionMsg.timestamp, actionMsg.transactionType, actionMsg.positionAction, actionMsg.transactionTickerPrice, actionMsg.transactionAmount);
     }
 
-    function run(uint256 _timeStamp) public returns (ActionMsg[] memory){
-
+    function run(uint256 _timeStamp) public{
         require(checkExecution(timestamp));
-        renewContractState(_tickerData, _timeStamp, _portfolioData, _portfolioHoldings);
         if(loop == 0){
-            int256 capitalForEachStock = FixidityLib.divide(portfolioData[_timeStamp].TotalCashValue, int256(realTimeTickersData[_timeStamp].length));
-            for (uint i=0; i < realTimeTickersData[_timeStamp].length; i++){
-                RealTimeTickerData memory tickerData = realTimeTickersData[_timeStamp][i];
+            int256 capitalForEachStock = FixidityLib.divide(portfolioData[_timeStamp].TotalCashValue, int256(tickerNames.length) * FixidityLib.fixed1());
+            for (uint i=0; i < tickerNames.length; i++){
+                RealTimeTickerData memory tickerData = realTimeTickersData[_timeStamp][tickerNames[i]];
                 string memory tickerName = tickerData.tickerName;
                 int256 tickerPrice = tickerData.last;
                 int256 sharePurchase = FixidityLib.divide(capitalForEachStock,tickerData.last) * 3;
                 ActionMsg memory actionMsg = TradeAgent.placeBuyStockLimitOrderMsg(tickerName,sharePurchase,tickerPrice,_timeStamp);
-                actionMsgs[timestamp].push(actionMsg);
+                actionMsgs[timestamp][tickerName] = actionMsg;
             }
         }
         else{
             int256 targetExLiq = FixidityLib.multiply(rebalanceMargin, portfolioData[_timeStamp].GrossPositionValue);
-            for (uint i=0; i < realTimeTickersData[_timeStamp].length; i++){
-                int256 tickerPrice = realTimeTickersData[_timeStamp][i].last;
-                string memory tickerName = realTimeTickersData[_timeStamp][i].tickerName;
-                if (maxDrawdownDodge[realTimeTickersData[_timeStamp][i].tickerName]){
+            for (uint i=0; i < tickerNames.length; i++){
+                int256 tickerPrice = realTimeTickersData[_timeStamp][tickerNames[i]].last;
+                string memory tickerName = tickerNames[i];
+                if (maxDrawdownDodge[tickerNames[i]]){
                     if (checkBuyBack(tickerName, tickerPrice)){
                         ActionMsg memory actionMsg = buyBackPosition(tickerName, tickerPrice,_timeStamp);
-                        actionMsgs[timestamp].push(actionMsg);
+                        actionMsgs[timestamp][tickerName] = actionMsg;
                     }
                 }else{
                     if(checkMaxDrawdownDodge(tickerName,tickerPrice)){
@@ -83,17 +135,17 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
 
                             if (targetSharePurchase > 0){
                                 ActionMsg memory actionMsg = super.placeBuyStockLimitOrderMsg(tickerName,targetSharePurchase,tickerPrice,_timeStamp);
-                                actionMsgs[timestamp].push(actionMsg);
+                                actionMsgs[timestamp][tickerName] = actionMsg;
                             }
                         }
                     }
                 }
             }
 
-            for (uint i=0; i < realTimeTickersData[_timeStamp].length; i++){
-                int256 tickerPrice = realTimeTickersData[_timeStamp][i].last;
-                string memory tickerName = realTimeTickersData[_timeStamp][i].tickerName;
-                if (maxDrawdownDodge[realTimeTickersData[_timeStamp][i].tickerName]){
+            for (uint i=0; i < tickerNames.length; i++){
+                int256 tickerPrice = realTimeTickersData[_timeStamp][tickerNames[i]].last;
+                string memory tickerName = tickerNames[i];
+                if (maxDrawdownDodge[tickerName]){
                     updateBenchmarkDrawdownPriceAfterDodge(tickerName, tickerPrice);
                 }
                 else{
@@ -104,56 +156,6 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
         lastExecutedTimestamp = _timeStamp;
         loop = loop + 1;
 
-        ActionMsg[] memory msgs = new ActionMsg[](actionMsgs[timestamp].length);
-        for (uint i = 0; i < actionMsgs[timestamp].length; i++) {
-            msgs[i] = actionMsgs[timestamp][i];
-        }
-
-        return msgs;
-    }
-
-    function renewContractState(RealTimeTickerData[] memory _tickersData, uint256 _timeStamp, PortfolioData memory _portfolioData, PortfolioHolding[] memory _portfolioHoldings) private{
-        timestamp = _timeStamp;
-
-        //        lastExecutedTimestamp = block.timestamp;
-        if(loop == 0){
-            for (uint i=0; i < _tickersData.length; i++){
-                RealTimeTickerData memory tickerData = _tickersData[i];
-                string memory tickerName = tickerData.tickerName;
-                maxDrawdownDodge[tickerName] = false;
-                benchmarkDrawdownPrice[tickerName] = 0;
-                liquidateTickerQty[tickerName] = 0;
-                maxStockPrice[tickerName] = 0;
-                liquidateTickerPrice[tickerName] = 0;
-            }
-        }
-
-
-        RealTimeTickerData[] storage _realTimeTickerArray = realTimeTickersData[_timeStamp];
-        for (uint i = 0; i < _tickersData.length; i++) {
-            RealTimeTickerData memory _tickerData = _tickersData[i];
-            _realTimeTickerArray[i].bidPrice =_tickerData.bidPrice;
-            _realTimeTickerArray[i].last =_tickerData.last;
-            _realTimeTickerArray[i].tickerName =_tickerData.tickerName;
-        }
-
-        PortfolioHolding[] storage _portfolioHoldingArray = portfolioHoldingsData[_timeStamp];
-        for (uint i = 0; i < _portfolioHoldings.length; i++) {
-            PortfolioHolding memory _portfolioHolding = _portfolioHoldings[i];
-            _portfolioHoldingArray[i].tickerName = _portfolioHolding.tickerName;
-            _portfolioHoldingArray[i].averageCost = _portfolioHolding.averageCost;
-            _portfolioHoldingArray[i].costBasis = _portfolioHolding.costBasis;
-            _portfolioHoldingArray[i].initMarginReq = _portfolioHolding.initMarginReq;
-            _portfolioHoldingArray[i].maintMarginReq = _portfolioHolding.maintMarginReq;
-            _portfolioHoldingArray[i].marketPrice = _portfolioHolding.marketPrice;
-            _portfolioHoldingArray[i].marketValue = _portfolioHolding.marketValue;
-            _portfolioHoldingArray[i].position = _portfolioHolding.position;
-            _portfolioHoldingArray[i].realizedPNL = _portfolioHolding.realizedPNL;
-            _portfolioHoldingArray[i].unrealizedPNL = _portfolioHolding.unrealizedPNL;
-        }
-
-        portfolioData[_timeStamp] = _portfolioData;
-        delete actionMsgs;
     }
 
     function checkExecution(uint256 _timestamp) internal returns (bool){
@@ -250,10 +252,10 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
     }
 
     function liquidateTickerPosition(string memory tickerName, int256 tickerPrice, uint256 _timeStamp) private returns (ActionMsg memory){
-        PortfolioHolding memory holding = getPortfolioHoldingByTickerName(tickerName, portfolioHoldingsData[_timeStamp]);
-        RealTimeTickerData memory tickerData = getRealTimeTickerDataByTickerName(tickerName, realTimeTickersData[_timeStamp]);
+        PortfolioHolding memory holding = portfolioHoldingsData[_timeStamp][tickerName];
+        RealTimeTickerData memory tickerData = realTimeTickersData[_timeStamp][tickerName];
         int256 currentPosition = holding.position;
-        int256 noLeverageEquity = portfolioData[_timeStamp].EquityWithLoanValue / int256(realTimeTickersData[_timeStamp].length);
+        int256 noLeverageEquity = portfolioData[_timeStamp].EquityWithLoanValue / int256(tickerNames.length);
         int256 noLeveragePosition = FixidityLib.divide(noLeverageEquity,tickerData.last);
         int256 targetLeveragePositionAtLiquidState = noLeveragePosition * 12 / 10;
 
@@ -278,13 +280,4 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
         return holding;
     }
 
-    function getRealTimeTickerDataByTickerName(string memory tickerName,  RealTimeTickerData[] memory realTimeTickersData) private returns (RealTimeTickerData memory){
-        RealTimeTickerData memory realTimeTickerData;
-        for (uint i=0; i<realTimeTickersData.length; i++){
-            if(realTimeTickersData[i].tickerName.compareStrings(tickerName)){
-                realTimeTickerData = realTimeTickersData[i];
-            }
-        }
-        return realTimeTickerData;
-    }
 }

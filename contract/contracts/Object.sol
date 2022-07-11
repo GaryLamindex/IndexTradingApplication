@@ -17,11 +17,29 @@ contract Object {
         int256 transactionAmount;
     }
 
+    struct MarginAccount{
+        int256 FullInitMarginReq;
+        int256 FullMainMarginReq;
+    }
+
+    struct TradingFunds{
+        int256 AvailableFunds;
+        int256 ExcessLiquidity;
+        int256 BuyingPower;
+        int256 Leverage;
+        int256 EquityWithLoanValue;
+    }
+
+    struct MktValue{
+        int256 TotalCashValue;
+        int256 NetDividend;
+        int256 NetLiquidation;
+        int256 UnrealizedPnL;
+        int256 RealizedPnL;
+        int256 GrossPositionValue;
+    }
+
     struct PortfolioData{
-        //accData
-        string AccountCode;
-        string Currency;
-        string ExchangeRate;
 
         //margin_acc
         int256 FullInitMarginReq;
