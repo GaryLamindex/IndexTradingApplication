@@ -38,6 +38,7 @@ class simulation_agent(object):
         self.table_info = table_info
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
+        self.list_header = []
 
         if online == True:
             self.sim_data_engine = sim_data_io_engine.online_engine()
