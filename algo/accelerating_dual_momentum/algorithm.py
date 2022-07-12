@@ -18,8 +18,10 @@ class accelerating_dual_momentum:
         self.portfolio = self.account_snapshot.get("portfolio")
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
         self.buy = ""
+        self.action_msgs = []
 
     def run(self, pct_change_dict, price_dict, bond, timestamp):
+        self.action_msgs = []
         self.pct_change_dict = pct_change_dict
         if not self.trade_agent.market_opened():
             return
@@ -41,6 +43,27 @@ class accelerating_dual_momentum:
             buy = ticker_list[0]
         elif momentum_signals[0] < momentum_signals[1]:
             buy = ticker_list[1]
+        if self.portfolio["ticker"] == buy:
+            price = price_dict[buy]
+            target_pos = self.total_market_value/price
+            buy_pos = target_pos-self.portfolio['position']
+            action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                        {'ticker': buy, 'position_purchase': buy_pos})
+            self.action_msgs.append(action_msg)
+        else:
+            sell = self.portfolio["ticker"]
+            sell_pos = self.portfolio['position']
+            action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
+                                        {'ticker': sell, 'position_sell': sell_pos})
+            self.action_msgs.append(action_msg)
+            price = price_dict[buy]
+            target_pos = self.total_market_value / price
+            action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                        {'ticker': buy, 'position_purchase': target_pos})
+            self.action_msgs.append(action_msg)
+            return self.action_msgs.copy()
+
+
 
 
 
