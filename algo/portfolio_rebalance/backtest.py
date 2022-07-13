@@ -67,6 +67,8 @@ class backtest(object):
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
         self.rebalance_ratio = rebalance_ratio
+        self.start_date = start_date
+        self.end_date = end_date
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
 
@@ -118,7 +120,14 @@ class backtest(object):
                 # remove if exist
                 run_file = self.run_file_dir + spec_str + '.csv'
                 if os.path.exists(run_file):
-                    os.remove(Path(run_file))
+                    df = pd.read_csv(run_file)
+                    first_day = df["date"].iloc[0]
+                    last_day = df["date"].iloc[-1]
+                    if abs((self.start_date.replace(day=1) - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
+                            abs((self.end_date.replace(day=1) - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
+                        os.remove(Path(run_file))
+                    else:
+                        return
                 graph_file = self.graph_dir + spec_str + '.png'
                 if os.path.exists(graph_file):
                     os.remove(Path(graph_file))
