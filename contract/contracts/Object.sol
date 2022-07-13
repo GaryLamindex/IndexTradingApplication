@@ -39,30 +39,6 @@ contract Object {
         int256 GrossPositionValue;
     }
 
-    struct PortfolioData{
-
-        //margin_acc
-        int256 FullInitMarginReq;
-        int256 FullMainMarginReq;
-
-        //trading_funds
-        int256 AvailableFunds;
-        int256 ExcessLiquidity;
-        int256 BuyingPower;
-        int256 Leverage;
-        int256 EquityWithLoanValue;
-
-        //mkt_value
-        int256 TotalCashValue;
-        int256 NetDividend;
-        int256 NetLiquidation;
-        int256 UnrealizedPnL;
-        int256 RealizedPnL;
-        int256 GrossPositionValue;
-
-
-    }
-
     //ticker portfolio
     struct PortfolioHolding{
         string tickerName;
