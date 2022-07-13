@@ -9,7 +9,8 @@ import pandas as pd
 # error_cov is the var-cov matrix of errors, dimension = 2
 # (changed to 1d array containing all variances, dimension=1)
 
-def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array,error_cov):
+
+def covariance_matrix(s_rt, beta_matrix, beta_expected_matrix, pca_cov, pca_array, error_cov):
     l = len(s_rt)
     whole_cov_matrix = pd.DataFrame(np.zeros((l,l)))
     for m in range(len(s_rt)):  # s_rt = stock_return and stock m 
@@ -31,9 +32,7 @@ def covariance_matrix(s_rt,beta_matrix,beta_expected_matrix,pca_cov,pca_array,er
                         if x == 0 and y == 0:
                             single_cov = beta_matrix[m,x,y] 
                             whole_cov = whole_cov + single_cov
-                        if x != 0 and y == 0:  
-                        # each entry should have the same value as entry in situation x==0 and y!= 0
-                        # therefore, add (2 * each entry)
+                        if x != 0 and y == 0:
                             single_cov = pca_array[x-1] * beta_matrix[m,x,y]
                             whole_cov = whole_cov + single_cov * 2
                         if x != 0 and y != 0:

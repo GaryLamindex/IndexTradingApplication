@@ -1,5 +1,4 @@
-from __future__ import (absolute_import,division,print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -15,17 +14,17 @@ class Indicator:
     def __init__(self, indice, explained_variance=0.8):
         self.expected_return = np.array([])
         self.expected_cov = np.array([])
-        self.indice = np.array(indice)
+        self.indice = indice
         self.explained_variance = explained_variance
         self.indice_return = indice.pct_change().iloc[1:] # Percentage return
-        # self.indice_return = np.log(df.price) - np.log(df.price.shift(1)) # Maybe use log return idk
+        # self.indice_return = np.log(indice) - np.log(indice.shift(1)) # Maybe use log return idk
 
     def get_params(self):
         # PCA
         factors = pd.DataFrame()
         data_array = self.indice_return.to_numpy()
         pca = PCA(n_components=self.explained_variance)
-        pca.fit(self.indice)
+        pca.fit(data_array)
         eigenvectors = pca.components_
         j = 0
         for eigenvec in eigenvectors:
