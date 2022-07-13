@@ -19,12 +19,12 @@ class ARIMA():
         # Generate all different combinations of p, q and q triplets
         self.pdq = list(itertools.product(p, d, q))
 
-    def AICnARIMAX(self,train):
+    def AICnARIMAX(self, train):
         warnings.filterwarnings("ignore") # specify to ignore warning messages
         self.AICList=[]
         self.ARIMAX_model_list=[]
         for i in range(len(train.columns)):
-            train_data_temp=train.iloc[:,i]
+            train_data_temp = train.iloc[:, i]
             AIC = []
             ARIMAX_model = []
             for param in self.pdq:
@@ -43,7 +43,7 @@ class ARIMA():
             self.ARIMAX_model_list.append(ARIMAX_model)
 
 # Fit this model
-    def pred(self,train):
+    def pred(self, train):
         self.predList=[]
         for i in range(len(train.columns)):
             train_data_temp = train.iloc[:, i].to_frame()
@@ -61,16 +61,16 @@ class ARIMA():
             self.predList.append(predList_temp)
         return self.predList
 
-    def resid(self,train):
-        self.predList=[]
+    def resid(self, train):
+        self.predList = []
         for i in range(len(train.columns)):
             train_data_temp = train.iloc[:, i]
             ARIMAX_model_temp=self.ARIMAX_model_list[i]
             AIC_temp=self.AICList[i]
             mod = sm.tsa.arima.ARIMA(train_data_temp,
-                                           order=ARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
-                                           enforce_stationarity=False,
-                                           enforce_invertibility=False)
+                                           order = ARIMAX_model_temp[AIC_temp.index(min(AIC_temp))][0],
+                                           enforce_stationarity = False,
+                                           enforce_invertibility = False)
             results = mod.fit()
             pred = results.resid # Get residual value
             self.predList.append(pred)
