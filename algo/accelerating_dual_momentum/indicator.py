@@ -20,7 +20,10 @@ class Indicator:
         return None
 
     def append_into_df(self, ticker_dict):
-        temp = pd.DataFrame.from_dict(ticker_dict)
-        self.df.append(temp)
+        temp = pd.DataFrame.from_records([ticker_dict])
+        if self.df.empty:
+            self.df = temp
+        else:
+            self.df = pd.concat([self.df, temp], join="outer")
         return
 
