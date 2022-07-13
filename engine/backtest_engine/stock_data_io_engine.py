@@ -291,6 +291,12 @@ class local_engine:
         np_arr_2 = series_2.to_numpy()
         return np.union1d(np_arr_1, np_arr_2)
 
+    def get_intersect_timestamps(self, series_1, series_2):
+        # return an np array
+        np_arr_1 = series_1.to_numpy()
+        np_arr_2 = series_2.to_numpy()
+        return np.intersect1d(np_arr_1, np_arr_2)
+
 def main():
     # print(my_engine.get_n_days_data("QQQ",1630419240,5))
     # print(my_engine.get_n_days_data("SPY",1630419240,5))

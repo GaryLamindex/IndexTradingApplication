@@ -108,9 +108,11 @@ class backtest:
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
     def loop_through_param(self):
-        print("statr backtest")
-        backtest_spec = self.tickers
-        spec_str = f"{backtest_spec[0]}_{backtest_spec[1]}_"
+        print("start backtest")
+        backtest_spec = {"large_etf": self.tickers[0], "small_etf": self.tickers[1], "bond": self.bond}
+        spec_str = ""
+        for k, v in backtest_spec.items():
+            spec_str = f"{spec_str}{str(v)}_{str(k)}_"
         run_file = self.run_file_dir + spec_str + '.csv'
         if os.path.exists(run_file):
             os.remove(Path(run_file))
@@ -120,7 +122,10 @@ class backtest:
 
         acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
                                      self.table_name, spec_str)
-        portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
+        options = self.tickers.copy()
+        options.append(self.bond)
+
+        portfolio_data_engine = backtest_portfolio_data_engine(acc_data, options)
         trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
         sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
                                      self.tickers)
@@ -150,7 +155,7 @@ class backtest:
             'timestamp']
         series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
-        timestamps = self.stock_data_engines[self.tickers[0]].get_union_timestamps(series_1, series_2)
+        timestamps = self.stock_data_engines[self.tickers[0]].get_intersect_timestamps(series_1, series_2)
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
@@ -160,27 +165,39 @@ class backtest:
 
     def run(self, timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine):
         pct_change_dict = {}
-        price_dict = {}
+        for ticker in self.tickers:
+            pct_change_dict.update({ticker: {}})
+        if timestamp == 1199284200:
+            a=0
         sim_meta_data = {}
         stock_data_dict = {}
-        for ticker in self.tickers:
+        for ticker in self.tickers:  # update ticker price
             ticker_engine = self.stock_data_engines[ticker]
+            ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
+            self.indicators[ticker].append_into_df(ticker_items)
             pct_change_dict[ticker].update({1: self.indicators[ticker].get_pct_change(1, 'open', timestamp)})
             pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(2, 'open', timestamp)})
             pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
-            ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-            self.indicators[ticker].append_into_df(ticker_items)
             price = ticker_items.get('open')
             if price is None:
                 stock_data_dict.update({ticker: {'last': None}})
-                price_dict.update({ticker: None})
                 continue
             else:
                 stock_data_dict.update({ticker: {'last': price}})
-                price_dict.update({ticker: price})
-        action_msgs = algorithm.run(pct_change_dict, price_dict, self.bond, timestamp)
+        ticker_engine = self.stock_data_engines[self.bond]  # update bond price
+        ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
+        sim_meta_data.update({self.bond: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
+        price = ticker_items.get('open')
+        if price is None:
+            stock_data_dict.update({self.bond: {'last': None}})
+        else:
+            stock_data_dict.update({self.bond: {'last': price}})
+
+        action_msgs = algorithm.run(pct_change_dict, stock_data_dict, self.bond, timestamp)
         action_record = []
+        if action_msgs is None:
+            a=0
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
