@@ -12,6 +12,7 @@ class web3_algo:
         self.web3.eth.defaultBlock = "latest"
         self.contract = self.web3.eth.contract(address=self.contract_address, abi=self.contract_abi)
 
+
     def inputRealTimeTickerData(self, ticker, price, last, timestamp):
         self.contract.functions.inputRealTimeTickerData(ticker, price, last, timestamp).transact()
 
@@ -75,6 +76,49 @@ class web3_algo:
     def inputLoopWithTimestamps(self, loop, timestamp):
         self.contract.functions.inputLoopWithTimestamps(loop, timestamp).call()
 
+def contract_test(algo):
+
+    def contract_test(self):
+        print(algo.reinitializeContractState())
+
+        print(algo.getTickerActionMsg("AAPL", 1564656465))
+        print(algo.getPortfolioHolding("AAPL", 1564656465))
+        print(algo.getRealTimeTickerData("AAPL", 1564656465))
+        print(algo.getRealTimeTickerData("GOOG", 1564656465))
+        print(algo.getRealTimeTickerData("AAPL", 1564656465))
+        print(algo.getMarginAccount(1564656465))
+        print(algo.getTradingFunds(1564656465))
+        print(algo.getMktValue(1564656465))
+        print(algo.getPortfolioHolding("AAPL", 1564656465))
+
+        algo.inputLoopWithTimestamps(1, 1564656465)
+        algo.inputRealTimeTickerData("AAPL", 100, 100, 1564656465)
+        algo.inputMarginAccount(1564656465, 100, 100)
+        algo.inputTradingFunds(1564656465, 100, 100, 100, 100, 100)
+        algo.inputMktValue(1564656465, 100, 100, 100, 100, 100, 100)
+        algo.updatePortfolioHoldingsData(1564656465, "AAPL", 100, 100, 100, 100, 100, 100, 100, 100, 100)
+
+        print(algo.getTickerActionMsg("AAPL", 1564656465))
+        print(algo.getPortfolioHolding("AAPL", 1564656465))
+        print(algo.getRealTimeTickerData("AAPL", 1564656465))
+        print(algo.getRealTimeTickerData("GOOG", 1564656465))
+        print(algo.getRealTimeTickerData("AAPL", 1564656465))
+        print(algo.getMarginAccount(1564656465))
+        print(algo.getTradingFunds(1564656465))
+        print(algo.getMktValue(1564656465))
+        print(algo.getPortfolioHolding("AAPL", 1564656465))
+
+def contract_run_test(algo):
+    algo.reinitializeContractState()
+    timestamp = 1564656465
+
+    algo.inputRealTimeTickerData("AAPL", 100, 100, timestamp)
+    algo.inputRealTimeTickerData("GOOG", 100, 100, timestamp)
+
+    algo.inputMarginAccount(timestamp, 100, 100)
+    algo.inputTradingFunds(timestamp, 100, 100, 100, 100, 100)
+    algo.inputMktValue(timestamp, 100, 100, 100, 100, 100, 100)
+
 
 if __name__ == '__main__':
     with open("RebalanceMarginWifMaxDrawdownControl.json") as f:
@@ -84,32 +128,7 @@ if __name__ == '__main__':
     address = "0x383B32AeC5074c740815aC8d15EfABaE4518E90D"
     default_account = "0xE357eaFcE4d472c344e638E72ce55dE8C6b62992"
     algo = web3_algo(address, abi, default_account)
-    print(algo.reinitializeContractState())
-
-    print(algo.getTickerActionMsg("AAPL", 1564656465))
-    print(algo.getPortfolioHolding("AAPL", 1564656465))
-    print(algo.getRealTimeTickerData("AAPL", 1564656465))
-    print(algo.getRealTimeTickerData("GOOG", 1564656465))
-    print(algo.getRealTimeTickerData("AAPL", 1564656465))
-    print(algo.getMarginAccount(1564656465))
-    print(algo.getTradingFunds(1564656465))
-    print(algo.getMktValue(1564656465))
-    print(algo.getPortfolioHolding("AAPL", 1564656465))
-
-    algo.inputLoopWithTimestamps(1, 1564656465)
-    algo.inputRealTimeTickerData("AAPL", 100, 100, 1564656465)
-    algo.inputMarginAccount(1564656465, 100, 100)
-    algo.inputTradingFunds(1564656465, 100, 100, 100, 100, 100)
-    algo.inputMktValue(1564656465, 100, 100, 100, 100, 100, 100)
-    algo.updatePortfolioHoldingsData(1564656465, "AAPL", 100, 100, 100, 100, 100, 100, 100, 100, 100)
+    contract_test(algo)
 
 
-    print(algo.getTickerActionMsg("AAPL", 1564656465))
-    print(algo.getPortfolioHolding("AAPL", 1564656465))
-    print(algo.getRealTimeTickerData("AAPL", 1564656465))
-    print(algo.getRealTimeTickerData("GOOG", 1564656465))
-    print(algo.getRealTimeTickerData("AAPL", 1564656465))
-    print(algo.getMarginAccount(1564656465))
-    print(algo.getTradingFunds(1564656465))
-    print(algo.getMktValue(1564656465))
-    print(algo.getPortfolioHolding("AAPL", 1564656465))
+
