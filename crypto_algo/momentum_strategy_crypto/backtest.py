@@ -124,6 +124,7 @@ class backtest:
             print('#' * 20, _date, ":", _time, '#' * 20)
             self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
 
+
     def run(self, timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine):
         pct_change_dict = {}
         price_dict = {}

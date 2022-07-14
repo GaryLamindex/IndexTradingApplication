@@ -1,24 +1,24 @@
 {
   "contractName": "Object",
   "abi": [],
-  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/Object.sol\":\"Object\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/Object.sol\":{\"keccak256\":\"0x837f1bc7916812c0d1e87eb50a5b0805fc9d71b13820b0d5ddb0d9cb6b14f057\",\"urls\":[\"bzz-raw://dcc7129f12dc5e1d25bd41022d7584f6af3c534629c64701a0a7e38b00720eda\",\"dweb:/ipfs/QmZpYYafeSqNu53YCnwJKnvTDrurUmrmXxMdsej7az2Q23\"]}},\"version\":1}",
-  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212201108219704a39e4fb1fc21eb3ef8dcc5ca7ddf6a517f926f4601c642e882a58b64736f6c634300080d0033",
-  "deployedBytecode": "0x6080604052600080fdfea26469706673582212201108219704a39e4fb1fc21eb3ef8dcc5ca7ddf6a517f926f4601c642e882a58b64736f6c634300080d0033",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.13+commit.abaa5c0e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/Object.sol\":\"Object\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/Object.sol\":{\"keccak256\":\"0x754feaa4863ad3cdae8976906ff79f5e96cd7c0c0509c1766c6b5bb3446c02c1\",\"urls\":[\"bzz-raw://360117013c66ba2009ad7cd61bfca5a4c3f1395471997ce42d668a7f62c96999\",\"dweb:/ipfs/QmW76ugUJ1JuLEv961p7GAWSkw5ndGZrAnaWKYTUv6qNga\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212204c93061ab076664e144be9e1688542484dd07ac7273e33fdeab99fc7d789805564736f6c634300080d0033",
+  "deployedBytecode": "0x6080604052600080fdfea26469706673582212204c93061ab076664e144be9e1688542484dd07ac7273e33fdeab99fc7d789805564736f6c634300080d0033",
   "immutableReferences": {},
   "generatedSources": [],
   "deployedGeneratedSources": [],
-  "sourceMap": "28:1771:1:-:0;;;;;;;;;;;;;;;;;;;",
-  "deployedSourceMap": "28:1771:1:-:0;;;;;",
-  "source": "pragma solidity ^0.8.13;\r\n\r\ncontract Object {\r\n\r\n    struct RealTimeTickerData{\r\n        string tickerName;\r\n        int256 bidPrice;\r\n        int256 last;\r\n    }\r\n\r\n    struct ActionMsg{\r\n        string tickerName;\r\n        uint256 timestamp;\r\n        string transactionType;\r\n        int256 positionAction;\r\n        int256 transactionTickerPrice;\r\n        int256 transactionAmount;\r\n    }\r\n\r\n    struct MarginAccount{\r\n        int256 FullInitMarginReq;\r\n        int256 FullMainMarginReq;\r\n    }\r\n\r\n    struct TradingFunds{\r\n        int256 AvailableFunds;\r\n        int256 ExcessLiquidity;\r\n        int256 BuyingPower;\r\n        int256 Leverage;\r\n        int256 EquityWithLoanValue;\r\n    }\r\n\r\n    struct MktValue{\r\n        int256 TotalCashValue;\r\n        int256 NetDividend;\r\n        int256 NetLiquidation;\r\n        int256 UnrealizedPnL;\r\n        int256 RealizedPnL;\r\n        int256 GrossPositionValue;\r\n    }\r\n\r\n    struct PortfolioData{\r\n\r\n        //margin_acc\r\n        int256 FullInitMarginReq;\r\n        int256 FullMainMarginReq;\r\n\r\n        //trading_funds\r\n        int256 AvailableFunds;\r\n        int256 ExcessLiquidity;\r\n        int256 BuyingPower;\r\n        int256 Leverage;\r\n        int256 EquityWithLoanValue;\r\n\r\n        //mkt_value\r\n        int256 TotalCashValue;\r\n        int256 NetDividend;\r\n        int256 NetLiquidation;\r\n        int256 UnrealizedPnL;\r\n        int256 RealizedPnL;\r\n        int256 GrossPositionValue;\r\n\r\n\r\n    }\r\n\r\n    //ticker portfolio\r\n    struct PortfolioHolding{\r\n        string tickerName;\r\n        int256 position;\r\n        int256 marketPrice;\r\n        int256 averageCost;\r\n        int256 marketValue;\r\n        int256 realizedPNL;\r\n        int256 unrealizedPNL;\r\n        int256 initMarginReq;\r\n        int256 maintMarginReq;\r\n        int256 costBasis;\r\n    }\r\n\r\n\r\n}\r\n",
+  "sourceMap": "28:1241:1:-:0;;;;;;;;;;;;;;;;;;;",
+  "deployedSourceMap": "28:1241:1:-:0;;;;;",
+  "source": "pragma solidity ^0.8.13;\r\n\r\ncontract Object {\r\n\r\n    struct RealTimeTickerData{\r\n        string tickerName;\r\n        int256 bidPrice;\r\n        int256 last;\r\n    }\r\n\r\n    struct ActionMsg{\r\n        string tickerName;\r\n        uint256 timestamp;\r\n        string transactionType;\r\n        int256 positionAction;\r\n        int256 transactionTickerPrice;\r\n        int256 transactionAmount;\r\n    }\r\n\r\n    struct MarginAccount{\r\n        int256 FullInitMarginReq;\r\n        int256 FullMainMarginReq;\r\n    }\r\n\r\n    struct TradingFunds{\r\n        int256 AvailableFunds;\r\n        int256 ExcessLiquidity;\r\n        int256 BuyingPower;\r\n        int256 Leverage;\r\n        int256 EquityWithLoanValue;\r\n    }\r\n\r\n    struct MktValue{\r\n        int256 TotalCashValue;\r\n        int256 NetDividend;\r\n        int256 NetLiquidation;\r\n        int256 UnrealizedPnL;\r\n        int256 RealizedPnL;\r\n        int256 GrossPositionValue;\r\n    }\r\n\r\n    //ticker portfolio\r\n    struct PortfolioHolding{\r\n        string tickerName;\r\n        int256 position;\r\n        int256 marketPrice;\r\n        int256 averageCost;\r\n        int256 marketValue;\r\n        int256 realizedPNL;\r\n        int256 unrealizedPNL;\r\n        int256 initMarginReq;\r\n        int256 maintMarginReq;\r\n        int256 costBasis;\r\n    }\r\n\r\n\r\n}\r\n",
   "sourcePath": "C:\\Users\\lam\\Documents\\GitHub\\IndexTradingApplication\\contract\\contracts\\Object.sol",
   "ast": {
     "absolutePath": "project:/contracts/Object.sol",
     "exportedSymbols": {
       "Object": [
-        132
+        105
       ]
     },
-    "id": 133,
+    "id": 106,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -39,9 +39,9 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 132,
+        "id": 105,
         "linearizedBaseContracts": [
-          132
+          105
         ],
         "name": "Object",
         "nameLocation": "37:6:1",
@@ -136,7 +136,7 @@
             "name": "RealTimeTickerData",
             "nameLocation": "60:18:1",
             "nodeType": "StructDefinition",
-            "scope": 132,
+            "scope": 105,
             "src": "53:109:1",
             "visibility": "public"
           },
@@ -310,7 +310,7 @@
             "name": "ActionMsg",
             "nameLocation": "177:9:1",
             "nodeType": "StructDefinition",
-            "scope": 132,
+            "scope": 105,
             "src": "170:220:1",
             "visibility": "public"
           },
@@ -376,7 +376,7 @@
             "name": "MarginAccount",
             "nameLocation": "405:13:1",
             "nodeType": "StructDefinition",
-            "scope": 132,
+            "scope": 105,
             "src": "398:98:1",
             "visibility": "public"
           },
@@ -523,7 +523,7 @@
             "name": "TradingFunds",
             "nameLocation": "511:12:1",
             "nodeType": "StructDefinition",
-            "scope": 132,
+            "scope": 105,
             "src": "504:184:1",
             "visibility": "public"
           },
@@ -697,37 +697,37 @@
             "name": "MktValue",
             "nameLocation": "703:8:1",
             "nodeType": "StructDefinition",
-            "scope": 132,
+            "scope": 105,
             "src": "696:212:1",
             "visibility": "public"
           },
           {
-            "canonicalName": "Object.PortfolioData",
-            "id": 110,
+            "canonicalName": "Object.PortfolioHolding",
+            "id": 104,
             "members": [
               {
                 "constant": false,
                 "id": 85,
                 "mutability": "mutable",
-                "name": "FullInitMarginReq",
-                "nameLocation": "978:17:1",
+                "name": "tickerName",
+                "nameLocation": "981:10:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "971:24:1",
+                "scope": 104,
+                "src": "974:17:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
                 },
                 "typeName": {
                   "id": 84,
-                  "name": "int256",
+                  "name": "string",
                   "nodeType": "ElementaryTypeName",
-                  "src": "971:6:1",
+                  "src": "974:6:1",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
                   }
                 },
                 "visibility": "internal"
@@ -736,11 +736,11 @@
                 "constant": false,
                 "id": 87,
                 "mutability": "mutable",
-                "name": "FullMainMarginReq",
-                "nameLocation": "1013:17:1",
+                "name": "position",
+                "nameLocation": "1009:8:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1006:24:1",
+                "scope": 104,
+                "src": "1002:15:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -751,7 +751,7 @@
                   "id": 86,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1006:6:1",
+                  "src": "1002:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -763,11 +763,11 @@
                 "constant": false,
                 "id": 89,
                 "mutability": "mutable",
-                "name": "AvailableFunds",
-                "nameLocation": "1075:14:1",
+                "name": "marketPrice",
+                "nameLocation": "1035:11:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1068:21:1",
+                "scope": 104,
+                "src": "1028:18:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -778,7 +778,7 @@
                   "id": 88,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1068:6:1",
+                  "src": "1028:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -790,11 +790,11 @@
                 "constant": false,
                 "id": 91,
                 "mutability": "mutable",
-                "name": "ExcessLiquidity",
-                "nameLocation": "1107:15:1",
+                "name": "averageCost",
+                "nameLocation": "1064:11:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1100:22:1",
+                "scope": 104,
+                "src": "1057:18:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -805,7 +805,7 @@
                   "id": 90,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1100:6:1",
+                  "src": "1057:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -817,11 +817,11 @@
                 "constant": false,
                 "id": 93,
                 "mutability": "mutable",
-                "name": "BuyingPower",
-                "nameLocation": "1140:11:1",
+                "name": "marketValue",
+                "nameLocation": "1093:11:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1133:18:1",
+                "scope": 104,
+                "src": "1086:18:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -832,7 +832,7 @@
                   "id": 92,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1133:6:1",
+                  "src": "1086:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -844,11 +844,11 @@
                 "constant": false,
                 "id": 95,
                 "mutability": "mutable",
-                "name": "Leverage",
-                "nameLocation": "1169:8:1",
+                "name": "realizedPNL",
+                "nameLocation": "1122:11:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1162:15:1",
+                "scope": 104,
+                "src": "1115:18:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -859,7 +859,7 @@
                   "id": 94,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1162:6:1",
+                  "src": "1115:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -871,11 +871,11 @@
                 "constant": false,
                 "id": 97,
                 "mutability": "mutable",
-                "name": "EquityWithLoanValue",
-                "nameLocation": "1195:19:1",
+                "name": "unrealizedPNL",
+                "nameLocation": "1151:13:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1188:26:1",
+                "scope": 104,
+                "src": "1144:20:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -886,7 +886,7 @@
                   "id": 96,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1188:6:1",
+                  "src": "1144:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -898,11 +898,11 @@
                 "constant": false,
                 "id": 99,
                 "mutability": "mutable",
-                "name": "TotalCashValue",
-                "nameLocation": "1255:14:1",
+                "name": "initMarginReq",
+                "nameLocation": "1182:13:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1248:21:1",
+                "scope": 104,
+                "src": "1175:20:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -913,7 +913,7 @@
                   "id": 98,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1248:6:1",
+                  "src": "1175:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -925,11 +925,11 @@
                 "constant": false,
                 "id": 101,
                 "mutability": "mutable",
-                "name": "NetDividend",
-                "nameLocation": "1287:11:1",
+                "name": "maintMarginReq",
+                "nameLocation": "1213:14:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1280:18:1",
+                "scope": 104,
+                "src": "1206:21:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -940,7 +940,7 @@
                   "id": 100,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1280:6:1",
+                  "src": "1206:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -952,11 +952,11 @@
                 "constant": false,
                 "id": 103,
                 "mutability": "mutable",
-                "name": "NetLiquidation",
-                "nameLocation": "1316:14:1",
+                "name": "costBasis",
+                "nameLocation": "1245:9:1",
                 "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1309:21:1",
+                "scope": 104,
+                "src": "1238:16:1",
                 "stateVariable": false,
                 "storageLocation": "default",
                 "typeDescriptions": {
@@ -967,370 +967,7 @@
                   "id": 102,
                   "name": "int256",
                   "nodeType": "ElementaryTypeName",
-                  "src": "1309:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 105,
-                "mutability": "mutable",
-                "name": "UnrealizedPnL",
-                "nameLocation": "1348:13:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1341:20:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 104,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1341:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 107,
-                "mutability": "mutable",
-                "name": "RealizedPnL",
-                "nameLocation": "1379:11:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1372:18:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 106,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1372:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 109,
-                "mutability": "mutable",
-                "name": "GrossPositionValue",
-                "nameLocation": "1408:18:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 110,
-                "src": "1401:25:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 108,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1401:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              }
-            ],
-            "name": "PortfolioData",
-            "nameLocation": "923:13:1",
-            "nodeType": "StructDefinition",
-            "scope": 132,
-            "src": "916:522:1",
-            "visibility": "public"
-          },
-          {
-            "canonicalName": "Object.PortfolioHolding",
-            "id": 131,
-            "members": [
-              {
-                "constant": false,
-                "id": 112,
-                "mutability": "mutable",
-                "name": "tickerName",
-                "nameLocation": "1511:10:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1504:17:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_string_storage_ptr",
-                  "typeString": "string"
-                },
-                "typeName": {
-                  "id": 111,
-                  "name": "string",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1504:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_string_storage_ptr",
-                    "typeString": "string"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 114,
-                "mutability": "mutable",
-                "name": "position",
-                "nameLocation": "1539:8:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1532:15:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 113,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1532:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 116,
-                "mutability": "mutable",
-                "name": "marketPrice",
-                "nameLocation": "1565:11:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1558:18:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 115,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1558:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 118,
-                "mutability": "mutable",
-                "name": "averageCost",
-                "nameLocation": "1594:11:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1587:18:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 117,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1587:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 120,
-                "mutability": "mutable",
-                "name": "marketValue",
-                "nameLocation": "1623:11:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1616:18:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 119,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1616:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 122,
-                "mutability": "mutable",
-                "name": "realizedPNL",
-                "nameLocation": "1652:11:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1645:18:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 121,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1645:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 124,
-                "mutability": "mutable",
-                "name": "unrealizedPNL",
-                "nameLocation": "1681:13:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1674:20:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 123,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1674:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 126,
-                "mutability": "mutable",
-                "name": "initMarginReq",
-                "nameLocation": "1712:13:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1705:20:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 125,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1705:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 128,
-                "mutability": "mutable",
-                "name": "maintMarginReq",
-                "nameLocation": "1743:14:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1736:21:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 127,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1736:6:1",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_int256",
-                    "typeString": "int256"
-                  }
-                },
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 130,
-                "mutability": "mutable",
-                "name": "costBasis",
-                "nameLocation": "1775:9:1",
-                "nodeType": "VariableDeclaration",
-                "scope": 131,
-                "src": "1768:16:1",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_int256",
-                  "typeString": "int256"
-                },
-                "typeName": {
-                  "id": 129,
-                  "name": "int256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "1768:6:1",
+                  "src": "1238:6:1",
                   "typeDescriptions": {
                     "typeIdentifier": "t_int256",
                     "typeString": "int256"
@@ -1340,19 +977,19 @@
               }
             ],
             "name": "PortfolioHolding",
-            "nameLocation": "1477:16:1",
+            "nameLocation": "947:16:1",
             "nodeType": "StructDefinition",
-            "scope": 132,
-            "src": "1470:322:1",
+            "scope": 105,
+            "src": "940:322:1",
             "visibility": "public"
           }
         ],
-        "scope": 133,
-        "src": "28:1771:1",
+        "scope": 106,
+        "src": "28:1241:1",
         "usedErrors": []
       }
     ],
-    "src": "0:1801:1"
+    "src": "0:1271:1"
   },
   "compiler": {
     "name": "solc",
@@ -1360,7 +997,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-07-07T13:34:20.225Z",
+  "updatedAt": "2022-07-13T07:39:21.111Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},

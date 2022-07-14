@@ -1839,7 +1839,7 @@ class backtest_acc_data(object):
                     item.update((k, v) for k, v in updating_portfolio_dict.items() if v is not None)
                     update = True
                     break
-            if update == False:
+            if not update:
                 self.portfolio.append(updating_portfolio_dict)
 
     def append_stock_transaction_record(self, ticker, timestamp, transaction_type, position_purchase, ticker_open_price,

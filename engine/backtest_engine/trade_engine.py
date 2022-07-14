@@ -55,8 +55,11 @@ class backtest_trade_engine(object):
 
         TotalCashValue -= transaction_amount
 
+
         # Calculate shares portfolio info
         portfolio_ticker_item = self.backtest_acc_data.get_portfolio_ticker_item(ticker)
+
+
         costBasis = portfolio_ticker_item.get("costBasis") + transaction_amount
         position = portfolio_ticker_item.get("position") + position_purchase
         averageCost = 0

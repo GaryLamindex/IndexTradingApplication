@@ -19,7 +19,6 @@ from object.action_data import IBAction, IBActionsTuple
 import numpy as np
 
 
-
 class backtest(object):
     path = ""
     table_info = {}
@@ -49,8 +48,8 @@ class backtest(object):
     trader_name = "None"
 
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range, rebalance_ratio, store_mongoDB, strategy_initial= 'None',
-                 video_link= 'None', documents_link= 'None', tags_array=list(), subscribers_num=0,
+                 db_mode, quick_test, acceptance_range, rebalance_ratio, store_mongoDB, strategy_initial='None',
+                 video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
@@ -68,6 +67,8 @@ class backtest(object):
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
         self.rebalance_ratio = rebalance_ratio
+        self.start_date = start_date
+        self.end_date = end_date
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
 
@@ -101,10 +102,8 @@ class backtest(object):
                 self.margin_ratio = margin_ratio
                 self.trader_name = trader_name
 
-
     def loop_through_param(self):
         # loop through all the rebalance requirement
-        # calculate all possible ratio that sum is 100 with different number of stickers
         for ratio in self.rebalance_ratio:
             num_tickers = len(self.tickers)
             print("Start Backtest:", ratio)
@@ -118,10 +117,17 @@ class backtest(object):
                 for k, v in backtest_spec.items():
                     spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
-                #remove if exist
+                # remove if exist
                 run_file = self.run_file_dir + spec_str + '.csv'
                 if os.path.exists(run_file):
-                    os.remove(Path(run_file))
+                    df = pd.read_csv(run_file)
+                    first_day = df["date"].iloc[0]
+                    last_day = df["date"].iloc[-1]
+                    if abs((self.start_date.replace(day=1) - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
+                            abs((self.end_date.replace(day=1) - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
+                        os.remove(Path(run_file))
+                    else:
+                        return
                 graph_file = self.graph_dir + spec_str + '.png'
                 if os.path.exists(graph_file):
                     os.remove(Path(graph_file))
@@ -144,8 +150,9 @@ class backtest(object):
         list_of_stats_data = listdir(self.stats_data_dir)
         for file in list_of_stats_data:
             os.remove(Path(f"{self.stats_data_dir}/{file}"))
+        current_file = spec_str + '.csv'
         if self.cal_stat:
-            self.cal_all_file_return()
+            self.cal_all_file_return(current_file)
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent, dividend_engine, trade_agent):
@@ -181,28 +188,26 @@ class backtest(object):
         for k, v in self.rebalance_dict.items():
             ratio = v / 100
             total_ratio += ratio
-        if total_ratio != 1:
+        if abs((1 - total_ratio)) > 0.01:
             print("total ratio is not 100%")
         else:
             check_ratio = True
         return check_ratio
-
-
 
     def plot_all_file_graph(self):
         print("plot_graph")
         graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "NetLiquidation",
                                                       f"{self.path}/{self.table_name}/graph")
 
-    def cal_all_file_return(self):
+    def cal_all_file_return(self, current_file):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
-            if file.decode().endswith("csv"):
+            if file.decode().endswith("csv") and current_file == file.decode():
                 marketCol = f'marketPrice_{self.tickers[0]}'
-                costCol = f'costBasis_{self.tickers[idx]}'
-                valueCol = f'marketValue_{self.tickers[idx]}'
+                # costCol = f'costBasis_{self.tickers[idx]}'
+                # valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
@@ -471,7 +476,7 @@ class backtest(object):
         # input database and historical data into algo and get action msgs
         action_msgs = algorithm.run(stock_data_dict, timestamp)
 
-        #execute action msgs
+        # execute action msgs
         action_record = []
         for action_msg in action_msgs:
             action = action_msg.action_enum
@@ -484,7 +489,8 @@ class backtest(object):
             action = action_msg.action_enum
             if action == IBAction.BUY_MKT_ORDER:
                 temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                           action_msg.args_dict.get("position_purchase"),
+                                                                           action_msg.args_dict.get(
+                                                                               "position_purchase"),
                                                                            {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,

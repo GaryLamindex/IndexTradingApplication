@@ -1,0 +1,735 @@
+{
+	"compiler": {
+		"version": "0.8.15+commit.e14f2714"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "actionMsgs",
+						"type": "string"
+					}
+				],
+				"name": "LogActionMsg",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "getMarginAccount",
+				"outputs": [
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "getMktValue",
+				"outputs": [
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "getPortfolioHolding",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timeStamp",
+						"type": "uint256"
+					}
+				],
+				"name": "getRealTimeTickerData",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "getTickerActionMsg",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "getTradingFunds",
+				"outputs": [
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "",
+						"type": "int256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_loop",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_lastExecutedTimestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "inputLoopWithTimestamps",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "int256",
+						"name": "FullInitMarginReq",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "FullMainMarginReq",
+						"type": "int256"
+					}
+				],
+				"name": "inputMarginAccount",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "int256",
+						"name": "TotalCashValue",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "NetDividend",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "NetLiquidation",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "UnrealizedPnL",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "RealizedPnL",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "GrossPositionValue",
+						"type": "int256"
+					}
+				],
+				"name": "inputMktValue",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "bidPrice",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "last",
+						"type": "int256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "inputRealTimeTickerData",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "int256",
+						"name": "AvailableFunds",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "ExcessLiquidity",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "BuyingPower",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "Leverage",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "EquityWithLoanValue",
+						"type": "int256"
+					}
+				],
+				"name": "inputTradingFunds",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_targetSharePurchase",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "_transactionTickerPrice",
+						"type": "int256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "placeBuyStockLimitOrderMsg",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "tickerName",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "transactionType",
+								"type": "string"
+							},
+							{
+								"internalType": "int256",
+								"name": "positionAction",
+								"type": "int256"
+							},
+							{
+								"internalType": "int256",
+								"name": "transactionTickerPrice",
+								"type": "int256"
+							},
+							{
+								"internalType": "int256",
+								"name": "transactionAmount",
+								"type": "int256"
+							}
+						],
+						"internalType": "struct Object.ActionMsg",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "_targetShareSell",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "_transactionTickerPrice",
+						"type": "int256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "placeSellStockLimitOrderMsg",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "tickerName",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "timestamp",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "transactionType",
+								"type": "string"
+							},
+							{
+								"internalType": "int256",
+								"name": "positionAction",
+								"type": "int256"
+							},
+							{
+								"internalType": "int256",
+								"name": "transactionTickerPrice",
+								"type": "int256"
+							},
+							{
+								"internalType": "int256",
+								"name": "transactionAmount",
+								"type": "int256"
+							}
+						],
+						"internalType": "struct Object.ActionMsg",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "reinitializeContractState",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "run",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_tickerName",
+						"type": "string"
+					},
+					{
+						"internalType": "int256",
+						"name": "position",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "marketPrice",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "averageCost",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "marketValue",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "realizedPNL",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "unrealizedPNL",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "initMarginReq",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "maintMarginReq",
+						"type": "int256"
+					},
+					{
+						"internalType": "int256",
+						"name": "costBasis",
+						"type": "int256"
+					}
+				],
+				"name": "updatePortfolioHoldingsData",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"Documents/GitHub/IndexTradingApplication/contract/contracts/RebalanceMarginWifMaxDrawdownControl.sol": "RebalanceMarginWifMaxDrawdownControl"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/Object.sol": {
+			"keccak256": "0x754feaa4863ad3cdae8976906ff79f5e96cd7c0c0509c1766c6b5bb3446c02c1",
+			"urls": [
+				"bzz-raw://360117013c66ba2009ad7cd61bfca5a4c3f1395471997ce42d668a7f62c96999",
+				"dweb:/ipfs/QmW76ugUJ1JuLEv961p7GAWSkw5ndGZrAnaWKYTUv6qNga"
+			]
+		},
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/RebalanceMarginWifMaxDrawdownControl.sol": {
+			"keccak256": "0xf994d7ead489de0824b899b9d609811ab0c04fce7cbbe5062a880ff358a2196c",
+			"urls": [
+				"bzz-raw://87d1b6115a5c2809303ce35bef7447b9a245c12ba0143130c7b8fcd15117adf9",
+				"dweb:/ipfs/QmbZkQT93QrY3KSAtAjkgX5Ag8agMu3NXe1qzqgNaitNKo"
+			]
+		},
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/agents/TradeAgent.sol": {
+			"keccak256": "0xb8f6d93d4f9c7a7b672d2edf3440018a1a262e3097fc5eaab325a4b34a6cf9a5",
+			"urls": [
+				"bzz-raw://e14697c50385175c29a8c9398e4203871c76b689e75eca6ce9a6783dc8a7aaae",
+				"dweb:/ipfs/QmQHKb5QJwRdbyBT9idZxVU8YAAWfdsFokbPXZkek36SbK"
+			]
+		},
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/utils/DateUtils.sol": {
+			"keccak256": "0x2120337ea21e66b3105e655b5a1ffab0d442e24762660ee221acedf14620f7a8",
+			"urls": [
+				"bzz-raw://665ea00ced22ec780cee505b51698584c773ea9a772f7dd584189295ee097605",
+				"dweb:/ipfs/QmNXi2Cza7aHMuiB8qiHrXYK8axnvUxR8tAk8eiZ9rZw5P"
+			]
+		},
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/utils/FixidityLib.sol": {
+			"keccak256": "0x68851a3832ee4703bc3cadbfb2796b9e55e22474c721d777a79502b9d0c2c7de",
+			"urls": [
+				"bzz-raw://f054b8bf1441f4064e4b2149e60c9340be1d0793ae013c57c5395b689651914d",
+				"dweb:/ipfs/QmaG3XwsiPyUTx44AMoM8pQaek5nzn5BSSuoxkUiw342Na"
+			]
+		},
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/utils/StringUtils.sol": {
+			"keccak256": "0x60f707a3567744f97be7a4b53d1aa89b3e6545d1e83f5898ef950b9111a16890",
+			"urls": [
+				"bzz-raw://e953e437da9a46efad60d6f6433149c510b14bae7ac34f4db547b148a4e8e5ef",
+				"dweb:/ipfs/QmbmBpfqw5tA44JT2g12qYSm1hJPEWCF6J1Ut5Q5rqrGgF"
+			]
+		},
+		"Documents/GitHub/IndexTradingApplication/contract/contracts/utils/strings.sol": {
+			"keccak256": "0x5c6c6e84e3d808bfdb762423639af4993e73eeb7acb2e6a4fab9588611d9115c",
+			"urls": [
+				"bzz-raw://71951d8f0d8d9e3b17f0c644929dca67b08e3208ca80c769756ef215cedd347a",
+				"dweb:/ipfs/Qmb2HXKbU9qqmcRvxqmS3kPpESdz7uRpNJQGCaiEXPrqEV"
+			]
+		}
+	},
+	"version": 1
+}

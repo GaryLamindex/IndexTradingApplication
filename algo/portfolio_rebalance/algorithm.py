@@ -35,6 +35,10 @@ class portfolio_rebalance:
         self.acceptance_range = acceptance_range
         self.portfolio = self.account_snapshot.get("portfolio")
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
+        self.target_market_positions = {}
+        self.buy_list = []
+        self.sell_list = []
+        self.net_liquidation = 0
 
     def run(self, realtime_stock_data_dict, timestamp):
 
@@ -82,15 +86,15 @@ class portfolio_rebalance:
                 self.sell_list.append([ticker_info.get("ticker"), current_position])
         for ticker in unmodified_tickers:
             self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
-        #realtime_stock_data_dict["timestamp"] = timestamp
+        # realtime_stock_data_dict["timestamp"] = timestamp
         for ticker in self.sell_list:
             action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
-                                      {'ticker': ticker[0], 'position_sell': ticker[1]})
+                                        {'ticker': ticker[0], 'position_sell': ticker[1]})
             # action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
         for ticker in self.buy_list:
             action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                      {'ticker': ticker[0], 'position_purchase': ticker[1]})
+                                        {'ticker': ticker[0], 'position_purchase': ticker[1]})
             # action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
             self.action_msgs.append(action_msg)
 
