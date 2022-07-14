@@ -53,40 +53,12 @@ class backtest:
         self.bond = bond
         self.indicators = {}
 
-        one_month_delta = timedelta(weeks=4)
-        three_month_delta = timedelta(weeks=12)
-        six_month_delta = timedelta(weeks=24)
-        # calculate the date of 1, 3, 6 month before
-        one_month_before = start_date - one_month_delta
-        one_month_before_timestamp = datetime.timestamp(one_month_before)
-        three_month_before = start_date - three_month_delta
-        three_month_before_timestamp = datetime.timestamp(three_month_before)
-        six_month_before = start_date - six_month_delta
-        six_month_before_timestamp = datetime.timestamp(six_month_before)
-
+        delta_timestamps = self.cal_deltas_timestamps(start_date)
         for ticker in self.tickers:
             # get current ticker data
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             self.indicators[ticker] = Indicator(pd.DataFrame())
-            # find the ticker data  1 ,3 ,6 month before
-            six_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                six_month_before_timestamp)
-            while six_month_ticker_items is None:
-                six_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                    six_month_before_timestamp + 1)
-            three_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                three_month_before_timestamp)
-            while three_month_ticker_items is None:
-                three_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                    three_month_before_timestamp + 1)
-            one_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                one_month_before_timestamp)
-            while one_month_ticker_items is None:
-                one_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                    one_month_before_timestamp + 1)
-            self.indicators[ticker].append_into_df(six_month_ticker_items)
-            self.indicators[ticker].append_into_df(three_month_ticker_items)
-            self.indicators[ticker].append_into_df(one_month_ticker_items)
+            self.get_indicator_ticker_items(ticker, delta_timestamps)
         self.stock_data_engines[self.bond] = local_engine(self.bond, self.data_freq)
         if db_mode.get("local"):
 
@@ -167,8 +139,6 @@ class backtest:
         pct_change_dict = {}
         for ticker in self.tickers:
             pct_change_dict.update({ticker: {}})
-        if timestamp == 1199284200:
-            a=0
         sim_meta_data = {}
         stock_data_dict = {}
         for ticker in self.tickers:  # update ticker price
@@ -176,8 +146,8 @@ class backtest:
             ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
             self.indicators[ticker].append_into_df(ticker_items)
             pct_change_dict[ticker].update({1: self.indicators[ticker].get_pct_change(1, 'open', timestamp)})
-            pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(2, 'open', timestamp)})
-            pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
+            pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
+            pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(6, 'open', timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             price = ticker_items.get('open')
             if price is None:
@@ -196,8 +166,6 @@ class backtest:
 
         action_msgs = algorithm.run(pct_change_dict, stock_data_dict, self.bond, timestamp)
         action_record = []
-        if action_msgs is None:
-            a=0
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
@@ -216,6 +184,26 @@ class backtest:
         sim_agent.append_run_data_to_db(timestamp, sim_agent.portfolio_data_engine.get_account_snapshot(),
                                         action_record, sim_meta_data,
                                         stock_data_dict)
+
+    def cal_deltas_timestamps(self, start_date):
+
+        delta_timestamps = []
+        for month in range(1, 7):
+            delta = timedelta(weeks=(4 * month))
+            date_before = start_date - delta
+            date_before_timestamp = datetime.timestamp(date_before)
+            delta_timestamps.append(date_before_timestamp)
+        return delta_timestamps
+
+    def get_indicator_ticker_items(self, ticker, delta_timestamps):
+        # find the ticker data  1 ,3 ,6 month before
+        for month in range(5, -1, -1):
+            timestamp = delta_timestamps[month]
+            ticker_item = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
+            while ticker_item is None:
+                timestamp = timestamp + 1
+                ticker_item = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
+            self.indicators[ticker].append_into_df(ticker_item)
 
     def plot_all_file_graph(self):
         print("plot_graph")
