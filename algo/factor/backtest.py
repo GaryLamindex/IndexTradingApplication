@@ -39,7 +39,7 @@ class backtest:
                  db_mode):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
-        self.table_info = {"mode": "backtest", "strategy_name": "to_be_named", "user_id": user_id}
+        self.table_info = {"mode": "backtest", "strategy_name": "factor", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.tickers = tickers
