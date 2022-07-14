@@ -36,7 +36,7 @@ class backtest(object):
     timestamps = []
     rebalance_ratio = []
     quick_test = True
-    tickers=[]
+    tickers = []
     store_mongoDB = False
     strategy_initial = 'None'
     video_link = 'None'
@@ -48,7 +48,8 @@ class backtest(object):
     trader_name = "None"
 
     def __init__(self, list_of_tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range, list_of_rebalance_ratios, store_mongoDB, strategy_initial='None',
+                 db_mode, quick_test, acceptance_range, list_of_rebalance_ratios, store_mongoDB,
+                 strategy_initial='None',
                  video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
@@ -331,6 +332,12 @@ class backtest(object):
                 _5_yr_pos_neg = pos_neg_dict.get('5y')
                 inception_pos_neg = pos_neg_dict.get('inception')
 
+                information_ratio_dict = stat_engine.get_information_ratio_data(file_name, marketCol)
+                _1_yr_information_ratio = information_ratio_dict.get('1y')
+                _3_yr_information_ratio = information_ratio_dict.get('3y')
+                _5_yr_information_ratio = information_ratio_dict.get('5y')
+                inception_information_ratio = information_ratio_dict.get('inception')
+
                 net_profit = stat_engine.get_net_profit_inception(file_name)
 
                 all_file_stats_row = {
@@ -388,6 +395,10 @@ class backtest(object):
                     "3 yr pos neg": _3_yr_pos_neg,
                     "5 yr pos neg": _5_yr_pos_neg,
                     "inception pos neg": inception_pos_neg,
+                    "1 yr information ratio": _1_yr_information_ratio,
+                    "3 yr information ratio": _3_yr_information_ratio,
+                    "5 yr information ratio": _5_yr_information_ratio,
+                    "inception information ratio": inception_information_ratio,
                     "net profit": net_profit,
                     "compound_inception_return_dict": compound_inception_return_dict,
                     "compound_1_yr_return_dict": compound_1_yr_return_dict,
@@ -420,7 +431,8 @@ class backtest(object):
                "last nlv", "last daily change", "last monthly change",
                "Composite", "number_of_ETFs",
                "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "_1_yr_pos_neg", "_3_yr_pos_neg", "_5_yr_pos_neg",
-               "inception_pos_neg", "net profit",
+               "inception_pos_neg", "_1_yr_information_ratio", "_3_yr_information_ratio", "_5_yr_information_ratio",
+               "inception_information_ratio", "net profit",
                "compound_inception_return_dict", "compound_1_yr_return_dict", "compound_3_yr_return_dict",
                "compound_5_yr_return_dict", "compound_ytd_return_dict"
                ]
