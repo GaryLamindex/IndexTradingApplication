@@ -19,7 +19,6 @@ from engine.simulation_engine import sim_data_io_engine
 from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 
 
-
 class backtest:
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, user_id,
                  period_dict, db_mode, store_mongoDB=False):
@@ -120,6 +119,8 @@ class backtest:
         for timestamp in range(start_timestamp, end_timestamp, step):
             _date = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
+            if _date == '2018-05-05':
+                print('in')
             print('#' * 20, _date, ":", _time, '#' * 20)
             self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
 
@@ -155,8 +156,9 @@ class backtest:
             if cur_action == BinanceAction.BUY_MKT_ORDER:
                 ticker = func_params['ticker']
                 last = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
+                position_purchase = portfolio_data_engine.acc_data.wallet['funding'] * 0.99 // last
                 action_msg = trade_agent.place_buy_crypto_mkt_order(ticker,
-                                                                    func_params['position_purchase'],
+                                                                    position_purchase,
                                                                     timestamp, last)
             elif cur_action == BinanceAction.CLOSE_ALL:
                 portfolio = portfolio_data_engine.acc_data.portfolio

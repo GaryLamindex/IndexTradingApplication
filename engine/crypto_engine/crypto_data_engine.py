@@ -195,6 +195,5 @@ def main():
         df.to_csv(f"{ticker_data_path}/{etf}.csv", index=True, header=True)
 
 
-
 if __name__ == '__main__':
     main()
