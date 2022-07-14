@@ -9,7 +9,7 @@ import pandas as pd
 from scipy.optimize import minimize
 from indicator import Indicator
 
-class To_be_named:
+class Factor:
 
     def __init__(self, trade_agent, portfolio_agent):
         self.account_snapshot = {}
@@ -22,25 +22,27 @@ class To_be_named:
         self.buy = ""
         self.optimal_weight = pd.Series([])
 
-    def run(self, price_dict):
+    def run(self, all_indice_df, timestamp):
         if not self.trade_agent.market_opened():
             return
 
-        # Create dataframe w/ all adj. close price data (to be completed)
-        all_indice_df = pd.DataFrame([])
+        self.portfolio_agent.update_stock_price_and_portfolio_data(price_dict)
+        self.account_snapshot = self.portfolio_agent.get_account_snapshot()
+        self.portfolio = self.portfolio_agent.get_portfolio()
+        self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
-        indicator = Indicator(all_indice_df)
-        expected_return, expCov = indicator.expected_return, indicator.expected_cov
+        indicators = Indicator(all_indice_df)
+        expected_return, expected_cov = indicators.expected_return, indicators.expected_cov
         lb = 0
         ub = 1
 
         def MV(w, cov_mat):
             return np.dot(w, np.dot(cov_mat, w.T))
 
-        n = len(expCov.columns)
+        n = len(expected_cov.columns)
         muRange = np.arange(0.02, 0.09, 0.002)
         volRange = np.zeros(len(muRange))
-        omega = expCov.cov()
+        #omega = expected_cov.cov()
 
         wgt = {}
 
@@ -53,9 +55,9 @@ class To_be_named:
                 bndsa = bndsa + ((lb, ub),)
             consTR = ({'type': 'eq', 'fun': lambda x: 1 - np.sum(x)},
                       {'type': 'eq', 'fun': lambda x: mu - np.dot(x, expected_return)})
-            w = minimize(MV, x_0, method='SLSQP', constraints=consTR, bounds=bndsa, args=(omega),
+            w = minimize(MV, x_0, method='SLSQP', constraints=consTR, bounds=bndsa, args=(expected_cov),
                          options={'disp': False})
-            volRange[i] = np.dot(w.x, np.dot(omega, w.x.T)) ** 0.5
+            volRange[i] = np.dot(w.x, np.dot(expected_cov, w.x.T)) ** 0.5
 
             wgt[mu].extend(np.squeeze(w.x))
 
@@ -66,34 +68,20 @@ class To_be_named:
 
         self.optimal_weight = wgt[muRange[sharpe.argmax()]]
 
-
-
-
-
-
-
-
-
-
-
-
-
-        # self.portfolio_agent.update_stock_price_and_portfolio_data(price_dict)
-        # self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        # self.portfolio = self.portfolio_agent.get_portfolio()
-        # ticker_list = price_dict.keys()
-        # for ticker in ticker_list:
-        #     one_month_pct_change = pct_change_dict[ticker][1]
-        #     three_month_pct_change = pct_change_dict[ticker][3]
-        #     six_month_pct_change = pct_change_dict[ticker][6]
-        #     momentum_signal = one_month_pct_change * 0.33 + three_month_pct_change * 0.33 + six_month_pct_change * 0.34
-        #     momentum_signals.append(momentum_signal)
-        # if momentum_signals[0] < 0 and momentum_signals[1] < 0:
-        #     buy = bond
-        # elif momentum_signals[0] > momentum_signals[1]:
-        #     buy = ticker_list[0]
-        # elif momentum_signals[0] < momentum_signals[1]:
-        #     buy = ticker_list[1]
+        for ticker_data in self.portfolio:
+            ticker_name = ticker_data["ticker"]
+            ticker_pos = ticker_data["position"]
+            price = all_indice_df[ticker_name][-1]
+            target_pos = self.optimal_weight[all_indice.index.get_loc(ticker_name)] * self.total_market_value / price
+            pos_change = target_pos - ticker_pos
+            if pos_change > 0:
+                action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                            {'ticker': buy, 'position_purchase': pos_change})
+                self.action_msgs.append(action_msg)
+            elif pos_change < 0:
+                action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
+                                            {'ticker': sell, 'position_sell': sell_pos})
+                self.action_msgs.append(action_msg)
 
 
 
