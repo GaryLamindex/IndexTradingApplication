@@ -23,9 +23,14 @@ class Api_Mongodb:
         for x in strategy_name:
             col = self.db[x]
             cursor = col.find({"timestamp": {"$lte": timestamp_end,"$gte": timestamp_start}}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-            list_ = list(cursor)
-            # print(list_)
-            all[x] = list_
+            temp_list = list(cursor)
+            percentage_list = []
+            for a in range(1,len(temp_list)):
+                percentage_list.append((temp_list[a]['NetLiquidation'] - temp_list[a-1]['NetLiquidation'])/temp_list[a-1]['NetLiquidation'])
+            for a in range(1,len(temp_list)):
+                temp_list[a]['NetLiquidation'] = percentage_list[a-1]
+            temp_list.pop(0)
+            all[x] = temp_list
         json_data = dumps(all)
         print(json_data)
         return json_data
@@ -73,16 +78,20 @@ class Api_Mongodb:
         return json_data
 
     # same as all_algo_1a() indv_algo_3b
-    def user_acc_2a(self, strategy_name=["backtest_portfolio_rebalance_0","backtest_portfolio_rebalance_1"], timestamp_start=1262275200, timestamp_end=1298937600):
+    def user_acc_2a(self, strategy_name=["backtest_portfolio_rebalance_0","backtest_portfolio_rebalance_1"], timestamp_start=1262275200, timestamp_end=1285935780):
         self.db = self.conn["simulation"]
         all = {}
         for x in strategy_name:
             col = self.db[x]
-            cursor = col.find({"timestamp": {"$lte": timestamp_end, "$gte": timestamp_start}},
-                              {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-            list_ = list(cursor)
-            # print(list_)
-            all[x] = list_
+            cursor = col.find({"timestamp": {"$lte": timestamp_end,"$gte": timestamp_start}}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+            temp_list = list(cursor)
+            percentage_list = []
+            for a in range(1,len(temp_list)):
+                percentage_list.append((temp_list[a]['NetLiquidation'] - temp_list[a-1]['NetLiquidation'])/temp_list[a-1]['NetLiquidation'])
+            for a in range(1,len(temp_list)):
+                temp_list[a]['NetLiquidation'] = percentage_list[a-1]
+            temp_list.pop(0)
+            all[x] = temp_list
         json_data = dumps(all)
         print(json_data)
         return json_data
@@ -174,16 +183,20 @@ class Api_Mongodb:
         return json_data
 
     # same as all_algo_1a() user_acc_2a()
-    def indv_algo_3b(self, strategy_name=["backtest_portfolio_rebalance_0"], timestamp_start=1262275200, timestamp_end=1298937600):
+    def indv_algo_3b(self, strategy_name=["backtest_portfolio_rebalance_0","backtest_portfolio_rebalance_1"], timestamp_start=1262275200, timestamp_end=1285935780):
         self.db = self.conn["simulation"]
         all = {}
         for x in strategy_name:
             col = self.db[x]
-            cursor = col.find({"timestamp": {"$lte": timestamp_end, "$gte": timestamp_start}},
-                              {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
-            list_ = list(cursor)
-            # print(list_)
-            all[x] = list_
+            cursor = col.find({"timestamp": {"$lte": timestamp_end,"$gte": timestamp_start}}, {"_id": 0, "NetLiquidation": 1, "timestamp": 1}).sort("_id", 1)
+            temp_list = list(cursor)
+            percentage_list = []
+            for a in range(1,len(temp_list)):
+                percentage_list.append((temp_list[a]['NetLiquidation'] - temp_list[a-1]['NetLiquidation'])/temp_list[a-1]['NetLiquidation'])
+            for a in range(1,len(temp_list)):
+                temp_list[a]['NetLiquidation'] = percentage_list[a-1]
+            temp_list.pop(0)
+            all[x] = temp_list
         json_data = dumps(all)
         print(json_data)
         return json_data
@@ -509,29 +522,29 @@ class Api_Mongodb:
 
 def main():
     a = Api_Mongodb()
-    a.all_algo_1a()
-    a.all_algo_1b()
-    a.all_algo_1c()
-    a.user_acc_2a()
-    a.user_acc_2b()
-    a.user_acc_2c()
-    a.user_acc_2d()
-    a.user_acc_2e("city127")
-    a.user_acc_2f()
-    a.indv_algo_3a()
-    a.indv_algo_3b()
-    a.indv_algo_3d()
-    a.indv_algo_3e()
-    a.indv_algo_3f()
-    a.indv_algo_3g()
-    a.indv_algo_3h()
-    a.indv_algo_3i()
-    a.indv_algo_3j()
-    a.indv_algo_3k()
-    a.indv_algo_3m()
-    a.all_algo_4a()
-    a.all_algo_4b()
-    a.all_algo_4c()
+    # a.all_algo_1a()
+    # a.all_algo_1b()
+    # a.all_algo_1c()
+    # a.user_acc_2a()
+    # a.user_acc_2b()
+    # a.user_acc_2c()
+    # a.user_acc_2d()
+    # a.user_acc_2e("city127")
+    # a.user_acc_2f()
+    # a.indv_algo_3a()
+    # a.indv_algo_3b()
+    # a.indv_algo_3d()
+    # a.indv_algo_3e()
+    # a.indv_algo_3f()
+    # a.indv_algo_3g()
+    # a.indv_algo_3h()
+    # a.indv_algo_3i()
+    # a.indv_algo_3j()
+    # a.indv_algo_3k()
+    # a.indv_algo_3m()
+    # a.all_algo_4a()
+    # a.all_algo_4b()
+    # a.all_algo_4c()
 
 if __name__ == "__main__":
-        main()
+    main()
