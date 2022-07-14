@@ -119,10 +119,12 @@ class statistic_engine:
         ending_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['date'].values[0],
                                      format='%Y-%m-%d')
         days_diff = (ending_date - starting_date).days
+        if (ending_date - starting_date).days != 0:
+            return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
+                   (ending_net_liquidity / starting_net_liquidity) ** (365 / days_diff) - 1
+        else:
+            return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, 0
 
-
-        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
-               (ending_net_liquidity/starting_net_liquidity) ** (365/days_diff) - 1
 
     def get_return_inception(self, file_name):
         print("get_return_inception")
