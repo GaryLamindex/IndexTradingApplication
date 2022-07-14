@@ -21,8 +21,10 @@ class Factor:
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
         self.buy = ""
         self.optimal_weight = pd.Series([])
+        self.action_msgs = []
 
-    def run(self, all_indice_df, timestamp):
+    def run(self, price_dict, all_indice_df, timestamp):
+        # remove price_dict param if possible
         if not self.trade_agent.market_opened():
             return
 
@@ -72,16 +74,17 @@ class Factor:
             ticker_name = ticker_data["ticker"]
             ticker_pos = ticker_data["position"]
             price = all_indice_df[ticker_name][-1]
-            target_pos = self.optimal_weight[all_indice.index.get_loc(ticker_name)] * self.total_market_value / price
+            target_pos = self.optimal_weight[all_indice_df.index.get_loc(ticker_name)] * self.total_market_value / price
             pos_change = target_pos - ticker_pos
             if pos_change > 0:
                 action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                            {'ticker': buy, 'position_purchase': pos_change})
+                                            {'ticker': ticker_name, 'position_purchase': pos_change})
                 self.action_msgs.append(action_msg)
             elif pos_change < 0:
                 action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
-                                            {'ticker': sell, 'position_sell': sell_pos})
+                                            {'ticker': ticker_name, 'position_sell': pos_change})
                 self.action_msgs.append(action_msg)
+            return self.action_msgs.copy()
 
 
 
