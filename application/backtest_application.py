@@ -38,8 +38,8 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 
 from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
 
-start_date = dt.datetime(2018, 1, 1)  # YYMMDD
-end_date = dt.datetime(2019, 3, 15)  # YYMMDD
+start_date = dt.datetime(2015, 1, 2)  # YYMMDD
+end_date = dt.datetime(2022, 3, 15)  # YYMMDD
 
 strategy = "portfolio_rebalance"
 mode = "backtest"
@@ -83,7 +83,7 @@ for x in range(len(dict)):
     weight.append(tmp.copy())
     tmp.clear()
 
-weight = list(map(lambda x: [x], weight))
+# weight = list(map(lambda x: [x], weight))
 # tickers = ["M", "MSFT"]
 deposit_amount = 1000000
 acceptance_range = 0
@@ -93,8 +93,7 @@ rebalance_ratio = weight
 # rebalance_ratio = [[50, 50]]
 print(weight)
 print(tickers)
-for x in range(len(tickers)):
-    portfolio_rebalance = portfolio_rebalance_backtest(tickers[x],
+portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                        deposit_amount,
                                                        start_date,
                                                        end_date,
@@ -103,7 +102,7 @@ for x in range(len(tickers)):
                                                        user_id,
                                                        db_mode,
                                                        quick_test,
-                                                       acceptance_range, rebalance_ratio[x], store_mongoDB=False,
+                                                       acceptance_range, rebalance_ratio, store_mongoDB=False,
                                                        strategy_initial='this is 20 80 m and msft portfolio',
                                                        video_link='https://www.youtube.com',
                                                        documents_link='https://google.com',
@@ -112,7 +111,7 @@ for x in range(len(tickers)):
                                                        rating_dict=None,
                                                        margin_ratio=3.24,
                                                        trader_name='Fai')
-    portfolio_rebalance.loop_through_param()
+portfolio_rebalance.loop_through_param()
 
 ### ------------------------------------- --Fai Portfolio Rebalance Backtest------------------------------------------------------
 # from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest

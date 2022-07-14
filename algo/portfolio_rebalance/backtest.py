@@ -30,13 +30,13 @@ class backtest(object):
     db_mode = "local"
     acceptance_range = 0
     rebalance_dict = {}
-    tickers = []
+    list_of_tickers = []
     initial_amount = 0
     stock_data_engines = {}
     timestamps = []
     rebalance_ratio = []
     quick_test = True
-
+    tickers=[]
     store_mongoDB = False
     strategy_initial = 'None'
     video_link = 'None'
@@ -47,8 +47,8 @@ class backtest(object):
     margin_ratio = np.NaN
     trader_name = "None"
 
-    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range, rebalance_ratio, store_mongoDB, strategy_initial='None',
+    def __init__(self, list_of_tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
+                 db_mode, quick_test, acceptance_range, list_of_rebalance_ratios, store_mongoDB, strategy_initial='None',
                  video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
@@ -57,7 +57,7 @@ class backtest(object):
         self.table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
-        self.tickers = tickers
+        self.list_of_tickers = list_of_tickers
         self.initial_amount = initial_amount
         self.start_timestamp = datetime.timestamp(start_date)
         self.end_timestamp = datetime.timestamp(end_date)
@@ -66,11 +66,10 @@ class backtest(object):
         self.quick_test = quick_test
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
-        self.rebalance_ratio = rebalance_ratio
+        self.rebalance_ratio = list_of_rebalance_ratios
         self.start_date = start_date
         self.end_date = end_date
-        for ticker in self.tickers:
-            self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+        self.tickers = []
 
         if db_mode.get("local"):
 
@@ -104,7 +103,11 @@ class backtest(object):
 
     def loop_through_param(self):
         # loop through all the rebalance requirement
-        for ratio in self.rebalance_ratio:
+        for x in range(len(self.list_of_tickers)):
+            ratio = self.rebalance_ratio[x].copy()
+            self.tickers = self.list_of_tickers[x].copy()
+            for ticker in self.tickers:
+                self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             num_tickers = len(self.tickers)
             print("Start Backtest:", ratio)
             self.rebalance_dict = {}
@@ -119,6 +122,7 @@ class backtest(object):
 
                 # remove if exist
                 run_file = self.run_file_dir + spec_str + '.csv'
+                graph_file = self.graph_dir + spec_str + '.png'
                 if os.path.exists(run_file):
                     df = pd.read_csv(run_file)
                     first_day = df["date"].iloc[0]
@@ -127,8 +131,9 @@ class backtest(object):
                             abs((self.end_date.replace(day=1) - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
                         os.remove(Path(run_file))
                     else:
-                        return
-                graph_file = self.graph_dir + spec_str + '.png'
+                        if os.path.exists(graph_file):
+                            os.remove(Path(graph_file))
+                        continue
                 if os.path.exists(graph_file):
                     os.remove(Path(graph_file))
 
@@ -150,9 +155,8 @@ class backtest(object):
         list_of_stats_data = listdir(self.stats_data_dir)
         for file in list_of_stats_data:
             os.remove(Path(f"{self.stats_data_dir}/{file}"))
-        current_file = spec_str + '.csv'
         if self.cal_stat:
-            self.cal_all_file_return(current_file)
+            self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent, dividend_engine, trade_agent):
@@ -160,6 +164,10 @@ class backtest(object):
         row = 0
         timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
+        for x in range(1, len(self.tickers)):
+            temp = self.stock_data_engines[self.tickers[x]].get_data_by_range(
+                [start_timestamp, end_timestamp])['timestamp']
+            timestamps = np.intersect1d(timestamps, temp)
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
@@ -199,13 +207,14 @@ class backtest(object):
         graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "NetLiquidation",
                                                       f"{self.path}/{self.table_name}/graph")
 
-    def cal_all_file_return(self, current_file):
+    def cal_all_file_return(self):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
-            if file.decode().endswith("csv") and current_file == file.decode():
-                marketCol = f'marketPrice_{self.tickers[0]}'
+            if file.decode().endswith("csv"):
+                ticker_name = file.decode().split("_")
+                marketCol = f'marketPrice_{ticker_name[1]}'
                 # costCol = f'costBasis_{self.tickers[idx]}'
                 # valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
