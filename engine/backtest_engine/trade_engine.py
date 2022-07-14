@@ -46,7 +46,9 @@ class backtest_trade_engine(object):
            # print("amount required:",transaction_amount,'; not enough buy_pwr, buy position is rejected')
             ticker = ""
             transaction_amount = 0
-            msg = IBActionMessage(IBActionState.FAIL, ticker, IBAction.BUY_MKT_ORDER, None, None)
+            msg = IBActionMessage(IBActionState.FAIL, timestamp, None, ticker,
+                              IBAction.BUY_MKT_ORDER, ticker_open_price,
+                              position_purchase, ticker_open_price, None, None)
             return msg
 
         if self.backtest_acc_data.check_if_ticker_exist_in_portfolio(ticker) == False:
