@@ -19,6 +19,7 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
 from object.action_data import IBAction, IBActionsTuple
+import numpy as np
 
 
 class backtest:
@@ -35,9 +36,19 @@ class backtest:
     initial_amount = 0
     stock_data_engines = {}
     indicators = {}
+    store_mongoDB = False
+    strategy_initial = 'None'
+    video_link = 'None'
+    documents_link = 'None'
+    tags_array = list()
+    subscribers_num = 0
+    rating_dict = {}
+    margin_ratio = np.NaN
+    trader_name = "None"
 
     def __init__(self, tickers, bond, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode):
+                 db_mode, store_mongoDB, strategy_initial='None', video_link='None', documents_link='None',
+                 tags_array=list(), subscribers_num=0, rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "accelerating_dual_momentum", "user_id": user_id}
@@ -78,6 +89,16 @@ class backtest:
                 Path(self.transact_data_dir).mkdir(parents=True, exist_ok=True)
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
+        if store_mongoDB:
+            self.store_mongoDB = True
+            self.strategy_initial = strategy_initial
+            self.video_link = video_link
+            self.documents_link = documents_link
+            self.tags_array = tags_array
+            self.subscribers_num = subscribers_num
+            self.rating_dict = rating_dict
+            self.margin_ratio = margin_ratio
+            self.trader_name = trader_name
 
     def loop_through_param(self):
         print("start backtest")
@@ -158,6 +179,7 @@ class backtest:
         ticker_engine = self.stock_data_engines[self.bond]  # update bond price
         ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
         sim_meta_data.update({self.bond: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
+        
         price = ticker_items.get('open')
         if price is None:
             stock_data_dict.update({self.bond: {'last': None}})
@@ -201,7 +223,7 @@ class backtest:
             timestamp = delta_timestamps[month]
             ticker_item = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
             while ticker_item is None:
-                timestamp = timestamp + 1
+                timestamp = timestamp + 3600
                 ticker_item = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
             self.indicators[ticker].append_into_df(ticker_item)
 

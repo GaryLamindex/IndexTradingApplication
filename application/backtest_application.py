@@ -160,10 +160,10 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 from algo.accelerating_dual_momentum.backtest import backtest as accelerating_dual_momentum_backtest
 
 tickers = ["SPY", "VBK"]
-bond = "AGG"
+bond = "TIP"
 deposit_amount = 1000000
-start_date = dt.datetime(2008, 1, 2)  # YYMMDD
-end_date = dt.datetime(2010, 1, 31)  # YYMMDD
+start_date = dt.datetime(2005, 1, 2)  # YYMMDD
+end_date = dt.datetime(2017, 12, 31)  # YYMMDD
 strategy = "accelerating_dual_momentum"
 mode = "backtest"
 cal_stat = True
@@ -173,7 +173,17 @@ db_mode = {"dynamo_db": False, "local": True}
 data_freq = "one_min"
 user_id = 0
 accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
-                                                                 end_date, cal_stat, data_freq, user_id, db_mode)
+                                                                 end_date, cal_stat, data_freq, user_id, db_mode,
+                                                                 store_mongoDB=False,
+                                                                 strategy_initial='this is 20 80 m and msft portfolio',
+                                                                 video_link='https://www.youtube.com',
+                                                                 documents_link='https://google.com',
+                                                                 tags_array=None,
+                                                                 subscribers_num=3,
+                                                                 rating_dict=None,
+                                                                 margin_ratio=3.24,
+                                                                 trader_name='Fai'
+                                                                 )
 accelerating_dual_momentum.loop_through_param()
 ### ---------------------------------------  Fai Accelerating Dual Momentum Backtest -------------------------------------------------------
 
