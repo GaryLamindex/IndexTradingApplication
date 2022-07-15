@@ -69,8 +69,8 @@ class Write_Mongodb:
             coll.insert_many(run_records)
         return
 
-    def write_strategies(self, strategy_name, all_file_return_df, strategy_initial, video_link, documents_link,
-                         tags_array, rating_dict, margin_ratio, subscribers_num, trader_name):
+    def write_strategies(self, strategy_name=None, all_file_return_df=None, strategy_initial=None, video_link=None, documents_link=None,
+                         tags_array=None, rating_dict=None, margin_ratio=None, subscribers_num=None, trader_name=None):
         """write Strategies collection in rainydrop"""
         self.db = self.conn[self.rainydrop]
         coll = self.db[self.strategies]

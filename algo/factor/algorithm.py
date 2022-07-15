@@ -82,7 +82,7 @@ class Factor:
                 self.action_msgs.append(action_msg)
             elif pos_change < 0:
                 action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
-                                            {'ticker': ticker_name, 'position_sell': pos_change})
+                                            {'ticker': ticker_name, 'position_sell': -pos_change})
                 self.action_msgs.append(action_msg)
             return self.action_msgs.copy()
 
