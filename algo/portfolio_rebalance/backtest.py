@@ -296,6 +296,8 @@ class backtest(object):
 
                 ########## Store drawdown in another csv
                 drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv", index=False)
+                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv", index=False)
                 # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -430,9 +432,9 @@ class backtest(object):
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
                "last nlv", "last daily change", "last monthly change",
                "Composite", "number_of_ETFs",
-               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "_1_yr_pos_neg", "_3_yr_pos_neg", "_5_yr_pos_neg",
-               "inception_pos_neg", "_1_yr_information_ratio", "_3_yr_information_ratio", "_5_yr_information_ratio",
-               "inception_information_ratio", "net profit",
+               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "1 yr pos neg", "3 yr pos neg", "5 yr pos neg",
+               "inception pos neg", "1 yr information ratio", "3 yr information ratio", "5 yr information ratio",
+               "inception information ratio", "net profit",
                "compound_inception_return_dict", "compound_1_yr_return_dict", "compound_3_yr_return_dict",
                "compound_5_yr_return_dict", "compound_ytd_return_dict"
                ]
@@ -443,8 +445,7 @@ class backtest(object):
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
-        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
+
 
         # store data to mongoDB HERE
         if self.store_mongoDB:
