@@ -52,7 +52,7 @@ class backtest:
         self.db_mode = db_mode
         self.indicators = {}
 
-        two_year_before = datetime.timestamp(start_date + timedelta(months=-24))
+        # two_year_before = datetime.timestamp(start_date + timedelta(months=-24))
         for ticker in self.tickers:
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             df_temp = get_data_by_range(self, [range])
@@ -165,19 +165,26 @@ class backtest:
                 self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
 
     def run(self, timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine):
-        pct_change_dict = {}
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
+        two_year_before = timestamp + timedelta(months=-24)
+        all_indice_df = pd.DataFrame([])
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
-            pct_change_dict[ticker].update({1: self.indicators[ticker].get_pct_change(1, 'open', timestamp)})
-            pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(2, 'open', timestamp)})
-            pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
-            ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-            self.indicators[ticker].append_into_df(ticker_items)
-            price = ticker_items.get('open')
+            ticker_items = ticker_engine.get_data_by_range([two_year_before, timestamp])
+            if all_indice_df.empty:
+                all_indice_df = ticker_items[['Date', 'Close']]\
+                                .rename(columns={'Close': ticker})\
+                                .set_index('Date')
+                all_indice_df['Date'] = pd.to_datetime(all_indice_df['Date'])
+            else:
+                ticker_temp = ticker_items[['Date', 'Close']]\
+                              .rename(columns={'Close': ticker})\
+                              .set_index('Date')
+                all_indice_df = all_indice_df.join(ticker_temp)
+            price = ticker_items.get('Close')
             if price is None:
                 stock_data_dict.update({ticker: {'last': None}})
                 price_dict.update({ticker: None})
@@ -185,26 +192,26 @@ class backtest:
             else:
                 stock_data_dict.update({ticker: {'last': price}})
                 price_dict.update({ticker: price})
-        action_msgs = algorithm.run(pct_change_dict, price_dict, self.bond, timestamp)
-        action_record = []
-        for action_msg in action_msgs:
-            action = action_msg.action_enum
-            if action == IBAction.SELL_MKT_ORDER:
-                temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                            action_msg.args_dict.get("position_sell"),
-                                                                            {"timestamp": action_msg.timestamp})
-                action_record.append(temp_action_record)
-        for action_msg in action_msgs:
-            action = action_msg.action_enum
-            if action == IBAction.BUY_MKT_ORDER:
-                temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                           action_msg.args_dict.get(
-                                                                               "position_purchase"),
-                                                                           {"timestamp": action_msg.timestamp})
-                action_record.append(temp_action_record)
-        sim_agent.append_run_data_to_db(timestamp, sim_agent.portfolio_data_engine.get_account_snapshot(),
-                                        action_record, sim_meta_data,
-                                        stock_data_dict)
+            action_msgs = algorithm.run(price_dict, all_indice_df, timestamp)
+            action_record = []
+            for action_msg in action_msgs:
+                action = action_msg.action_enum
+                if action == IBAction.SELL_MKT_ORDER:
+                    temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
+                                                                                action_msg.args_dict.get("position_sell"),
+                                                                                {"timestamp": action_msg.timestamp})
+                    action_record.append(temp_action_record)
+            for action_msg in action_msgs:
+                action = action_msg.action_enum
+                if action == IBAction.BUY_MKT_ORDER:
+                    temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
+                                                                               action_msg.args_dict.get(
+                                                                                   "position_purchase"),
+                                                                               {"timestamp": action_msg.timestamp})
+                    action_record.append(temp_action_record)
+            sim_agent.append_run_data_to_db(timestamp, sim_agent.portfolio_data_engine.get_account_snapshot(),
+                                            action_record, sim_meta_data,
+                                            stock_data_dict)
 
     def plot_all_file_graph(self):
         print("plot_graph")

@@ -67,7 +67,7 @@ class accelerating_dual_momentum:
                 action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
                                             {'ticker': sell, 'position_sell': sell_pos})
                 self.action_msgs.append(action_msg)
-            return self.action_msgs.copy()
+        return self.action_msgs.copy()
 
     def check_exec(self, timestamp, **kwargs):
         datetime_obj = datetime.utcfromtimestamp(timestamp)
