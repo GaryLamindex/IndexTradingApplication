@@ -455,7 +455,14 @@ class backtest(object):
                 if file.decode().endswith("csv"):
                     csv_path = Path(self.run_file_dir, file.decode())
                     a = pd.read_csv(csv_path)
-                    p.write_new_backtest_result(strategy_name=self.table_name,
+                    spec = file.decode().split('.csv')
+                    name = spec[0] + "drawdown_abstract.csv"
+                    name2 = spec[0] + "drawdown_raw_data.csv"
+                    abstract_path = Path(self.stats_data_dir, name)
+                    drawdown_abstract = pd.read_csv(abstract_path)
+                    raw_data_path = Path(self.stats_data_dir, name2)
+                    drawdown_raw_data = pd.read_csv(raw_data_path)
+                    p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
                                                 drawdown_abstract_df=drawdown_abstract,
                                                 drawdown_raw_df=drawdown_raw_data,
                                                 run_df=a,

@@ -103,15 +103,15 @@ portfolio_rebalance = portfolio_rebalance_backtest(tickers,
                                                        user_id,
                                                        db_mode,
                                                        quick_test,
-                                                       acceptance_range, rebalance_ratio, store_mongoDB=False,
-                                                       strategy_initial='this is 20 80 m and msft portfolio',
-                                                       video_link='https://www.youtube.com',
-                                                       documents_link='https://google.com',
+                                                       acceptance_range, rebalance_ratio, store_mongoDB=True,
+                                                       strategy_initial=None,
+                                                       video_link=None,
+                                                       documents_link=None,
                                                        tags_array=None,
-                                                       subscribers_num=3,
+                                                       subscribers_num=None,
                                                        rating_dict=None,
-                                                       margin_ratio=3.24,
-                                                       trader_name='Fai')
+                                                       margin_ratio=None,
+                                                       trader_name=None)
 portfolio_rebalance.loop_through_param()
 
 ### ------------------------------------- --Fai Portfolio Rebalance Backtest------------------------------------------------------
