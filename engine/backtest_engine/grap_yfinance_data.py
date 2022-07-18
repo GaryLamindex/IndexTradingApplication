@@ -1,5 +1,5 @@
 import yfinance as yf
-import os
+import os.path
 import pathlib
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
@@ -59,7 +59,9 @@ def main():
         os.makedirs(engine.ticker_data_path)
     if not os.path.isdir(engine.ticker_name_path):
         os.makedirs(engine.ticker_name_path)
-    engine.get_ticker_name()
+    file_exists = os.path.exists(f"{engine.ticker_name_path}/ticker_name.csv")
+    if not file_exists:
+        engine.get_ticker_name()
     ticker_name = pd.read_csv(f"{engine.ticker_name_path}/ticker_name.csv")
     for ticker in ticker_name['Ticker']:
         df = engine.get_yfinance_max_historical_data(ticker)
