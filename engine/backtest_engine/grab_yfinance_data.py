@@ -60,8 +60,8 @@ def main():
     if not os.path.isdir(engine.ticker_name_path):
         os.makedirs(engine.ticker_name_path)
     file_exists = os.path.exists(f"{engine.ticker_name_path}/ticker_name.csv")
-    # if not file_exists:
-    #     engine.get_ticker_name()
+    if not file_exists:
+        engine.get_ticker_name()
     ticker_name = pd.read_csv(f"{engine.ticker_name_path}/ticker_name.csv")
     for ticker in ticker_name['Ticker']:
         df = engine.get_yfinance_max_historical_data(ticker)

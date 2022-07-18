@@ -180,27 +180,27 @@ from algo.accelerating_dual_momentum.backtest import backtest as accelerating_du
 tickers = ["SPY", "MSFT"]
 bond = "TIP"
 deposit_amount = 1000000
-start_date = dt.datetime(2007, 6, 3)  # YYMMDD
-end_date = dt.datetime(2009, 12, 31)  # YYMMDD
+start_date = dt.datetime(2005, 6, 3)  # YYMMDD
+end_date = dt.datetime(2022, 6, 30)  # YYMMDD
 strategy = "accelerating_dual_momentum"
 mode = "backtest"
 cal_stat = True
 quick_test = True
 wipe_previous_sim_data = True
 db_mode = {"dynamo_db": False, "local": True}
-data_freq = "one_min"
+data_freq = "one_day"
 user_id = 0
 accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
                                                                  end_date, cal_stat, data_freq, user_id, db_mode,
-                                                                 store_mongoDB=False,
-                                                                 strategy_initial='this is 20 80 m and msft portfolio',
-                                                                 video_link='https://www.youtube.com',
-                                                                 documents_link='https://google.com',
-                                                                 tags_array=None,
-                                                                 subscribers_num=3,
-                                                                 rating_dict=None,
-                                                                 margin_ratio=3.24,
-                                                                 trader_name='Fai'
+                                                                 store_mongoDB=True,
+                                                                 strategy_initial='SPY_MSFT_TIP_accelerating_dual_momentum',
+                                                                video_link='https://www.youtube.com',
+                                                                documents_link='https://google.com',
+                                                                tags_array=None,
+                                                                subscribers_num=3,
+                                                                rating_dict=None,
+                                                                margin_ratio=3.24,
+                                                                trader_name='Fai'
                                                                  )
 accelerating_dual_momentum.loop_through_param()
 ### ---------------------------------------  Fai Accelerating Dual Momentum Backtest -------------------------------------------------------
