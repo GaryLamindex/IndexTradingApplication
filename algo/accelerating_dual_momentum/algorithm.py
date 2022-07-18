@@ -17,7 +17,6 @@ class accelerating_dual_momentum:
         self.last_exec_datetime_obj = None
         self.portfolio = self.account_snapshot.get("portfolio")
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
-        self.buy = ""
         self.action_msgs = []
 
     def run(self, pct_change_dict, price_dict, bond, timestamp):
@@ -52,9 +51,10 @@ class accelerating_dual_momentum:
                     price = price_dict[buy]["last"]
                     target_pos = self.total_market_value / price
                     buy_pos = target_pos - ticker_pos
-                    action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                                {'ticker': buy, 'position_purchase': buy_pos})
-                    self.action_msgs.append(action_msg)
+                    if buy_pos > 0.0:
+                        action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                                    {'ticker': buy, 'position_purchase': buy_pos})
+                        self.action_msgs.append(action_msg)
                 elif ticker_pos == 0:  # if not holding a ticker that need to buy
                     price = price_dict[buy]["last"]
                     target_pos = self.total_market_value / price

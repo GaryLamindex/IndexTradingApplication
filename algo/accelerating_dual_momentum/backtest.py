@@ -144,15 +144,24 @@ class backtest:
         print('start backtest')
         print('Fetch data')
         portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
-        series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+        tickers_and_bonds_list = self.tickers.copy()
+        tickers_and_bonds_list.append(self.bond)
+        timestamps = self.stock_data_engines[tickers_and_bonds_list[0]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
-        series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
-            'timestamp']
-        timestamps = self.stock_data_engines[self.tickers[0]].get_intersect_timestamps(series_1, series_2)
+        for x in range(1, len(tickers_and_bonds_list)):
+            temp = self.stock_data_engines[tickers_and_bonds_list[x]].get_data_by_range(
+                [start_timestamp, end_timestamp])['timestamp']
+            timestamps = np.intersect1d(timestamps, temp)
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
+            if dividend_agent.check_div(timestamp):
+                portfolio = portfolio_data_engine.get_portfolio()
+                total_dividend = dividend_agent.distribute_div(timestamp, portfolio)
+                if total_dividend != 0:
+                    portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
+
             if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
                 self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
 
@@ -176,10 +185,11 @@ class backtest:
                 continue
             else:
                 stock_data_dict.update({ticker: {'last': price}})
-        ticker_engine = self.stock_data_engines[self.bond]  # update bond price
-        ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-        sim_meta_data.update({self.bond: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
-        
+        bond_engine = self.stock_data_engines[self.bond]  # update bond price
+        ticker_items = bond_engine.get_ticker_item_by_timestamp(timestamp)
+        sim_meta_data.update({self.bond: bond_engine.get_ticker_item_by_timestamp(timestamp)})
+        if ticker_items is None:
+            a=0
         price = ticker_items.get('open')
         if price is None:
             stock_data_dict.update({self.bond: {'last': None}})
