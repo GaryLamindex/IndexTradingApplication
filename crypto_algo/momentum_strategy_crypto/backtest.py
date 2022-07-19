@@ -119,20 +119,19 @@ class backtest:
         for timestamp in range(start_timestamp, end_timestamp, step):
             _date = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = dt.datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-            if _date == '2018-05-05':
-                print('in')
             print('#' * 20, _date, ":", _time, '#' * 20)
             self.run(timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine)
 
-
     def run(self, timestamp, algorithm, period, sim_agent, trade_agent, portfolio_data_engine):
         pct_change_dict = {}
+        high_dict = {}
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
         for ticker in self.tickers:
             ticker_engine = self.crypto_data_engines[ticker]
-            pct_change_dict.update({ticker: self.indicators[ticker].get_pct_change(period, 'Open', timestamp)})
+            pct_change_dict.update({ticker: self.indicators[ticker].get_pct_change('Open', timestamp, period)})
+            high_dict.update({ticker: self.indicators[ticker].get_high('Open', timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             price = ticker_engine.get_field_by_timestamp(timestamp, 'Open')
             if price is None:
@@ -145,7 +144,7 @@ class backtest:
 
         # algorithm.run() should return proper format of tuples in a list for self.pending_actions
 
-        temp_actions = algorithm.run(price_dict, pct_change_dict, timestamp)
+        temp_actions = algorithm.run(price_dict, pct_change_dict, high_dict, timestamp)
         for a in temp_actions:
             heapq.heappush(self.pending_actions, a)
 
@@ -156,8 +155,9 @@ class backtest:
 
             if cur_action == BinanceAction.BUY_MKT_ORDER:
                 ticker = func_params['ticker']
-                last = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
-                position_purchase = portfolio_data_engine.acc_data.wallet['funding'] * 0.99 // last
+                last = self.crypto_data_engines[ticker].get_field_by_timestamp(timestamp, 'Open')
+                avg_holding = func_params['avg_holding']
+                position_purchase = portfolio_data_engine.acc_data.wallet['funding'] / avg_holding // last
                 action_msg = trade_agent.place_buy_crypto_mkt_order(ticker,
                                                                     position_purchase,
                                                                     timestamp, last)
@@ -166,15 +166,14 @@ class backtest:
                 for p in portfolio:
                     ticker = p['ticker']
                     cur_position = p['available']
-                    open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
+                    open_price = self.crypto_data_engines[ticker].get_field_by_timestamp(timestamp, 'Open')
                     action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
                                                                          timestamp, open_price)
             elif cur_action == BinanceAction.CLOSE_POSITION:
                 ticker = func_params['ticker']
                 ticker_item = portfolio_data_engine.acc_data.check_if_ticker_exist_in_portfolio(ticker)
-                # TODO: why ticker_item is None
                 cur_position = ticker_item['available']
-                open_price = self.crypto_data_engines[ticker].get_data_by_timestamp(timestamp)['Open'].item()
+                open_price = self.crypto_data_engines[ticker].get_field_by_timestamp(timestamp, 'Open')
                 action_msg = trade_agent.place_sell_crypto_mkt_order(ticker, cur_position,
                                                                      timestamp, open_price)
             if action_msg is not None:

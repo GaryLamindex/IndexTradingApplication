@@ -194,7 +194,7 @@ class backtest:
         else:
             stock_data_dict.update({self.bond: {'last': price}})
 
-        action_msgs = algorithm.run(pct_change_dict, stock_data_dict, self.bond, timestamp)
+        action_msgs = algorithm.run(stock_data_dict, self.bond)
         action_record = []
         if action_msgs is None:
             a=0

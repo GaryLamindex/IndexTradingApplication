@@ -474,7 +474,7 @@ class backtest(object):
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
 
         # input database and historical data into algo and get action msgs
-        action_msgs = algorithm.run(stock_data_dict, timestamp)
+        action_msgs = algorithm.run(timestamp, )
 
         # execute action msgs
         action_record = []

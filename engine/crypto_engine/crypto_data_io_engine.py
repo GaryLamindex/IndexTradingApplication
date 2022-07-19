@@ -37,7 +37,8 @@ class crypto_local_engine:
     def get_field_by_timestamp(self, timestamp, field):
         row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp, field]
         while row_df.empty and self.full_ticker_df['timestamp'].iloc[0] < timestamp:
-            row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp - 86400, field]
+            timestamp -= 86400
+            row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp, field]
         return None if row_df.empty else row_df.item()
 
     def get_data_by_timestamp(self, timestamp):

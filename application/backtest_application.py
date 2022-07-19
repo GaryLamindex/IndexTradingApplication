@@ -26,10 +26,10 @@ for filename in filelist:
         if os.path.exists(f'{path}/{dest}'):
             tickers.append(filename.split('-')[0])
 initial_amount = 100000
-start_date = dt.datetime(2015, 1, 1, tzinfo=dt.timezone.utc)
+start_date = dt.datetime(2017, 1, 1, tzinfo=dt.timezone.utc)
 end_date = dt.datetime(2022, 6, 23, tzinfo=dt.timezone.utc)
 periods_dict = {"start": 20, "end": 21, "step": 1}
-cal_stat = True
+cal_stat = False
 user_id = 0
 db_mode = {"dynamo_db": False, "local": True}
 backtest = momentum_strategy_backtest(tickers, initial_amount, start_date, end_date,
