@@ -5,9 +5,9 @@ from sklearn.decomposition import PCA
 from pykalman import KalmanFilter
 from arch.univariate import arch_model
 
-import modellib.DCC as DCC
-import modellib.ARIMA as ARIMA
-from modellib.covariance_matrix import covariance_matrix as cm
+import algo.factor.modellib.DCC as DCC
+import algo.factor.modellib.ARIMA as ARIMA
+from algo.factor.modellib.covariance_matrix import covariance_matrix as cm
 
 class Indicator:
 
