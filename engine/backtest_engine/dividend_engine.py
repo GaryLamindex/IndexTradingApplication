@@ -120,6 +120,7 @@ def main():
         pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/scraper.csv'
     etf_list = pd.read_csv(etf_list_path)
     etf_list = etf_list["Ticker"].values.tolist()
+    etf_list = list(set(etf_list))
     engine = dividend_engine(etf_list)
     engine.get_dividends(etf_list, -1)
 

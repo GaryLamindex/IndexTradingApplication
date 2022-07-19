@@ -119,10 +119,12 @@ class statistic_engine:
         ending_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['date'].values[0],
                                      format='%Y-%m-%d')
         days_diff = (ending_date - starting_date).days
+        if (ending_date - starting_date).days != 0:
+            return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
+                   (ending_net_liquidity / starting_net_liquidity) ** (365 / days_diff) - 1
+        else:
+            return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, 0
 
-
-        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
-               (ending_net_liquidity/starting_net_liquidity) ** (365/days_diff) - 1
 
     def get_return_inception(self, file_name):
         print("get_return_inception")
@@ -630,13 +632,15 @@ class statistic_engine:
             neg_periods = negative / (positive + negative)
         else:
             neg_periods = float('NaN')
-
-        return {"max_annual_rolling_return": max_annual_rolling_return,
-                "dateinfo_index_max": dateinfo_index_max,
-                "min_annual_rolling_return": min_annual_rolling_return,
-                "dateinfo_index_min": dateinfo_index_min,
-                "average_annual_return": mean,
-                "negative_periods": neg_periods}
+        if max_annual_rolling_return == float('-inf')  and min_annual_rolling_return == float('inf') and pd.isna(dateinfo_index_max) and pd.isna(dateinfo_index_min) and pd.isna(mean) and pd.isna(neg_periods):
+            return str('NaN')
+        else:
+            return {"max_annual_rolling_return": max_annual_rolling_return,
+                    "dateinfo_index_max": dateinfo_index_max,
+                    "min_annual_rolling_return": min_annual_rolling_return,
+                    "dateinfo_index_min": dateinfo_index_min,
+                    "average_annual_return": mean,
+                    "negative_periods": neg_periods}
 
     def get_volatility_by_period(self, date, lookback_period, file_name, marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it

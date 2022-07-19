@@ -30,13 +30,13 @@ class backtest(object):
     db_mode = "local"
     acceptance_range = 0
     rebalance_dict = {}
-    tickers = []
+    list_of_tickers = []
     initial_amount = 0
     stock_data_engines = {}
     timestamps = []
     rebalance_ratio = []
     quick_test = True
-
+    tickers = []
     store_mongoDB = False
     strategy_initial = 'None'
     video_link = 'None'
@@ -47,8 +47,9 @@ class backtest(object):
     margin_ratio = np.NaN
     trader_name = "None"
 
-    def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode, quick_test, acceptance_range, rebalance_ratio, store_mongoDB, strategy_initial='None',
+    def __init__(self, list_of_tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
+                 db_mode, quick_test, acceptance_range, list_of_rebalance_ratios, store_mongoDB,
+                 strategy_initial='None',
                  video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
@@ -57,7 +58,7 @@ class backtest(object):
         self.table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
-        self.tickers = tickers
+        self.list_of_tickers = list_of_tickers
         self.initial_amount = initial_amount
         self.start_timestamp = datetime.timestamp(start_date)
         self.end_timestamp = datetime.timestamp(end_date)
@@ -66,11 +67,10 @@ class backtest(object):
         self.quick_test = quick_test
         self.db_mode = db_mode
         self.acceptance_range = acceptance_range
-        self.rebalance_ratio = rebalance_ratio
+        self.rebalance_ratio = list_of_rebalance_ratios
         self.start_date = start_date
         self.end_date = end_date
-        for ticker in self.tickers:
-            self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+        self.tickers = []
 
         if db_mode.get("local"):
 
@@ -104,7 +104,11 @@ class backtest(object):
 
     def loop_through_param(self):
         # loop through all the rebalance requirement
-        for ratio in self.rebalance_ratio:
+        for x in range(len(self.list_of_tickers)):
+            ratio = self.rebalance_ratio[x].copy()
+            self.tickers = self.list_of_tickers[x].copy()
+            for ticker in self.tickers:
+                self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             num_tickers = len(self.tickers)
             print("Start Backtest:", ratio)
             self.rebalance_dict = {}
@@ -119,6 +123,7 @@ class backtest(object):
 
                 # remove if exist
                 run_file = self.run_file_dir + spec_str + '.csv'
+                graph_file = self.graph_dir + spec_str + '.png'
                 if os.path.exists(run_file):
                     df = pd.read_csv(run_file)
                     first_day = df["date"].iloc[0]
@@ -127,8 +132,9 @@ class backtest(object):
                             abs((self.end_date.replace(day=1) - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
                         os.remove(Path(run_file))
                     else:
-                        return
-                graph_file = self.graph_dir + spec_str + '.png'
+                        if os.path.exists(graph_file):
+                            os.remove(Path(graph_file))
+                        continue
                 if os.path.exists(graph_file):
                     os.remove(Path(graph_file))
 
@@ -150,9 +156,8 @@ class backtest(object):
         list_of_stats_data = listdir(self.stats_data_dir)
         for file in list_of_stats_data:
             os.remove(Path(f"{self.stats_data_dir}/{file}"))
-        current_file = spec_str + '.csv'
         if self.cal_stat:
-            self.cal_all_file_return(current_file)
+            self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent, dividend_engine, trade_agent):
@@ -160,6 +165,10 @@ class backtest(object):
         row = 0
         timestamps = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
+        for x in range(1, len(self.tickers)):
+            temp = self.stock_data_engines[self.tickers[x]].get_data_by_range(
+                [start_timestamp, end_timestamp])['timestamp']
+            timestamps = np.intersect1d(timestamps, temp)
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
@@ -199,13 +208,14 @@ class backtest(object):
         graph_plotting_engine.plot_all_file_graph_png(f"{self.run_file_dir}", "date", "NetLiquidation",
                                                       f"{self.path}/{self.table_name}/graph")
 
-    def cal_all_file_return(self, current_file):
+    def cal_all_file_return(self):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
         data_list = []
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
-            if file.decode().endswith("csv") and current_file == file.decode():
-                marketCol = f'marketPrice_{self.tickers[0]}'
+            if file.decode().endswith("csv"):
+                ticker_name = file.decode().split("_")
+                marketCol = f'marketPrice_{ticker_name[1]}'
                 # costCol = f'costBasis_{self.tickers[idx]}'
                 # valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
@@ -286,6 +296,8 @@ class backtest(object):
 
                 ########## Store drawdown in another csv
                 drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv", index=False)
+                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv", index=False)
                 # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -321,6 +333,12 @@ class backtest(object):
                 _3_yr_pos_neg = pos_neg_dict.get('3y')
                 _5_yr_pos_neg = pos_neg_dict.get('5y')
                 inception_pos_neg = pos_neg_dict.get('inception')
+
+                information_ratio_dict = stat_engine.get_information_ratio_data(file_name, marketCol)
+                _1_yr_information_ratio = information_ratio_dict.get('1y')
+                _3_yr_information_ratio = information_ratio_dict.get('3y')
+                _5_yr_information_ratio = information_ratio_dict.get('5y')
+                inception_information_ratio = information_ratio_dict.get('inception')
 
                 net_profit = stat_engine.get_net_profit_inception(file_name)
 
@@ -379,6 +397,10 @@ class backtest(object):
                     "3 yr pos neg": _3_yr_pos_neg,
                     "5 yr pos neg": _5_yr_pos_neg,
                     "inception pos neg": inception_pos_neg,
+                    "1 yr information ratio": _1_yr_information_ratio,
+                    "3 yr information ratio": _3_yr_information_ratio,
+                    "5 yr information ratio": _5_yr_information_ratio,
+                    "inception information ratio": inception_information_ratio,
                     "net profit": net_profit,
                     "compound_inception_return_dict": compound_inception_return_dict,
                     "compound_1_yr_return_dict": compound_1_yr_return_dict,
@@ -410,8 +432,9 @@ class backtest(object):
                "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
                "last nlv", "last daily change", "last monthly change",
                "Composite", "number_of_ETFs",
-               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "_1_yr_pos_neg", "_3_yr_pos_neg", "_5_yr_pos_neg",
-               "inception_pos_neg", "net profit",
+               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "1 yr pos neg", "3 yr pos neg", "5 yr pos neg",
+               "inception pos neg", "1 yr information ratio", "3 yr information ratio", "5 yr information ratio",
+               "inception information ratio", "net profit",
                "compound_inception_return_dict", "compound_1_yr_return_dict", "compound_3_yr_return_dict",
                "compound_5_yr_return_dict", "compound_ytd_return_dict"
                ]
@@ -422,8 +445,7 @@ class backtest(object):
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
-        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
+
 
         # store data to mongoDB HERE
         if self.store_mongoDB:
@@ -433,7 +455,14 @@ class backtest(object):
                 if file.decode().endswith("csv"):
                     csv_path = Path(self.run_file_dir, file.decode())
                     a = pd.read_csv(csv_path)
-                    p.write_new_backtest_result(strategy_name=self.table_name,
+                    spec = file.decode().split('.csv')
+                    name = spec[0] + "drawdown_abstract.csv"
+                    name2 = spec[0] + "drawdown_raw_data.csv"
+                    abstract_path = Path(self.stats_data_dir, name)
+                    drawdown_abstract = pd.read_csv(abstract_path)
+                    raw_data_path = Path(self.stats_data_dir, name2)
+                    drawdown_raw_data = pd.read_csv(raw_data_path)
+                    p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
                                                 drawdown_abstract_df=drawdown_abstract,
                                                 drawdown_raw_df=drawdown_raw_data,
                                                 run_df=a,

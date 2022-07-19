@@ -19,6 +19,7 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
 from object.action_data import IBAction, IBActionsTuple
+import numpy as np
 
 
 class backtest:
@@ -35,9 +36,19 @@ class backtest:
     initial_amount = 0
     stock_data_engines = {}
     indicators = {}
+    store_mongoDB = False
+    strategy_initial = 'None'
+    video_link = 'None'
+    documents_link = 'None'
+    tags_array = list()
+    subscribers_num = 0
+    rating_dict = {}
+    margin_ratio = np.NaN
+    trader_name = "None"
 
     def __init__(self, tickers, bond, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode):
+                 db_mode, store_mongoDB, strategy_initial='None', video_link='None', documents_link='None',
+                 tags_array=list(), subscribers_num=0, rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "accelerating_dual_momentum", "user_id": user_id}
@@ -53,40 +64,12 @@ class backtest:
         self.bond = bond
         self.indicators = {}
 
-        one_month_delta = timedelta(weeks=4)
-        three_month_delta = timedelta(weeks=12)
-        six_month_delta = timedelta(weeks=24)
-        # calculate the date of 1, 3, 6 month before
-        one_month_before = start_date - one_month_delta
-        one_month_before_timestamp = datetime.timestamp(one_month_before)
-        three_month_before = start_date - three_month_delta
-        three_month_before_timestamp = datetime.timestamp(three_month_before)
-        six_month_before = start_date - six_month_delta
-        six_month_before_timestamp = datetime.timestamp(six_month_before)
-
+        delta_timestamps = self.cal_deltas_timestamps(start_date)
         for ticker in self.tickers:
             # get current ticker data
             self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
             self.indicators[ticker] = Indicator(pd.DataFrame())
-            # find the ticker data  1 ,3 ,6 month before
-            six_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                six_month_before_timestamp)
-            while six_month_ticker_items is None:
-                six_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                    six_month_before_timestamp + 1)
-            three_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                three_month_before_timestamp)
-            while three_month_ticker_items is None:
-                three_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                    three_month_before_timestamp + 1)
-            one_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                one_month_before_timestamp)
-            while one_month_ticker_items is None:
-                one_month_ticker_items = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(
-                    one_month_before_timestamp + 1)
-            self.indicators[ticker].append_into_df(six_month_ticker_items)
-            self.indicators[ticker].append_into_df(three_month_ticker_items)
-            self.indicators[ticker].append_into_df(one_month_ticker_items)
+            self.get_indicator_ticker_items(ticker, delta_timestamps)
         self.stock_data_engines[self.bond] = local_engine(self.bond, self.data_freq)
         if db_mode.get("local"):
 
@@ -106,6 +89,16 @@ class backtest:
                 Path(self.transact_data_dir).mkdir(parents=True, exist_ok=True)
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
+        if store_mongoDB:
+            self.store_mongoDB = True
+            self.strategy_initial = strategy_initial
+            self.video_link = video_link
+            self.documents_link = documents_link
+            self.tags_array = tags_array
+            self.subscribers_num = subscribers_num
+            self.rating_dict = rating_dict
+            self.margin_ratio = margin_ratio
+            self.trader_name = trader_name
 
     def loop_through_param(self):
         print("start backtest")
@@ -151,15 +144,24 @@ class backtest:
         print('start backtest')
         print('Fetch data')
         portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
-        series_1 = self.stock_data_engines[self.tickers[0]].get_data_by_range([start_timestamp, end_timestamp])[
+        tickers_and_bonds_list = self.tickers.copy()
+        tickers_and_bonds_list.append(self.bond)
+        timestamps = self.stock_data_engines[tickers_and_bonds_list[0]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
-        series_2 = self.stock_data_engines[self.tickers[1]].get_data_by_range([start_timestamp, end_timestamp])[
-            'timestamp']
-        timestamps = self.stock_data_engines[self.tickers[0]].get_intersect_timestamps(series_1, series_2)
+        for x in range(1, len(tickers_and_bonds_list)):
+            temp = self.stock_data_engines[tickers_and_bonds_list[x]].get_data_by_range(
+                [start_timestamp, end_timestamp])['timestamp']
+            timestamps = np.intersect1d(timestamps, temp)
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
+            if dividend_agent.check_div(timestamp):
+                portfolio = portfolio_data_engine.get_portfolio()
+                total_dividend = dividend_agent.distribute_div(timestamp, portfolio)
+                if total_dividend != 0:
+                    portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
+
             if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
                 self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
 
@@ -167,8 +169,6 @@ class backtest:
         pct_change_dict = {}
         for ticker in self.tickers:
             pct_change_dict.update({ticker: {}})
-        if timestamp == 1199284200:
-            a=0
         sim_meta_data = {}
         stock_data_dict = {}
         for ticker in self.tickers:  # update ticker price
@@ -176,8 +176,8 @@ class backtest:
             ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
             self.indicators[ticker].append_into_df(ticker_items)
             pct_change_dict[ticker].update({1: self.indicators[ticker].get_pct_change(1, 'open', timestamp)})
-            pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(2, 'open', timestamp)})
-            pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
+            pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
+            pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(6, 'open', timestamp)})
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             price = ticker_items.get('open')
             if price is None:
@@ -185,9 +185,11 @@ class backtest:
                 continue
             else:
                 stock_data_dict.update({ticker: {'last': price}})
-        ticker_engine = self.stock_data_engines[self.bond]  # update bond price
-        ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-        sim_meta_data.update({self.bond: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
+        bond_engine = self.stock_data_engines[self.bond]  # update bond price
+        ticker_items = bond_engine.get_ticker_item_by_timestamp(timestamp)
+        sim_meta_data.update({self.bond: bond_engine.get_ticker_item_by_timestamp(timestamp)})
+        if ticker_items is None:
+            a=0
         price = ticker_items.get('open')
         if price is None:
             stock_data_dict.update({self.bond: {'last': None}})
@@ -196,8 +198,6 @@ class backtest:
 
         action_msgs = algorithm.run(stock_data_dict, self.bond)
         action_record = []
-        if action_msgs is None:
-            a=0
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
@@ -216,6 +216,26 @@ class backtest:
         sim_agent.append_run_data_to_db(timestamp, sim_agent.portfolio_data_engine.get_account_snapshot(),
                                         action_record, sim_meta_data,
                                         stock_data_dict)
+
+    def cal_deltas_timestamps(self, start_date):
+
+        delta_timestamps = []
+        for month in range(1, 7):
+            delta = timedelta(weeks=(4 * month))
+            date_before = start_date - delta
+            date_before_timestamp = datetime.timestamp(date_before)
+            delta_timestamps.append(date_before_timestamp)
+        return delta_timestamps
+
+    def get_indicator_ticker_items(self, ticker, delta_timestamps):
+        # find the ticker data  1 ,3 ,6 month before
+        for month in range(5, -1, -1):
+            timestamp = delta_timestamps[month]
+            ticker_item = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
+            while ticker_item is None:
+                timestamp = timestamp + 3600
+                ticker_item = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
+            self.indicators[ticker].append_into_df(ticker_item)
 
     def plot_all_file_graph(self):
         print("plot_graph")
