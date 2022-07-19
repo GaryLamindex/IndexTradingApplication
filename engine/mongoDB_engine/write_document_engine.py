@@ -29,12 +29,10 @@ class Write_Mongodb:
     transactions = "Transactions"
 
     def __init__(self):
-        try:
-            self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',
-                                    tlsCAFile=certifi.where())
-            print(f"Successful connection to mongoClient")
-        except:
-            print("WARNING: Could not connect to MongoDB")
+        self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
+        print(f"Successful connection to mongoClient")
+        # except:
+        #     print("WARNING: Could not connect to MongoDB")
 
     def write_drawdown_data(self, strategy_name, drawdown_abstract_df):
         """write drawdown_data database, plesase store abstract data rather than raw data """
