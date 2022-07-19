@@ -68,7 +68,7 @@ class statistic_engine:
     def get_return_by_period(self, date, lookback_period, file_name):
         # there are totally 5 cases for the lookback period 
         # "1d", "1m", "6m", "1y", "3y" "5y"
-
+        lp = np.inf
         # get the sliced frame for the given lookback_period
         if lookback_period == "1d":
             data_period_df = self.data_engine.get_data_by_period(date, "1d", file_name)
@@ -95,9 +95,13 @@ class statistic_engine:
         ending_net_liquidity = \
             data_period_df.loc[data_period_df['timestamp'] == data_period_df['timestamp'].max()][
                 'NetLiquidation'].values[0]
-
-        return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
-               (ending_net_liquidity/starting_net_liquidity)**(1/lp)-1
+        if starting_net_liquidity == 0:
+            rtn = np.inf
+            cmp_rtn = np.inf
+        else:
+            rtn = (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
+            cmp_rtn = (ending_net_liquidity/starting_net_liquidity)**(1/lp)-1
+        return rtn, cmp_rtn
 
     def get_return_by_range(self, range, file_name):
         # get the sliced data for the given range
@@ -119,11 +123,19 @@ class statistic_engine:
         ending_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['date'].values[0],
                                      format='%Y-%m-%d')
         days_diff = (ending_date - starting_date).days
-        if (ending_date - starting_date).days != 0:
-            return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, \
-                   (ending_net_liquidity / starting_net_liquidity) ** (365 / days_diff) - 1
+
+        if starting_net_liquidity == 0:
+            rtn = np.inf
+            cmp_rtn = np.inf
         else:
-            return (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity, 0
+            if days_diff != 0:
+                rtn = (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
+                cmp_rtn = (ending_net_liquidity / starting_net_liquidity) ** (365 / days_diff) - 1
+            else:
+                rtn = 0
+                cmp_rtn = 0
+
+        return rtn, cmp_rtn
 
 
     def get_return_inception(self, file_name):
@@ -145,9 +157,19 @@ class statistic_engine:
         days_diff = (ending_date - starting_date).days
 
         no_of_years = (dt.datetime.fromtimestamp(ending_ts) - dt.datetime.fromtimestamp(starting_ts)).days / 365
-        return ((ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity,
-                (ending_net_liquidity/starting_net_liquidity) ** (365/days_diff) - 1,
-                no_of_years)
+
+        if starting_net_liquidity == 0:
+            rtn = np.inf
+            cmp_rtn = np.inf
+        else:
+            if days_diff != 0:
+                rtn = (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
+                cmp_rtn = (ending_net_liquidity / starting_net_liquidity) ** (365 / days_diff) - 1
+            else:
+                rtn = 0
+                cmp_rtn = 0
+
+        return rtn, cmp_rtn, no_of_years
 
     def get_return_ytd(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
@@ -157,7 +179,7 @@ class statistic_engine:
         day = last_day.day
         range = [f"{year}-01-01", f"{year}-{month}-{day}"]
         re, compound_re = self.get_return_by_range(range, file_name)
-        return (re , compound_re, month/12)
+        return re, compound_re, month/12
 
     # return a dictionary of all return info (ytd, 1y, 3y, 5y and inception)
     def get_return_data(self, file_name):
@@ -218,8 +240,14 @@ class statistic_engine:
         avg_period_return = np.array(return_col).mean()
         period_return_std = np.array(return_col).std()
         items = data_period_df.shape[0]
-        return (items ** 0.5) * multiplier[lookback_period] * (
-                avg_period_return - EQV_RISK_FREE_RATE) / period_return_std
+
+        if period_return_std != 0:
+            sharpe = (items ** 0.5) * multiplier[lookback_period] * \
+                     (avg_period_return - EQV_RISK_FREE_RATE) / period_return_std
+        else:
+            sharpe = np.inf
+
+        return sharpe
 
     def get_sharpe_by_range(self, range, file_name):
         print("get_sharpe_by_range")
@@ -235,7 +263,13 @@ class statistic_engine:
         avg_period_return = np.array(return_col).mean()
         period_return_std = np.array(return_col).std()
         items = range_df.shape[0]
-        return (items ** 0.5) * multiplier * (avg_period_return - EQV_RISK_FREE_RATE) / period_return_std
+
+        if period_return_std != 0:
+            sharpe = (items ** 0.5) * multiplier * (avg_period_return - EQV_RISK_FREE_RATE) / period_return_std
+        else:
+            sharpe = np.inf
+
+        return sharpe
 
     def get_sharpe_inception(self, file_name):
         inception_df = self.data_engine.get_full_df(file_name)
@@ -248,14 +282,23 @@ class statistic_engine:
             date_column = inception_df['timestamp']  # since offline df returns integer data type
             no_of_days = (date_column.max() - date_column.min()) / (24 * 60 * 60) + 1
 
-        multiplier = (365 / no_of_days) ** 0.5
+        if no_of_days != 0:
+            multiplier = (365 / no_of_days) ** 0.5
+        else:
+            multiplier = 0
 
         ending_nlv = inception_df['NetLiquidation']
         return_col = ending_nlv.pct_change().dropna()
         avg_period_return = np.array(return_col).mean()
         period_return_std = np.array(return_col).std()
         items = inception_df.shape[0]
-        return (items ** 0.5) * multiplier * (avg_period_return - EQV_RISK_FREE_RATE) / period_return_std
+
+        if period_return_std != 0:
+            sharpe = (items ** 0.5) * multiplier * (avg_period_return - EQV_RISK_FREE_RATE) / period_return_std
+        else:
+            sharpe = np.inf
+
+        return sharpe
 
     def get_sharpe_ytd(self, file_name):
         print("get_sharpe_ytd")
