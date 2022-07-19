@@ -189,6 +189,7 @@ class backtest:
                 marketCol = f'price_{self.tickers[0]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
+
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
                 sharpe_dict = stat_engine.get_sharpe_data(file_name)
                 inception_sharpe = sharpe_dict.get("inception")
@@ -253,6 +254,7 @@ class backtest:
                 dateStringE = dt.datetime.fromtimestamp(self.end_timestamp)
                 date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}", \
                               f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
+
                 rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
                 _1_yr_rolling_return = rolling_return_dict.get('1y')
                 _2_yr_rolling_return = rolling_return_dict.get('2y')
@@ -265,6 +267,10 @@ class backtest:
 
                 ########## Store drawdown in another csv
                 drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv",
+                                         index=False)
+                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv",
+                                         index=False)
                 # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -401,8 +407,6 @@ class backtest:
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
-        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
 
         # store data to mongoDB HERE
         if self.store_mongoDB:
@@ -410,6 +414,7 @@ class backtest:
             p = Write_Mongodb()
             for file in os.listdir(backtest_data_directory):
                 if file.decode().endswith("csv"):
+
                     csv_path = Path(self.run_file_dir, file.decode())
                     a = pd.read_csv(csv_path)
                     p.write_new_backtest_result(strategy_name=self.table_name,
