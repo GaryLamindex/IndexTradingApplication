@@ -37,6 +37,7 @@ class crypto_data_engine:
         day = dt.datetime.fromtimestamp(timestamp, tz=tz).day
         return dt.datetime(year, month, day).strftime(fmt)
 
+    # download data from binance but only one year is available
     def download_binance_daily_data(self, ticker, timestamp, bar_size):
         ticker = ticker.upper()
         date_str = self.get_date_str_from_timestamp(timestamp, dt.timezone.utc, '%Y-%m-%d')
@@ -59,6 +60,7 @@ class crypto_data_engine:
 
         return f'{self.ticker_data_path}/{csv_filename}'
 
+    # merge all binance data
     def get_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
         if type(tickers) is str:
             tickers = [tickers]
@@ -102,6 +104,7 @@ class crypto_data_engine:
                 result_str += c
         return int(result_str)
 
+    # crawl coingecko market_cap data with Selenium
     def crawl_historical_market_cap_by_range_coingecko(self):
         chrome_options = webdriver.ChromeOptions()
         prefs = {'download.default_directory': self.crypto_daily_data_path}
@@ -140,6 +143,8 @@ class crypto_data_engine:
 
         browser.quit()
 
+    # get tickers from reading the directory
+    # the directory is grabbed on coingecko
     def get_tickers_from_dir(self):
         tickers = []
         is_start = False
@@ -150,6 +155,7 @@ class crypto_data_engine:
                 is_start = True
         return tickers
 
+    # it returns a dataframe after reading data from coingecko
     def get_crypto_daily_data(self, ticker):
         filename = f'{self.crypto_daily_data_path}/{ticker.lower()}-usd-max.csv'
         if os.path.exists(filename):
@@ -161,11 +167,13 @@ class crypto_data_engine:
             print('daily crypto data not found')
             return None
 
+    # download yfinance data
     def get_yfinance_max_historical_data(self, ticker):
         btc = yf.Ticker(f'{ticker}-USD')
         hist = btc.history(period='max')
         return hist
 
+    # download all crypto data with coingecko API
     def download_all_crypto_data(self):
         cg = CoinGeckoAPI()
         coins_list = cg.get_coins_list()

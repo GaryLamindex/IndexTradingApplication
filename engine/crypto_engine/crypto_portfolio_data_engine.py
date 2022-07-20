@@ -3,26 +3,31 @@ class crypto_portfolio_data_engine:
         self.acc_data = acc_data
         self.tickers = tickers
 
+    # add cash to the porfolio
+    # ONLY cash account is available
     def deposit_cash(self, account, amount, timestamp):
-        if account == 'cross_margin':
+        if account == 'cross_margin':  # to be designed
             pass
-        elif account == 'isolated_margin':
+        elif account == 'isolated_margin':  # to be designed
             pass
         elif account == 'funding':
             temp = self.acc_data.wallet['funding']
             self.acc_data.wallet['funding'] = temp + amount
             self.acc_data.append_cashflow_record(timestamp, 2, 0, amount)
 
+    # withdraw cash
+    # ONLY cash account is available
     def withdraw(self, account, amount, timestamp):
-        if account == 'cross_margin':
+        if account == 'cross_margin':  # to be designed
             pass
-        elif account == 'isolated_margin':
+        elif account == 'isolated_margin':  # to be designed
             pass
         elif account == 'funding':
             temp = self.acc_data.wallet['funding']
             self.acc_data.wallet['funding'] = temp - amount
             self.acc_data.append_cashflow_record(timestamp, 2, 1, amount)
 
+    # get a overview of the portfolio
     def get_overview(self):
         overview = {}
         overview.update(self.acc_data.wallet)
