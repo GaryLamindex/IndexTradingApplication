@@ -243,7 +243,7 @@ class backtest(object):
                 row += 1
 
             # input database and historical data into algo
-            action_msgs = algorithm.run(stock_data_dict, timestamp)
+            action_msgs = algorithm.run(timestamp, )
             sim_meta_data = {}
 
 

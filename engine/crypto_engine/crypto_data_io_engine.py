@@ -16,16 +16,20 @@ class crypto_local_engine:
             os.remove(self.df_path)
             self.full_ticker_df.to_csv(self.df_path)
 
+    # grab past n days data from dataframe
     def get_n_days_data(self, timestamp, n):
         start_timestamp = timestamp - 86400 * n
         return self.full_ticker_df[start_timestamp <= self.full_ticker_df['timestamp'] <= timestamp]
 
+    # get the whole ticker
     def get_full_ticker_df(self):
         return self.full_ticker_df
 
+    # get the data by range
     def get_data_by_range(self, range):
         return self.full_ticker_df[range[0] <= self.full_ticker_df['timestamp'] <= range[1]]
 
+    # get a ticker row by timestamp
     def get_ticker_item_by_timestamp(self, timestamp):
         ticker_row = self.full_ticker_df[self.full_ticker_df['timestamp'] == timestamp].reset_index(drop=True)
         if ticker_row.empty:
@@ -34,12 +38,15 @@ class crypto_local_engine:
         else:
             return ticker_row.to_dict(orient='index')[0]
 
+    # get a value of the field with a timestamp
+    # return a single value
     def get_field_by_timestamp(self, timestamp, field):
         row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp, field]
         while row_df.empty and self.full_ticker_df['timestamp'].iloc[0] < timestamp:
-            row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp - 86400, field]
+            timestamp -= 86400
+            row_df = self.full_ticker_df.loc[self.full_ticker_df['timestamp'] == timestamp, field]
         return None if row_df.empty else row_df.item()
 
-    def get_data_by_timestamp(self, timestamp):
-        df = self.full_ticker_df
-        return df[df['timestamp'] == timestamp]
+    # def get_data_by_timestamp(self, timestamp):
+    #     df = self.full_ticker_df
+    #     return df[df['timestamp'] == timestamp]

@@ -96,7 +96,7 @@ class real_time_test_strategy:
         else:
             with open("trade_log.csv","a",newline='') as f:
                 trade_df.to_csv(f,mode='a',index=False,header=True)
-        self.ib_instance.run()
+        self.ib_instance.run(,
     
     def continuously_trade(self):
         pass

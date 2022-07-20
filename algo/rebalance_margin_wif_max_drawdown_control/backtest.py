@@ -516,7 +516,7 @@ class backtest(object):
 
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
         # input database and historical data into algo
-        action_msgs = algorithm.run(stock_data_dict, timestamp)
+        action_msgs = algorithm.run(timestamp, )
         sim_meta_data = {}
 
         for ticker in self.tickers:
