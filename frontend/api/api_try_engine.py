@@ -520,6 +520,7 @@ class Api_Mongodb:
         json_file = df.to_json(orient='records')
         return json_file
 
+
 def main():
     a = Api_Mongodb()
     # a.all_algo_1a()

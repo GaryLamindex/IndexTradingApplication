@@ -36,83 +36,83 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 # backtest.loop_through_params()
 
 
-# from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
-#
-# start_date = dt.datetime(2018, 1, 2)  # YYMMDD
-# end_date = dt.datetime(2022, 3, 15)  # YYMMDD
-#
-# strategy = "portfolio_rebalance"
-# mode = "backtest"
-# cal_stat = True
-# quick_test = True
-# wipe_previous_sim_data = True
-# db_mode = {"dynamo_db": False, "local": True}
-# data_freq = "one_day"
-# user_id = 0
-# df = pd.read_csv('/Users/percychui/Downloads/scraper2.csv')
-# df.drop([54, 57, 59, 80, 97, 102], axis=0, inplace=True)
-# dict = df["Json"].tolist()
-# tmp = list()
-# tickers = list()
-# weight = list()
-# for x in range(len(dict)):
-#     dict[x] = literal_eval(dict[x])
-# check = list()
-# for x in range(len(dict)):
-#     check.append(len(dict[x]))
-# df["Check"] = check
-# df = df.loc[df["Check"] != 1]
-# dict = df["Json"].tolist()
-# for x in range(len(dict)):
-#     dict[x] = literal_eval(dict[x])
-#
-#
-# for x in range(len(dict)):
-#     for y in range(len(dict[x])):
-#         dict[x][y] = json.loads(dict[x][y])
-#         tmp.append(list(dict[x][y].keys()))
-#     tmp = [x for xs in tmp for x in xs]
-#     tickers.append(tmp.copy())
-#     tmp.clear()
-# for x in range(len(dict)):
-#     for y in range(len(dict[x])):
-#         tmp1 = list(dict[x][y].values())
-#         tmp1 = [float(x) for x in tmp1]
-#         tmp.append(tmp1)
-#     tmp = [x for xs in tmp for x in xs]
-#     weight.append(tmp.copy())
-#     tmp.clear()
+from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
+
+start_date = dt.datetime(2018, 1, 2)  # YYMMDD
+end_date = dt.datetime(2022, 3, 15)  # YYMMDD
+
+strategy = "portfolio_rebalance"
+mode = "backtest"
+cal_stat = True
+quick_test = True
+wipe_previous_sim_data = True
+db_mode = {"dynamo_db": False, "local": True}
+data_freq = "one_day"
+user_id = 0
+df = pd.read_csv('/Users/percychui/Downloads/scraper2.csv')
+df.drop([54, 57, 59, 80, 97, 102], axis=0, inplace=True)
+dict = df["Json"].tolist()
+tmp = list()
+tickers = list()
+weight = list()
+for x in range(len(dict)):
+    dict[x] = literal_eval(dict[x])
+check = list()
+for x in range(len(dict)):
+    check.append(len(dict[x]))
+df["Check"] = check
+df = df.loc[df["Check"] != 1]
+dict = df["Json"].tolist()
+for x in range(len(dict)):
+    dict[x] = literal_eval(dict[x])
+
+
+for x in range(len(dict)):
+    for y in range(len(dict[x])):
+        dict[x][y] = json.loads(dict[x][y])
+        tmp.append(list(dict[x][y].keys()))
+    tmp = [x for xs in tmp for x in xs]
+    tickers.append(tmp.copy())
+    tmp.clear()
+for x in range(len(dict)):
+    for y in range(len(dict[x])):
+        tmp1 = list(dict[x][y].values())
+        tmp1 = [float(x) for x in tmp1]
+        tmp.append(tmp1)
+    tmp = [x for xs in tmp for x in xs]
+    weight.append(tmp.copy())
+    tmp.clear()
 #
 #
 # # tickers = ["M", "MSFT"]
-# deposit_amount = 1000000
-# acceptance_range = 0
+deposit_amount = 1000000
+acceptance_range = 0
 # num_tickers = len(tickers)
 # # rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-# rebalance_ratio = weight
+rebalance_ratio = weight
 # # rebalance_ratio = [[50, 50]]
 # print(weight)
 # print(tickers)
 #
-# portfolio_rebalance = portfolio_rebalance_backtest(tickers,
-#                                                        deposit_amount,
-#                                                        start_date,
-#                                                        end_date,
-#                                                        cal_stat,
-#                                                        data_freq,
-#                                                        user_id,
-#                                                        db_mode,
-#                                                        quick_test,
-#                                                        acceptance_range, rebalance_ratio, store_mongoDB=True,
-#                                                        strategy_initial=None,
-#                                                        video_link=None,
-#                                                        documents_link=None,
-#                                                        tags_array=None,
-#                                                        subscribers_num=None,
-#                                                        rating_dict=None,
-#                                                        margin_ratio=None,
-#                                                        trader_name=None)
-# portfolio_rebalance.loop_through_param()
+portfolio_rebalance = portfolio_rebalance_backtest(tickers,
+                                                       deposit_amount,
+                                                       start_date,
+                                                       end_date,
+                                                       cal_stat,
+                                                       data_freq,
+                                                       user_id,
+                                                       db_mode,
+                                                       quick_test,
+                                                       acceptance_range, rebalance_ratio, store_mongoDB=True,
+                                                       strategy_initial=None,
+                                                       video_link=None,
+                                                       documents_link=None,
+                                                       tags_array=None,
+                                                       subscribers_num=None,
+                                                       rating_dict=None,
+                                                       margin_ratio=None,
+                                                       trader_name=None)
+portfolio_rebalance.loop_through_param()
 
 ### ------------------------------------- --Fai Portfolio Rebalance Backtest------------------------------------------------------
 # from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
@@ -175,34 +175,34 @@ from engine.simulation_engine.statistic_engine import statistic_engine
 # accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
 #                                                                  end_date, cal_stat, data_freq, user_id, db_mode)
 # accelerating_dual_momentum.loop_through_param()
-from algo.accelerating_dual_momentum.backtest import backtest as accelerating_dual_momentum_backtest
-
-tickers = ["SPY", "MSFT"]
-bond = "TIP"
-deposit_amount = 1000000
-start_date = dt.datetime(2005, 6, 3)  # YYMMDD
-end_date = dt.datetime(2022, 6, 30)  # YYMMDD
-strategy = "accelerating_dual_momentum"
-mode = "backtest"
-cal_stat = True
-quick_test = True
-wipe_previous_sim_data = True
-db_mode = {"dynamo_db": False, "local": True}
-data_freq = "one_day"
-user_id = 0
-accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
-                                                                 end_date, cal_stat, data_freq, user_id, db_mode,
-                                                                 store_mongoDB=True,
-                                                                 strategy_initial='SPY_MSFT_TIP_accelerating_dual_momentum',
-                                                                video_link='https://www.youtube.com',
-                                                                documents_link='https://google.com',
-                                                                tags_array=None,
-                                                                subscribers_num=3,
-                                                                rating_dict=None,
-                                                                margin_ratio=3.24,
-                                                                trader_name='Fai'
-                                                                 )
-accelerating_dual_momentum.loop_through_param()
+# from algo.accelerating_dual_momentum.backtest import backtest as accelerating_dual_momentum_backtest
+#
+# tickers = ["SPY", "MSFT"]
+# bond = "TIP"
+# deposit_amount = 1000000
+# start_date = dt.datetime(2005, 6, 3)  # YYMMDD
+# end_date = dt.datetime(2022, 6, 30)  # YYMMDD
+# strategy = "accelerating_dual_momentum"
+# mode = "backtest"
+# cal_stat = True
+# quick_test = True
+# wipe_previous_sim_data = True
+# db_mode = {"dynamo_db": False, "local": True}
+# data_freq = "one_day"
+# user_id = 0
+# accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
+#                                                                  end_date, cal_stat, data_freq, user_id, db_mode,
+#                                                                  store_mongoDB=True,
+#                                                                  strategy_initial='SPY_MSFT_TIP_accelerating_dual_momentum',
+#                                                                 video_link='https://www.youtube.com',
+#                                                                 documents_link='https://google.com',
+#                                                                 tags_array=None,
+#                                                                 subscribers_num=3,
+#                                                                 rating_dict=None,
+#                                                                 margin_ratio=3.24,
+#                                                                 trader_name='Fai'
+#                                                                  )
+# accelerating_dual_momentum.loop_through_param()
 ### ---------------------------------------  Fai Accelerating Dual Momentum Backtest -------------------------------------------------------
 
 
