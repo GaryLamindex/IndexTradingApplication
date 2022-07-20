@@ -7,7 +7,7 @@ from object.action_data import IBAction, IBActionsTuple
 import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
-from indicator import Indicator
+from algo.factor.indicator import Indicator
 
 class Factor:
 
@@ -34,6 +34,7 @@ class Factor:
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
         indicators = Indicator(all_indice_df)
+        indicators.get_params()
         expected_return, expected_cov = indicators.expected_return, indicators.expected_cov
         lb = 0
         ub = 1
@@ -70,23 +71,28 @@ class Factor:
 
         self.optimal_weight = wgt[muRange[sharpe.argmax()]]
 
+        self.action_msgs = []
+
         for ticker_data in self.portfolio:
-            ticker_name = ticker_data["ticker"]
-            ticker_pos = ticker_data["position"]
+            ticker_name = ticker_data.get("ticker")
+            ticker_pos = ticker_data.get("position")
             price = all_indice_df[ticker_name][-1]
-            target_pos = self.optimal_weight[all_indice_df.index.get_loc(ticker_name)] * self.total_market_value / price
+            print(self.account_snapshot)
+            print(ticker_name, price)
+            print("Weight: ", self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)])
+            target_pos = int(self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)] * self.total_market_value / price)
+            print(ticker_name, "Current Position:", ticker_pos, "; Target Position:", target_pos, "; Market Value:", self.total_market_value)
             pos_change = target_pos - ticker_pos
-            if pos_change > 0:
-                action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                            {'ticker': ticker_name, 'position_purchase': pos_change})
-                self.action_msgs.append(action_msg)
-            elif pos_change < 0:
+            if pos_change < 0:
                 action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
                                             {'ticker': ticker_name, 'position_sell': -pos_change})
                 self.action_msgs.append(action_msg)
-            return self.action_msgs.copy()
+            elif pos_change > 0:
+                action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                            {'ticker': ticker_name, 'position_purchase': pos_change})
+                self.action_msgs.append(action_msg)
 
-
+        return self.action_msgs.copy()
 
     def check_exec(self, timestamp, **kwargs):
         datetime_obj = datetime.utcfromtimestamp(timestamp)
@@ -96,9 +102,9 @@ class Factor:
         else:
             freq = kwargs.pop("freq")
             relative_delta = kwargs.pop("relative_delta")
-            if freq == "Daily":
+            if freq == "Weekly":
                 # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(days=+relative_delta)
-                if datetime_obj.day != self.last_exec_datetime_obj.day and datetime_obj > self.last_exec_datetime_obj:
+                if datetime_obj.day > self.last_exec_datetime_obj.day + 6:
                     self.last_exec_datetime_obj = datetime_obj
                     # print(
                     # f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")

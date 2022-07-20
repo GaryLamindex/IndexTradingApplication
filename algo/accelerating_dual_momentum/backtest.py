@@ -329,6 +329,10 @@ class backtest:
 
                 ########## Store drawdown in another csv
                 drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv",
+                                         index=False)
+                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv",
+                                         index=False)
                 # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -465,9 +469,6 @@ class backtest:
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-        drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_raw_data.csv", index=False)
-        drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/drawdown_abstract.csv", index=False)
-
         # store data to mongoDB HERE
         if self.store_mongoDB:
             print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
@@ -476,6 +477,13 @@ class backtest:
                 if file.decode().endswith("csv"):
                     csv_path = Path(self.run_file_dir, file.decode())
                     a = pd.read_csv(csv_path)
+                    spec = file.decode().split('.csv')
+                    name = spec[0] + "drawdown_abstract.csv"
+                    name2 = spec[0] + "drawdown_raw_data.csv"
+                    abstract_path = Path(self.stats_data_dir, name)
+                    drawdown_abstract = pd.read_csv(abstract_path)
+                    raw_data_path = Path(self.stats_data_dir, name2)
+                    drawdown_raw_data = pd.read_csv(raw_data_path)
                     p.write_new_backtest_result(strategy_name=self.table_name,
                                                 drawdown_abstract_df=drawdown_abstract,
                                                 drawdown_raw_df=drawdown_raw_data,
