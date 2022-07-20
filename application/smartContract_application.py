@@ -63,4 +63,4 @@ _portfolioHoldings = [
                        ("unrealizedPNL",8)]
                       ]
 
-result = contract.functions.run(_tickerData, _timeStamp, _portfolioData, _portfolioHoldings)
+result = contract.functions.run(_timeStamp, _portfolioData)

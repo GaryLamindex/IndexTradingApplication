@@ -16,10 +16,6 @@ class crypto_trade_engine:
             return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY_MKT_ORDER,
                                         position_purchase, price, 0, BinanceActionState.REJECTED)
 
-            # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price,
-            #         'quantity': position_purchase,
-            #         'realized profit': None, 'action': 'rejected'}
-
         # can buy
         ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)
         if ticker_item:
@@ -39,8 +35,6 @@ class crypto_trade_engine:
         self.crypto_acc_data.update_wallet(new_spot, new_funding, new_net_liquidation)
         return BinanceActionMessage(timestamp, ticker, BinanceAction.BUY_MKT_ORDER,
                                     position_purchase, price, None, BinanceActionState.FILLED)
-        # return {'timestamp': timestamp, 'ticker': ticker, 'side': 'buy', 'price': price, 'quantity': position_purchase,
-        #         'realized profit': None, 'action': 'filled'}
 
     def place_sell_crypto_mkt_order(self, ticker, position_sell, timestamp, price):
         ticker_item = self.crypto_acc_data.check_if_ticker_exist_in_portfolio(ticker)

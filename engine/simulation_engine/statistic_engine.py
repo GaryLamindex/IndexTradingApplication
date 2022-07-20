@@ -705,15 +705,12 @@ class statistic_engine:
             neg_periods = negative / (positive + negative)
         else:
             neg_periods = float('NaN')
-        if max_annual_rolling_return == float('-inf')  and min_annual_rolling_return == float('inf') and pd.isna(dateinfo_index_max) and pd.isna(dateinfo_index_min) and pd.isna(mean) and pd.isna(neg_periods):
-            return str('NaN')
-        else:
-            return {"max_annual_rolling_return": max_annual_rolling_return,
-                    "dateinfo_index_max": dateinfo_index_max,
-                    "min_annual_rolling_return": min_annual_rolling_return,
-                    "dateinfo_index_min": dateinfo_index_min,
-                    "average_annual_return": mean,
-                    "negative_periods": neg_periods}
+        return {"max_annual_rolling_return": max_annual_rolling_return,
+                "dateinfo_index_max": dateinfo_index_max,
+                "min_annual_rolling_return": min_annual_rolling_return,
+                "dateinfo_index_min": dateinfo_index_min,
+                "average_annual_return": mean,
+                "negative_periods": neg_periods}
 
     def get_volatility_by_period(self, date, lookback_period, file_name, marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it
