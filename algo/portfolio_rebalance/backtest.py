@@ -46,7 +46,7 @@ class backtest(object):
     rating_dict = {}
     margin_ratio = np.NaN
     trader_name = "None"
-
+    end_date = None
     def __init__(self, list_of_tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode, quick_test, acceptance_range, list_of_rebalance_ratios, store_mongoDB,
                  strategy_initial='None',
