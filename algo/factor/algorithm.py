@@ -2,6 +2,7 @@ from object.backtest_acc_data import backtest_acc_data
 from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from datetime import datetime
+from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 from object.action_data import IBAction, IBActionsTuple
 import numpy as np
@@ -36,6 +37,8 @@ class Factor:
         indicators = Indicator(all_indice_df)
         indicators.get_params()
         expected_return, expected_cov = indicators.expected_return, indicators.expected_cov
+
+        # Optimizing Sharpe ratio based on expected return & covariance matrix
         lb = 0
         ub = 1
 
@@ -45,10 +48,11 @@ class Factor:
         n = len(expected_cov.columns)
         muRange = np.arange(0.02, 0.09, 0.002)
         volRange = np.zeros(len(muRange))
-        #omega = expected_cov.cov()
+        omega = expected_cov.cov()
 
         wgt = {}
 
+        # For each target return find portfolio w/ minimum variance
         for i in range(len(muRange)):
             mu = muRange[i]
             wgt[mu] = []
@@ -58,12 +62,13 @@ class Factor:
                 bndsa = bndsa + ((lb, ub),)
             consTR = ({'type': 'eq', 'fun': lambda x: 1 - np.sum(x)},
                       {'type': 'eq', 'fun': lambda x: mu - np.dot(x, expected_return)})
-            w = minimize(MV, x_0, method='SLSQP', constraints=consTR, bounds=bndsa, args=(expected_cov),
+            w = minimize(MV, x_0, method='SLSQP', constraints=consTR, bounds=bndsa, args=(omega),
                          options={'disp': False})
-            volRange[i] = np.dot(w.x, np.dot(expected_cov, w.x.T)) ** 0.5
+            volRange[i] = np.dot(w.x, np.dot(omega, w.x.T)) ** 0.5
 
             wgt[mu].extend(np.squeeze(w.x))
 
+        # Find portfolio w/ maximum Sharpe ratio from portfolios obtained above
         sharpe = np.array([])
 
         for i in range(len(muRange)):
@@ -77,7 +82,6 @@ class Factor:
             ticker_name = ticker_data.get("ticker")
             ticker_pos = ticker_data.get("position")
             price = all_indice_df[ticker_name][-1]
-            print(self.account_snapshot)
             print(ticker_name, price)
             print("Weight: ", self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)])
             target_pos = int(self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)] * self.total_market_value / price)
@@ -104,7 +108,7 @@ class Factor:
             relative_delta = kwargs.pop("relative_delta")
             if freq == "Weekly":
                 # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(days=+relative_delta)
-                if datetime_obj.day > self.last_exec_datetime_obj.day + 6:
+                if datetime_obj > self.last_exec_datetime_obj + timedelta(days=7):
                     self.last_exec_datetime_obj = datetime_obj
                     # print(
                     # f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")

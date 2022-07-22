@@ -87,10 +87,13 @@ class DCC():
             k = sigma.shape[1]
             log_likelihood = 0
             for i in range(t):
-                a = train[:,i]
+                a = train[:, i]
                 s = sigma[i]
                 #log_likelihood += log(gamma((v + k) / 2)) - k / 2 * log(pi * (v - 2)) - log(gamma(v / 2)) - 1 / 2 * log(np.linalg.det(s)) - (v + k) / 2 * log(1 + 1 / (v - 2) * np.dot(np.dot(a.T, np.linalg.inv(s)), a))
-                log_likelihood += -k / 2 * log(2 * pi) - 1 / 2 * log(np.linalg.det(s)) - 1 / 2 * np.dot(np.dot(a.T, np.linalg.inv(s)), a)
+                try:
+                    log_likelihood += -k / 2 * log(2 * pi) - 1 / 2 * log(np.linalg.det(s)) - 1 / 2 * np.dot(np.dot(a.T, np.linalg.inv(s)), a)
+                except ValueError:
+                    log_likelihood -= 20
             return -log_likelihood
         
         theta_int = self.theta

@@ -480,12 +480,20 @@ class statistic_engine:
         # calculate marketreturn and portfolio return
         startNL = data_period_df["NetLiquidation"].iloc[0]
         endNL = data_period_df["NetLiquidation"].iloc[-1]
-        portfolio_return = (endNL - startNL) / startNL
+
+        if startNL != 0:
+            portfolio_return = (endNL - startNL) / startNL
+        else:
+            portfolio_return = np.inf
 
         # NOT GETTING 3188 Alpha, engine supposed to be dynamic.  Add a "marketCol" in input for user to input market comparison
         startR = data_period_df[marketCol].iloc[1]
         endR = data_period_df[marketCol].iloc[-1]
-        marketReturn = (endR - startR) / startR
+
+        if startR != 0:
+            marketReturn = (endR - startR) / startR
+        else:
+            marketReturn = np.inf
 
         # calculate alpha
         alpha = portfolio_return - EQV_RISK_FREE_RATE ** multiplier[lookback_period] - \
@@ -506,11 +514,19 @@ class statistic_engine:
         # calculate marketReturn and portfolio return
         startNL = alpha_range_df["NetLiquidation"].dropna().iloc[0]
         endNL = alpha_range_df["NetLiquidation"].dropna().iloc[-1]
-        portfolio_return = (endNL - startNL) / startNL
+
+        if startNL != 0:
+            portfolio_return = (endNL - startNL) / startNL
+        else:
+            portfolio_return = np.inf
 
         startR = alpha_range_df[marketCol].dropna().iloc[0]
         endR = alpha_range_df[marketCol].dropna().iloc[-1]
-        marketReturn = (endR - startR) / startR
+
+        if startR != 0:
+            marketReturn = (endR - startR) / startR
+        else:
+            marketReturn = np.inf
 
         # calculate alpha
         alpha = portfolio_return - EQV_RISK_FREE_RATE ** (no_of_days * 60 * 24) - \
@@ -563,12 +579,21 @@ class statistic_engine:
             'NetLiquidation'].values[0]
         endNL = inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['NetLiquidation'].values[
             0]
-        portfolio_return = (endNL - startNL) / startNL
+
+        if startNL != 0:
+            portfolio_return = (endNL - startNL) / startNL
+        else:
+            portfolio_return = np.inf
 
         # iloc[0] is 0 so i use iloc[1] as starting point
         startR = inception_df[marketCol].iloc[1]
         endR = inception_df[marketCol].iloc[-1]
-        marketReturn = (endR - startR) / startR
+
+        if startR != 0:
+            marketReturn = (endR - startR) / startR
+        else:
+            marketReturn = np.inf
+
 
         # calculate alpha
         alpha = portfolio_return - EQV_RISK_FREE_RATE ** no_of_days - \
@@ -648,7 +673,11 @@ class statistic_engine:
             temprrs = start_info_df['NetLiquidation']
             temprre = end_info_df['NetLiquidation']
 
-            annual_rolling_return_temp = (temprre / temprrs) ** (1 / rolling_period_dict[rolling_period]) - 1
+            if temprrs != 0:
+                annual_rolling_return_temp = (temprre / temprrs) ** (1 / rolling_period_dict[rolling_period]) - 1
+            else:
+                annual_rolling_return_temp = np.NaN
+
             avg_return = np.append(avg_return, annual_rolling_return_temp)
 
             if (annual_rolling_return_temp > 0):
@@ -668,6 +697,7 @@ class statistic_engine:
             rolling_end_dt = rolling_start_dt + relativedelta(years=rolling_period_dict[rolling_period])
 
         if (avg_return.size != 0):
+            avg_return = avg_return[~np.isnan(avg_return)]
             mean = np.mean(avg_return)
         else:
             mean = float('NaN')
@@ -675,15 +705,12 @@ class statistic_engine:
             neg_periods = negative / (positive + negative)
         else:
             neg_periods = float('NaN')
-        if max_annual_rolling_return == float('-inf')  and min_annual_rolling_return == float('inf') and pd.isna(dateinfo_index_max) and pd.isna(dateinfo_index_min) and pd.isna(mean) and pd.isna(neg_periods):
-            return str('NaN')
-        else:
-            return {"max_annual_rolling_return": max_annual_rolling_return,
-                    "dateinfo_index_max": dateinfo_index_max,
-                    "min_annual_rolling_return": min_annual_rolling_return,
-                    "dateinfo_index_min": dateinfo_index_min,
-                    "average_annual_return": mean,
-                    "negative_periods": neg_periods}
+        return {"max_annual_rolling_return": max_annual_rolling_return,
+                "dateinfo_index_max": dateinfo_index_max,
+                "min_annual_rolling_return": min_annual_rolling_return,
+                "dateinfo_index_min": dateinfo_index_min,
+                "average_annual_return": mean,
+                "negative_periods": neg_periods}
 
     def get_volatility_by_period(self, date, lookback_period, file_name, marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it
@@ -693,7 +720,8 @@ class statistic_engine:
         no_of_days = delete_duplicate_df["date"].count()
         # calculate daily logarithmic return data_period_df['timestamp'].max().index.values
         pd.options.mode.chained_assignment = None
-        data_period_df['returns'] = np.log(data_period_df[marketCol] / data_period_df[marketCol].shift(-1))
+        data_period_df['returns'] = data_period_df[marketCol] / data_period_df[marketCol].shift(-1)
+        data_period_df['returns'] = np.log(data_period_df['returns'].dropna())
         # calculate daily standard deviation of returns
         daily_std = data_period_df['returns'].std()
 
@@ -705,12 +733,14 @@ class statistic_engine:
         no_of_days = (pd.to_datetime(range[1], format="%Y-%m-%d") - pd.to_datetime(range[0],
                                                                                    format="%Y-%m-%d")).days + 1
         pd.options.mode.chained_assignment = None
-        range_df['returns'] = np.log(range_df[marketCol] / range_df[marketCol].shift(-1))
+        range_df['returns'] = range_df[marketCol] / range_df[marketCol].shift(-1)
+        range_df['returns'] = np.log(range_df['returns'].dropna())
         daily_std = range_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
 
     def get_volatility_inception(self, file_name, marketCol):
+        no_of_days = np.NaN
         inception_df = self.data_engine.get_full_df(file_name)
         if isinstance(self.data_engine, sim_data_io_engine.online_engine):
             date_column = inception_df['timestamp'].dt.date
@@ -718,7 +748,8 @@ class statistic_engine:
         elif isinstance(self.data_engine, sim_data_io_engine.offline_engine):
             date_column = inception_df['timestamp']
             no_of_days = (date_column.max() - date_column.min()) / (24 * 60 * 60) + 1
-        inception_df['returns'] = np.log(inception_df[marketCol] / inception_df[marketCol].shift(-1))
+        inception_df['returns'] = inception_df[marketCol] / inception_df[marketCol].shift(-1)
+        inception_df['returns'] = np.log(inception_df['returns'].dropna())
         daily_std = inception_df['returns'].std()
 
         return daily_std * no_of_days ** 0.5
