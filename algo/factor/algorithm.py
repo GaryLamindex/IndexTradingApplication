@@ -37,44 +37,52 @@ class Factor:
         indicators = Indicator(all_indice_df)
         indicators.get_params()
         expected_return, expected_cov = indicators.expected_return, indicators.expected_cov
-
-        # Optimizing Sharpe ratio based on expected return & covariance matrix
-        lb = 0
-        ub = 1
-
-        def MV(w, cov_mat):
-            return np.dot(w, np.dot(cov_mat, w.T))
-
         n = len(expected_cov.columns)
-        muRange = np.arange(0.02, 0.09, 0.002)
-        volRange = np.zeros(len(muRange))
-        omega = expected_cov.cov()
 
-        wgt = {}
+        # Include cash?
+        # expected_return = np.append(expected_return, [0])
+        # expected_cov = np.append(np.append(expected_cov, np.zeros((n, 1)), axis=1), [np.zeros(n+1)], axis=0)
+        # n += 1
 
-        # For each target return find portfolio w/ minimum variance
-        for i in range(len(muRange)):
-            mu = muRange[i]
-            wgt[mu] = []
-            x_0 = np.ones(n) / n
-            bndsa = ((lb, ub),)
-            for j in range(1, n):
-                bndsa = bndsa + ((lb, ub),)
-            consTR = ({'type': 'eq', 'fun': lambda x: 1 - np.sum(x)},
-                      {'type': 'eq', 'fun': lambda x: mu - np.dot(x, expected_return)})
-            w = minimize(MV, x_0, method='SLSQP', constraints=consTR, bounds=bndsa, args=(omega),
-                         options={'disp': False})
-            volRange[i] = np.dot(w.x, np.dot(omega, w.x.T)) ** 0.5
+        if expected_return.max() > 0:
+            # Optimizing Sharpe ratio based on expected return & covariance matrix
+            lb = 0
+            ub = 1
 
-            wgt[mu].extend(np.squeeze(w.x))
+            def MV(w, cov_mat):
+                return np.dot(w, np.dot(cov_mat, w.T))
 
-        # Find portfolio w/ maximum Sharpe ratio from portfolios obtained above
-        sharpe = np.array([])
+            muRange = np.linspace(max(expected_return.min(), 0), expected_return.max(), 50)
+            volRange = np.zeros(len(muRange))
+            # omega = expected_cov.cov()
 
-        for i in range(len(muRange)):
-            sharpe = np.append(sharpe, muRange[i] / volRange[i])
+            wgt = {}
 
-        self.optimal_weight = wgt[muRange[sharpe.argmax()]]
+            # For each target return find portfolio w/ minimum variance
+            for i in range(len(muRange)):
+                mu = muRange[i]
+                wgt[mu] = []
+                x_0 = np.ones(n) / n
+                bndsa = ((lb, ub),)
+                for j in range(1, n):
+                    bndsa = bndsa + ((lb, ub),)
+                consTR = ({'type': 'eq', 'fun': lambda x: 1 - np.sum(x)},
+                          {'type': 'eq', 'fun': lambda x: mu - np.dot(x, expected_return)})
+                w = minimize(MV, x_0, method='SLSQP', constraints=consTR, bounds=bndsa, args=(expected_cov),
+                             options={'disp': False})
+                volRange[i] = np.dot(w.x, np.dot(expected_cov, w.x.T)) ** 0.5
+
+                wgt[mu].extend(np.squeeze(w.x))
+
+            # Find portfolio w/ maximum Sharpe ratio from portfolios obtained above
+            sharpe = np.array([])
+
+            for i in range(len(muRange)):
+                sharpe = np.append(sharpe, muRange[i] / volRange[i])
+
+            self.optimal_weight = wgt[muRange[sharpe.argmax()]]
+        else:
+            self.optimal_weight = np.zeros(n)
 
         self.action_msgs = []
 

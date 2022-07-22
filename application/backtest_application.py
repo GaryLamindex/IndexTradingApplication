@@ -335,7 +335,7 @@ portfolio_rebalance.loop_through_param()
 from algo.factor.backtest import Backtest as factor_backtest
 
 tickers = ['SPY', 'QQQ', 'BND']
-initial_amount = 10000000
+initial_amount = 1000000
 start_date = dt.datetime(2016, 1, 1)
 end_date = dt.datetime(2022, 7, 21)
 cal_stat = True
@@ -343,7 +343,5 @@ data_freq = 'one_day'
 user_id = 0
 db_mode = {"dynamo_db": False, "local": True}
 
-
-backtest = factor_backtest(tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
-                 db_mode)
+backtest = factor_backtest(tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id, db_mode)
 backtest.loop_through_param()

@@ -23,7 +23,7 @@ from engine.visualisation_engine import graph_plotting_engine
 from object.action_data import IBAction, IBActionsTuple
 
 
-class backtest:
+class Backtest:
     path = ""
     table_info = {}
     table_name = ""
@@ -78,34 +78,33 @@ class backtest:
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
     def loop_through_param(self):
-        for i in [12, 18, 24, 36]:
-            for j in ["Weekly", "Monthly"]:
-                print("start backtest, Use_period:", i, "Freq:", j)
-                backtest_spec = {"use_period:": i, "rebalance_freq": j}
-                spec_str = ""
-                for k, v in backtest_spec.items():
-                    spec_str = f"{spec_str}{str(v)}_{str(k)}_"
-                run_file = self.run_file_dir + spec_str + '.csv'
-                if os.path.exists(run_file):
-                    os.remove(Path(run_file))
-                graph_file = self.graph_dir + spec_str + '.png'
-                if os.path.exists(graph_file):
-                    os.remove(Path(graph_file))
+        for i in ["Weekly", "Monthly"]:
+            print("start backtest", "Freq:", i)
+            backtest_spec = {"rebalance_freq": i}
+            spec_str = ""
+            for k, v in backtest_spec.items():
+                spec_str = f"{spec_str}{str(v)}_{str(k)}_"
+            run_file = self.run_file_dir + spec_str + '.csv'
+            if os.path.exists(run_file):
+                os.remove(Path(run_file))
+            graph_file = self.graph_dir + spec_str + '.png'
+            if os.path.exists(graph_file):
+                os.remove(Path(graph_file))
 
-                acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                             self.table_name, spec_str)
-                options = self.tickers.copy()
+            acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                         self.table_name, spec_str)
+            options = self.tickers.copy()
 
-                portfolio_data_engine = backtest_portfolio_data_engine(acc_data, options)
-                trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-                sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
-                                             self.tickers)
-                dividend_agent = dividend_engine(self.tickers)
-                algorithm = Factor(trade_agent, portfolio_data_engine)
-                self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm, i, j,
-                                   portfolio_data_engine, sim_agent, dividend_agent, trade_agent)
-                print("Finished Backtest:", backtest_spec)
-                print("-------------------------------------------------------------------------------")
+            portfolio_data_engine = backtest_portfolio_data_engine(acc_data, options)
+            trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
+            sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
+                                         self.tickers)
+            dividend_agent = dividend_engine(self.tickers)
+            algorithm = Factor(trade_agent, portfolio_data_engine)
+            self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm, i,
+                               portfolio_data_engine, sim_agent, dividend_agent, trade_agent)
+            print("Finished Backtest:", backtest_spec)
+            print("-------------------------------------------------------------------------------")
 
         self.plot_all_file_graph()
         list_of_stats_data = listdir(self.stats_data_dir)
@@ -114,7 +113,7 @@ class backtest:
         if self.cal_stat:
             self.cal_all_file_return()
 
-    def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, use_period, freq,
+    def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, freq,
                       portfolio_data_engine, sim_agent, dividend_agent, trade_agent):
         print('start backtest')
         print('Fetch data')
@@ -129,13 +128,13 @@ class backtest:
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
             if algorithm.check_exec(timestamp, freq=freq, relative_delta=1):
-                self.run(timestamp, algorithm, use_period, sim_agent, trade_agent, portfolio_data_engine)
+                self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
 
-    def run(self, timestamp, algorithm, use_period, sim_agent, trade_agent, portfolio_data_engine):
+    def run(self, timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine):
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
-        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-use_period)
+        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-12)
         all_indice_df = pd.DataFrame([])
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
@@ -192,8 +191,8 @@ class backtest:
         for idx, file in enumerate(os.listdir(backtest_data_directory)):
             if file.decode().endswith("csv"):
                 marketCol = f'marketPrice_{self.tickers[0]}'
-                costCol = f'costBasis_{self.tickers[idx]}'
-                valueCol = f'marketValue_{self.tickers[idx]}'
+                # costCol = f'costBasis_{self.tickers[idx]}'
+                # valueCol = f'marketValue_{self.tickers[idx]}'
                 file_name = file.decode().split(".csv")[0]
                 stat_engine = statistic_engine(sim_data_offline_engine)
                 # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
