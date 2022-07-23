@@ -7,7 +7,7 @@ import "./Object.sol";
 contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
     using DateUtils for *;
     using StringUtils for string;
-    event LogActionMsg(string actionMsgs);
+    event LogTradeActionMsg(string tradeActionMsg);
 
     uint256 lastExecutedTimestamp;
 
@@ -27,7 +27,7 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
     mapping(uint256 => TradingFunds) tradingFundsData;
     mapping(uint256 => MktValue) mktValueData;
 
-    mapping (uint256 => mapping(string => ActionMsg)) actionMsgs;
+    mapping (uint256 => mapping(string => TradeActionMsg)) tradeActionMsgs;
     mapping (uint256 => mapping(string => PortfolioHolding)) portfolioHoldingsData;
     uint256 loop = 0;
     int256 rebalanceMargin = int256(5) * FixidityLib.fixed1() / int256(100);
@@ -109,9 +109,9 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
         return (holding.tickerName, holding.position, holding.marketPrice, holding.averageCost, holding.marketValue, holding.realizedPNL, holding.unrealizedPNL, holding.initMarginReq, holding.maintMarginReq, holding.costBasis);
     }
 
-    function getTickerActionMsg(string memory tickerName, uint256 _timestamp) public returns (string memory, uint256, string memory, int256, int256, int256){
-        ActionMsg memory actionMsg = actionMsgs[_timestamp][tickerName];
-        return (actionMsg.tickerName, actionMsg.timestamp, actionMsg.transactionType, actionMsg.positionAction, actionMsg.transactionTickerPrice, actionMsg.transactionAmount);
+    function getTickerTradeActionMsg(string memory tickerName, uint256 _timestamp) public returns (string memory, uint256, string memory, int256, int256, int256){
+        TradeActionMsg memory tradeActionMsg = tradeActionMsgs[_timestamp][tickerName];
+        return (tradeActionMsg.tickerName, tradeActionMsg.timestamp, tradeActionMsg.transactionType, tradeActionMsg.positionAction, tradeActionMsg.transactionTickerPrice, tradeActionMsg.transactionAmount);
     }
 
     function inputLoopWithTimestamps(uint256 _loop, uint256 _lastExecutedTimestamp) public {
@@ -120,9 +120,9 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
     }
 
     function reinitializeContractState() public returns (string memory){
-        string memory msg = "";
+        string memory returnMsg = "";
         if (executionTimestamps.length == 0){
-            msg = "Contract state has not been initialized yet";
+            returnMsg = "Contract state has not been initialized yet";
         }else{
             for (uint i=0; i < tickerNames.length; i++){
                 delete tickerExists[tickerNames[i]];
@@ -136,7 +136,7 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
                 for (uint j=0; j < tickerNames.length; j++){
                     delete realTimeTickersData[executionTimestamps[i]][tickerNames[j]];
                     delete portfolioHoldingsData[executionTimestamps[i]][tickerNames[j]];
-                    delete actionMsgs[executionTimestamps[i]][tickerNames[j]];
+                    delete tradeActionMsgs[executionTimestamps[i]][tickerNames[j]];
                 }
 
                 delete marginAccountData[executionTimestamps[i]];
@@ -146,65 +146,84 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
             }
             lastExecutedTimestamp = 0;
             delete tickerNames;
-            msg = "Contract state has been reinitialized";
+            returnMsg = "Contract state has been reinitialized";
         }
-        return msg;
+        return returnMsg;
+    }
+
+    function test() public {
+        string memory _tickerName = "AAPL";
+        uint256 timestamp = 123456789;
+//        tradeActionMsgs[timestamp][_tickerName].timestamp = timestamp;
+//        tradeActionMsgs[timestamp][_tickerName].tickerName = _tickerName;
+        TradeActionMsg memory tradeActionMsg = TradeActionMsg(_tickerName, 123456789, "buy", 0, 0, 0);
+        tradeActionMsgs[timestamp][_tickerName] = tradeActionMsg;
     }
 
     function run(uint256 _timestamp) public{
-        require(checkExecution(_timestamp), "Same month.  Time not yet reached");
+        string memory _tickerName = "AAPL";
+        uint256 timestamp = 123456789;
+
+        TradeActionMsg memory tradeActionMsg = TradeActionMsg(_tickerName, 123456789, "buy", 0, 0, 0);
+        tradeActionMsgs[timestamp][_tickerName] = tradeActionMsg;
+
         executionTimestamps.push(_timestamp);
-        loop++;
         if(loop == 0){
             int256 capitalForEachStock = FixidityLib.divide(mktValueData[_timestamp].TotalCashValue, int256(tickerNames.length) * FixidityLib.fixed1());
+
             for (uint i=0; i < tickerNames.length; i++){
                 RealTimeTickerData memory tickerData = realTimeTickersData[_timestamp][tickerNames[i]];
-                string memory tickerName = tickerData.tickerName;
-                int256 tickerPrice = tickerData.last;
-                int256 sharePurchase = FixidityLib.divide(capitalForEachStock,tickerData.last) * 3;
-                ActionMsg memory actionMsg = TradeAgent.placeBuyStockLimitOrderMsg(tickerName,sharePurchase,tickerPrice,_timestamp);
-                actionMsgs[_timestamp][tickerName] = actionMsg;
+                string memory _tickerName = tickerData.tickerName;
+
+                int256 _tickerPrice = tickerData.last;
+
+//                int256 baseSharePurchase = FixidityLib.divide(capitalForEachStock,tickerData.last);
+                int256 _baseSharePurchase = capitalForEachStock/tickerData.last;
+                int256 _sharePurchase =  _baseSharePurchase * 3;
+//                ActionMsg memory actionMsg = TradeAgent.placeBuyStockLimitOrderMsg(tickerName,sharePurchase,tickerPrice,_timestamp);
+                int256 _transactionAmount = _sharePurchase* _tickerPrice;
+                tradeActionMsgs[_timestamp][_tickerName] = TradeActionMsg({tickerName:_tickerName, timestamp: _timestamp, transactionType: 'Buy', positionAction: _sharePurchase, transactionTickerPrice:_tickerPrice, transactionAmount:_transactionAmount});
             }
         }
-        else{
-            int256 targetExLiq = FixidityLib.multiply(rebalanceMargin, mktValueData[_timestamp].GrossPositionValue);
-            for (uint i=0; i < tickerNames.length; i++){
-                int256 tickerPrice = realTimeTickersData[_timestamp][tickerNames[i]].last;
-                string memory tickerName = tickerNames[i];
-                if (maxDrawdownDodge[tickerNames[i]]){
-                    if (checkBuyBack(tickerName, tickerPrice)){
-                        ActionMsg memory actionMsg = buyBackPosition(tickerName, tickerPrice,_timestamp);
-                        actionMsgs[_timestamp][tickerName] = actionMsg;
-                    }
-                }else{
-                    if(checkMaxDrawdownDodge(tickerName,tickerPrice)){
-                        ActionMsg memory actionMsg = liquidateTickerPosition(tickerName, tickerPrice ,_timestamp);
-                    }
-                    else{
-                        if (tradingFundsData[_timestamp].ExcessLiquidity > targetExLiq) {
-                            int256 exLiqDiff = FixidityLib.subtract(tradingFundsData[_timestamp].ExcessLiquidity, targetExLiq);
-                            int256 targetSharePurchase = FixidityLib.divide(exLiqDiff,tickerPrice);
-
-                            if (targetSharePurchase > 0){
-                                ActionMsg memory actionMsg = super.placeBuyStockLimitOrderMsg(tickerName,targetSharePurchase,tickerPrice,_timestamp);
-                                actionMsgs[_timestamp][tickerName] = actionMsg;
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (uint i=0; i < tickerNames.length; i++){
-                int256 tickerPrice = realTimeTickersData[_timestamp][tickerNames[i]].last;
-                string memory tickerName = tickerNames[i];
-                if (maxDrawdownDodge[tickerName]){
-                    updateBenchmarkDrawdownPriceAfterDodge(tickerName, tickerPrice);
-                }
-                else{
-                    updateBenchmarkDrawdownPriceBeforeDodge(tickerName, tickerPrice);
-                }
-            }
-        }
+//        else{
+//            int256 targetExLiq = FixidityLib.multiply(rebalanceMargin, mktValueData[_timestamp].GrossPositionValue);
+//            for (uuint i=0; i < tickerNames.length; i++){
+//                int256 tickerPrice = realTimeTickersData[_timestamp][tickerNames[i]].last;
+//                string memory tickerName = tickerNames[i];
+//                if (maxDrawdownDodge[tickerNames[i]]){
+//                    if (checkBuyBack(tickerName, tickerPrice)){
+//                        ActionMsg memory actionMsg = buyBackPosition(tickerName, tickerPrice,_timestamp);
+//                        actionMsgs[_timestamp][tickerName] = actionMsg;
+//                    }
+//                }else{
+//                    if(checkMaxDrawdownDodge(tickerName,tickerPrice)){
+//                        ActionMsg memory actionMsg = liquidateTickerPosition(tickerName, tickerPrice ,_timestamp);
+//                    }
+//                    else{
+//                        if (tradingFundsData[_timestamp].ExcessLiquidity > targetExLiq) {
+//                            int256 exLiqDiff = FixidityLib.subtract(tradingFundsData[_timestamp].ExcessLiquidity, targetExLiq);
+//                            int256 targetSharePurchase = FixidityLib.divide(exLiqDiff,tickerPrice);
+//
+//                            if (targetSharePurchase > 0){
+//                                ActionMsg memory actionMsg = super.placeBuyStockLimitOrderMsg(tickerName,targetSharePurchase,tickerPrice,_timestamp);
+//                                actionMsgs[_timestamp][tickerName] = actionMsg;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            for (uint i=0; i < tickerNames.length; i++){
+//                int256 tickerPrice = realTimeTickersData[_timestamp][tickerNames[i]].last;
+//                string memory tickerName = tickerNames[i];
+//                if (maxDrawdownDodge[tickerName]){
+//                    updateBenchmarkDrawdownPriceAfterDodge(tickerName, tickerPrice);
+//                }
+//                else{
+//                    updateBenchmarkDrawdownPriceBeforeDodge(tickerName, tickerPrice);
+//                }
+//            }
+//        }
         lastExecutedTimestamp = _timestamp;
         loop = loop + 1;
 
@@ -238,23 +257,26 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
         return realTimeTickerPrice > rangePrice;
     }
 
-    function buyBackPosition(string memory _tickerName, int256 _tickerPrice, uint256 _timestamp) internal returns (ActionMsg memory) {
-        ActionMsg memory actionMsg;
+    function buyBackPosition(string memory _tickerName, int256 _tickerPrice, uint256 _timestamp) internal returns (TradeActionMsg memory) {
+        TradeActionMsg memory tradeActionMsg;
         int256 targetSharePurchase = liquidateTickerQty[_tickerName];
         int256 purchaseAmount =  FixidityLib.multiply(targetSharePurchase, _tickerPrice);
         if (tradingFundsData[_timestamp].BuyingPower >= purchaseAmount){
-            actionMsg = super.placeBuyStockLimitOrderMsg(_tickerName,targetSharePurchase,_tickerPrice,_timestamp);
+            tradeActionMsg = super.placeBuyStockLimitOrderMsg(_tickerName,targetSharePurchase,_tickerPrice,_timestamp);
         }else{
             targetSharePurchase = tradingFundsData[_timestamp].BuyingPower / _tickerPrice;
-            actionMsg = super.placeBuyStockLimitOrderMsg(_tickerName,targetSharePurchase,_tickerPrice,_timestamp);
+            tradeActionMsg = super.placeBuyStockLimitOrderMsg(_tickerName,targetSharePurchase,_tickerPrice,_timestamp);
         }
 
         maxDrawdownDodge[_tickerName] = false;
         maxStockPrice[_tickerName] = _tickerPrice;
 
-        return actionMsg;
+        return tradeActionMsg;
     }
 
+    function getLastExecutedTimestamp() public view returns (uint256){
+        return lastExecutedTimestamp;
+    }
 
     function checkMaxDrawdownDodge(string memory tickerName, int256 tickerPrice) private returns (bool){
         return tickerPrice < benchmarkDrawdownPrice[tickerName];
@@ -303,7 +325,7 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
 
     }
 
-    function liquidateTickerPosition(string memory _tickerName, int256 tickerPrice, uint256 _timestamp) private returns (ActionMsg memory){
+    function liquidateTickerPosition(string memory _tickerName, int256 tickerPrice, uint256 _timestamp) private returns (TradeActionMsg memory){
         PortfolioHolding memory holding = portfolioHoldingsData[_timestamp][_tickerName];
         RealTimeTickerData memory tickerData = realTimeTickersData[_timestamp][_tickerName];
         int256 currentPosition = holding.position;
@@ -312,14 +334,14 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
         int256 targetLeveragePositionAtLiquidState = noLeveragePosition * 12 / 10;
 
         int256 targetSoldPosition = currentPosition - targetLeveragePositionAtLiquidState;
-        ActionMsg memory actionMsg = super.placeSellStockLimitOrderMsg(_tickerName,targetSoldPosition,tickerPrice, _timestamp);
+        TradeActionMsg memory tradeActionMsg = super.placeSellStockLimitOrderMsg(_tickerName,targetSoldPosition,tickerPrice, _timestamp);
 
         benchmarkDrawdownPrice[_tickerName] = tickerPrice;
         liquidateTickerQty[_tickerName] = targetSoldPosition;
         liquidateTickerPrice[_tickerName] = tickerPrice;
         maxDrawdownDodge[_tickerName] = true;
 
-        return actionMsg;
+        return tradeActionMsg;
     }
 
 
