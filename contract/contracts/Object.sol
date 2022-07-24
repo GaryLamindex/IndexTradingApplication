@@ -8,7 +8,7 @@ contract Object {
         int256 last;
     }
 
-    struct ActionMsg{
+    struct TradeActionMsg{
         string tickerName;
         uint256 timestamp;
         string transactionType;
