@@ -41,64 +41,63 @@ class portfolio_rebalance:
         self.net_liquidation = 0
 
     def run(self, realtime_stock_data_dict, timestamp):
+        if self.check_exec(timestamp, freq="Daily", relative_delta=1):
+            self.action_msgs = []
+            self.buy_list = []
+            self.sell_list = []
+            if not self.trade_agent.market_opened():
+                return
 
-        self.action_msgs = []
-        self.buy_list = []
-        self.sell_list = []
-
-        if not self.trade_agent.market_opened():
-            return
-
-        self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
-        self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        self.portfolio = self.portfolio_agent.get_portfolio()
-        self.net_liquidation = self.account_snapshot.get("NetLiquidation")
-        for ticker, percentage in self.ticker_wif_rebalance_ratio.items():
-            hold_flag = False
-            for ticker_info in self.portfolio:
-                if ticker_info.get("ticker") == ticker:
-                    hold_flag = True
-                    current_market_price = ticker_info.get("marketPrice")
-                    target_position = int((self.net_liquidation * (percentage / 100)) / current_market_price)
-                    self.target_market_positions.update({ticker: target_position})
-            if (hold_flag == False):
-                for ticker_name, market_price in realtime_stock_data_dict.items():
-                    if ticker_name == ticker:
-                        current_market_price = market_price.get('last')
+            self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
+            self.account_snapshot = self.portfolio_agent.get_account_snapshot()
+            self.portfolio = self.portfolio_agent.get_portfolio()
+            self.net_liquidation = self.account_snapshot.get("NetLiquidation")
+            for ticker, percentage in self.ticker_wif_rebalance_ratio.items():
+                hold_flag = False
+                for ticker_info in self.portfolio:
+                    if ticker_info.get("ticker") == ticker:
+                        hold_flag = True
+                        current_market_price = ticker_info.get("marketPrice")
                         target_position = int((self.net_liquidation * (percentage / 100)) / current_market_price)
                         self.target_market_positions.update({ticker: target_position})
-        unmodified_tickers = list(self.target_market_positions.keys())
-        for ticker_info in self.portfolio:
-            unmodified_flag = True
-            current_position = ticker_info.get("position")
-            for target_ticker, target_pos in self.target_market_positions.items():
-                if ticker_info.get("ticker") == target_ticker:
-                    if current_position < target_pos:
-                        self.buy_list.append([target_ticker, target_pos - current_position])
-                    elif current_position > target_pos:
-                        self.sell_list.append([target_ticker, current_position - target_pos])
-                    unmodified_flag = False
-                    unmodified_tickers.remove(target_ticker)
-                    break
-                else:
-                    continue
-            if unmodified_flag:
-                self.sell_list.append([ticker_info.get("ticker"), current_position])
-        for ticker in unmodified_tickers:
-            self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
-        # realtime_stock_data_dict["timestamp"] = timestamp
-        for ticker in self.sell_list:
-            action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
-                                        {'ticker': ticker[0], 'position_sell': ticker[1]})
-            # action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
-            self.action_msgs.append(action_msg)
-        for ticker in self.buy_list:
-            action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                        {'ticker': ticker[0], 'position_purchase': ticker[1]})
-            # action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
-            self.action_msgs.append(action_msg)
+                if (hold_flag == False):
+                    for ticker_name, market_price in realtime_stock_data_dict.items():
+                        if ticker_name == ticker:
+                            current_market_price = market_price.get('last')
+                            target_position = int((self.net_liquidation * (percentage / 100)) / current_market_price)
+                            self.target_market_positions.update({ticker: target_position})
+            unmodified_tickers = list(self.target_market_positions.keys())
+            for ticker_info in self.portfolio:
+                unmodified_flag = True
+                current_position = ticker_info.get("position")
+                for target_ticker, target_pos in self.target_market_positions.items():
+                    if ticker_info.get("ticker") == target_ticker:
+                        if current_position < target_pos:
+                            self.buy_list.append([target_ticker, target_pos - current_position])
+                        elif current_position > target_pos:
+                            self.sell_list.append([target_ticker, current_position - target_pos])
+                        unmodified_flag = False
+                        unmodified_tickers.remove(target_ticker)
+                        break
+                    else:
+                        continue
+                if unmodified_flag:
+                    self.sell_list.append([ticker_info.get("ticker"), current_position])
+            for ticker in unmodified_tickers:
+                self.buy_list.append([ticker, self.target_market_positions.get(ticker)])
+            # realtime_stock_data_dict["timestamp"] = timestamp
+            for ticker in self.sell_list:
+                action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
+                                            {'ticker': ticker[0], 'position_sell': ticker[1]})
+                # action_msg = self.trade_agent.place_sell_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
+                self.action_msgs.append(action_msg)
+            for ticker in self.buy_list:
+                action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                            {'ticker': ticker[0], 'position_purchase': ticker[1]})
+                # action_msg = self.trade_agent.place_buy_stock_mkt_order(ticker[0], ticker[1], realtime_stock_data_dict )
+                self.action_msgs.append(action_msg)
 
-        return self.action_msgs.copy()
+            return self.action_msgs.copy()
 
     def check_exec(self, timestamp, **kwargs):
         datetime_obj = datetime.utcfromtimestamp(timestamp)
