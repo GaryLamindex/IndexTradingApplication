@@ -1,5 +1,5 @@
 import json
-
+from datetime import datetime
 from pymongo import MongoClient
 import certifi
 import requests
@@ -31,6 +31,7 @@ class Write_Mongodb:
     watchlist_suggestions = 'watchlistSuggestions'
     trading_cards = 'tradingCards'
     strategyequity = 'strategyEquity'
+    stockinfoprinciple = 'stockinfoPrincipleTable'
 
     def __init__(self):
         self.conn = MongoClient(
@@ -47,10 +48,12 @@ class Write_Mongodb:
             suggestion_df = pd.DataFrame()
             volatility = all_file_return_df['Since Inception Volatility'].values.tolist()
             return_ratio = all_file_return_df['Since Inception Return'].values.tolist()
-            name = list(all_file_return_df.index.values)
+            name = all_file_return_df.index.values.tolist()
             suggestion_df['Volatility'] = volatility
             suggestion_df['Return'] = return_ratio
             suggestion_df['Name'] = name
+            suggestion = suggestion_df.to_dict(orient='records')
+            coll.insert_many(suggestion)
         return
 
     def write_strategyEquity(self, equity_id):
@@ -59,8 +62,43 @@ class Write_Mongodb:
         if coll.count_documents({'equity_id': equity_id}) > 0:
             print('document already exist in transactions')
         else:
+            equity_dict = {"timestamp":[], "created at":[]}
+            equity_dict["created at"].append(datetime.now())
 
-    def write_trading_cards(self,trading_cards_id, strategy_name, strategy_initial, all_file_return_df):
+    def write_stockinfoPrincipleTable(self, stock_id, all_file_return_df):
+        self.db = self.conn[self.nft_flask]
+        coll = self.db[self.stockinfoprinciple]
+        if coll.count_documents({'stock_id': stock_id}) > 0:
+            print('document already exist in transactions')
+        else:
+            stock_df = pd.DataFrame()
+            name = all_file_return_df.index.values.tolist()
+            volatility = all_file_return_df['Since Inception Volatility'].values.tolist()
+            stock_df['Volatility'] = volatility
+            stock_df['Name'] = name
+            stock = stock_df.dict(orient='records')
+            coll.insert_many(stock)
+
+    def write_rolling_returns(self, rolling_id, all_file_return_df):
+        self.db = self.conn[self.nft_flask]
+        coll = self.db[self.stockinfoprinciple]
+        if coll.count_documents({'rolling_id': rolling_id}) > 0:
+            print('document already exist in transactions')
+        else:
+            arr = [1, 2, 3, 5, 7, 10, 15, 20]
+            for y in range(len(all_file_return_df)):
+                for x in arr:
+                    rolling_dict = {"period":[],"average_return":[],"best_return":[],"worst_return":[],"negative_periods":[],"created at":[]}
+                    rolling_dict["period"].append(f"{x} Year")
+                    rolling_dict["created at"].append(datetime.now())
+                    temp = all_file_return_df.loc[y, f"{x} Yr Rolling Return"]
+                    rolling_dict['average_return'].append(temp["average_annual_return"])
+                    rolling_dict['best_return'].append(temp["max_annual_rolling_return"])
+                    rolling_dict['worst_return'].append(temp["min_annual_return"])
+                    rolling_dict['negative_periods'].append(temp['negative_periods'])
+                    coll.insert_one(rolling_dict)
+
+    def write_trading_cards(self, trading_cards_id, strategy_name, strategy_initial, all_file_return_df):
         self.db = self.conn[self.nft_flask]
         coll = self.db[self.trading_cards]
         if coll.count_documents({'trading_id': trading_cards_id}) > 0:
@@ -73,6 +111,8 @@ class Write_Mongodb:
             trading_cards_df['nlvDailyChange'] = daily_change
             trading_cards_df['nlvMonthlyChange'] = monthly_change
             trading_cards_df['strategyInitial'] = strategy_initial
+            trading_cards = trading_cards_df.to_dict()
+            coll.insert_many(trading_cards)
         return
 
     def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
