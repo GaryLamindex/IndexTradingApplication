@@ -155,7 +155,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 
 ## ------------------------------------- --Fai Portfolio Rebalance Backtest------------------------------------------------------
 from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
-tickers = ["M", "MSFT"]
+tickers = [["M", "MSFT"]]
 deposit_amount = 1000000
 acceptance_range = 0
 num_tickers = len(tickers)

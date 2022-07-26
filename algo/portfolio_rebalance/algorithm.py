@@ -41,7 +41,7 @@ class portfolio_rebalance:
         self.net_liquidation = 0
 
     def run(self, realtime_stock_data_dict, timestamp):
-        if self.check_exec(timestamp, freq="Daily", relative_delta=1):
+        if self.check_exec(timestamp, freq="Monthly", relative_delta=1):
             self.action_msgs = []
             self.buy_list = []
             self.sell_list = []
