@@ -1037,7 +1037,7 @@ class statistic_engine:
             drawdown_days = (pd.to_datetime(min_date_info, format="%Y-%m-%d") - pd.to_datetime(max_date_info, \
                                                                                                format="%Y-%m-%d")).days
             recovery_days = np.nan
-            list = [max_drawdown, drawdown_period, drawdown_days, recovery_date_info, recovery_days]
+            list = [max_drawdown, str(drawdown_period), drawdown_days, recovery_date_info, recovery_days]
             drawdown_df.loc[len(drawdown_df.index)] = list
 
         p = (drawdown_df.sort_values(by=['Drawdown'])).reset_index(drop= True)
