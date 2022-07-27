@@ -16,6 +16,7 @@ class Write_Mongodb:
     algoPrincipleTop = 'algoPrincipleTop'
     rainydrop = 'rainydrop'
     Strategies = 'Strategies'
+    simulation = 'simulation'
 
     def __init__(self, run_data_df=None, all_file_return_df=None, drawdown_abstract_df=None, drawdown_raw_df=None):
         self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
@@ -81,6 +82,18 @@ class Write_Mongodb:
             print("successfully updated:\n", x)
 
         return
+
+    def historical_graph(self):
+        coll = self.simulation_db[self.simulation]
+
+        # time stamp, price
+        document = coll.find({}, {'timestamp': 1,
+                                  'NetLiquidation': 1})
+        
+
+
+
+
 
 def main():
     a = Write_Mongodb()
