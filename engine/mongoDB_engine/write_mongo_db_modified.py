@@ -102,6 +102,7 @@ class Write_Mongodb:
         # time stamp, price
         document = coll.find({}, {'timestamp': 1,
                                   'NetLiquidation': 1})
+        return
         
 
 
@@ -232,7 +233,8 @@ def main():
     # a.composite_table()
     # a.trade_log()
     # a.drawdown()
-    a.rolling_return()
+    # a.rolling_return()
+    # a.historical_graph()
 
 
 if __name__== "__main__":
