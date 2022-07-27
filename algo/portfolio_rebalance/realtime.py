@@ -13,6 +13,7 @@ from pathlib import Path
 class realtime:
     def __init__(self, tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
                  db_mode, acceptance_range, rebalance_ratios, execute_period):
+        self.rebalance_dict = None
         self.trader_name = None
         self.margin_ratio = None
         self.rating_dict = None
@@ -47,7 +48,7 @@ class realtime:
         self.now = datetime.now()
         self.acceptance_range = acceptance_range
         self.execute_period = execute_period
-
+        self.init_backtest_flag = False
         if db_mode.get("local"):
 
             self.run_file_dir = f"{self.path}/{self.table_name}/run_data/"
@@ -93,37 +94,56 @@ class realtime:
         pass
 
     def run(self):
-        self.acc_data = self.backtest.acc_data
-        self.portfolio_data_engine = self.backtest.portfolio_data_engine
-        self.trade_agent = self.backtest.trade_agent
-        self.sim_agent = self.backtest.sim_agent
-        self.dividend_agent = self.backtest.dividend_agent
-        self.algorithm = self.backtest.algorithm
-        for ticker in self.tickers:
-            self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
-        num_tickers = len(self.tickers)
-        self.rebalance_dict = {}
-        ratio = self.rebalance_ratio.copy()
-        for ticker_num in range(num_tickers):
-            self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
-        last_excute_day = self.backtest.end_date
-        last_excute_timestamp = datetime.timestamp(last_excute_day)
-        current_date = datetime.now()
-        current_timestamp = datetime.timestamp(current_date)
-        if self.stock_data_engines[self.tickers[0]].get_data_by_range([last_excute_timestamp, current_timestamp]) is None:
-            print("No new data")
+        if not self.init_backtest_flag:
+            self.init_backtest(self.user_id, self.acceptance_range,
+                               store_mongoDB=True,
+                               strategy_initial='this is 20 80 m and msft portfolio',
+                               video_link='https://www.youtube.com',
+                               documents_link='https://google.com',
+                               tags_array=None,
+                               subscribers_num=3,
+                               rating_dict=None,
+                               margin_ratio=3.24,
+                               trader_name='Fai'
+                               )
         else:
-            timestamps_1 = \
-                self.stock_data_engines[self.tickers[0]].get_data_by_range([last_excute_timestamp, current_timestamp])[
-                    'timestamp']
-            timestamps_2 = \
-                self.stock_data_engines[self.tickers[1]].get_data_by_range([last_excute_timestamp, current_timestamp])[
-                    'timestamp']
-            timestamps = np.intersect1d(timestamps_1, timestamps_2)
-            for timestamp in timestamps:
-                self.run_realtime(timestamp)
-            self.backtest.end_date = current_date
-            self.plot_all_file_graph()
+            self.acc_data = self.backtest.acc_data
+            self.portfolio_data_engine = self.backtest.portfolio_data_engine
+            self.trade_agent = self.backtest.trade_agent
+            self.sim_agent = self.backtest.sim_agent
+            self.dividend_agent = self.backtest.dividend_agent
+            self.algorithm = self.backtest.algorithm
+            for ticker in self.tickers:
+                self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+            num_tickers = len(self.tickers)
+            self.rebalance_dict = {}
+            ratio = self.rebalance_ratio.copy()
+            for ticker_num in range(num_tickers):
+                self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
+            last_excute_day = self.backtest.end_date
+            last_excute_timestamp = datetime.timestamp(last_excute_day)
+            current_date = datetime.now()
+            current_timestamp = datetime.timestamp(current_date)
+            _date = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%Y-%m-%d")
+            _time = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%H:%M:%S")
+            print('#' * 20, _date, ":", _time, '#' * 20)
+            if self.stock_data_engines[self.tickers[0]].get_data_by_range(
+                    [last_excute_timestamp, current_timestamp]) is None:
+                print("No new data")
+            else:
+                timestamps_1 = \
+                    self.stock_data_engines[self.tickers[0]].get_data_by_range(
+                        [last_excute_timestamp, current_timestamp])[
+                        'timestamp']
+                timestamps_2 = \
+                    self.stock_data_engines[self.tickers[1]].get_data_by_range(
+                        [last_excute_timestamp, current_timestamp])[
+                        'timestamp']
+                timestamps = np.intersect1d(timestamps_1, timestamps_2)
+                for timestamp in timestamps:
+                    self.run_realtime(timestamp)
+                self.backtest.end_date = current_date
+                self.plot_all_file_graph()
 
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
@@ -140,7 +160,7 @@ class realtime:
 
         for ticker in self.tickers:
             ticker_data = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
-            if ticker_data != None:
+            if ticker_data is not None:
                 ticker_open_price = ticker_data.get("open")
                 stock_data_dict.update({ticker: {'last': ticker_open_price}})
                 sim_meta_data.update({ticker: ticker_data})
@@ -189,17 +209,6 @@ def main():
     realtime_backtest = realtime(tickers, initial_amount, start_date, cal_stat,
                                  data_freq, user_id, db_mode, acceptance_range,
                                  rebalance_ratio, execute_period)
-    realtime_backtest.init_backtest(realtime_backtest.user_id, realtime_backtest.acceptance_range,
-                                    store_mongoDB=True,
-                                    strategy_initial='this is 20 80 m and msft portfolio',
-                                    video_link='https://www.youtube.com',
-                                    documents_link='https://google.com',
-                                    tags_array=None,
-                                    subscribers_num=3,
-                                    rating_dict=None,
-                                    margin_ratio=3.24,
-                                    trader_name='Fai'
-                                    )
     while True:
         realtime_backtest.run()
 
