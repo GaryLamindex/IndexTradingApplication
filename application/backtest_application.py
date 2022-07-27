@@ -154,45 +154,45 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # portfolio_rebalance.loop_through_param()
 
 ## ------------------------------------- --Fai Portfolio Rebalance Backtest------------------------------------------------------
-from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
-tickers = ["M", "MSFT"]
-deposit_amount = 1000000
-acceptance_range = 0
-num_tickers = len(tickers)
-#rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[20, 80]]
-start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-end_date = dt.datetime(2011, 5, 15)  # YYMMDD
-strategy = "portfolio_rebalance"
-mode = "backtest"
-cal_stat = True
-quick_test = True
-wipe_previous_sim_data = True
-db_mode = {"dynamo_db": False, "local": True}
-data_freq = "one_min"
-user_id = 0
-portfolio_rebalance = portfolio_rebalance_backtest(tickers,
-                                                   deposit_amount,
-                                                   start_date,
-                                                   end_date,
-                                                   cal_stat,
-                                                   data_freq,
-                                                   user_id,
-                                                   db_mode,
-                                                   quick_test,
-                                                   acceptance_range, rebalance_ratio,
-                                                   store_mongoDB=True,
-                                                   strategy_initial='this is 20 80 m and msft portfolio',
-                                                   video_link='https://www.youtube.com',
-                                                   documents_link='https://google.com',
-                                                   tags_array=None,
-                                                   subscribers_num=3,
-                                                   rating_dict=None,
-                                                   margin_ratio=3.24,
-                                                   trader_name='Fai'
-                                                   )
-
-portfolio_rebalance.loop_through_param()
+# from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
+# tickers = ["M", "MSFT"]
+# deposit_amount = 1000000
+# acceptance_range = 0
+# num_tickers = len(tickers)
+# #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+# rebalance_ratio = [[20, 80]]
+# start_date = dt.datetime(2010, 1, 1)  # YYMMDD
+# end_date = dt.datetime(2011, 5, 15)  # YYMMDD
+# strategy = "portfolio_rebalance"
+# mode = "backtest"
+# cal_stat = True
+# quick_test = True
+# wipe_previous_sim_data = True
+# db_mode = {"dynamo_db": False, "local": True}
+# data_freq = "one_min"
+# user_id = 0
+# portfolio_rebalance = portfolio_rebalance_backtest(tickers,
+#                                                    deposit_amount,
+#                                                    start_date,
+#                                                    end_date,
+#                                                    cal_stat,
+#                                                    data_freq,
+#                                                    user_id,
+#                                                    db_mode,
+#                                                    quick_test,
+#                                                    acceptance_range, rebalance_ratio,
+#                                                    store_mongoDB=True,
+#                                                    strategy_initial='this is 20 80 m and msft portfolio',
+#                                                    video_link='https://www.youtube.com',
+#                                                    documents_link='https://google.com',
+#                                                    tags_array=None,
+#                                                    subscribers_num=3,
+#                                                    rating_dict=None,
+#                                                    margin_ratio=3.24,
+#                                                    trader_name='Fai'
+#                                                    )
+#
+# portfolio_rebalance.loop_through_param()
 ## ---------------------------------------  Fai Portfolio Rebalance Backtest -------------------------------------------------------
 # ## ---------------------------------------  Fai Accelerating Dual Momentum Backtest
 # -------------------------------------------------------
@@ -214,34 +214,34 @@ portfolio_rebalance.loop_through_param()
 # accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
 #                                                                  end_date, cal_stat, data_freq, user_id, db_mode)
 # accelerating_dual_momentum.loop_through_param()
-# from algo.accelerating_dual_momentum.backtest import backtest as accelerating_dual_momentum_backtest
-#
-# tickers = ["SPY", "MSFT"]
-# bond = "TIP"
-# deposit_amount = 1000000
-# start_date = dt.datetime(2005, 6, 3)  # YYMMDD
-# end_date = dt.datetime(2022, 6, 30)  # YYMMDD
-# strategy = "accelerating_dual_momentum"
-# mode = "backtest"
-# cal_stat = True
-# quick_test = True
-# wipe_previous_sim_data = True
-# db_mode = {"dynamo_db": False, "local": True}
-# data_freq = "one_day"
-# user_id = 0
-# accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
-#                                                                  end_date, cal_stat, data_freq, user_id, db_mode,
-#                                                                  store_mongoDB=True,
-#                                                                  strategy_initial='SPY_MSFT_TIP_accelerating_dual_momentum',
-#                                                                 video_link='https://www.youtube.com',
-#                                                                 documents_link='https://google.com',
-#                                                                 tags_array=None,
-#                                                                 subscribers_num=3,
-#                                                                 rating_dict=None,
-#                                                                 margin_ratio=3.24,
-#                                                                 trader_name='Fai'
-#                                                                  )
-# accelerating_dual_momentum.loop_through_param()
+from algo.accelerating_dual_momentum.backtest import backtest as accelerating_dual_momentum_backtest
+
+tickers = ["SPY", "MSFT"]
+bond = "TIP"
+deposit_amount = 1000000
+start_date = dt.datetime(2012, 6, 3)  # YYMMDD
+end_date = dt.datetime(2022, 6, 30)  # YYMMDD
+strategy = "accelerating_dual_momentum"
+mode = "backtest"
+cal_stat = True
+quick_test = True
+wipe_previous_sim_data = True
+db_mode = {"dynamo_db": False, "local": True}
+data_freq = "one_day"
+user_id = 0
+accelerating_dual_momentum = accelerating_dual_momentum_backtest(tickers, bond, deposit_amount, start_date,
+                                                                 end_date, cal_stat, data_freq, user_id, db_mode,
+                                                                 store_mongoDB=True,
+                                                                 strategy_initial='SPY_MSFT_TIP_accelerating_dual_momentum',
+                                                                video_link='https://www.youtube.com',
+                                                                documents_link='https://google.com',
+                                                                tags_array=None,
+                                                                subscribers_num=3,
+                                                                rating_dict=None,
+                                                                margin_ratio=3.24,
+                                                                trader_name='Fai'
+                                                                 )
+accelerating_dual_momentum.loop_through_param()
 ### ---------------------------------------  Fai Accelerating Dual Momentum Backtest -------------------------------------------------------
 
 # for x in range(len(tickers)):
