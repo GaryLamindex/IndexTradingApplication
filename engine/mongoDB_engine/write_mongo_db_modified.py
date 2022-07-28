@@ -97,11 +97,13 @@ class Write_Mongodb:
         return
 
     def historical_graph(self):
-        coll = self.simulation_db[self.simulation]
-
+        for coll in self.simulation_db.list_collection_names():
         # time stamp, price
-        document = coll.find({}, {'timestamp': 1,
-                                  'NetLiquidation': 1})
+            documents = self.simulation_db[coll].find({},{'timestamp': 1,
+                                                          'NetLiquidation': 1})
+            for x in documents:
+                print(x)
+
         return
         
 
@@ -225,6 +227,8 @@ class Write_Mongodb:
                                                          })
             for x in documents:
                 print(x)
+
+
 
 def main():
     a = Write_Mongodb()
