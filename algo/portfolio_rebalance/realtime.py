@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -211,6 +213,7 @@ def main():
                                  rebalance_ratio, execute_period)
     while True:
         realtime_backtest.run()
+        time.sleep(60)
 
 
 if __name__ == "__main__":
