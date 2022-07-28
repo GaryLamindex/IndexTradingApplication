@@ -89,20 +89,21 @@ class Factor:
         for ticker_data in self.portfolio:
             ticker_name = ticker_data.get("ticker")
             ticker_pos = ticker_data.get("position")
-            price = all_indice_df[ticker_name][-1]
-            print(ticker_name, price)
-            print("Weight: ", self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)])
-            target_pos = int(self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)] * self.total_market_value / price)
-            print(ticker_name, "Current Position:", ticker_pos, "; Target Position:", target_pos, "; Market Value:", self.total_market_value)
-            pos_change = target_pos - ticker_pos
-            if pos_change < 0:
-                action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
-                                            {'ticker': ticker_name, 'position_sell': -pos_change})
-                self.action_msgs.append(action_msg)
-            elif pos_change > 0:
-                action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                            {'ticker': ticker_name, 'position_purchase': pos_change})
-                self.action_msgs.append(action_msg)
+            if ticker_name in all_indice_df.columns:
+                price = all_indice_df[ticker_name][-1]
+                print(ticker_name, price)
+                print("Weight: ", self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)])
+                target_pos = int(self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)] * self.total_market_value / price)
+                print(ticker_name, "Current Position:", ticker_pos, "; Target Position:", target_pos, "; Market Value:", self.total_market_value)
+                pos_change = target_pos - ticker_pos
+                if pos_change < 0:
+                    action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
+                                                {'ticker': ticker_name, 'position_sell': -pos_change})
+                    self.action_msgs.append(action_msg)
+                elif pos_change > 0:
+                    action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                                {'ticker': ticker_name, 'position_purchase': pos_change})
+                    self.action_msgs.append(action_msg)
 
         return self.action_msgs.copy()
 

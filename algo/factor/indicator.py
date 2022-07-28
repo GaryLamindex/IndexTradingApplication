@@ -86,7 +86,7 @@ class Indicator:
         return_residual = self.indice_return.to_numpy() - past_expected_returns
         predicted_vars = []
         for i in range(return_residual.shape[1]):
-            garch = arch_model(return_residual[:, i], vol='garch', p=1, o=0, q=1)
+            garch = arch_model(return_residual[:, i], vol='GARCH', p=1, o=0, q=1)
             garch_fitted = garch.fit(update_freq=0, disp='off')
             garch_forecast = garch_fitted.forecast(horizon=1)
             predicted_var = garch_forecast.variance['h.1'].iloc[-1]
