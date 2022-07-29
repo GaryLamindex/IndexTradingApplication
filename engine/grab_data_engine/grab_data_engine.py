@@ -18,111 +18,197 @@ import math
 import pandas as pd
 from failure_handler import connection_handler, connect_tws
 
-class grab_daily_data_engine:
-    ticker_name_path_day = None
-    ticker_data_path = None
 
-    def __init__(self):
-        # yfinance variables
-        self.ticker_data_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/one_day'
+class grab_stock_data_engine:
+    def __init__(self, ib_instance=None, update_list=False):
+        # Ignore ib_instance parameter if only daily data is required
         self.ticker_name_path = str(pathlib.Path(__file__)
                                     .parent.parent.parent.parent.resolve()) + '/etf_list'
-        self.crypto_daily_data_path = str(pathlib.Path(__file__)
-                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
-
-    # yfinance functions
-    def get_yfinance_max_historical_data(self, ticker):
-        btc = yf.Ticker(ticker)
-        hist = btc.history(period='max')
-        return hist
-
-    def get_ticker_name(self):
-        url = "http://www.lazyportfolioetf.com/allocation/"
-        page = urlopen(url)
-        html_bytes = page.read()
-        html = html_bytes.decode("utf-8")
-        soup = BeautifulSoup(html, "lxml")
-        portfolio_link = False
-        links = list()
-        for link in soup.find_all('a', href=True):
-            if link['href'] == "http://www.lazyportfolioetf.com/allocation/10-year-treasury/":
-                portfolio_link = True
-            if link['href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
-                portfolio_link = False
-            if portfolio_link:
-                links.append(link['href'])
-        links = list(dict.fromkeys(links))
-        df = pd.DataFrame(columns=['Ticker'])
-        for x in range(0, len(links)):
-            soup1 = BeautifulSoup(requests.get(links[x]).text, "lxml")
-            table = soup1.find('table',
-                               class_='w3-table table-padding-small w3-small font-family-arial table-valign-middle')
-            for row in table.tbody.find_all('tr'):
-                columns = row.find_all('td')
-                if columns != []:
-                    ticker = columns[2].b.contents[0]
-                    df = pd.concat([df, pd.DataFrame.from_records([{'Ticker': ticker}])])
-        df = df.drop_duplicates()
-        df.to_csv(f"{self.ticker_name_path}/ticker_name.csv", index=False)
-
-    def get_all_data(self, update_list=False):
-        if not os.path.isdir(self.ticker_data_path):
-            os.makedirs(self.ticker_data_path)
+        # If update_list or ticker_name.csv does not exist, create ticker_name.csv
         if not os.path.isdir(self.ticker_name_path):
             os.makedirs(self.ticker_name_path)
         file_exists = os.path.exists(f"{self.ticker_name_path}/ticker_name.csv")
         if (not file_exists) or update_list:
-            self.get_ticker_name()
-        ticker_name = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")
-        for ticker in ticker_name['Ticker']:
-            df = self.get_yfinance_max_historical_data(ticker)
+            url = "http://www.lazyportfolioetf.com/allocation/"
+            page = urlopen(url)
+            html_bytes = page.read()
+            html = html_bytes.decode("utf-8")
+            soup = BeautifulSoup(html, "lxml")
+            portfolio_link = False
+            links = list()
+            for link in soup.find_all('a', href=True):
+                if link['href'] == "http://www.lazyportfolioetf.com/allocation/10-year-treasury/":
+                    portfolio_link = True
+                if link['href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
+                    portfolio_link = False
+                if portfolio_link:
+                    links.append(link['href'])
+            links = list(dict.fromkeys(links))
+            df = pd.DataFrame(columns=['Ticker'])
+            for x in range(0, len(links)):
+                soup1 = BeautifulSoup(requests.get(links[x]).text, "lxml")
+                table = soup1.find('table',
+                                   class_='w3-table table-padding-small w3-small font-family-arial table-valign-middle')
+                for row in table.tbody.find_all('tr'):
+                    columns = row.find_all('td')
+                    if columns != []:
+                        ticker = columns[2].b.contents[0]
+                        df = pd.concat([df, pd.DataFrame.from_records([{'Ticker': ticker}])])
+            df = df.drop_duplicates()
+            df.to_csv(f"{self.ticker_name_path}/ticker_name.csv", index=False)
+        # yfinance (daily) variables
+        self.daily_ticker_data_path = str(pathlib.Path(__file__)
+                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/one_day'
+        # ib (minute) variable
+        self.ib_instance = ib_instance
+        if ib_instance is not None:
+            self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
+        # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
+        self.min_ticker_data_path = str(
+            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
+        self.grab_data_retry_attempt = 0
+
+    def get_ticker_list(self):
+        return pd.read_csv(self.ticker_name_path, header=0, names=['Ticker'])
+
+    # yfinance (daily) methods
+    def get_daily_historical_data_by_period(self, ticker, period):
+        btc = yf.Ticker(ticker)
+        hist = btc.history(period=period)
+        return hist
+
+    def get_multiple_daily_data_by_period(self, period, tickers=None):
+        if not os.path.isdir(self.daily_ticker_data_path):
+            os.makedirs(self.daily_ticker_data_path)
+        if tickers is None:
+            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        for ticker in tickers:
+            df = self.get_daily_historical_data_by_period(ticker, period)
             index_list = df.index.tolist()
             timestamp = list()
             for x in range(len(index_list)):
                 timestamp.append(int(index_list[x].timestamp()))
             df['timestamp'] = timestamp
             df = df.rename(columns={'Open': 'open'})
-            df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=True, header=True)
-            print(f"Successfully download {ticker}.csv")
+            df.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
+            if not df.empty:
+                print(f"Successfully download {ticker}.csv")
+            else:
+                print(f"Failed downloading {ticker}.csv")
 
-    # download yfinance data
-    def get_yfinance_max_historical_data(self, ticker):
-        btc = yf.Ticker(f'{ticker}-USD')
-        hist = btc.history(period='max')
+    # Notice that data returned by yf.download is different from yf.Ticker().history, may have to solve later
+    def get_daily_historical_data_by_range(self, ticker, start_timestamp, end_timestamp):
+        start_date, end_date = start_timestamp.date() + dt.timedelta(days=1), end_timestamp.date() + dt.timedelta(days=1)
+        hist = yf.download(ticker, start=start_date, end=end_date)
         return hist
 
-    # download all crypto data with coingecko API
-    def download_all_crypto_data(self):
-        cg = CoinGeckoAPI()
-        coins_list = cg.get_coins_list()
-        for coin in coins_list:
-            symbol = coin['symbol']
-            df = self.get_yfinance_max_historical_data(symbol)
+    def get_multiple_daily_data_by_range(self, start_timestamp, end_timestamp, tickers=None):
+        if not os.path.isdir(self.daily_ticker_data_path):
+            os.makedirs(self.daily_ticker_data_path)
+        if tickers is None:
+            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        for ticker in tickers:
+            df = self.get_daily_historical_data_by_range(self, ticker, start_timestamp, end_timestamp)
+            index_list = df.index.tolist()
+            timestamp = list()
+            for x in range(len(index_list)):
+                timestamp.append(int(index_list[x].timestamp()))
+            df['timestamp'] = timestamp
+            df = df.rename(columns={'Open': 'open'})
+            df.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
             if not df.empty:
-                df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+                print(f"Successfully download {ticker}.csv")
+            else:
+                print(f"Failed downloading {ticker}.csv")
 
-class get_minute_data_engine:
-    ib_instance = None
-    ticker_data_path = ""
+    # ib (minute) functions
 
-    def __init__(self, ib_instance=None):
-        self.ib_instance = ib_instance
-        if ib_instance is not None:
-            self.ib_instance.reqMarketDataType(marketDataType=1)  # require live data
-        # self.output_filepath = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/his_data/one_min"
-        self.ticker_data_path = str(
-            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/one_min"
+    # helper functions
 
-        self.etf_list_path = str(
-            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/etf_list.csv'
+    # get data by passing in the start timestamp and the end timestamp
+    # there may be request limit for this function, while the limit is set by TWS
+    """just the helper function, NOT called directly"""
 
-        self.grab_data_retry_attempt = 0
+    def get_min_historical_data_helper(self, ticker, end_timestamp, duration, bar_size, regular_trading_hour):
+        """
+        end_timestamp: an unix timestamp
+        duration: the length of data to be retrieved (couting bask starting fron the end_date), Examples: ‘60 S’, ‘30 D’, ‘13 W’, ‘6 M’, ‘10 Y’
+        bar_size: the timelapse between 2 data, must be one of: ‘1 secs’, ‘5 secs’, ‘10 secs’ 15 secs’, ‘30 secs’, ‘1 min’, ‘2 mins’, ‘3 mins’, ‘5 mins’, ‘10 mins’, ‘15 mins’, ‘20 mins’, ‘30 mins’, ‘1 hour’, ‘2 hours’, ‘3 hours’, ‘4 hours’, ‘8 hours’, ‘1 day’, ‘1 week’, ‘1 month’.
+        regular_trading_hour: a switch (boolean value) to allow user to choose whether to get data in the regular trading hour (True) or not (False)
+        """
+        end_date = dt.datetime.fromtimestamp(end_timestamp, tz=dt.timezone(dt.timedelta(hours=8)))
+        contract = Stock(ticker, 'SMART', "USD")  # create the contract in the dictionary
+        self.ib_instance.qualifyContracts(contract)  # qualify the contract
+        data = self.ib_instance.reqHistoricalData(contract, end_date, durationStr=duration, barSizeSetting=bar_size,
+                                                  whatToShow="TRADES", useRTH=regular_trading_hour)
+        self.ib_instance.sleep(1)  # allows the data to fill gradually
 
-        # self.output_filepath = "C:/Users/85266/OneDrive/Documents"
+        return data
 
-    # return a dictionary of the latest price of the stock
+    def get_min_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour, changed):
+        """
+        It is a function only used by get_min_historical_data_by_range. It appends the given range of timestamps of data to
+        the existent ticker file.
+        """
+        current_end_timestamp = end_timestamp
+        connect_tws(self.ib_instance)
+        while current_end_timestamp > start_timestamp:
+            current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
+                                                           regular_trading_hour)
 
+            if len(current_data) == 0:
+                current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
+                                                               regular_trading_hour)
+            if len(current_data) == 0:
+                if self.grab_data_retry_attempt < 5:
+                    self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
+                    continue
+                else:
+                    self.grab_data_retry_attempt = 0
+                    break
+            front_timestamp = current_data[0].date.timestamp()
+            current_data_df = util.df(current_data)
+            current_data_df['timestamp'] = current_data_df[['date']].apply(
+                lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
+            self.ib_instance.sleep(0)
+            current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='a', index=False,
+                                   header=False)
+            print(
+                f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
+            current_end_timestamp = front_timestamp
+            changed = True
+        if changed:
+            old_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
+            old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
+            old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
+            old_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", index=False, header=True)
+
+    def write_df_to_csv(self, ticker, df):
+        """
+        algoithm:
+        if file already exists:
+            read the file -> old data
+            delete the old file
+        create a new file
+        write the current data to the new file (on the top) with header
+        write the old data if file already exist
+        """
+        file_exist = f"{ticker}.csv" in os.listdir(self.min_ticker_data_path)
+        if file_exist:  # file already exist
+            old_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
+            try:
+                os.remove(f"{self.min_ticker_data_path}/{ticker}.csv")
+            except Exception as e:
+                print(f"Some errors occur, error message: {e}")
+
+        with open(f"{self.min_ticker_data_path}/{ticker}.csv", "a+", newline='') as f:
+            df.to_csv(f, mode='a', index=False, header=True)  # write the current data with header
+            if file_exist:
+                old_df.to_csv(f, mode='a', index=False, header=False)  # write the old data
+
+        print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
+
+    # main functions
     @connection_handler
     def get_ibkr_open_price(self, tickers):
         """
@@ -146,7 +232,7 @@ class get_minute_data_engine:
             while math.isnan(raw_ticker_info.bid) or math.isnan(raw_ticker_info.bidSize) or math.isnan(
                     raw_ticker_info.ask) or math.isnan(raw_ticker_info.askSize) or math.isnan(
                 raw_ticker_info.last) or math.isnan(raw_ticker_info.lastSize) or math.isnan(raw_ticker_info.volume):
-                print("Information incompleted, data:", raw_ticker_info)
+                print("Information incomplete, data:", raw_ticker_info)
                 print("Trying again...")
                 contracts[ticker] = Stock(ticker, "SMART", "USD")  # create the contract in the dictionary
                 self.ib_instance.qualifyContracts(contracts[ticker])  # qualify the contract
@@ -167,25 +253,7 @@ class get_minute_data_engine:
 
         return ticker_info_dict
 
-    # get data by passing tin the start timestamp and the end timestamp
-    # there may be request limit for this function, while the limit if set by TWS
-    """just the helper function, NOT called directly"""
 
-    def get_historical_data_helper(self, ticker, end_timestamp, duration, bar_size, regular_trading_hour):
-        """
-        end_timestamp: an unix timestamp
-        duration: the length of data to be retrieved (couting bask starting fron the end_date), Examples: ‘60 S’, ‘30 D’, ‘13 W’, ‘6 M’, ‘10 Y’
-        bar_size: the timelapse between 2 data, must be one of: ‘1 secs’, ‘5 secs’, ‘10 secs’ 15 secs’, ‘30 secs’, ‘1 min’, ‘2 mins’, ‘3 mins’, ‘5 mins’, ‘10 mins’, ‘15 mins’, ‘20 mins’, ‘30 mins’, ‘1 hour’, ‘2 hours’, ‘3 hours’, ‘4 hours’, ‘8 hours’, ‘1 day’, ‘1 week’, ‘1 month’.
-        regular_trading_hour: a switch (boolean value) to allow user to choose whether to get data in the regular trading hour (True) or not (False)
-        """
-        end_date = dt.datetime.fromtimestamp(end_timestamp, tz=dt.timezone(dt.timedelta(hours=8)))
-        contract = Stock(ticker, 'SMART', "USD")  # create the contract in the dictionary
-        self.ib_instance.qualifyContracts(contract)  # qualify the contract
-        data = self.ib_instance.reqHistoricalData(contract, end_date, durationStr=duration, barSizeSetting=bar_size,
-                                                  whatToShow="TRADES", useRTH=regular_trading_hour)
-        self.ib_instance.sleep(1)  # allows the data to fill gradually
-
-        return data
 
     """
     Details of the head timestamp for each stocks:
@@ -199,7 +267,7 @@ class get_minute_data_engine:
     """
 
     def get_first_row_of_data(self, ticker):
-        filename = f'{self.ticker_data_path}/{ticker}.csv'
+        filename = f'{self.min_ticker_data_path}/{ticker}.csv'
         file_exists = os.path.exists(filename)
         if file_exists:
             df = pd.read_csv(filename)
@@ -212,7 +280,7 @@ class get_minute_data_engine:
     # due to TWS limitataion, max. 2 tickers at a time !!!
     # e.g. {"QQQ":[{timestamp, ohlc},{timestamp, ohlc}],"SPY"[{timestamp, ohlc},{timestamp, ohlc}]...}
     @connection_handler
-    def get_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
+    def get_min_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
         """
         This function will modify the file to the given range of timestamps for the existing ticker data file without
         deleting the old data. For a non-existent ticker data file, this function will download the non-existent ticker
@@ -223,21 +291,21 @@ class get_minute_data_engine:
         file_existed = False  # check whether there already exist ticker file before running the function
         empty_file = True   # check whether the ticker file is empty
         changed = False  # check whether the file has been changed
-        file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
+        file_exist = f"{ticker}.csv" in os.listdir(self.min_ticker_data_path)
         if file_exist:  # if file already exist, check which date does the file updated to
             file_existed = True
-            check_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+            check_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
             update_date = check_df["timestamp"].max()    # the file was updated this date
         current_end_timestamp = end_timestamp
 
         connect_tws(self.ib_instance)
 
         while current_end_timestamp > start_timestamp:
-            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
+            current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                            regular_trading_hour)
 
             if len(current_data) == 0:
-                current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
+                current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
                                                                regular_trading_hour)
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt <= 5:
@@ -253,7 +321,7 @@ class get_minute_data_engine:
                 lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
             if file_existed:    # if the file already existed before running the function
                 if current_data_df["timestamp"].iloc[0] <= update_date and current_data_df["timestamp"].iloc[-1] != update_date:  # If the file will be updated to the given end timestamp after appending the current dataframe
-                    current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+                    current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                            header=False)  # append current data to the old file
                     print(
                         f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -262,7 +330,7 @@ class get_minute_data_engine:
                 elif current_data_df["timestamp"].iloc[-1] == update_date:  # the file already updated to the given end timestamp
                     break
             elif empty_file:    # if the file does not exist
-                current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='w', index=False,
+                current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='w', index=False,
                                        header=True)  # write the current data with header
                 print(
                     f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -272,67 +340,26 @@ class get_minute_data_engine:
                 continue
             # sleep(10) # wait to fetch another batch of data
             self.ib_instance.sleep(0)  # refresh the ib instance
-            current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+            current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                    header=False)  # append current data to the old file
             print(
                 f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
             current_end_timestamp = front_timestamp
             changed = True
 
-        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        old_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
         if changed:
             old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
             old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
-            old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
+            old_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", index=False, header=True)
         if old_df["timestamp"].iloc[0] != start_timestamp:  # if the file is not updated to the given start timestamp
             oldest_timestamp = old_df["timestamp"].iloc[0]
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
             if changed:
-                self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, True)
+                self.get_min_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, True)
             else:  # if the file has not been changed
-                self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, False)
+                self.get_min_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, False)
         print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
-
-    def get_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour, changed):
-        """
-        It is a function only used by get_historical_data_by_range. It appends the given range of timestamps of data to
-        the existent ticker file.
-        """
-        current_end_timestamp = end_timestamp
-        connect_tws(self.ib_instance)
-        while current_end_timestamp > start_timestamp:
-            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
-                                                           regular_trading_hour)
-
-            if len(current_data) == 0:
-                current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
-                                                               regular_trading_hour)
-            if len(current_data) == 0:
-                if self.grab_data_retry_attempt < 5:
-                    self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
-                    continue
-                else:
-                    self.grab_data_retry_attempt = 0
-                    break
-            front_timestamp = current_data[0].date.timestamp()
-            current_data_df = util.df(current_data)
-            current_data_df['timestamp'] = current_data_df[['date']].apply(
-                lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
-            self.ib_instance.sleep(0)
-            current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
-                                   header=False)
-            print(
-                f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
-            current_end_timestamp = front_timestamp
-            changed = True
-        if changed:
-            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
-            old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
-            old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
-            old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
-
-    def get_etf_list(self):
-        return pd.read_csv(self.etf_list_path, header=0, names=['Ticker'])
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
                                           bar_size, regular_trading_hour):
@@ -354,35 +381,10 @@ class get_minute_data_engine:
             # print(current_data_df)  # only for testing
             self.write_df_to_csv(ticker, current_data_df)
 
-    def write_df_to_csv(self, ticker, df):
-        """
-        algoithm:
-        if file already exists:
-            read the file -> old data
-            delete the old file
-        create a new file
-        write the current data to the new file (on the top) with header
-        write the old data if file already exist
-        """
-        file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
-        if file_exist:  # file already exist
-            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
-            try:
-                os.remove(f"{self.ticker_data_path}/{ticker}.csv")
-            except Exception as e:
-                print(f"Some errors occur, error message: {e}")
-
-        with open(f"{self.ticker_data_path}/{ticker}.csv", "a+", newline='') as f:
-            df.to_csv(f, mode='a', index=False, header=True)  # write the current data with header
-            if file_exist:
-                old_df.to_csv(f, mode='a', index=False, header=False)  # write the old data
-
-        print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
-
     def get_multiple_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size,
                                               regular_trading_hour):
         for ticker in tickers:
-            self.get_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
+            self.get_min_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
             print("successfully written", ticker)
 
     def update_csv(self, old_csv, update_csv, sort_values_col):
@@ -399,6 +401,177 @@ class get_minute_data_engine:
         with open(old_csv, 'a+', newline='') as f:
             append_writer = writer(f)
             append_writer.writerow(rows)
+
+
+class grab_crypto_data_engine:
+    def __init__(self):
+        self.ticker_data_path = str(pathlib.Path(__file__)
+                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/one_min'
+        self.crypto_daily_data_path = str(pathlib.Path(__file__)
+                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
+        self.binance_base_url = 'https://data.binance.vision'
+        self.coingecko_ranking_url = 'https://www.coingecko.com/en/all-cryptocurrencies'
+        self.coingecko_historical_data_url = 'https://www.coingecko.com/en/coins/cardano/historical_data?end_date=2022-06-08&start_date=2021-03-01#panel'
+        self.binance_data_col_names = ['Open time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close time',
+                                       'Quote asset volume',
+                                       'Number of trades', 'Taker buy base asset volume',
+                                       'Taker buy quote asset volume', 'Ignore']
+
+    # timestamp specifies a certain time
+    # however, we only need the date
+    # we will return the date string from the timestamp in the given timezone, tz and in the given format, fmt
+    def get_date_str_from_timestamp(self, timestamp, tz, fmt):
+        year = dt.datetime.fromtimestamp(timestamp, tz=tz).year
+        month = dt.datetime.fromtimestamp(timestamp, tz=tz).month
+        day = dt.datetime.fromtimestamp(timestamp, tz=tz).day
+        return dt.datetime(year, month, day).strftime(fmt)
+
+    # download data from binance but only one year is available
+    def download_binance_daily_data(self, ticker, timestamp, bar_size):
+        ticker = ticker.upper()
+        date_str = self.get_date_str_from_timestamp(timestamp, dt.timezone.utc, '%Y-%m-%d')
+        url = f'{self.binance_base_url}/data/spot/daily/klines/{ticker}/{bar_size}/{ticker}-{bar_size}-{date_str}.zip'
+        request = requests.get(url)
+
+        zip_filename = f'{self.ticker_data_path}/{ticker}.zip'
+
+        with open(zip_filename, 'wb') as myzip:
+            myzip.write(request.content)
+
+        try:
+            with ZipFile(zip_filename, 'r') as myzip:
+                myzip.extractall(f'{self.ticker_data_path}')
+                csv_filename = myzip.namelist()[0]
+        except BadZipFile:
+            return None
+        finally:
+            os.remove(zip_filename)
+
+        return f'{self.ticker_data_path}/{csv_filename}'
+
+    # merge all binance data
+    def get_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
+        if type(tickers) is str:
+            tickers = [tickers]
+        for ticker in tickers:
+            ticker = ticker.upper()
+            csv_filename = None
+            merging_dfs = [None, None]
+            current_timestamp = start_timestamp
+            while current_timestamp <= end_timestamp:
+                csv_filename = self.download_binance_daily_data(ticker, current_timestamp, bar_size)
+                if csv_filename is None:
+                    break
+                if merging_dfs[0] is None:
+                    merging_dfs[0] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
+
+                elif merging_dfs[1] is None:
+                    merging_dfs[1] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
+
+                os.remove(csv_filename)
+
+                if merging_dfs[0] is not None and merging_dfs[1] is not None:
+                    merging_dfs[0] = pd.concat(merging_dfs, ignore_index=True)
+                    merging_dfs[1] = None
+                current_timestamp += 86400  # differ by one day
+
+            if csv_filename is None:
+                continue
+
+            result_df = merging_dfs[0]
+            result_df['Open time'] = round(result_df['Open time'] / 1000)
+            result_df['Close time'] = round(result_df['Close time'] / 1000)
+            result_df.to_csv(f'{self.ticker_data_path}/{ticker}.csv', index=False)
+
+    # e.g. convert '$582,266,289,816' to int type
+    # doesn't support number with decimal point
+    # only integer
+    def get_extract_from_format(self, string):
+        result_str = ''
+        for c in string:
+            if c.isdigit():
+                result_str += c
+        return int(result_str)
+
+    # crawl coingecko market_cap data with Selenium
+    def crawl_historical_market_cap_by_range_coingecko(self):
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {'download.default_directory': self.crypto_daily_data_path}
+        chrome_options.add_experimental_option('prefs', prefs)
+        browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+        browser.get(self.coingecko_ranking_url)
+        tbody = browser.find_element(By.TAG_NAME, 'tbody')
+        rows = tbody.find_elements(By.TAG_NAME, 'tr')
+
+        rank_page_handle = browser.current_window_handle
+
+        for row in rows:
+            url_td = row.find_elements(By.TAG_NAME, 'td')[1]
+            div1 = url_td.find_element(By.CSS_SELECTOR, 'div.tw-flex')
+            div2 = div1.find_elements(By.TAG_NAME, 'div')[1]
+            a = div2.find_element(By.TAG_NAME, 'a')
+            url = a.get_attribute('href') + '/historical_data'
+
+            browser.switch_to.new_window('tab')
+            browser.get(url)
+
+            div1 = browser.find_element(By.CSS_SELECTOR, 'div.card-body')
+            div2 = div1.find_element(By.CSS_SELECTOR, 'div.card-block')
+            div3 = div2.find_element(By.CSS_SELECTOR, 'div.tw-flex.tw-justify-between')
+            div4 = div3.find_element(By.CSS_SELECTOR, 'div.dropdown.tw-mt-4')
+            menu = div4.find_element(By.CSS_SELECTOR, 'ul.dropdown-menu')
+            elements = menu.find_elements(By.CSS_SELECTOR, 'a.dropdown-item')
+            for e in elements:
+                url = e.get_attribute('href')
+                if url.endswith('.csv'):
+                    browser.get(url)
+
+            browser.close()
+            browser.switch_to.window(rank_page_handle)
+
+        browser.quit()
+
+    # get tickers from reading the directory
+    # the directory is grabbed on coingecko
+    def get_tickers_from_dir(self):
+        tickers = []
+        is_start = False
+        for filename in listdir(self.crypto_daily_data_path):
+            if is_start:
+                tickers.append(filename.split('-')[0] + 'USDT')
+            if filename == 'ksm-usd-max.csv':
+                is_start = True
+        return tickers
+
+    # it returns a dataframe after reading data from coingecko
+    def get_crypto_daily_data(self, ticker):
+        filename = f'{self.crypto_daily_data_path}/{ticker.lower()}-usd-max.csv'
+        if os.path.exists(filename):
+            df = pd.read_csv(filename)
+            df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0], format='%Y-%m-%d %H:%M:%S %Z')
+            df.set_index('snapped_at', inplace=True)
+            return df
+        else:
+            print('daily crypto data not found')
+            return None
+
+    # download yfinance data
+    def get_yfinance_max_historical_data(self, ticker):
+        btc = yf.Ticker(f'{ticker}-USD')
+        hist = btc.history(period='max')
+        return hist
+
+    # download all crypto data with coingecko API
+    def download_all_crypto_data(self):
+        cg = CoinGeckoAPI()
+        coins_list = cg.get_coins_list()
+        for coin in coins_list:
+            symbol = coin['symbol']
+            df = self.get_yfinance_max_historical_data(symbol)
+            if not df.empty:
+                df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+
 
 ### Psuedo-code for a function calling other functions
 # parameters: data_freq = ["one_day", "one_min"], period: string, ticker
@@ -420,3 +593,4 @@ class get_minute_data_engine:
 
 if __name__ == "__main__":
     pass
+
