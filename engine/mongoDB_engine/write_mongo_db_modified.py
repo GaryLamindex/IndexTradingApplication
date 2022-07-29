@@ -35,9 +35,6 @@ class Write_Mongodb:
         self.drawdown_raw_df = drawdown_raw_df
         self.mongo = None
 
-    def portfolio_efficiency(self):
-        return
-
     def write_watchlist_suggestion(self, suggestion_id):
         coll = self.nft_db[self.watchlist_suggestions]
         if coll.count_documents({'suggestion_id': suggestion_id}) > 0:
@@ -138,6 +135,7 @@ class Write_Mongodb:
         coll = self.rainydrop_db[self.Strategies]
         # insert_coll = self.nft_db[self.algoPrincipleTop]
         documents = coll.find({}, {'_id': 0,
+                                   'strategy_name': 1,
                                    'Composite': 1})
 
         for x in documents:
