@@ -11,6 +11,7 @@ class Write_Mongodb:
     nft_flask = 'nft-flask'
     watchlist_suggestions = 'watchlistSuggestions'
     trading_cards = 'tradingCards'
+    trading_cards_new = 'tradingCardsNew'
     strategyequity = 'strategyEquity'
     rollingReturns = 'rollingReturns'
     algoPrincipleTop = 'algoPrincipleTop'
@@ -50,20 +51,20 @@ class Write_Mongodb:
             coll.insert_many(suggestion_df.to_dict(orient='records'))
         return
 
-    def write_trading_cards(self, trading_cards_id, strategy_name, strategy_initial):
-        coll = self.nft_db[self.trading_cards]
-        if coll.count_documents({'trading_id': trading_cards_id}) > 0:
-            print('document already exist in transactions')
-        else:
-            trading_cards_df = pd.DataFrame()
-            daily_change = self.all_file_return_df['last daily change'].values.tolist()
-            monthly_change = self.all_file_return_df['last monthly change'].values.tolist()
-            trading_cards_df['strategy name'] = strategy_name
-            trading_cards_df['nlvDailyChange'] = daily_change
-            trading_cards_df['nlvMonthlyChange'] = monthly_change
-            trading_cards_df['strategyInitial'] = strategy_initial
-            coll.insert_many(trading_cards_df.to_dict(orient='records'))
-        return
+    # def write_trading_cards(self, trading_cards_id, strategy_name, strategy_initial):
+    #     coll = self.nft_db[self.trading_cards]
+    #     if coll.count_documents({'trading_id': trading_cards_id}) > 0:
+    #         print('document already exist in transactions')
+    #     else:
+    #         trading_cards_df = pd.DataFrame()
+    #         daily_change = self.all_file_return_df['last daily change'].values.tolist()
+    #         monthly_change = self.all_file_return_df['last monthly change'].values.tolist()
+    #         trading_cards_df['strategy name'] = strategy_name
+    #         trading_cards_df['nlvDailyChange'] = daily_change
+    #         trading_cards_df['nlvMonthlyChange'] = monthly_change
+    #         trading_cards_df['strategyInitial'] = strategy_initial
+    #         coll.insert_many(trading_cards_df.to_dict(orient='records'))
+    #     return
 
     # for reference
     def update_algo_principle_top(self):
@@ -226,6 +227,31 @@ class Write_Mongodb:
             for x in documents:
                 print(x)
 
+    def write_trading_card(self):
+        coll = self.nft_db[self.trading_cards_new]
+        for coll_name in self.simulation_db.list_collection_names():
+            print(coll_name)
+            if coll.count_documents({'strategyName': coll_name}) > 0:
+                print('document already exist in TRADE CARD')
+            else:
+
+                nlv_change = self.rainydrop_db[self.Strategies].find_one({'strategy_name': coll_name},
+                                                               {'_id': 0,'strategy_name': 1,'last daily change': 1,
+                                                                'last monthly change': 1, 'strategy_initial': 1})
+                if nlv_change is not None:
+                    if nlv_change['strategy_initial'] is None:
+                        nlv_change['strategy_initial'] = "None"
+                    return_dict = {'strategyName': nlv_change['strategy_name'],
+                                   'nlvDailyChange': nlv_change['last daily change'],
+                                   'nlvMonthlyChange': nlv_change['last monthly change'],
+                                   'strategyInitial': nlv_change['strategy_initial']}
+                    print(nlv_change)
+                    coll.replace_one({'strategyName': return_dict['strategy_name']}, return_dict, upsert=True)
+            # for x in documents:
+            #     print(x)
+        return
+
+
 
 
 def main():
@@ -237,6 +263,7 @@ def main():
     # a.drawdown()
     # a.rolling_return()
     # a.historical_graph()
+    a.write_trading_card()
 
 
 if __name__== "__main__":
