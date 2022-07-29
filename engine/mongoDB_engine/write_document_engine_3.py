@@ -128,6 +128,9 @@ class Write_Mongodb:
             x['_id'] = str(x['_id'])
             graph_dict['trading_card_id'].append(x['id'])
             graph_dict['key'].append(x['strategyName'])
+        for coll_name in self.db2.list_collection_names():
+            data = self.db2[coll_name].find({},{'timestamp': 1, 'NetLiquidation': 1})
+            graph_dict['data'].append(data)
         insert_coll = self.db[self.historicalgraph]
         insert_coll.insert_one(graph_dict)
 
