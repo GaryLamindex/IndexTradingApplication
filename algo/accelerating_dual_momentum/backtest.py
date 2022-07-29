@@ -188,8 +188,6 @@ class backtest:
         bond_engine = self.stock_data_engines[self.bond]  # update bond price
         ticker_items = bond_engine.get_ticker_item_by_timestamp(timestamp)
         sim_meta_data.update({self.bond: bond_engine.get_ticker_item_by_timestamp(timestamp)})
-        if ticker_items is None:
-            a=0
         price = ticker_items.get('open')
         if price is None:
             stock_data_dict.update({self.bond: {'last': None}})

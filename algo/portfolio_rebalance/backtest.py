@@ -47,12 +47,19 @@ class backtest(object):
     margin_ratio = np.NaN
     trader_name = "None"
     end_date = None
+
     def __init__(self, list_of_tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode, quick_test, acceptance_range, list_of_rebalance_ratios, store_mongoDB,
                  strategy_initial='None',
                  video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
+        self.algorithm = None
+        self.dividend_agent = None
+        self.sim_agent = None
+        self.trade_agent = None
+        self.portfolio_data_engine = None
+        self.acc_data = None
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
@@ -138,18 +145,20 @@ class backtest(object):
                 if os.path.exists(graph_file):
                     os.remove(Path(graph_file))
 
-                acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                             self.table_name, spec_str)
-                portfolio_data_engine = backtest_portfolio_data_engine(acc_data, self.tickers)
-                trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-                sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False, portfolio_data_engine,
-                                             self.tickers)
-                dividend_agent = dividend_engine(self.tickers)
+                self.acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                                  self.table_name, spec_str)
+                self.portfolio_data_engine = backtest_portfolio_data_engine(self.acc_data, self.tickers)
+                self.trade_agent = backtest_trade_engine(self.acc_data, self.stock_data_engines,
+                                                         self.portfolio_data_engine)
+                self.sim_agent = simulation_agent(self.rebalance_dict, self.table_info, False,
+                                                  self.portfolio_data_engine,
+                                                  self.tickers)
+                self.dividend_agent = dividend_engine(self.tickers)
 
-                algorithm = portfolio_rebalance(trade_agent, portfolio_data_engine, self.rebalance_dict,
-                                                self.acceptance_range)
-                self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                                   portfolio_data_engine, sim_agent, dividend_agent, trade_agent)
+                self.algorithm = portfolio_rebalance(self.trade_agent, self.portfolio_data_engine, self.rebalance_dict,
+                                                     self.acceptance_range)
+                self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, self.algorithm,
+                                   self.portfolio_data_engine, self.sim_agent, self.dividend_agent, self.trade_agent)
                 print("Finished Backtest:", backtest_spec)
                 print("-------------------------------------------------------------------------------")
         self.plot_all_file_graph()
@@ -186,7 +195,7 @@ class backtest(object):
                     portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
 
             if self.quick_test:
-                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
+                if algorithm.check_exec(timestamp, freq="Monzhly", relative_delta=1):
                     self.run(timestamp, algorithm, sim_agent, trade_agent)
             else:
                 self.run(timestamp, algorithm, sim_agent, trade_agent)
@@ -296,8 +305,10 @@ class backtest(object):
 
                 ########## Store drawdown in another csv
                 drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
-                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv", index=False)
-                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv", index=False)
+                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv",
+                                         index=False)
+                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv",
+                                         index=False)
                 # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                 # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                 # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -445,8 +456,6 @@ class backtest(object):
         print(f"{self.path}/stats_data/{self.table_name}.csv")
         df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
 
-
-
         # store data to mongoDB HERE
         if self.store_mongoDB:
             print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
@@ -503,27 +512,31 @@ class backtest(object):
         orig_account_snapshot_dict = sim_agent.portfolio_data_engine.get_account_snapshot()
 
         # input database and historical data into algo and get action msgs
-        action_msgs = algorithm.run(timestamp, )
+        action_msgs = algorithm.run(stock_data_dict, timestamp)
 
         # execute action msgs
         action_record = []
-        for action_msg in action_msgs:
-            action = action_msg.action_enum
-            if action == IBAction.SELL_MKT_ORDER:
-                temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                            action_msg.args_dict.get("position_sell"),
-                                                                            {"timestamp": action_msg.timestamp})
-                action_record.append(temp_action_record)
-        for action_msg in action_msgs:
-            action = action_msg.action_enum
-            if action == IBAction.BUY_MKT_ORDER:
-                temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                           action_msg.args_dict.get(
-                                                                               "position_purchase"),
-                                                                           {"timestamp": action_msg.timestamp})
-                action_record.append(temp_action_record)
-        sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
-                                        stock_data_dict)
+        if action_msgs is None:
+            sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
+                                            stock_data_dict)
+        else:
+            for action_msg in action_msgs:
+                action = action_msg.action_enum
+                if action == IBAction.SELL_MKT_ORDER:
+                    temp_action_record = trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
+                                                                                action_msg.args_dict.get("position_sell"),
+                                                                                {"timestamp": action_msg.timestamp})
+                    action_record.append(temp_action_record)
+            for action_msg in action_msgs:
+                action = action_msg.action_enum
+                if action == IBAction.BUY_MKT_ORDER:
+                    temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
+                                                                               action_msg.args_dict.get(
+                                                                                   "position_purchase"),
+                                                                               {"timestamp": action_msg.timestamp})
+                    action_record.append(temp_action_record)
+            sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
+                                            stock_data_dict)
 
     @staticmethod
     def get_outcomes(dim, target):

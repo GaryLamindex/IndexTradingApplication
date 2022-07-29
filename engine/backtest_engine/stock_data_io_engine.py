@@ -12,6 +12,8 @@ import numpy as np
 # import pythonProject.engine.aws_engine.dynamo_db_engine as db_engine
 
 # grab the dynamo_db_engine class
+from engine.backtest_engine.grab_yfinance_data import yfinance_data_engine
+
 script_dir = os.path.dirname(__file__)
 db_engine_dir = os.path.join(script_dir, '..', 'aws_engine')
 sys.path.append(db_engine_dir)
@@ -167,6 +169,17 @@ class local_engine:
         self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/ticker_data/{freq}"
         self.ticker = ticker
         """to be modified"""
+        # if freq == "one_day":
+        #     engine = yfinance_data_engine()
+        #     df = engine.get_yfinance_max_historical_data(ticker)
+        #     index_list = df.index.tolist()
+        #     timestamp = list()
+        #     for x in range(len(index_list)):
+        #         timestamp.append(int(index_list[x].timestamp()))
+        #     df['timestamp'] = timestamp
+        #     df = df.rename(columns={'Open': 'open'})
+        #     df.to_csv(f"{engine.ticker_data_path}/{ticker}.csv", index=True, header=True)
+        #     print(f"Successfully download {ticker}.csv")
         self.full_ticker_df = pd.read_csv(f"{self.filepath}/{ticker}.csv")
         # print("Fetch data from filepath:", self.filepath)
         # for ticker in tickers:
@@ -178,7 +191,7 @@ class local_engine:
         #     self.full_data_df_list[ticker]['timestamp'] = self.full_data_df_list[ticker]['timestamp'].astype(float)
         # print("His data successfully loaded")
         # print(self.full_data_df_list)
-
+        a=0
     # use US timezone for comparison
     def get_n_days_data(self, timestamp, n):  # the timestamp parameter MUST be an integer or a float
         """
@@ -235,7 +248,7 @@ class local_engine:
         range = [1527082200,1527082740]
         get_data_by_range("QQQ",range) will return a dataframe within the specified range
         """
-        print("get_data_by_range:", self.ticker, "; ", range)
+        #print("get_data_by_range:", self.ticker, "; ", range)
         data_by_range_df = self.full_ticker_df[(self.full_ticker_df['timestamp'] >= float(range[0])) & (
                     self.full_ticker_df['timestamp'] <= float(range[1]))].copy()
         data_by_range_df.sort_values(['timestamp'], ascending=True, kind='stable', inplace=True)
