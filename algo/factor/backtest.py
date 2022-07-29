@@ -78,8 +78,8 @@ class Backtest:
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
     def loop_through_param(self):
-        for i in ["Weekly", "Monthly"]:
-            print("start backtest", "Freq:", i)
+        for i in ["Monthly"]:
+            print("Start backtest, Freq:", i)
             backtest_spec = {"rebalance_freq": i}
             spec_str = ""
             for k, v in backtest_spec.items():
@@ -134,30 +134,32 @@ class Backtest:
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
-        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-12)
+        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-36)
         all_indice_df = pd.DataFrame([])
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             ticker_last = ticker_engine.get_ticker_item_by_timestamp(timestamp)
             ticker_items = ticker_engine.get_data_by_range([datetime.timestamp(two_year_before), timestamp])
-            if all_indice_df.empty:
-                all_indice_df = ticker_items[['Date', 'open']]\
-                                .rename(columns={'open': ticker})
-                all_indice_df['Date'] = pd.to_datetime(all_indice_df['Date'])
-                all_indice_df.set_index('Date', inplace=True)
-            else:
-                ticker_temp = ticker_items[['Date', 'open']]\
-                              .rename(columns={'open': ticker})
-                ticker_temp['Date'] = pd.to_datetime(ticker_temp['Date'])
-                ticker_temp.set_index('Date', inplace=True)
-                all_indice_df = all_indice_df.join(ticker_temp)
-            price = ticker_last.get('open')
+            if ticker_items is not None:
+                if all_indice_df.empty:
+                    all_indice_df = ticker_items[['Date', 'open']]\
+                                    .rename(columns={'open': ticker})
+                    all_indice_df['Date'] = pd.to_datetime(all_indice_df['Date'])
+                    all_indice_df.set_index('Date', inplace=True)
+                else:
+                    ticker_temp = ticker_items[['Date', 'open']]\
+                                  .rename(columns={'open': ticker})
+                    ticker_temp['Date'] = pd.to_datetime(ticker_temp['Date'])
+                    ticker_temp.set_index('Date', inplace=True)
+                    all_indice_df = all_indice_df.join(ticker_temp, how='outer')
+                price = ticker_last.get('open')
             if price is None:
                 stock_data_dict.update({ticker: {'last': None}})
                 continue
             else:
                 stock_data_dict.update({ticker: {'last': price}})
+        all_indice_df.dropna(axis=1, inplace=True)
         action_msgs = algorithm.run(stock_data_dict, all_indice_df, timestamp)
         action_record = []
         for action_msg in action_msgs:

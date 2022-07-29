@@ -93,6 +93,20 @@ class Write_Mongodb:
 
         return
 
+    def historical_graph(self):
+        for coll in self.simulation_db.list_collection_names():
+        # time stamp, price
+            documents = self.simulation_db[coll].find({},{'timestamp': 1,
+                                                          'NetLiquidation': 1})
+            for x in documents:
+                print(x)
+
+        return
+        
+
+
+
+
     def update_drawdown_data(self):
         insert_coll = self.nft_db[self.drawdown_data]
         for coll in self.drawdown_data_db.list_collection_names():
@@ -212,6 +226,8 @@ class Write_Mongodb:
             for x in documents:
                 print(x)
 
+
+
 def main():
     a = Write_Mongodb()
     # a.update_algo_principle_top()
@@ -219,7 +235,8 @@ def main():
     # a.composite_table()
     # a.trade_log()
     # a.drawdown()
-    a.rolling_return()
+    # a.rolling_return()
+    # a.historical_graph()
 
 
 if __name__== "__main__":
