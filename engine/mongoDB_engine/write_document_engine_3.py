@@ -32,6 +32,7 @@ class Write_Mongodb:
     trading_cards = 'tradingCards'
     strategyequity = 'strategyEquity'
     stockinfoprinciple = 'stockinfoPrincipleTable'
+    historicalgraph = 'historicalGraphNew'
 
     def __init__(self):
         self.conn = MongoClient(
@@ -62,7 +63,7 @@ class Write_Mongodb:
         if coll.count_documents({'equity_id': equity_id}) > 0:
             print('document already exist in transactions')
         else:
-            equity_dict = {"timestamp":[], "created at":[]}
+            equity_dict = {"timestamp": [], "created at": []}
             equity_dict["created at"].append(datetime.now())
 
     def write_stockinfoPrincipleTable(self, stock_id, all_file_return_df):
@@ -88,7 +89,8 @@ class Write_Mongodb:
             arr = [1, 2, 3, 5, 7, 10, 15, 20]
             for y in range(len(all_file_return_df)):
                 for x in arr:
-                    rolling_dict = {"period":[],"average_return":[],"best_return":[],"worst_return":[],"negative_periods":[],"created at":[]}
+                    rolling_dict = {"period": [], "average_return": [], "best_return": [], "worst_return": [],
+                                    "negative_periods": [], "created at": []}
                     rolling_dict["period"].append(f"{x} Year")
                     rolling_dict["created at"].append(datetime.now())
                     temp = all_file_return_df.loc[y, f"{x} Yr Rolling Return"]
@@ -114,6 +116,22 @@ class Write_Mongodb:
             trading_cards = trading_cards_df.to_dict()
             coll.insert_many(trading_cards)
         return
+
+    def historical_graph_new(self):
+        self.db = self.conn[self.nft_flask]
+        self.db2 = self.conn[self.simulation]
+        trading_card_coll = self.db[self.trading_cards]
+
+        documents = trading_card_coll.find({}, {'strategyName': 1})
+        graph_dict = {"key": [], "trading_card_id": [], "data": []}
+        for x in documents:
+            x['_id'] = str(x['_id'])
+            graph_dict['trading_card_id'].append(x['id'])
+            graph_dict['key'].append(x['strategyName'])
+        insert_coll = self.db[self.historicalgraph]
+        insert_coll.insert_one(graph_dict)
+
+
 
     def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
         self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
