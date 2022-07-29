@@ -108,6 +108,7 @@ class realtime:
                                margin_ratio=3.24,
                                trader_name='Fai'
                                )
+            self.init_backtest_flag = True
         else:
             self.acc_data = self.backtest.acc_data
             self.portfolio_data_engine = self.backtest.portfolio_data_engine
@@ -128,7 +129,7 @@ class realtime:
             current_timestamp = datetime.timestamp(current_date)
             _date = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%H:%M:%S")
-            print('#' * 20, _date, ":", _time, '#' * 20)
+            print('#' * 20, _date, ":", _time, " "*5, self.tickers, '#' * 20)
             if self.stock_data_engines[self.tickers[0]].get_data_by_range(
                     [last_excute_timestamp, current_timestamp]) is None:
                 print("No new data")
@@ -150,7 +151,7 @@ class realtime:
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-        print('#' * 20, _date, ":", _time, '#' * 20)
+        print('#' * 20, _date, ":", _time, " "*5, self.tickers, '#' * 20)
         if self.dividend_agent.check_div(timestamp):
             portfolio = self.portfolio_data_engine.get_portfolio()
             total_dividend = self.dividend_agent.distribute_div(timestamp, portfolio)

@@ -26,7 +26,7 @@ def button_run():
     dirdir=os.path.join(log_dir,'main_application_log.txt')
     log_out=open(dirdir,'w')
     log_out.write('This output log starts at ' + str(strftime("%a, %d %b %Y %H:%M:%S")) + '\n')
-    application = subprocess.Popen(['../../algotrade_venv/Scripts/python','main_application.py',log_dir], shell=False,stdout=log_out,stderr=log_out)
+    application = subprocess.Popen(['../../algotrade _venv/Scripts/python','main_application.py',log_dir], shell=False,stdout=log_out,stderr=log_out)
 
 
 
