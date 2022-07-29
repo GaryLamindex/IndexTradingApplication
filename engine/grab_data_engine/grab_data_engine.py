@@ -72,18 +72,20 @@ class grab_stock_data_engine:
         return pd.read_csv(self.ticker_name_path, header=0, names=['Ticker'])
 
     # yfinance (daily) methods
-    def get_daily_historical_data_by_period(self, ticker, period):
+    def get_daily_data_by_period_helper(self, ticker, period):
         btc = yf.Ticker(ticker)
         hist = btc.history(period=period)
         return hist
 
-    def get_multiple_daily_data_by_period(self, period, tickers=None):
+    def get_daily_data_by_period(self, period, tickers=None):
         if not os.path.isdir(self.daily_ticker_data_path):
             os.makedirs(self.daily_ticker_data_path)
         if tickers is None:
             tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        if type(tickers) is str:
+            tickers = [tickers]
         for ticker in tickers:
-            df = self.get_daily_historical_data_by_period(ticker, period)
+            df = self.get_daily_data_by_period_helper(ticker, period)
             index_list = df.index.tolist()
             timestamp = list()
             for x in range(len(index_list)):
@@ -97,18 +99,20 @@ class grab_stock_data_engine:
                 print(f"Failed downloading {ticker}.csv")
 
     # Notice that data returned by yf.download is different from yf.Ticker().history, may have to solve later
-    def get_daily_historical_data_by_range(self, ticker, start_timestamp, end_timestamp):
+    def get_daily_data_by_range_helper(self, ticker, start_timestamp, end_timestamp):
         start_date, end_date = start_timestamp.date() + dt.timedelta(days=1), end_timestamp.date() + dt.timedelta(days=1)
         hist = yf.download(ticker, start=start_date, end=end_date)
         return hist
 
-    def get_multiple_daily_data_by_range(self, start_timestamp, end_timestamp, tickers=None):
+    def get_daily_data_by_range(self, start_timestamp, end_timestamp, tickers=None):
         if not os.path.isdir(self.daily_ticker_data_path):
             os.makedirs(self.daily_ticker_data_path)
         if tickers is None:
             tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        if type(tickers) is str:
+            tickers = [tickers]
         for ticker in tickers:
-            df = self.get_daily_historical_data_by_range(self, ticker, start_timestamp, end_timestamp)
+            df = self.get_daily_data_by_range_helper(self, ticker, start_timestamp, end_timestamp)
             index_list = df.index.tolist()
             timestamp = list()
             for x in range(len(index_list)):
@@ -117,9 +121,49 @@ class grab_stock_data_engine:
             df = df.rename(columns={'Open': 'open'})
             df.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
             if not df.empty:
-                print(f"Successfully download {ticker}.csv")
+                print(f"Successfully downloaded {ticker}.csv")
             else:
                 print(f"Failed downloading {ticker}.csv")
+
+    def get_missing_daily_data(self, tickers=None):
+        if type(tickers) is str:
+            tickers = [tickers]
+        if tickers is None:
+            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        today = dt.date.today()
+        for ticker in tickers:
+            if ticker == "^BTC":
+                continue
+            if not os.path.exists(f"{self.daily_ticker_data_path}/{ticker}.csv"):
+                self.get_daily_data_by_period(period='max', tickers=ticker)
+                continue
+            else:
+                existing_data = pd.read_csv(f"{self.daily_ticker_data_path}/{ticker}.csv",
+                                            index_col='Date',
+                                            parse_dates=True)
+                last_update = existing_data.index[-1].date()
+                days_passed = (today - last_update).days
+            if days_passed < 1:
+                missing_data = self.get_daily_data_by_period_helper(period='1d', ticker=ticker)
+            elif days_passed < 5:
+                missing_data = self.get_daily_data_by_period_helper(period='5d', ticker=ticker)
+            elif days_passed < 30:
+                missing_data = self.get_daily_data_by_period_helper(period='1mo', ticker=ticker)
+            else:
+                missing_data = self.get_daily_data_by_period_helper(period='max', ticker=ticker)
+            index_list = missing_data.index.tolist()
+            timestamp = list()
+            for x in range(len(index_list)):
+                timestamp.append(int(index_list[x].timestamp()))
+            missing_data['timestamp'] = timestamp
+            missing_data = missing_data.rename(columns={'Open': 'open'})
+            updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
+            updated_data.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
+            if not updated_data.empty:
+                print(f"Successfully updated {ticker}.csv")
+            else:
+                print(f"Failed updating {ticker}.csv")
+
 
     # ib (minute) functions
 
@@ -381,8 +425,10 @@ class grab_stock_data_engine:
             # print(current_data_df)  # only for testing
             self.write_df_to_csv(ticker, current_data_df)
 
-    def get_multiple_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size,
-                                              regular_trading_hour):
+    def get_multiple_min_data_by_range(self, start_timestamp, end_timestamp, bar_size,
+                                              regular_trading_hour, tickers=None):
+        if tickers is None:
+            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
         for ticker in tickers:
             self.get_min_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
             print("successfully written", ticker)
@@ -411,7 +457,7 @@ class grab_crypto_data_engine:
                                           .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
         self.binance_base_url = 'https://data.binance.vision'
         self.coingecko_ranking_url = 'https://www.coingecko.com/en/all-cryptocurrencies'
-        self.coingecko_historical_data_url = 'https://www.coingecko.com/en/coins/cardano/historical_data?end_date=2022-06-08&start_date=2021-03-01#panel'
+        self.coingecko_historical_data_url = f'https://www.coingecko.com/en/coins/cardano/historical_data?end_date={dt.date.today().strftime("%Y-%m-%d")}&start_date=2021-03-01#panel'
         self.binance_data_col_names = ['Open time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close time',
                                        'Quote asset volume',
                                        'Number of trades', 'Taker buy base asset volume',
@@ -537,7 +583,7 @@ class grab_crypto_data_engine:
     def get_tickers_from_dir(self):
         tickers = []
         is_start = False
-        for filename in listdir(self.crypto_daily_data_path):
+        for filename in os.listdir(self.crypto_daily_data_path):
             if is_start:
                 tickers.append(filename.split('-')[0] + 'USDT')
             if filename == 'ksm-usd-max.csv':
@@ -572,25 +618,11 @@ class grab_crypto_data_engine:
             if not df.empty:
                 df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
 
-
-### Psuedo-code for a function calling other functions
-# parameters: data_freq = ["one_day", "one_min"], period: string, ticker
-# if etf:
-    # if data_freq = "one_day":
-        # call yfinance function
-    # if data_freq = "one_min":
-        # if period > "1-year":
-            # warning
-            # download 1-year data instead
-        # call ib function
-# if crypto:
-    # call crypto function
-
-
-### Psuedo-code for main()
-# call function above
-# parameters:
+# For testing only
+def main():
+    stock_engine = grab_stock_data_engine()
+    stock_engine.get_missing_daily_data()
 
 if __name__ == "__main__":
-    pass
+    main()
 
