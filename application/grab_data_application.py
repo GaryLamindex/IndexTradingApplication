@@ -23,7 +23,7 @@ def main():
     # Download data indefinitely
     while infinite_run:
         now_timestamp = dt.datetime.now()
-        if now_timestamp - last_exec_timestamp >= 86400:
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 43200:
             stock_engine.get_missing_daily_data()
             last_exec_timestamp = dt.datetime.now()
         time.sleep(3600)
