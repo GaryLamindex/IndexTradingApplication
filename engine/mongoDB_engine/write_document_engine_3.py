@@ -137,6 +137,47 @@ class Write_Mongodb:
             insert_coll = self.db['historicalGraphNew']
             insert_coll.insert_one(graph_dict)
 
+    def algo_info_overview(self):
+        self.db = self.conn['rainydrop']
+        coll = self.db['Strategies']
+        trading_card_coll = self.db['tradingCardsNew']
+        # insert_coll = self.nft_db[self.algoPrincipleTop]
+        doc = trading_card_coll.find({}, {'strategyName': 1})
+        for y in doc:
+            y['_id'] = str(y['_id'])
+            documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
+                                       'Since Inception Return': 1,
+                                       'net profit': 1,
+                                       'Since Inception Alpha': 1,
+                                       'Since Inception Sharpe': 1,
+                                       'compound_inception_return_dict': 1,
+                                       'margin ratio': 1,
+                                       'Since Inception Sortino': 1,
+                                       'Since Inception Volatility': 1,
+                                       'Since Inception Win Rate': 1,
+                                       'Since Inception Max Drawdown': 1,
+                                       'Since Inception Average Win Per Day': 1,
+                                       'inception pos neg': 1,
+                                       'Since Inception Profit Loss Ratio': 1,
+                                       'strategy_name': 1})
+            algo_dict = {}
+            algo_dict['total_return_percentage'] = documents['Since Inception Return']
+            algo_dict['net_profit'] = documents['net profit']
+            algo_dict['sharpe_ratio'] = documents['Since Inception Sharpe']
+            algo_dict['compounding_return'] = documents['compound_inception_return_dict']
+            algo_dict['margin_ratio'] = documents['margin ratio']
+            algo_dict['sortino_ratio'] = documents['Since Inception Sortino']
+            algo_dict['max_drawdown'] = documents['Since Inception Max Drawdown']
+            algo_dict['alpha'] = documents['Since Inception Alpha']
+            algo_dict['volatility'] = documents['Since Inception Volatility']
+            algo_dict['profit_loss_ratio'] = documents['Since Inception Profit Loss Ratio']
+            algo_dict['win_rate'] = documents['Since Inception Win Rate']
+            algo_dict['average_win'] = documents['Since Inception Average Win Per Day']
+            algo_dict['trading_card_id'] = y['id']
+            print(algo_dict)
+
+
+
     # def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
     #     self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
     #     self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
@@ -146,7 +187,8 @@ def main():
     # data = json.dumps({'ETF_percentage': 0.2391, 'ETF_label': 'HELLO'})
     # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
     engine = Write_Mongodb()
-    engine.historical_graph_new()
+    # engine.historical_graph_new()
+    engine.algo_info_overview()
     return
 
 
