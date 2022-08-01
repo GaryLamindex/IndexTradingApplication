@@ -73,7 +73,8 @@ class realtime:
     def init_backtest(self, user_id, acceptance_range, store_mongoDB, strategy_initial, video_link,
                       documents_link, tags_array, subscribers_num,
                       rating_dict, margin_ratio, trader_name):
-        self.now = datetime.now()
+        #self.now = datetime.now()
+        self.now = datetime(2022, 2, 3)
         if store_mongoDB:
             self.store_mongoDB = True
             self.strategy_initial = strategy_initial
@@ -92,8 +93,6 @@ class realtime:
                                                      video_link, documents_link, tags_array, subscribers_num,
                                                      rating_dict, margin_ratio, trader_name)
         self.backtest.loop_through_param()
-
-        pass
 
     def run(self):
         if not self.init_backtest_flag:
@@ -152,6 +151,8 @@ class realtime:
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
         print('#' * 20, _date, ":", _time, " "*5, self.tickers, '#' * 20)
+        if self.dividend_agent is None:
+            a=0
         if self.dividend_agent.check_div(timestamp):
             portfolio = self.portfolio_data_engine.get_portfolio()
             total_dividend = self.dividend_agent.distribute_div(timestamp, portfolio)
@@ -170,6 +171,8 @@ class realtime:
         orig_account_snapshot_dict = self.sim_agent.portfolio_data_engine.get_account_snapshot()
         action_msgs = self.algorithm.run(stock_data_dict, timestamp)
         action_record = []
+        if action_msgs is None:
+            return
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
