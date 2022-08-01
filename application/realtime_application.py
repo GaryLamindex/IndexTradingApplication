@@ -3,14 +3,24 @@ from datetime import datetime
 import time
 
 from algo.portfolio_rebalance.realtime import realtime
+from engine.grab_data_engine.grab_data_engine import grab_stock_data_engine
 
 
 def process_function(tickers, rebalance_ratio, initial_amount, start_date, data_freq, user_id, cal_stat, db_mode,
                      acceptance_range, execute_period):
+    stock_engine = grab_stock_data_engine()
     realtime_backtest = realtime(tickers, initial_amount, start_date, cal_stat,
                                  data_freq, user_id, db_mode, acceptance_range,
                                  rebalance_ratio, execute_period)
+    ticker_name_path = stock_engine.ticker_name_path
+    stock_engine.get_missing_daily_data()
+    last_exec_timestamp = datetime.now()
+
     while True:
+        now_timestamp = datetime.now()
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 43200:
+            stock_engine.get_missing_daily_data()
+            last_exec_timestamp = datetime.now()
         realtime_backtest.run()
         time.sleep(60)
 

@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from zipfile import ZipFile, BadZipFile
 from pycoingecko import CoinGeckoAPI
 from ib_insync import *
@@ -544,7 +543,7 @@ class grab_crypto_data_engine:
         chrome_options = webdriver.ChromeOptions()
         prefs = {'download.default_directory': self.crypto_daily_data_path}
         chrome_options.add_experimental_option('prefs', prefs)
-        browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        browser = webdriver.Chrome(service=Service(webdriver.ChromeDriverManager().install()), options=chrome_options)
 
         browser.get(self.coingecko_ranking_url)
         tbody = browser.find_element(By.TAG_NAME, 'tbody')

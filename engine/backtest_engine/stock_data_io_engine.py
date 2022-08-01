@@ -254,7 +254,7 @@ class local_engine:
         data_by_range_df.sort_values(['timestamp'], ascending=True, kind='stable', inplace=True)
         data_by_range_df.reset_index(drop=True, inplace=True)
         if data_by_range_df.size > 0:
-            print("data_by_range_df")
+            #print("data_by_range_df")
             #/print(data_by_range_df)
             return data_by_range_df
         else:
