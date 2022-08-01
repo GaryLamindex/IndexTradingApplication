@@ -10,7 +10,7 @@ import datetime
 class Write_Mongodb:
     nft_flask = 'nft-flask'
     watchlist_suggestions = 'watchlistSuggestions'
-    trading_cards = 'tradingCards'
+    trading_cards = 'tradingCardsNew'
     strategyequity = 'strategyEquity'
     rollingReturns = 'rollingReturns'
     algoPrincipleTop = 'algoPrincipleTop'
@@ -209,40 +209,42 @@ class Write_Mongodb:
 
     def rolling_return(self):
 
-        coll_1 = self.nft_db[self.trading_cards]
-        trading_cards_id = coll1.find({}, {'_id': 1})
-
-        for y in trading_cards_id:
-            y['_id'] = str(y['_id'])
-        for coll in self.rainydrop_db.list_collection_names():
-            print(coll)
-
-            documents = self.rainydrop_db[coll].find({}, {'_id': 0,
-                                                          '1 Yr Rolling Return': 1,
-                                                          '2 Yr Rolling Return': 1,
-                                                          '3 Yr Rolling Return': 1,
-                                                          '5 Yr Rolling Return': 1,
-                                                          '7 Yr Rolling Return': 1,
-                                                          '10 Yr Rolling Return': 1,
-                                                          '15 Yr Rolling Return': 1,
-                                                          '20 Yr Rolling Return': 1,
-                                                          })
+            coll = self.rainydrop_db[self.Strategies]
+            documents = coll.find({},  {'_id': 0,
+                                        '1 Yr Rolling Return': 1,
+                                        '2 Yr Rolling Return': 1,
+                                        '3 Yr Rolling Return': 1,
+                                        '5 Yr Rolling Return': 1,
+                                        '7 Yr Rolling Return': 1,
+                                        '10 Yr Rolling Return': 1,
+                                        '15 Yr Rolling Return': 1,
+                                        '20 Yr Rolling Return': 1,
+                                        'strategy_name': 1})
 
             for x in documents:
-                for key, value in x.items():
-                    #key is 1/2/3... year return
-                    #dateinfo sometimes will be Double
 
-                    dict_copy = {'period': key,
-                                 'average_return': value['average_annual_return'],
-                                 'best_return': str(value['max_annual_rolling_return']) + " (" + str(
-                                     value['dateinfo_index_max']) + ")",
-                                 'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
-                                     value['dateinfo_index_min']) + ")",
-                                 'negative_periods': value['negative_periods']}
-                    print(dict_copy)
+                coll_1 = self.nft_db[self.trading_cards]
+                trading_card_id = coll_1.find({x['strategy_name']: 1}, {'_id': 1})
+                for y in trading_card_id:
+                    y['_id'] = str(y['_id'])
+                    print(y['_id'])
+                    x.pop('strategy_name')
+                    for key, value in x.items():
 
-                #NoneType will produce error
+                        #key is 1/2/3... year return
+                        #dateinfo sometimes will be Double
+
+                        dict_copy = {'period': key,
+                                     'average_return': value['average_annual_return'],
+                                     'best_return': str(value['max_annual_rolling_return']) + " (" + str(
+                                         value['dateinfo_index_max']) + ")",
+                                     'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
+                                         value['dateinfo_index_min']) + ")",
+                                     'negative_periods': value['negative_periods'],
+                                     'trading_card_id': y['_id']}
+                        print(dict_copy)
+
+                    #NoneType will produce error
 
 
 def main():
