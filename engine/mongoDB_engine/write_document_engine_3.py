@@ -29,7 +29,7 @@ class Write_Mongodb:
     transactions = "Transactions"
     nft_flask = 'nft-flask'
     watchlist_suggestions = 'watchlistSuggestions'
-    trading_cards = 'tradingCards'
+    trading_cards = 'tradingCardsNew'
     strategyequity = 'strategyEquity'
     stockinfoprinciple = 'stockinfoPrincipleTable'
     historicalgraph = 'historicalGraphNew'
@@ -118,32 +118,35 @@ class Write_Mongodb:
         return
 
     def historical_graph_new(self):
-        self.db = self.conn[self.nft_flask]
-        self.db2 = self.conn[self.simulation]
-        trading_card_coll = self.db[self.trading_cards]
+        self.db = self.conn['nft-flask']
+        self.db2 = self.conn["simulation"]
+        trading_card_coll = self.db['tradingCardsNew']
 
         documents = trading_card_coll.find({}, {'strategyName': 1})
-        graph_dict = {"key": [], "trading_card_id": [], "data": []}
         for x in documents:
+            graph_dict = {}
             x['_id'] = str(x['_id'])
-            graph_dict['trading_card_id'].append(x['id'])
-            graph_dict['key'].append(x['strategyName'])
-        for coll_name in self.db2.list_collection_names():
-            data = self.db2[coll_name].find({},{'timestamp': 1, 'NetLiquidation': 1})
-            graph_dict['data'].append(data)
-        insert_coll = self.db[self.historicalgraph]
-        insert_coll.insert_one(graph_dict)
+            graph_dict['key'] = x['strategyName']
+            graph_dict['trading_card_id'] = x['_id']
+            data = self.db2[x['strategyName']].find({}, {'timestamp': 1, 'NetLiquidation': 1})
+            array = list()
+            for y in data:
+                temp = [y['timestamp'], y['NetLiquidation']]
+                array.append(temp)
+            graph_dict['data'] = array
+            insert_coll = self.db['historicalGraphNew']
+            insert_coll.insert_one(graph_dict)
 
-
-
-    def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
-        self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
-        self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
+    # def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
+    #     self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
+    #     self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
 
 
 def main():
-    data = json.dumps({'ETF_percentage': 0.2391, 'ETF_label': 'HELLO'})
-    requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
+    # data = json.dumps({'ETF_percentage': 0.2391, 'ETF_label': 'HELLO'})
+    # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
+    engine = Write_Mongodb()
+    engine.historical_graph_new()
     return
 
 

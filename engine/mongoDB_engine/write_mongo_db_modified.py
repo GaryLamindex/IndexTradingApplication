@@ -251,6 +251,26 @@ class Write_Mongodb:
             #     print(x)
         return
 
+    def write_historical_graph_new(self):
+        self.db = self.conn['nft-flask']
+        self.db2 = self.conn["simulation"]
+        trading_card_coll = self.db['tradingCardsNew']
+
+        documents = trading_card_coll.find({}, {'strategyName': 1})
+        for x in documents:
+            graph_dict = {}
+            x['_id'] = str(x['_id'])
+            graph_dict['key'] = x['strategyName']
+            graph_dict['trading_card_id'] = x['_id']
+            data = self.db2[x['strategyName']].find({}, {'timestamp': 1, 'NetLiquidation': 1})
+            array = list()
+            for y in data:
+                temp = [y['timestamp'], y['NetLiquidation']]
+                array.append(temp)
+            graph_dict['data'] = array
+            insert_coll = self.db['historicalGraphNew']
+            insert_coll.insert_one(graph_dict)
+
 
 
 
