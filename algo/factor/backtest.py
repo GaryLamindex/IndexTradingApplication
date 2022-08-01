@@ -134,13 +134,13 @@ class Backtest:
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
-        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-36)
+        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-24)
         all_indice_df = pd.DataFrame([])
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             ticker_last = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-            ticker_items = ticker_engine.get_data_by_range([datetime.timestamp(two_year_before), timestamp])
+            ticker_items = ticker_engine.get_data_by_range([datetime.timestamp(two_year_before), timestamp - 1])
             if ticker_items is not None:
                 if all_indice_df.empty:
                     all_indice_df = ticker_items[['Date', 'open']]\
@@ -160,7 +160,8 @@ class Backtest:
             else:
                 stock_data_dict.update({ticker: {'last': price}})
         all_indice_df.dropna(axis=1, inplace=True)
-        action_msgs = algorithm.run(stock_data_dict, all_indice_df, timestamp)
+        grouped_indice_df = all_indice_df.groupby(pd.Grouper(freq='MS')).nth(-1)
+        action_msgs = algorithm.run(stock_data_dict, grouped_indice_df, timestamp)
         action_record = []
         for action_msg in action_msgs:
             action = action_msg.action_enum

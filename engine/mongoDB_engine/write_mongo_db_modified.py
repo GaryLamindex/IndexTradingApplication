@@ -80,7 +80,7 @@ class Write_Mongodb:
                                    '1 Yr Average Win Per Day': 1})
 
         for x in documents:
-            r = {'strategy_name': 1,
+            r = {'strategy_name': x['strategy_name'],
                  'datetime': datetime.datetime.now(),
                  'avgReturn': x['1 Yr Average Win Per Day'],
                  'volatility': x['1 Yr Volatility'],
@@ -203,12 +203,24 @@ class Write_Mongodb:
                 print(x)
         return
 
-    def drawdown(self):
+    def update_drawdown_graph_data(self):
+        trading_card_new_coll = self.nft_db[self.trading_cards_new]
+        drawdown_graph_data_coll = self.nft_db[self.drawdown_graph_data]
         for coll in self.drawdown_graph_data_db.list_collection_names():
             print(coll)
+            t_dict = trading_card_new_coll.find_one({'strategyName': coll}, {'_id': 1})
+            trading_card_id = str(t_dict['_id']) if t_dict is not None else None
             documents = self.drawdown_graph_data_db[coll].find({})
+            print(trading_card_id)
             for x in documents:
+                x['trading_card_id'] = trading_card_id
+                x.pop('_id')
+                x['x'] = datetime.datetime.fromtimestamp(x['timestamp'])
+                x['y'] = x.pop('drawdown')
+                x['created_at'] = datetime.datetime.now()
                 print(x)
+                drawdown_graph_data_coll.replace_one({'timestamp': x['timestamp'],
+                                                      'trading_card_id': x['trading_card_id']}, x, upsert=True)
         return
 
     def rolling_return(self):
@@ -280,10 +292,10 @@ def main():
     # a.update_drawdown_data()
     # a.composite_table()
     # a.trade_log()
-    # a.drawdown()
+    a.update_drawdown_graph_data()
     # a.rolling_return()
     # a.historical_graph()
-    a.write_trading_card()
+    # a.write_trading_card()
 
 
 if __name__== "__main__":
