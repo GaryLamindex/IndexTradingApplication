@@ -229,7 +229,7 @@ class grab_stock_data_engine:
 
     def write_df_to_csv(self, ticker, df):
         """
-        algoithm:
+        algorithm:
         if file already exists:
             read the file -> old data
             delete the old file
@@ -321,7 +321,7 @@ class grab_stock_data_engine:
 
     # write the historical data to the
     # the function is for fetching large dataframe, thus inside the loop will only fetch the data of one week once
-    # due to TWS limitataion, max. 2 tickers at a time !!!
+    # due to TWS limitation, max. 2 tickers at a time !!!
     # e.g. {"QQQ":[{timestamp, ohlc},{timestamp, ohlc}],"SPY"[{timestamp, ohlc},{timestamp, ohlc}]...}
     @connection_handler
     def get_min_historical_data_by_range(self, ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour):
@@ -620,8 +620,11 @@ class grab_crypto_data_engine:
 
 # For testing only
 def main():
-    stock_engine = grab_stock_data_engine()
-    stock_engine.get_missing_daily_data()
+    ib = IB()
+    ib.connect('127.0.0.1', 7497, clientId=1)
+    stock_engine = grab_stock_data_engine(ib_instance=ib)
+    stock_engine.get_multiple_min_data_by_range(0, dt.datetime.now().timestamp(),  '1 min', False, tickers=None)
+
 
 if __name__ == "__main__":
     main()
