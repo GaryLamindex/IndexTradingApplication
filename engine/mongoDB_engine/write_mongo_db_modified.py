@@ -175,24 +175,6 @@ class Write_Mongodb:
 
         return
 
-    def algo_info_overview(self):
-
-        coll = self.rainydrop_db[self.Strategies]
-        # insert_coll = self.nft_db[self.algoPrincipleTop]
-        documents = coll.find({}, {'_id': 0,
-                                   'Since Inception Return': 1,
-                                   'net profit': 1,
-                                   'Since Inception Alpha': 1,
-                                   'Since Inception Sharpe': 1,
-                                   'compound_inception_return_dict': 1,
-                                   'margin ratio': 1,
-                                   'Since Inception Sortino': 1,
-                                   'Since Inception Volatility': 1,
-                                   'Since Inception Win Rate': 1,
-                                   'Since Inception Max Drawdown': 1,
-                                   'Since Inception Average Win Per Day': 1,
-                                   'inception pos neg': 1})
-        return
 
     def trade_log(self):
         # insert_coll = self.nft_db[self.drawdown_data]
@@ -258,7 +240,7 @@ class Write_Mongodb:
                                    'nlvMonthlyChange': nlv_change['last monthly change'],
                                    'strategyInitial': nlv_change['strategy_initial']}
                     print(nlv_change)
-                    coll.replace_one({'strategyName': return_dict['strategy_name']}, return_dict, upsert=True)
+                    coll.replace_one({'strategyName': return_dict['strategyName']}, return_dict, upsert=True)
             # for x in documents:
             #     print(x)
         return
@@ -281,7 +263,51 @@ class Write_Mongodb:
                 array.append(temp)
             graph_dict['data'] = array
             insert_coll = self.db['historicalGraphNew']
-            insert_coll.insert_one(graph_dict)
+            insert_coll.replace_one({'key': graph_dict['key']}, graph_dict, upsert=True)
+
+    def algo_info_overview(self):
+        self.db = self.conn['rainydrop']
+        coll = self.db['Strategies']
+        self.db2 = self.conn["nft-flask"]
+        trading_card_coll = self.db2['tradingCardsNew']
+        doc = trading_card_coll.find({}, {'strategyName': 1})
+        for y in doc:
+            try:
+                y['_id'] = str(y['_id'])
+                documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
+                                       'Since Inception Return': 1,
+                                       'net profit': 1,
+                                       'Since Inception Alpha': 1,
+                                       'Since Inception Sharpe': 1,
+                                       'compound_inception_return_dict': 1,
+                                       'margin ratio': 1,
+                                       'Since Inception Sortino': 1,
+                                       'Since Inception Volatility': 1,
+                                       'Since Inception Win Rate': 1,
+                                       'Since Inception Max Drawdown': 1,
+                                       'Since Inception Average Win Per Day': 1,
+                                       'inception pos neg': 1,
+                                       'Since Inception Profit Loss Ratio': 1,
+                                       'strategy_name': 1})
+                for x in documents:
+                    algo_dict = {}
+                    algo_dict['total_return_percentage'] = x['Since Inception Return']
+                    algo_dict['net_profit'] = x['net profit']
+                    algo_dict['sharpe_ratio'] = x['Since Inception Sharpe']
+                    algo_dict['compounding_return'] = x['compound_inception_return_dict']
+                    algo_dict['margin_ratio'] = x['margin ratio']
+                    algo_dict['sortino_ratio'] = x['Since Inception Sortino']
+                    algo_dict['max_drawdown'] = x['Since Inception Max Drawdown']
+                    algo_dict['alpha'] = x['Since Inception Alpha']
+                    algo_dict['volatility'] = x['Since Inception Volatility']
+                    algo_dict['profit_loss_ratio'] = x['Since Inception Profit Loss Ratio']
+                    algo_dict['win_rate'] = x['Since Inception Win Rate']
+                    algo_dict['average_win'] = x['Since Inception Average Win Per Day']
+                    algo_dict['trading_card_id'] = y['_id']
+                    insert_coll = self.db2['algoInfoOverview_new']
+                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id']}, algo_dict, upsert=True)
+            except:
+                continue
 
 
 
