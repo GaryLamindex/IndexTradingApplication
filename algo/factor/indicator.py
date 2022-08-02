@@ -16,8 +16,8 @@ class Indicator:
         self.expected_cov = np.array([])
         self.indice = indice
         self.explained_variance = explained_variance
-        # self.indice_return = indice.pct_change().iloc[1:] # Percentage return
-        self.indice_return = (np.log(indice) - np.log(indice.shift(1))).iloc[1:] # Maybe use log return idk
+        # self.indice_return = indice.pct_change().iloc[1:]  # Percentage return
+        self.indice_return = (np.log(indice) - np.log(indice.shift(1))).iloc[1:]  # Maybe use log return idk
 
     def get_params(self):
         # PCA
@@ -97,3 +97,4 @@ class Indicator:
         factor_preds.insert(0, 1)
         self.expected_return = np.dot(all_beta_mean, factor_preds)
         self.expected_cov = cm(self.expected_return, all_beta_cov, all_beta_mean, factor_cov, factor_preds[1:], predicted_vars)
+        print(self.expected_return)

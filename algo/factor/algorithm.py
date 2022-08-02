@@ -44,7 +44,7 @@ class Factor:
         # expected_cov = np.append(np.append(expected_cov, np.zeros((n, 1)), axis=1), [np.zeros(n+1)], axis=0)
         # n += 1
 
-        if expected_return.max() > 0:
+        if expected_return.max() > -999:
             # Optimizing Sharpe ratio based on expected return & covariance matrix
             lb = 0
             ub = 1
@@ -52,7 +52,7 @@ class Factor:
             def MV(w, cov_mat):
                 return np.dot(w, np.dot(cov_mat, w.T))
 
-            muRange = np.linspace(max(expected_return.min(), 0), expected_return.max(), 50)
+            muRange = np.linspace(expected_return.min(), expected_return.max(), 50)
             volRange = np.zeros(len(muRange))
             # omega = expected_cov.cov()
 
@@ -91,10 +91,9 @@ class Factor:
             ticker_pos = ticker_data.get("position")
             if ticker_name in all_indice_df.columns:
                 price = all_indice_df[ticker_name][-1]
-                print(ticker_name, price)
-                print("Weight: ", self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)])
+                print("Weight:", self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)])
                 target_pos = int(self.optimal_weight[all_indice_df.columns.get_loc(ticker_name)] * self.total_market_value / price)
-                print(ticker_name, "Current Position:", ticker_pos, "; Target Position:", target_pos, "; Market Value:", self.total_market_value)
+                print(f"{ticker_name} Current Position: {ticker_pos}; Target Position: {target_pos}; Market Value: {self.total_market_value}")
                 pos_change = target_pos - ticker_pos
                 if pos_change < 0:
                     action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
