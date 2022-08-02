@@ -152,7 +152,7 @@ class realtime:
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
         print('#' * 20, _date, ":", _time, " "*5, self.tickers, '#' * 20)
         if self.dividend_agent is None:
-            a=0
+            a = 0
         if self.dividend_agent.check_div(timestamp):
             portfolio = self.portfolio_data_engine.get_portfolio()
             total_dividend = self.dividend_agent.distribute_div(timestamp, portfolio)
@@ -172,6 +172,8 @@ class realtime:
         action_msgs = self.algorithm.run(stock_data_dict, timestamp)
         action_record = []
         if action_msgs is None:
+            self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
+                                                 stock_data_dict)
             return
         for action_msg in action_msgs:
             action = action_msg.action_enum

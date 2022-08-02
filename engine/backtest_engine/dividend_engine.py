@@ -22,8 +22,8 @@ class dividend_engine:
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividends"
         if not os.path.exists(self.dividends_data_path):
             os.mkdir(self.dividends_data_path)
-        list_of_dividend = os.listdir(self.filepath)
         self.get_dividends(tickers, -1)
+        list_of_dividend = os.listdir(self.filepath)
         for ticker in self.tickers:
             for file in list_of_dividend:
                 ticker_name = file.split("_")
