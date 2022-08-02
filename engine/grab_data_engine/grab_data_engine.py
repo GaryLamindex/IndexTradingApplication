@@ -353,7 +353,7 @@ class grab_stock_data_engine:
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt <= 5:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
-                    raise Exception
+                    continue
                 else:
                     self.grab_data_retry_attempt = 0
                     return
@@ -453,7 +453,7 @@ class grab_crypto_data_engine:
         self.ticker_data_path = str(pathlib.Path(__file__)
                                     .parent.parent.parent.parent.resolve()) + '/ticker_data/one_min'
         self.crypto_daily_data_path = str(pathlib.Path(__file__)
-                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_daily'
+                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_coingecko'
         self.binance_base_url = 'https://data.binance.vision'
         self.coingecko_ranking_url = 'https://www.coingecko.com/en/all-cryptocurrencies'
         self.coingecko_historical_data_url = f'https://www.coingecko.com/en/coins/cardano/historical_data?end_date={dt.date.today().strftime("%Y-%m-%d")}&start_date=2021-03-01#panel'
@@ -470,6 +470,19 @@ class grab_crypto_data_engine:
         month = dt.datetime.fromtimestamp(timestamp, tz=tz).month
         day = dt.datetime.fromtimestamp(timestamp, tz=tz).day
         return dt.datetime(year, month, day).strftime(fmt)
+
+    # To be completed
+    def get_binance_crypto_list(self):
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {'download.default_directory': self.crypto_daily_data_path}
+        chrome_options.add_experimental_option('prefs', prefs)
+        browser = webdriver.Chrome(service=Service(webdriver.ChromeDriverManager().install()), options=chrome_options)
+
+        browser.get('https://data.binance.vision/?prefix=data/spot/daily/klines/')
+        elements = browser.find_elements(By.CLASS_NAME, "container-md")[1]\
+                  .find_element(By.ID, "listing").get_attribute("outerHTML")
+
+        print(elements)
 
     # download data from binance but only one year is available
     def download_binance_daily_data(self, ticker, timestamp, bar_size):
@@ -495,7 +508,7 @@ class grab_crypto_data_engine:
         return f'{self.ticker_data_path}/{csv_filename}'
 
     # merge all binance data
-    def get_historical_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
+    def get_binance_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
         if type(tickers) is str:
             tickers = [tickers]
         for ticker in tickers:
@@ -527,6 +540,17 @@ class grab_crypto_data_engine:
             result_df['Open time'] = round(result_df['Open time'] / 1000)
             result_df['Close time'] = round(result_df['Close time'] / 1000)
             result_df.to_csv(f'{self.ticker_data_path}/{ticker}.csv', index=False)
+
+    def get_missing_binance_data(self, tickers=None):
+        if type(tickers) is str:
+            tickers = [tickers]
+        if tickers is None:
+            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        now_timestamp = dt.datetime.now().timestamp()
+        for ticker in tickers:
+            if not os.path.exists(f"{self.binance_crypto_data_path}/{ticker}.csv"):
+                self.get_binance_data_by_range(ticker, dt.date(2021, 3, 1), dt.datetime.now().timestamp() , '1d')
+                continue
 
     # e.g. convert '$582,266,289,816' to int type
     # doesn't support number with decimal point
@@ -601,6 +625,11 @@ class grab_crypto_data_engine:
             print('daily crypto data not found')
             return None
 
+    def get_daily_data_by_period_helper(self, ticker, period):
+        btc = yf.Ticker(f'{ticker}-USD')
+        hist = btc.history(period=period)
+        return hist
+
     # download yfinance data
     def get_yfinance_max_historical_data(self, ticker):
         btc = yf.Ticker(f'{ticker}-USD')
@@ -615,15 +644,26 @@ class grab_crypto_data_engine:
             symbol = coin['symbol']
             df = self.get_yfinance_max_historical_data(symbol)
             if not df.empty:
-                df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+                # Symbols for certain cryptos are reserved names and cannot be used as file name
+                # Therefore the file name is changed if the symbol is a reserved name
+                try:
+                    df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+                except FileNotFoundError:
+                    symbol = '_' + symbol + '_'
+                    df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
 
 # For testing only
 def main():
-    ib = IB()
-    ib.connect('127.0.0.1', 7497, clientId=1)
-    stock_engine = grab_stock_data_engine(ib_instance=ib)
-    stock_engine.get_multiple_min_data_by_range(0, dt.datetime.now().timestamp(),  '1 min', False, tickers=None)
-
+    # ib = IB()
+    # ib.connect('127.0.0.1', 7497, clientId=1)
+    # stock_engine = grab_stock_data_engine(ib_instance=ib)
+    # stock_engine.get_multiple_min_data_by_range(0, dt.datetime.now().timestamp(),  '1 min', False, tickers=None)
+    crypto_engine = grab_crypto_data_engine()
+    # tickers = crypto_engine.get_tickers_from_dir()
+    # crypto_engine.get_binance_data_by_range('BLZBTC', dt.datetime.now().timestamp() - 86400 * 100, dt.datetime.now().timestamp() - 86400, '1d')
+    # a=1
+    crypto_engine.get_binance_crypto_list()
+    # crypto_engine.crawl_historical_market_cap_by_range_coingecko()
 
 if __name__ == "__main__":
     main()

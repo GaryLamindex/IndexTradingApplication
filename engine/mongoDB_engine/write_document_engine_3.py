@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import certifi
 import requests
 import pandas as pd
+from selenium.common import NoSuchElementException
 
 
 class Write_Mongodb:
@@ -140,12 +141,13 @@ class Write_Mongodb:
     def algo_info_overview(self):
         self.db = self.conn['rainydrop']
         coll = self.db['Strategies']
-        trading_card_coll = self.db['tradingCardsNew']
-        # insert_coll = self.nft_db[self.algoPrincipleTop]
+        self.db2 = self.conn["nft-flask"]
+        trading_card_coll = self.db2['tradingCardsNew']
         doc = trading_card_coll.find({}, {'strategyName': 1})
         for y in doc:
-            y['_id'] = str(y['_id'])
-            documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
+            try:
+                y['_id'] = str(y['_id'])
+                documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
                                        'Since Inception Return': 1,
                                        'net profit': 1,
                                        'Since Inception Alpha': 1,
@@ -160,21 +162,25 @@ class Write_Mongodb:
                                        'inception pos neg': 1,
                                        'Since Inception Profit Loss Ratio': 1,
                                        'strategy_name': 1})
-            algo_dict = {}
-            algo_dict['total_return_percentage'] = documents['Since Inception Return']
-            algo_dict['net_profit'] = documents['net profit']
-            algo_dict['sharpe_ratio'] = documents['Since Inception Sharpe']
-            algo_dict['compounding_return'] = documents['compound_inception_return_dict']
-            algo_dict['margin_ratio'] = documents['margin ratio']
-            algo_dict['sortino_ratio'] = documents['Since Inception Sortino']
-            algo_dict['max_drawdown'] = documents['Since Inception Max Drawdown']
-            algo_dict['alpha'] = documents['Since Inception Alpha']
-            algo_dict['volatility'] = documents['Since Inception Volatility']
-            algo_dict['profit_loss_ratio'] = documents['Since Inception Profit Loss Ratio']
-            algo_dict['win_rate'] = documents['Since Inception Win Rate']
-            algo_dict['average_win'] = documents['Since Inception Average Win Per Day']
-            algo_dict['trading_card_id'] = y['id']
-            print(algo_dict)
+                for x in documents:
+                    algo_dict = {}
+                    algo_dict['total_return_percentage'] = x['Since Inception Return']
+                    algo_dict['net_profit'] = x['net profit']
+                    algo_dict['sharpe_ratio'] = x['Since Inception Sharpe']
+                    algo_dict['compounding_return'] = x['compound_inception_return_dict']
+                    algo_dict['margin_ratio'] = x['margin ratio']
+                    algo_dict['sortino_ratio'] = x['Since Inception Sortino']
+                    algo_dict['max_drawdown'] = x['Since Inception Max Drawdown']
+                    algo_dict['alpha'] = x['Since Inception Alpha']
+                    algo_dict['volatility'] = x['Since Inception Volatility']
+                    algo_dict['profit_loss_ratio'] = x['Since Inception Profit Loss Ratio']
+                    algo_dict['win_rate'] = x['Since Inception Win Rate']
+                    algo_dict['average_win'] = x['Since Inception Average Win Per Day']
+                    algo_dict['trading_card_id'] = y['_id']
+                    insert_coll = self.db2['algoInfoOverview_new']
+                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id']}, algo_dict, upsert=True)
+            except:
+                continue
 
 
 

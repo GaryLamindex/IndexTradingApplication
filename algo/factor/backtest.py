@@ -134,7 +134,7 @@ class Backtest:
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
-        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-24)
+        two_year_before = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-6)
         all_indice_df = pd.DataFrame([])
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
