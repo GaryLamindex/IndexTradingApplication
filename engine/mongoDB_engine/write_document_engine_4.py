@@ -19,6 +19,7 @@ class Write_Mongodb:
     drawdown_data = 'drawdown_data'
     simulation = 'simulation'
     drawdown_graph_data = 'drawdown_graph_data'
+    rolling_test = 'rolling_test'
 
     def __init__(self, run_data_df=None, all_file_return_df=None, drawdown_abstract_df=None, drawdown_raw_df=None):
         self.conn = MongoClient(
@@ -208,43 +209,38 @@ class Write_Mongodb:
         return
 
     def rolling_return(self):
-
-            coll = self.rainydrop_db[self.Strategies]
-            documents = coll.find({},  {'_id': 0,
-                                        '1 Yr Rolling Return': 1,
-                                        '2 Yr Rolling Return': 1,
-                                        '3 Yr Rolling Return': 1,
-                                        '5 Yr Rolling Return': 1,
-                                        '7 Yr Rolling Return': 1,
-                                        '10 Yr Rolling Return': 1,
-                                        '15 Yr Rolling Return': 1,
-                                        '20 Yr Rolling Return': 1,
-                                        'strategy_name': 1})
-
+            coll = self.nft_db[self.trading_cards]
+            replace = self.nft_db[self.rolling_test]
+            documents = self.rainydrop_db[self.Strategies].find({}, {'_id': 0,
+                                                                     '1 Yr Rolling Return': 1,
+                                                                     '2 Yr Rolling Return': 1,
+                                                                     '3 Yr Rolling Return': 1,
+                                                                     '5 Yr Rolling Return': 1,
+                                                                     '7 Yr Rolling Return': 1,
+                                                                     '10 Yr Rolling Return': 1,
+                                                                     '15 Yr Rolling Return': 1,
+                                                                     '20 Yr Rolling Return': 1,
+                                                                     'strategy_name': 1
+                                                                     })
             for x in documents:
+                trading_card_id = coll.find({'strategyName': x['strategy_name']}, {'_id': 1})
 
-                coll_1 = self.nft_db[self.trading_cards]
-                trading_card_id = coll_1.find({x['strategy_name']: 1}, {'_id': 1})
+                del x['strategy_name']
                 for y in trading_card_id:
                     y['_id'] = str(y['_id'])
-                    print(y['_id'])
-                    x.pop('strategy_name')
-                    for key, value in x.items():
 
-                        #key is 1/2/3... year return
-                        #dateinfo sometimes will be Double
+                for key, value in x.items():
 
-                        dict_copy = {'period': key,
-                                     'average_return': value['average_annual_return'],
-                                     'best_return': str(value['max_annual_rolling_return']) + " (" + str(
-                                         value['dateinfo_index_max']) + ")",
-                                     'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
-                                         value['dateinfo_index_min']) + ")",
-                                     'negative_periods': value['negative_periods'],
-                                     'trading_card_id': y['_id']}
-                        print(dict_copy)
-
-                    #NoneType will produce error
+                    dict_copy = {'period': key,
+                                 'average_return': value['average_annual_return'],
+                                 'best_return': str(value['max_annual_rolling_return']) + " (" + str(
+                                     value['dateinfo_index_max']) + ")",
+                                 'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
+                                     value['dateinfo_index_min']) + ")",
+                                 'negative_periods': str(value['negative_periods']),
+                                 'trading_card_id': y['_id']}
+                    replace.replace_one({'period': dict_copy['period'],'trading_card_id': dict_copy['trading_card_id']}, dict_copy, upsert=True)
+                    # print(dict_copy)
 
 
 def main():

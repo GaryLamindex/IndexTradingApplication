@@ -166,10 +166,12 @@ if __name__ == '__main__':
         info_json = json.load(f)
     abi = info_json["abi"]
 
-    address = "0x7F323672c21223B94D5C24C12b07c08fcdCc6b1D"
+    address = "0xAcE05bFAD89aBD18b62b12924758ae82348F3AF6"
     default_account = "0xE357eaFcE4d472c344e638E72ce55dE8C6b62992"
     algo = web3_algo(address, abi, default_account)
     contract_run_test(algo)
 
+#let algo00 = await RebalanceMarginWifMaxDrawdownControl.deployed()
+#algo00.run(1564656465)
 
 
