@@ -20,6 +20,8 @@ class Write_Mongodb:
     drawdown_data = 'drawdown_data'
     simulation = 'simulation'
     drawdown_graph_data = 'drawdown_graph_data'
+    historical_returns_new = 'HistoricalReturns_new'
+    portfolio_efficiency_new = 'PortfolioEfficiency_new'
 
     def __init__(self, run_data_df=None, all_file_return_df=None, drawdown_abstract_df=None, drawdown_raw_df=None):
         self.conn = MongoClient('mongodb+srv://Garylam:Lamindexinvest123!@mathtrade.yvcna.mongodb.net/?retryWrites=true&w=majority',tlsCAFile=certifi.where())
@@ -159,22 +161,6 @@ class Write_Mongodb:
 
         return
 
-    # not done
-    def historical_returns(self):
-        # 'period'
-        # 'return'
-        # 'adj_return'
-        # 'standard_deviation'
-        # 'max_drawdown'
-        # 'pos_neg_months'
-        coll = self.rainydrop_db[self.Strategies]
-        # insert_coll = self.nft_db[self.algoPrincipleTop]
-        documents = coll.find({}, {'_id': 0,
-                                   'Composite': 1})
-
-
-        return
-
 
     def trade_log(self):
         # insert_coll = self.nft_db[self.drawdown_data]
@@ -245,6 +231,131 @@ class Write_Mongodb:
             #     print(x)
         return
 
+    def update_historical_return_new(self):
+        coll = self.rainydrop_db[self.Strategies]
+        trading_card_coll = self.nft_db[self.trading_cards_new]
+        historical_returns_new_coll = self.nft_db[self.historical_returns_new]
+        x = coll.find({},{'_id':0,
+                      'YTD Return':1,
+                      '1 Yr Return':1,
+                      '3 Yr Return':1,
+                      '5 Yr Return':1,
+                      'Since Inception Return':1,
+                      '1 yr sd':1,
+                      '3 yr sd':1,
+                      '5 yr sd':1,
+                      'inception sd':1,
+                      '1 yr pos neg': 1,
+                      '3 yr pos neg': 1,
+                      '5 yr pos neg': 1,
+                      'inception pos neg': 1,
+                      '1 Yr Max Drawdown': 1,
+                      '3 Yr Max Drawdown': 1,
+                      '5 Yr Max Drawdown': 1,
+                      'YTD Max Drawdown': 1,
+                      'Since Inception Max Drawdown': 1,
+                      'strategy_name':1
+                      })
+        for document in x:
+
+            document['YTD Return'] = document.get('YTD Return', 0)
+            document['1 Yr Return'] = document.get('1 Yr Return', 0)
+            document['3 Yr Return'] = document.get('3 Yr Return', 0)
+            document['5 Yr Return'] = document.get('5 Yr Return', 0)
+            document['Since Inception Return'] = document.get('Since Inception Return', 0)
+            document['1 yr sd'] = document.get('1 yr sd', 0)
+            document['3 yr sd'] = document.get('3 yr sd', 0)
+            document['5 yr sd'] = document.get('5 yr sd', 0)
+            document['inception sd'] = document.get('inception sd', 0)
+            document['1 yr pos neg'] = document.get('1 yr pos neg', 0)
+            document['3 yr pos neg'] = document.get('3 yr pos neg', 0)
+            document['5 yr pos neg'] = document.get('5 yr pos neg', 0)
+            document['inception pos neg'] = document.get('inception pos neg', 0)
+            document['1 Yr Max Drawdown'] = document.get('1 Yr Max Drawdown', 0)
+            document['3 Yr Max Drawdown'] = document.get('3 Yr Max Drawdown', 0)
+            document['5 Yr Max Drawdown'] = document.get('5 Yr Max Drawdown', 0)
+            document['YTD Max Drawdown'] = document.get('YTD Max Drawdown', 0)
+            document['Since Inception Max Drawdown'] = document.get('Since Inception Max Drawdown', 0)
+            document['strategy_name'] = document.get('strategy_name', 0)
+
+            trading_card = trading_card_coll.find({'strategyName': document['strategy_name']},{'_id':1})
+            for y in trading_card:
+                y['_id'] = str(y['_id'])
+                document['trading_card_id'] = y['_id']
+                one_yr_dict = {'period': '1Y',
+                               'return': str(document['1 Yr Return']),
+                               'adj_return': str(document['1 Yr Return']),
+                               'standard_deviation': str(document['1 yr sd']),
+                               'max_drawdown': str(document['1 Yr Max Drawdown']),
+                               'pos_neg_months': str(document['1 yr pos neg']),
+                               'trading_card_id': str(document['trading_card_id'])}
+                three_yr_dict = {'period': '3Y',
+                               'return': str(document['3 Yr Return']),
+                               'adj_return': str(document['3 Yr Return']),
+                               'standard_deviation': str(document['3 yr sd']),
+                               'max_drawdown': str(document['3 Yr Max Drawdown']),
+                               'pos_neg_months': str(document['3 yr pos neg']),
+                               'trading_card_id': str(document['trading_card_id'])}
+                five_yr_dict = {'period': '5Y',
+                               'return': str(document['5 Yr Return']),
+                               'adj_return': str(document['5 Yr Return']),
+                               'standard_deviation': str(document['5 yr sd']),
+                               'max_drawdown': str(document['5 Yr Max Drawdown']),
+                               'pos_neg_months': str(document['5 yr pos neg']),
+                               'trading_card_id': str(document['trading_card_id'])}
+                YTD_dict = {'period': 'YTD',
+                               'return': str(document['YTD Return']),
+                               'adj_return': str(document['YTD Return']),
+                               'standard_deviation': 'No data',
+                               'max_drawdown': str(document['YTD Max Drawdown']),
+                               'pos_neg_months': 'No data',
+                               'trading_card_id': str(document['trading_card_id'])}
+                inception_dict = {'period': 'MAX','return': str(document['Since Inception Return']),
+                                  'adj_return': str(document['Since Inception Return']),
+                                  'standard_deviation': str(document['inception sd']),
+                                  'max_drawdown': str(document['Since Inception Max Drawdown']),
+                                  'pos_neg_months': str(document['inception pos neg']),
+                                  'trading_card_id': str(document['trading_card_id'])}
+
+                historical_returns_new_coll.replace_one(
+                    {'period': '1Y', 'trading_card_id': str(document['trading_card_id'])},
+                    one_yr_dict, upsert=True
+                )
+                historical_returns_new_coll.replace_one(
+                    {'period': '3Y', 'trading_card_id': str(document['trading_card_id'])},
+                    three_yr_dict, upsert=True
+                )
+                historical_returns_new_coll.replace_one(
+                    {'period': '5Y', 'trading_card_id': str(document['trading_card_id'])},
+                    five_yr_dict, upsert=True
+                )
+                historical_returns_new_coll.replace_one(
+                    {'period': 'YTD', 'trading_card_id': str(document['trading_card_id'])},
+                    YTD_dict, upsert=True
+                )
+                historical_returns_new_coll.replace_one(
+                    {'period': 'MAX', 'trading_card_id': str(document['trading_card_id'])},
+                    inception_dict, upsert=True
+                )
+        return
+
+    def update_portfolio_efficiency_new(self):
+        coll = self.nft_db[self.portfolio_efficiency_new]
+        return_dict = dict()
+        trading_card_coll = self.nft_db[self.trading_cards_new]
+        for name in self.simulation_db.list_collection_names():
+            x = trading_card_coll.find({'strategyName': name}, {'_id':1})
+            for item in x:
+                return_dict['trading_card_id'] = str(item['_id'])
+                return_dict['parameter'] = 'None'
+                return_dict['value'] = 'None'
+                return_dict['compare_same_risk'] = 'None'
+                return_dict['compare_all_portfolios'] = 'None'
+
+                print(return_dict)
+
+                coll.replace_one({'trading_card_id':return_dict['trading_card_id']}, return_dict, upsert=True)
+        return
     def write_historical_graph_new(self):
         self.db = self.conn['nft-flask']
         self.db2 = self.conn["simulation"]
@@ -318,10 +429,11 @@ def main():
     # a.update_drawdown_data()
     # a.composite_table()
     # a.trade_log()
-    a.update_drawdown_graph_data()
+    # a.update_drawdown_graph_data()
     # a.rolling_return()
-    # a.historical_graph()
+    # a.update_historical_return_new()
     # a.write_trading_card()
+    a.update_portfolio_efficiency_new()
 
 
 if __name__== "__main__":
