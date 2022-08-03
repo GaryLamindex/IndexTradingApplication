@@ -161,30 +161,32 @@ contract RebalanceMarginWifMaxDrawdownControl is Object, TradeAgent{
     }
 
     function run(uint256 _timestamp) public{
+        uint256 startGas = gasleft();
+
         string memory _tickerName = "AAPL";
         uint256 timestamp = 123456789;
 
+
         TradeActionMsg memory tradeActionMsg = TradeActionMsg(_tickerName, 123456789, "buy", 0, 0, 0);
         tradeActionMsgs[timestamp][_tickerName] = tradeActionMsg;
+        uint256 gasUsed = startGas - gasleft();
+        startGas = gasleft();
 
         executionTimestamps.push(_timestamp);
-        if(loop == 0){
-            int256 capitalForEachStock = FixidityLib.divide(mktValueData[_timestamp].TotalCashValue, int256(tickerNames.length) * FixidityLib.fixed1());
-
-            for (uint i=0; i < tickerNames.length; i++){
-                RealTimeTickerData memory tickerData = realTimeTickersData[_timestamp][tickerNames[i]];
-                string memory _tickerName = tickerData.tickerName;
-
-                int256 _tickerPrice = tickerData.last;
-
-//                int256 baseSharePurchase = FixidityLib.divide(capitalForEachStock,tickerData.last);
-                int256 _baseSharePurchase = capitalForEachStock/tickerData.last;
-                int256 _sharePurchase =  _baseSharePurchase * 3;
-//                ActionMsg memory actionMsg = TradeAgent.placeBuyStockLimitOrderMsg(tickerName,sharePurchase,tickerPrice,_timestamp);
-                int256 _transactionAmount = _sharePurchase* _tickerPrice;
-                tradeActionMsgs[_timestamp][_tickerName] = TradeActionMsg({tickerName:_tickerName, timestamp: _timestamp, transactionType: 'Buy', positionAction: _sharePurchase, transactionTickerPrice:_tickerPrice, transactionAmount:_transactionAmount});
-            }
-        }
+//        if(loop == 0){
+//            int256 capitalForEachStock = FixidityLib.divide(mktValueData[_timestamp].TotalCashValue, int256(tickerNames.length) * FixidityLib.fixed1());
+//
+//            for (uint i=0; i < tickerNames.length; i++){
+//                RealTimeTickerData memory tickerData = realTimeTickersData[_timestamp][tickerNames[i]];
+//                string memory _tickerName = tickerData.tickerName;
+////                int256 baseSharePurchase = FixidityLib.divide(capitalForEachStock,tickerData.last);
+//                int256 _baseSharePurchase = capitalForEachStock/tickerData.last;
+//                int256 _sharePurchase =  _baseSharePurchase * 3;
+////                ActionMsg memory actionMsg = TradeAgent.placeBuyStockLimitOrderMsg(tickerName,sharePurchase,tickerPrice,_timestamp);
+//                int256 _transactionAmount = _sharePurchase* tickerData.last;
+//                tradeActionMsgs[_timestamp][_tickerName] = TradeActionMsg({tickerName:_tickerName, timestamp: _timestamp, transactionType: 'Buy', positionAction: _sharePurchase, transactionTickerPrice:tickerData.last, transactionAmount:_transactionAmount});
+//            }
+//        }
 //        else{
 //            int256 targetExLiq = FixidityLib.multiply(rebalanceMargin, mktValueData[_timestamp].GrossPositionValue);
 //            for (uuint i=0; i < tickerNames.length; i++){

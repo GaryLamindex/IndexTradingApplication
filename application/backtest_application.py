@@ -154,45 +154,45 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # portfolio_rebalance.loop_through_param()
 
 ## ------------------------------------- --Fai Portfolio Rebalance Backtest------------------------------------------------------
-from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
-tickers = [["M", "MSFT"]]
-deposit_amount = 1000000
-acceptance_range = 0
-num_tickers = len(tickers)
-#rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
-rebalance_ratio = [[20, 80]]
-start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-end_date = dt.datetime(2011, 5, 15)  # YYMMDD
-strategy = "portfolio_rebalance"
-mode = "backtest"
-cal_stat = True
-quick_test = True
-wipe_previous_sim_data = True
-db_mode = {"dynamo_db": False, "local": True}
-data_freq = "one_min"
-user_id = 0
-portfolio_rebalance = portfolio_rebalance_backtest(tickers,
-                                                   deposit_amount,
-                                                   start_date,
-                                                   end_date,
-                                                   cal_stat,
-                                                   data_freq,
-                                                   user_id,
-                                                   db_mode,
-                                                   quick_test,
-                                                   acceptance_range, rebalance_ratio,
-                                                   store_mongoDB=True,
-                                                   strategy_initial='this is 20 80 m and msft portfolio',
-                                                   video_link='https://www.youtube.com',
-                                                   documents_link='https://google.com',
-                                                   tags_array=None,
-                                                   subscribers_num=3,
-                                                   rating_dict=None,
-                                                   margin_ratio=3.24,
-                                                   trader_name='Fai'
-                                                   )
-
-portfolio_rebalance.loop_through_param()
+# from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
+# tickers = [["M", "MSFT"]]
+# deposit_amount = 1000000
+# acceptance_range = 0
+# num_tickers = len(tickers)
+# #rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+# rebalance_ratio = [[20, 80]]
+# start_date = dt.datetime(2010, 1, 1)  # YYMMDD
+# end_date = dt.datetime(2011, 5, 15)  # YYMMDD
+# strategy = "portfolio_rebalance"
+# mode = "backtest"
+# cal_stat = True
+# quick_test = True
+# wipe_previous_sim_data = True
+# db_mode = {"dynamo_db": False, "local": True}
+# data_freq = "one_min"
+# user_id = 0
+# portfolio_rebalance = portfolio_rebalance_backtest(tickers,
+#                                                    deposit_amount,
+#                                                    start_date,
+#                                                    end_date,
+#                                                    cal_stat,
+#                                                    data_freq,
+#                                                    user_id,
+#                                                    db_mode,
+#                                                    quick_test,
+#                                                    acceptance_range, rebalance_ratio,
+#                                                    store_mongoDB=True,
+#                                                    strategy_initial='this is 20 80 m and msft portfolio',
+#                                                    video_link='https://www.youtube.com',
+#                                                    documents_link='https://google.com',
+#                                                    tags_array=None,
+#                                                    subscribers_num=3,
+#                                                    rating_dict=None,
+#                                                    margin_ratio=3.24,
+#                                                    trader_name='Fai'
+#                                                    )
+#
+# portfolio_rebalance.loop_through_param()
 ## ---------------------------------------  Fai Portfolio Rebalance Backtest -------------------------------------------------------
 # ## ---------------------------------------  Fai Accelerating Dual Momentum Backtest
 # -------------------------------------------------------
@@ -334,14 +334,15 @@ portfolio_rebalance.loop_through_param()
 
 from algo.factor.backtest import Backtest as factor_backtest
 
-# tickers = ['SPY', 'QQQ', 'BND']
-existing_files = os.listdir('C:/Users/user/Documents/GitHub/ticker_data/one_day') # To be updated
-tickers = [file.split('.')[0] for file in existing_files]
-tickers.remove("ESGV")
-tickers.remove("NUBD") # To be updated
-initial_amount = 1000000
-start_date = dt.datetime(2016, 1, 1)
-end_date = dt.datetime.today() + dt.timedelta(days=-1)
+tickers = ['SPY', 'QQQ']
+# existing_files = os.listdir('C:/Users/user/Documents/GitHub/ticker_data/one_day') # To be updated
+# tickers = [file.split('.')[0] for file in existing_files]
+# tickers.remove("ESGV")
+# tickers.remove("NUBD") # To be updated
+initial_amount = 10000000
+start_date = dt.datetime(2008, 1, 1)
+end_date = dt.datetime(2021, 12, 31)
+# end_date = dt.datetime.today() + dt.timedelta(days=-1)
 cal_stat = True
 data_freq = 'one_day'
 user_id = 0

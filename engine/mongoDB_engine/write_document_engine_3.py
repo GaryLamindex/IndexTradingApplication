@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import certifi
 import requests
 import pandas as pd
+from selenium.common import NoSuchElementException
 
 
 class Write_Mongodb:
@@ -29,7 +30,7 @@ class Write_Mongodb:
     transactions = "Transactions"
     nft_flask = 'nft-flask'
     watchlist_suggestions = 'watchlistSuggestions'
-    trading_cards = 'tradingCards'
+    trading_cards = 'tradingCardsNew'
     strategyequity = 'strategyEquity'
     stockinfoprinciple = 'stockinfoPrincipleTable'
     historicalgraph = 'historicalGraphNew'
@@ -118,32 +119,82 @@ class Write_Mongodb:
         return
 
     def historical_graph_new(self):
-        self.db = self.conn[self.nft_flask]
-        self.db2 = self.conn[self.simulation]
-        trading_card_coll = self.db[self.trading_cards]
+        self.db = self.conn['nft-flask']
+        self.db2 = self.conn["simulation"]
+        trading_card_coll = self.db['tradingCardsNew']
 
         documents = trading_card_coll.find({}, {'strategyName': 1})
-        graph_dict = {"key": [], "trading_card_id": [], "data": []}
         for x in documents:
+            graph_dict = {}
             x['_id'] = str(x['_id'])
-            graph_dict['trading_card_id'].append(x['id'])
-            graph_dict['key'].append(x['strategyName'])
-        for coll_name in self.db2.list_collection_names():
-            data = self.db2[coll_name].find({},{'timestamp': 1, 'NetLiquidation': 1})
-            graph_dict['data'].append(data)
-        insert_coll = self.db[self.historicalgraph]
-        insert_coll.insert_one(graph_dict)
+            graph_dict['key'] = x['strategyName']
+            graph_dict['trading_card_id'] = x['_id']
+            data = self.db2[x['strategyName']].find({}, {'timestamp': 1, 'NetLiquidation': 1})
+            array = list()
+            for y in data:
+                temp = [y['timestamp'], y['NetLiquidation']]
+                array.append(temp)
+            graph_dict['data'] = array
+            insert_coll = self.db['historicalGraphNew']
+            insert_coll.insert_one(graph_dict)
+
+    def algo_info_overview(self):
+        self.db = self.conn['rainydrop']
+        coll = self.db['Strategies']
+        self.db2 = self.conn["nft-flask"]
+        trading_card_coll = self.db2['tradingCardsNew']
+        doc = trading_card_coll.find({}, {'strategyName': 1})
+        for y in doc:
+            try:
+                y['_id'] = str(y['_id'])
+                documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
+                                       'Since Inception Return': 1,
+                                       'net profit': 1,
+                                       'Since Inception Alpha': 1,
+                                       'Since Inception Sharpe': 1,
+                                       'compound_inception_return_dict': 1,
+                                       'margin ratio': 1,
+                                       'Since Inception Sortino': 1,
+                                       'Since Inception Volatility': 1,
+                                       'Since Inception Win Rate': 1,
+                                       'Since Inception Max Drawdown': 1,
+                                       'Since Inception Average Win Per Day': 1,
+                                       'inception pos neg': 1,
+                                       'Since Inception Profit Loss Ratio': 1,
+                                       'strategy_name': 1})
+                for x in documents:
+                    algo_dict = {}
+                    algo_dict['total_return_percentage'] = x['Since Inception Return']
+                    algo_dict['net_profit'] = x['net profit']
+                    algo_dict['sharpe_ratio'] = x['Since Inception Sharpe']
+                    algo_dict['compounding_return'] = x['compound_inception_return_dict']
+                    algo_dict['margin_ratio'] = x['margin ratio']
+                    algo_dict['sortino_ratio'] = x['Since Inception Sortino']
+                    algo_dict['max_drawdown'] = x['Since Inception Max Drawdown']
+                    algo_dict['alpha'] = x['Since Inception Alpha']
+                    algo_dict['volatility'] = x['Since Inception Volatility']
+                    algo_dict['profit_loss_ratio'] = x['Since Inception Profit Loss Ratio']
+                    algo_dict['win_rate'] = x['Since Inception Win Rate']
+                    algo_dict['average_win'] = x['Since Inception Average Win Per Day']
+                    algo_dict['trading_card_id'] = y['_id']
+                    insert_coll = self.db2['algoInfoOverview_new']
+                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id']}, algo_dict, upsert=True)
+            except:
+                continue
 
 
 
-    def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
-        self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
-        self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
+    # def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
+    #     self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
+    #     self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
 
 
 def main():
-    data = json.dumps({'ETF_percentage': 0.2391, 'ETF_label': 'HELLO'})
-    requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
+    # data = json.dumps({'ETF_percentage': 0.2391, 'ETF_label': 'HELLO'})
+    # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
+    engine = Write_Mongodb()
+    # engine.historical_graph_new()
+    engine.algo_info_overview()
     return
 
 
