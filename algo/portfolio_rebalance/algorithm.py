@@ -41,14 +41,13 @@ class portfolio_rebalance:
         self.net_liquidation = 0
 
     def run(self, realtime_stock_data_dict, timestamp):
+        self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
         if self.check_exec(timestamp, freq="Monthly", relative_delta=1):
             self.action_msgs = []
             self.buy_list = []
             self.sell_list = []
             if not self.trade_agent.market_opened():
                 return
-
-            self.portfolio_agent.update_stock_price_and_portfolio_data(realtime_stock_data_dict)
             self.account_snapshot = self.portfolio_agent.get_account_snapshot()
             self.portfolio = self.portfolio_agent.get_portfolio()
             self.net_liquidation = self.account_snapshot.get("NetLiquidation")

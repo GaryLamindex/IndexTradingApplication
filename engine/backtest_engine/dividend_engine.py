@@ -2,7 +2,7 @@ import pathlib
 import os
 import re
 import pandas as pd
-import  datetime as dt
+import datetime as dt
 import yfinance as yf
 import numpy as np
 from datetime import datetime
@@ -15,6 +15,7 @@ class dividend_engine:
     portfolio = []
     dividends_data_path = ""
     dividend_date = []
+
     def __init__(self, tickers):
         self.filepath = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/ticker_data/dividends"
         self.tickers = tickers
@@ -64,7 +65,7 @@ class dividend_engine:
         total_dividend = 0
         for ticker in self.tickers:
             ticker_dividend_df = self.full_dividend_df[self.full_dividend_df["ticker"] == ticker]
-            ticker_dividend_df = ticker_dividend_df[ticker_dividend_df["timestamp"] == (timestamp+60)]
+            ticker_dividend_df = ticker_dividend_df[ticker_dividend_df["timestamp"] == (timestamp + 60)]
             if ticker_dividend_df.empty:
                 ticker_dividend = 0
             else:
@@ -111,11 +112,11 @@ class dividend_engine:
 
 
 def main():
-# dividend_agent = dividend_engine(["AAPL"], 547689600, 1651795200,
-#                                  [{'ticker': "AAPL", 'position': 88},{'ticker': "QQQ", 'position': 50}])
-# dividend_agent.input_ticker("QQQ")
-# dividend = dividend_agent.check_div(1541635200)
-# print(dividend)
+    # dividend_agent = dividend_engine(["AAPL"], 547689600, 1651795200,
+    #                                  [{'ticker': "AAPL", 'position': 88},{'ticker': "QQQ", 'position': 50}])
+    # dividend_agent.input_ticker("QQQ")
+    # dividend = dividend_agent.check_div(1541635200)
+    # print(dividend)
     etf_list_path = str(
         pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + '/etf_list/scraper.csv'
     etf_list = pd.read_csv(etf_list_path)
@@ -123,6 +124,7 @@ def main():
     etf_list = list(set(etf_list))
     engine = dividend_engine(etf_list)
     engine.get_dividends(etf_list, -1)
+
 
 if __name__ == "__main__":
     main()
