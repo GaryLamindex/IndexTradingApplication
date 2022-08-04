@@ -148,20 +148,20 @@ class Write_Mongodb:
             try:
                 y['_id'] = str(y['_id'])
                 documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
-                                       'Since Inception Return': 1,
-                                       'net profit': 1,
-                                       'Since Inception Alpha': 1,
-                                       'Since Inception Sharpe': 1,
-                                       'compound_inception_return_dict': 1,
-                                       'margin ratio': 1,
-                                       'Since Inception Sortino': 1,
-                                       'Since Inception Volatility': 1,
-                                       'Since Inception Win Rate': 1,
-                                       'Since Inception Max Drawdown': 1,
-                                       'Since Inception Average Win Per Day': 1,
-                                       'inception pos neg': 1,
-                                       'Since Inception Profit Loss Ratio': 1,
-                                       'strategy_name': 1})
+                                                                             'Since Inception Return': 1,
+                                                                             'net profit': 1,
+                                                                             'Since Inception Alpha': 1,
+                                                                             'Since Inception Sharpe': 1,
+                                                                             'compound_inception_return_dict': 1,
+                                                                             'margin ratio': 1,
+                                                                             'Since Inception Sortino': 1,
+                                                                             'Since Inception Volatility': 1,
+                                                                             'Since Inception Win Rate': 1,
+                                                                             'Since Inception Max Drawdown': 1,
+                                                                             'Since Inception Average Win Per Day': 1,
+                                                                             'inception pos neg': 1,
+                                                                             'Since Inception Profit Loss Ratio': 1,
+                                                                             'strategy_name': 1})
                 for x in documents:
                     algo_dict = {}
                     algo_dict['total_return_percentage'] = x['Since Inception Return']
@@ -198,27 +198,26 @@ class Write_Mongodb:
             x['_id'] = str(x['_id'])
             col = self.db2[x['strategyName']]
             for y in col.find().sort('timestamp').limit(10):
-                price = [ v for k,v in y.items() if k.startswith('avgPrice') and k!='avgPrice_']
+                price = [v for k, v in y.items() if k.startswith('avgPrice') and k != 'avgPrice_']
                 ticker_name = [k for k, v in y.items() if k.startswith('avgPrice')]
                 ticker_name = [x.split('_')[1] for x in ticker_name]
                 ticker_name = list(filter(None, ticker_name))
-                quantity = [ v for k,v in y.items() if k.startswith('totalQuantity') and k!='totalQuantity_']
-                proceeds = [ v for k,v in y.items() if k.startswith('commission') and k!='commission_']
+                quantity = [v for k, v in y.items() if k.startswith('totalQuantity') and k != 'totalQuantity_']
+                proceeds = [v for k, v in y.items() if k.startswith('commission') and k != 'commission_']
                 if not proceeds:
                     proceeds = [" "] * len(quantity)
                 for z in range(len(price)):
                     trade_dict['ETF_Name'] = ticker_name[z]
                     trade_dict['date_time'] = datetime.now()
-                    trade_dict['price']= price[z]
+                    trade_dict['timestamp'] = y['timestamp']
+                    trade_dict['price'] = price[z]
                     trade_dict['quantity'] = quantity[z]
                     trade_dict['proceeds'] = proceeds[z]
                     trade_dict['trading_card_id'] = x['_id']
                     insert_coll = self.db['TradeLog_new']
                     insert_coll.replace_one({'trading_card_id': trade_dict['trading_card_id'],
-                                             'ETF_Name': trade_dict['ETF_Name'],
-                                             'price': trade_dict['price'],
-                                             'quantity': trade_dict['quantity'],
-                                             'proceeds': trade_dict['proceeds']}, trade_dict, upsert=True)
+                                             'timestamp': trade_dict['timestamp']
+                                             }, trade_dict, upsert=True)
                     print(trade_dict)
 
     def delete(self):
@@ -228,8 +227,13 @@ class Write_Mongodb:
         documents = trading_card_coll.find({}, {'strategyName': 1})
         for x in documents:
             x['_id'] = str(x['_id'])
-            col = self.db['algoInfoOverview_new']
-            col.delete_one( { 'trading_card_id': x['_id'] } )
+            col = self.db['TradeLog_new']
+            while col.count_documents({'trading_card_id': x['_id']}) != 0:
+                col.delete_one({'trading_card_id': x['_id']})
+    def delete_all(self):
+        self.db = self.conn['rainydrop']
+        col = self.db['Strategies']
+        col.delete_many({})
     # def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
     #     self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
     #     self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
@@ -240,9 +244,10 @@ def main():
     # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
     engine = Write_Mongodb()
     # engine.historical_graph_new()
-    engine.algo_info_overview()
+    # engine.algo_info_overview()
     # engine.trade_log()
     # engine.delete()
+    # engine.delete_all()
     return
 
 

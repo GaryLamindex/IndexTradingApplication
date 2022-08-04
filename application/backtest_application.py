@@ -1,5 +1,8 @@
+import json
 import sys
 import pathlib
+from ast import literal_eval
+
 from crypto_algo.momentum_strategy_crypto.backtest import backtest as momentum_strategy_backtest
 import datetime as dt
 import pandas as pd
@@ -100,39 +103,40 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 #     tmp = [x for xs in tmp for x in xs]
 #     weight.append(tmp.copy())
 #     tmp.clear()
-#
-#
-# from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
-#
-# start_date = dt.datetime(2010, 1, 1)  # YYMMDD
-# end_date = dt.datetime(2011, 5, 15)  # YYMMDD
-#
-# strategy = "portfolio_rebalance"
-# mode = "backtest"
-# cal_stat = True
-# quick_test = True
-# wipe_previous_sim_data = True
-# db_mode = {"dynamo_db": False, "local": True}
-# data_freq = "one_min"
-# user_id = 0
-# df = pd.read_csv('/Users/percychui/Downloads/scraper.csv')
-# df['Weight'] = df['Weight'].str.rstrip('%').astype('float')
-# df1 = df.groupby('Strategy Name')['Weight'].apply(list).reset_index(name='Weight')
-# df2 = df.groupby('Strategy Name')['Ticker'].apply(list).reset_index(name='Ticker')
-# weight = df1['Weight'].values.tolist()
-# tickers = df2['Ticker'].values.tolist()
+# #
+# #
+# # from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
+# #
+# # start_date = dt.datetime(2010, 1, 1)  # YYMMDD
+# # end_date = dt.datetime(2011, 5, 15)  # YYMMDD
+# #
+# # strategy = "portfolio_rebalance"
+# # mode = "backtest"
+# # cal_stat = True
+# # quick_test = True
+# # wipe_previous_sim_data = True
+# # db_mode = {"dynamo_db": False, "local": True}
+# # data_freq = "one_min"
+# # user_id = 0
+# # df = pd.read_csv('/Users/percychui/Downloads/scraper.csv')
+# # df['Weight'] = df['Weight'].str.rstrip('%').astype('float')
+# # df = df.loc[df['Weight'] != 100]
+# # df1 = df.groupby('Strategy Name')['Weight'].apply(list).reset_index(name='Weight')
+# # df2 = df.groupby('Strategy Name')['Ticker'].apply(list).reset_index(name='Ticker')
+# # weight = df1['Weight'].values.tolist()
+# # tickers = df2['Ticker'].values.tolist()
 # print(weight)
 # print(tickers)
-# # tickers = ["M", "MSFT"]
+# # # tickers = ["M", "MSFT"]
 # deposit_amount = 1000000
 # acceptance_range = 0
-# # num_tickers = len(tickers)
-# # # rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
+# # # num_tickers = len(tickers)
+# # # # rebalance_ratio = portfolio_rebalance_backtest.get_outcomes(num_tickers, 100)
 # rebalance_ratio = weight
-# # # rebalance_ratio = [[50, 50]]
-# # print(weight)
-# # print(tickers)
-# #
+# # # # rebalance_ratio = [[50, 50]]
+# # # print(weight)
+# # # print(tickers)
+# # #
 # portfolio_rebalance = portfolio_rebalance_backtest(tickers,
 #                                                        deposit_amount,
 #                                                        start_date,
