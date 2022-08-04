@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import certifi
 import requests
 import pandas as pd
-import datetime
+from datetime import datetime
 
 
 class Write_Mongodb:
@@ -183,9 +183,9 @@ class Write_Mongodb:
             for x in documents:
                 x['trading_card_id'] = trading_card_id
                 x.pop('_id')
-                x['x'] = datetime.datetime.fromtimestamp(x['timestamp'])
+                x['x'] = datetime.fromtimestamp(x['timestamp'])
                 x['y'] = x.pop('drawdown')
-                x['created_at'] = datetime.datetime.now()
+                x['created_at'] = datetime.now()
                 print(x)
                 drawdown_graph_data_coll.replace_one({'timestamp': x['timestamp'],
                                                       'trading_card_id': x['trading_card_id']}, x, upsert=True)
@@ -217,14 +217,24 @@ class Write_Mongodb:
 
                 nlv_change = self.rainydrop_db[self.Strategies].find_one({'strategy_name': coll_name},
                                                                {'_id': 0,'strategy_name': 1,'last daily change': 1,
-                                                                'last monthly change': 1, 'strategy_initial': 1})
+                                                                'last monthly change': 1, 'strategy_initial': 1,
+                                                                'Since Inception Max Drawdown': 1,
+                                                                'Since Inception Profit Loss Ratio': 1,
+                                                                'Since Inception Return': 1,
+                                                                'Since Inception Sharpe': 1,
+                                                                'Since Inception Win Rate': 1})
                 if nlv_change is not None:
                     if nlv_change['strategy_initial'] is None:
                         nlv_change['strategy_initial'] = "None"
                     return_dict = {'strategyName': nlv_change['strategy_name'],
                                    'nlvDailyChange': nlv_change['last daily change'],
                                    'nlvMonthlyChange': nlv_change['last monthly change'],
-                                   'strategyInitial': nlv_change['strategy_initial']}
+                                   'strategyInitial': nlv_change['strategy_initial'],
+                                   'maxDrawdown': nlv_change['Since Inception Max Drawdown'],
+                                   'profitLossRatio': nlv_change['Since Inception Profit Loss Ratio'],
+                                   'returnPercentage': nlv_change['Since Inception Return'],
+                                   'sharpeRatio': nlv_change['Since Inception Sharpe'],
+                                   'winRate': nlv_change['Since Inception Win Rate']}
                     print(nlv_change)
                     coll.replace_one({'strategyName': return_dict['strategyName']}, return_dict, upsert=True)
             # for x in documents:
@@ -356,6 +366,7 @@ class Write_Mongodb:
 
                 coll.replace_one({'trading_card_id':return_dict['trading_card_id']}, return_dict, upsert=True)
         return
+
     def write_historical_graph_new(self):
         self.db = self.conn['nft-flask']
         self.db2 = self.conn["simulation"]
@@ -386,20 +397,20 @@ class Write_Mongodb:
             try:
                 y['_id'] = str(y['_id'])
                 documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
-                                       'Since Inception Return': 1,
-                                       'net profit': 1,
-                                       'Since Inception Alpha': 1,
-                                       'Since Inception Sharpe': 1,
-                                       'compound_inception_return_dict': 1,
-                                       'margin ratio': 1,
-                                       'Since Inception Sortino': 1,
-                                       'Since Inception Volatility': 1,
-                                       'Since Inception Win Rate': 1,
-                                       'Since Inception Max Drawdown': 1,
-                                       'Since Inception Average Win Per Day': 1,
-                                       'inception pos neg': 1,
-                                       'Since Inception Profit Loss Ratio': 1,
-                                       'strategy_name': 1})
+                                                                             'Since Inception Return': 1,
+                                                                             'net profit': 1,
+                                                                             'Since Inception Alpha': 1,
+                                                                             'Since Inception Sharpe': 1,
+                                                                             'compound_inception_return_dict': 1,
+                                                                             'margin ratio': 1,
+                                                                             'Since Inception Sortino': 1,
+                                                                             'Since Inception Volatility': 1,
+                                                                             'Since Inception Win Rate': 1,
+                                                                             'Since Inception Max Drawdown': 1,
+                                                                             'Since Inception Average Win Per Day': 1,
+                                                                             'inception pos neg': 1,
+                                                                             'Since Inception Profit Loss Ratio': 1,
+                                                                             'strategy_name': 1})
                 for x in documents:
                     algo_dict = {}
                     algo_dict['total_return_percentage'] = x['Since Inception Return']
@@ -416,9 +427,48 @@ class Write_Mongodb:
                     algo_dict['average_win'] = x['Since Inception Average Win Per Day']
                     algo_dict['trading_card_id'] = y['_id']
                     insert_coll = self.db2['algoInfoOverview_new']
-                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id']}, algo_dict, upsert=True)
+                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id'],
+                                             'total_return_percentage': algo_dict['total_return_percentage'],
+                                             'net_profit': algo_dict['net_profit'],
+                                             'sharpe_ratio': algo_dict['sharpe_ratio'],
+                                             'compounding_return': algo_dict['compounding_return'],
+                                             'average_win': algo_dict['average_win']}, algo_dict, upsert=True)
+                    print(algo_dict)
             except:
                 continue
+
+    def trade_log_new(self):
+        self.db = self.conn['nft-flask']
+        self.db2 = self.conn["simulation"]
+        trading_card_coll = self.db['tradingCardsNew']
+        documents = trading_card_coll.find({}, {'strategyName': 1})
+        for x in documents:
+            trade_dict = {}
+            x['_id'] = str(x['_id'])
+            col = self.db2[x['strategyName']]
+            for y in col.find().sort('timestamp').limit(10):
+                price = [v for k, v in y.items() if k.startswith('avgPrice') and k != 'avgPrice_']
+                ticker_name = [k for k, v in y.items() if k.startswith('avgPrice')]
+                ticker_name = [x.split('_')[1] for x in ticker_name]
+                ticker_name = list(filter(None, ticker_name))
+                quantity = [v for k, v in y.items() if k.startswith('totalQuantity') and k != 'totalQuantity_']
+                proceeds = [v for k, v in y.items() if k.startswith('commission') and k != 'commission_']
+                if not proceeds:
+                    proceeds = [" "] * len(quantity)
+                for z in range(len(price)):
+                    trade_dict['ETF_Name'] = ticker_name[z]
+                    trade_dict['date_time'] = datetime.now()
+                    trade_dict['price'] = price[z]
+                    trade_dict['quantity'] = quantity[z]
+                    trade_dict['proceeds'] = proceeds[z]
+                    trade_dict['trading_card_id'] = x['_id']
+                    insert_coll = self.db['TradeLog_new']
+                    insert_coll.replace_one({'trading_card_id': trade_dict['trading_card_id'],
+                                             'ETF_Name': trade_dict['ETF_Name'],
+                                             'price': trade_dict['price'],
+                                             'quantity': trade_dict['quantity'],
+                                             'proceeds': trade_dict['proceeds']}, trade_dict, upsert=True)
+                    print(trade_dict)
 
 
 
@@ -433,7 +483,7 @@ def main():
     # a.rolling_return()
     # a.update_historical_return_new()
     # a.write_trading_card()
-    a.update_portfolio_efficiency_new()
+    # a.update_portfolio_efficiency_new()
 
 
 if __name__== "__main__":
