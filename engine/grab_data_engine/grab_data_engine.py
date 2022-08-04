@@ -450,10 +450,16 @@ class grab_stock_data_engine:
 
 class grab_crypto_data_engine:
     def __init__(self):
-        self.ticker_data_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/one_min'
-        self.crypto_daily_data_path = str(pathlib.Path(__file__)
-                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/crypto_coingecko'
+        main_path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve())
+        # self.ticker_data_path = main_path + '/one_min'
+        # self.crypto_daily_data_path = main_path + '/crypto_coingecko' +
+        self.binance_name_path = main_path + '/etf_list/'
+        self.binance_data_path = main_path + '/ticker_data/crypto_binance'
+        self.coingecko_data_path = main_path + '/ticker_data/crypto_coingecko'
+        self.yfinance_data_path = main_path + '/ticker_data/crypto_yfinance'
+        for path in (self.binance_name_path, self.coingecko_data_path, self.yfinance_data_path):
+            if not os.path.exists(path):
+                os.mkdir(path)
         self.binance_base_url = 'https://data.binance.vision'
         self.coingecko_ranking_url = 'https://www.coingecko.com/en/all-cryptocurrencies'
         self.coingecko_historical_data_url = f'https://www.coingecko.com/en/coins/cardano/historical_data?end_date={dt.date.today().strftime("%Y-%m-%d")}&start_date=2021-03-01#panel'
@@ -486,71 +492,117 @@ class grab_crypto_data_engine:
 
     # download data from binance but only one year is available
     def download_binance_daily_data(self, ticker, timestamp, bar_size):
+        if not os.path.exists(self.binance_data_path):
+            os.mkdir(self.binance_data_path)
         ticker = ticker.upper()
         date_str = self.get_date_str_from_timestamp(timestamp, dt.timezone.utc, '%Y-%m-%d')
         url = f'{self.binance_base_url}/data/spot/daily/klines/{ticker}/{bar_size}/{ticker}-{bar_size}-{date_str}.zip'
         request = requests.get(url)
 
-        zip_filename = f'{self.ticker_data_path}/{ticker}.zip'
+        zip_filename = f'{self.binance_data_path}/{ticker}.zip'
 
         with open(zip_filename, 'wb') as myzip:
             myzip.write(request.content)
 
         try:
             with ZipFile(zip_filename, 'r') as myzip:
-                myzip.extractall(f'{self.ticker_data_path}')
+                myzip.extractall(f'{self.binance_data_path}')
                 csv_filename = myzip.namelist()[0]
         except BadZipFile:
             return None
         finally:
             os.remove(zip_filename)
 
-        return f'{self.ticker_data_path}/{csv_filename}'
+        return f'{self.binance_data_path}/{csv_filename}'
 
     # merge all binance data
-    def get_binance_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
-        if type(tickers) is str:
-            tickers = [tickers]
-        for ticker in tickers:
-            ticker = ticker.upper()
-            csv_filename = None
-            merging_dfs = [None, None]
-            current_timestamp = start_timestamp
-            while current_timestamp <= end_timestamp:
-                csv_filename = self.download_binance_daily_data(ticker, current_timestamp, bar_size)
-                if csv_filename is None:
-                    break
-                if merging_dfs[0] is None:
-                    merging_dfs[0] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
+    def get_binance_data_by_range_helper(self, ticker, start_timestamp, end_timestamp, bar_size):
+        # print("Ticker:", ticker)
+        csv_filename = None
+        merging_dfs = [None, None]
+        current_timestamp = start_timestamp
+        test_exist = self.download_binance_daily_data(ticker, end_timestamp, bar_size)
+        if test_exist is None:
+            return None
+        else:
+            os.remove(test_exist)
+        while current_timestamp <= end_timestamp:
+            # print("Timestamp:", current_timestamp)
+            csv_filename = self.download_binance_daily_data(ticker, current_timestamp, bar_size)
+            if csv_filename is None:
+                current_timestamp += 86400
+                continue
+            if merging_dfs[0] is None:
+                merging_dfs[0] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
 
-                elif merging_dfs[1] is None:
-                    merging_dfs[1] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
+            elif merging_dfs[1] is None:
+                merging_dfs[1] = pd.read_csv(csv_filename, names=self.binance_data_col_names)
 
-                os.remove(csv_filename)
+            os.remove(csv_filename)
 
-                if merging_dfs[0] is not None and merging_dfs[1] is not None:
-                    merging_dfs[0] = pd.concat(merging_dfs, ignore_index=True)
-                    merging_dfs[1] = None
-                current_timestamp += 86400  # differ by one day
+            if merging_dfs[0] is not None and merging_dfs[1] is not None:
+                merging_dfs[0] = pd.concat(merging_dfs, ignore_index=True)
+                merging_dfs[1] = None
+            current_timestamp += 86400  # differ by one day
 
             if csv_filename is None:
                 continue
 
-            result_df = merging_dfs[0]
-            result_df['Open time'] = round(result_df['Open time'] / 1000)
-            result_df['Close time'] = round(result_df['Close time'] / 1000)
-            result_df.to_csv(f'{self.ticker_data_path}/{ticker}.csv', index=False)
+        result_df = merging_dfs[0]
+        result_df['Open time'] = round(result_df['Open time'] / 1000)
+        result_df['Close time'] = round(result_df['Close time'] / 1000)
+        return result_df
+
+    def get_binance_data_by_range(self, tickers, start_timestamp, end_timestamp, bar_size):
+        if type(tickers) is str:
+            tickers = [tickers]
+        for ticker in tickers.copy():
+            ticker = ticker.upper()
+            df = self.get_binance_data_by_range_helper(ticker, start_timestamp, end_timestamp, bar_size)
+            if df is None:
+                print(f"Current data for {ticker} is not available on Binance")
+                continue
+            df.to_csv(f'{self.binance_data_path}/{ticker}.csv', index=False)
+            print(f"Successfully downloaded {ticker}.csv")
 
     def get_missing_binance_data(self, tickers=None):
         if type(tickers) is str:
             tickers = [tickers]
         if tickers is None:
-            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+            # cg = CoinGeckoAPI()
+            # coins = cg.get_coins_list()
+            # tickers = {coin['symbol'] for coin in coins}
+            tickers = pd.read_csv(f"{self.binance_name_path}/crypto_name_binance.csv")['Ticker']
         now_timestamp = dt.datetime.now().timestamp()
         for ticker in tickers:
-            if not os.path.exists(f"{self.binance_crypto_data_path}/{ticker}.csv"):
-                self.get_binance_data_by_range(ticker, dt.date(2021, 3, 1), dt.datetime.now().timestamp() , '1d')
+            if not os.path.exists(f"{self.binance_data_path}/{ticker}.csv"):
+                self.get_binance_data_by_range(ticker, dt.datetime.timestamp(dt.datetime.combine(dt.date(2021, 3, 1), dt.datetime.min.time())), now_timestamp - 86400, '1d')
                 continue
+            else:
+                existing_data = pd.read_csv(f"{self.binance_data_path}/{ticker}.csv")
+                last_update = existing_data["Open time"].iloc[-1]
+                if last_update + 86400 < now_timestamp - 86400:
+                    missing_data = self.get_binance_data_by_range_helper(ticker, last_update + 86400, now_timestamp - 86400, '1d')
+                    updated_data = pd.concat([existing_data, missing_data])
+                    updated_data.to_csv(f"{self.binance_data_path}/{ticker}.csv", index=False)
+                    if not updated_data.empty:
+                        print(f"Successfully updated {ticker}.csv")
+                    else:
+                        print(f"Failed updating {ticker}.csv")
+                else:
+                    print(f"Data for {ticker} is up-to-date")
+            # index_list = missing_data.index.tolist()
+            # timestamp = list()
+            # for x in range(len(index_list)):
+            #     timestamp.append(int(index_list[x].timestamp()))
+            # missing_data['timestamp'] = timestamp
+            # missing_data = missing_data.rename(columns={'Open': 'open'})
+            # updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
+            # updated_data.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
+            # if not updated_data.empty:
+            #     print(f"Successfully updated {ticker}.csv")
+            # else:
+            #     print(f"Failed updating {ticker}.csv")
 
     # e.g. convert '$582,266,289,816' to int type
     # doesn't support number with decimal point
@@ -565,7 +617,7 @@ class grab_crypto_data_engine:
     # crawl coingecko market_cap data with Selenium
     def crawl_historical_market_cap_by_range_coingecko(self):
         chrome_options = webdriver.ChromeOptions()
-        prefs = {'download.default_directory': self.crypto_daily_data_path}
+        prefs = {'download.default_directory': self.coingecko_data_path}
         chrome_options.add_experimental_option('prefs', prefs)
         browser = webdriver.Chrome(service=Service(webdriver.ChromeDriverManager().install()), options=chrome_options)
 
@@ -606,7 +658,7 @@ class grab_crypto_data_engine:
     def get_tickers_from_dir(self):
         tickers = []
         is_start = False
-        for filename in os.listdir(self.crypto_daily_data_path):
+        for filename in os.listdir(self.coingecko_data_path):
             if is_start:
                 tickers.append(filename.split('-')[0] + 'USDT')
             if filename == 'ksm-usd-max.csv':
@@ -615,26 +667,26 @@ class grab_crypto_data_engine:
 
     # it returns a dataframe after reading data from coingecko
     def get_crypto_daily_data(self, ticker):
-        filename = f'{self.crypto_daily_data_path}/{ticker.lower()}-usd-max.csv'
+        filename = f'{self.coingecko_data_path}/{ticker.lower()}-usd-max.csv'
         if os.path.exists(filename):
             df = pd.read_csv(filename)
             df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0], format='%Y-%m-%d %H:%M:%S %Z')
             df.set_index('snapped_at', inplace=True)
             return df
         else:
-            print('daily crypto data not found')
+            print('Daily crypto data not found')
             return None
 
-    def get_daily_data_by_period_helper(self, ticker, period):
+    def get_yfinance_data_helper(self, ticker, period):
         btc = yf.Ticker(f'{ticker}-USD')
         hist = btc.history(period=period)
         return hist
 
     # download yfinance data
-    def get_yfinance_max_historical_data(self, ticker):
-        btc = yf.Ticker(f'{ticker}-USD')
-        hist = btc.history(period='max')
-        return hist
+    # def get_yfinance_max_historical_data(self, ticker):
+    #     btc = yf.Ticker(f'{ticker}-USD')
+    #     hist = btc.history(period='max')
+    #     return hist
 
     # download all crypto data with coingecko API
     def download_all_crypto_data(self):
@@ -642,15 +694,79 @@ class grab_crypto_data_engine:
         coins_list = cg.get_coins_list()
         for coin in coins_list:
             symbol = coin['symbol']
-            df = self.get_yfinance_max_historical_data(symbol)
+            df = self.get_yfinance_data_helper(symbol, 'max')
             if not df.empty:
                 # Symbols for certain cryptos are reserved names and cannot be used as file name
                 # Therefore the file name is changed if the symbol is a reserved name
                 try:
-                    df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+                    df.to_csv(f'{self.yfinance_data_path}/{symbol.upper()}.csv')
                 except FileNotFoundError:
                     symbol = '_' + symbol + '_'
-                    df.to_csv(f'{self.crypto_daily_data_path}/{symbol.upper()}.csv')
+                    df.to_csv(f'{self.yfinance_data_path}/{symbol.upper()}.csv')
+
+class grab_dividend_engine():
+    def __init__(self, update_list=False):
+        self.ticker_name_path = str(pathlib.Path(__file__)
+                                    .parent.parent.parent.parent.resolve()) + '/etf_list'
+        # If update_list or ticker_name.csv does not exist, create ticker_name.csv
+        if not os.path.isdir(self.ticker_name_path):
+            os.makedirs(self.ticker_name_path)
+        file_exists = os.path.exists(f"{self.ticker_name_path}/ticker_name.csv")
+        if (not file_exists) or update_list:
+            url = "http://www.lazyportfolioetf.com/allocation/"
+            page = urlopen(url)
+            html_bytes = page.read()
+            html = html_bytes.decode("utf-8")
+            soup = BeautifulSoup(html, "lxml")
+            portfolio_link = False
+            links = list()
+            for link in soup.find_all('a', href=True):
+                if link['href'] == "http://www.lazyportfolioetf.com/allocation/10-year-treasury/":
+                    portfolio_link = True
+                if link['href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
+                    portfolio_link = False
+                if portfolio_link:
+                    links.append(link['href'])
+            links = list(dict.fromkeys(links))
+            df = pd.DataFrame(columns=['Ticker'])
+            for x in range(0, len(links)):
+                soup1 = BeautifulSoup(requests.get(links[x]).text, "lxml")
+                table = soup1.find('table',
+                                   class_='w3-table table-padding-small w3-small font-family-arial table-valign-middle')
+                for row in table.tbody.find_all('tr'):
+                    columns = row.find_all('td')
+                    if columns != []:
+                        ticker = columns[2].b.contents[0]
+                        df = pd.concat([df, pd.DataFrame.from_records([{'Ticker': ticker}])])
+            df.drop_duplicates(inplace=True)
+            df = df[df["Ticker"] != '^BTC']
+            df.to_csv(f"{self.ticker_name_path}/ticker_name.csv", index=False)
+        self.dividends_data_path = str(
+            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividend"
+
+
+    def get_dividend_helper(self, ticker):
+        btc = yf.Ticker(ticker)
+        hist = btc.dividends
+        return hist
+
+    def get_dividend(self, tickers=None):
+        if not os.path.exists(self.dividends_data_path):
+            os.mkdir(self.dividends_data_path)
+        if type(tickers) is str:
+            tickers = [tickers]
+        if tickers is None:
+            tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
+        if type(tickers) is str:
+            tickers = [tickers]
+        for ticker in tickers:
+            df = self.get_dividend_helper(ticker)
+            df.to_csv(f"{self.dividends_data_path}/{ticker}.csv", index=True, header=True)
+            if not df.empty:
+                print(f"Successfully downloaded {ticker}.csv")
+            else:
+                print(f"Failed downloading {ticker}.csv")
+
 
 # For testing only
 def main():
@@ -662,8 +778,11 @@ def main():
     # tickers = crypto_engine.get_tickers_from_dir()
     # crypto_engine.get_binance_data_by_range('BLZBTC', dt.datetime.now().timestamp() - 86400 * 100, dt.datetime.now().timestamp() - 86400, '1d')
     # a=1
-    crypto_engine.get_binance_crypto_list()
+    crypto_engine.get_missing_binance_data()
     # crypto_engine.crawl_historical_market_cap_by_range_coingecko()
+    # dividend_engine = grab_dividend_engine(update_list=True)
+    # dividend_engine.get_dividend()
+
 
 if __name__ == "__main__":
     main()
