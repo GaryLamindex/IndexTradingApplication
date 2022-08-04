@@ -73,8 +73,8 @@ class realtime:
     def init_backtest(self, user_id, acceptance_range, store_mongoDB, strategy_initial, video_link,
                       documents_link, tags_array, subscribers_num,
                       rating_dict, margin_ratio, trader_name):
-        #self.now = datetime.now()
-        self.now = datetime(2022, 2, 3)
+        self.now = datetime.now()
+        # self.now = datetime(2022, 2, 3)
         if store_mongoDB:
             self.store_mongoDB = True
             self.strategy_initial = strategy_initial
@@ -128,7 +128,7 @@ class realtime:
             current_timestamp = datetime.timestamp(current_date)
             _date = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%H:%M:%S")
-            print('#' * 20, _date, ":", _time, " "*5, self.tickers, '#' * 20)
+            print('#' * 20, _date, ":", _time, " " * 5, self.tickers, '#' * 20)
             if self.stock_data_engines[self.tickers[0]].get_data_by_range(
                     [last_excute_timestamp, current_timestamp]) is None:
                 print("No new data")
@@ -150,9 +150,7 @@ class realtime:
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-        print('#' * 20, _date, ":", _time, " "*5, self.tickers, '#' * 20)
-        if self.dividend_agent is None:
-            a = 0
+        print('#' * 20, _date, ":", _time, " " * 5, self.tickers, '#' * 20)
         if self.dividend_agent.check_div(timestamp):
             portfolio = self.portfolio_data_engine.get_portfolio()
             total_dividend = self.dividend_agent.distribute_div(timestamp, portfolio)
