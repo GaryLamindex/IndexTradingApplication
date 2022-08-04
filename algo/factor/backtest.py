@@ -1,14 +1,11 @@
 import os
 import pathlib
 from datetime import datetime
-from datetime import timedelta
 from dateutil.relativedelta import relativedelta
-import numpy as np
 import pandas as pd
 from os import listdir
 from pathlib import Path
 from algo.factor.algorithm import Factor
-from algo.factor.indicator import Indicator
 from engine.backtest_engine.dividend_engine import dividend_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
 from engine.backtest_engine.stock_data_io_engine import local_engine
@@ -16,11 +13,11 @@ from engine.backtest_engine.trade_engine import backtest_trade_engine
 from engine.simulation_engine import sim_data_io_engine
 from engine.simulation_engine.simulation_agent import simulation_agent
 from engine.mongoDB_engine.write_document_engine import Write_Mongodb
-from engine.simulation_engine.statistic_engine import statistic_engine
+from engine.stat_engine.statistic_engine import statistic_engine
 # from engine.mongoDB_engine.write_document_engine import Write_Mongodb
 from object.backtest_acc_data import backtest_acc_data
 from engine.visualisation_engine import graph_plotting_engine
-from object.action_data import IBAction, IBActionsTuple
+from object.action_data import IBAction
 
 
 class Backtest:
