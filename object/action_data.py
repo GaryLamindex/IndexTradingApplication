@@ -39,6 +39,8 @@ class IBAction(Enum):
     BUY_LMT_ORDER = 5
     SELL_LMT_ORDER = 6
 
+    NO_ACTION = 7
+
 
 class IBActionState(Enum):
     FAIL = 0

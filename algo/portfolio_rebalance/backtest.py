@@ -1,6 +1,8 @@
 import os
 import pathlib
 from datetime import datetime
+
+import numpy
 import pandas as pd
 from os import listdir
 from pathlib import Path
@@ -134,6 +136,8 @@ class backtest(object):
                     df = pd.read_csv(run_file)
                     first_day = df["date"].iloc[0]
                     last_day = df["date"].iloc[-1]
+                    first_row=df.iloc[0]
+                    last_row = df.iloc[-1]
                     if abs((self.start_date.replace(day=1) - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
                             abs((self.end_date.replace(day=1) - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
                         os.remove(Path(run_file))
@@ -308,21 +312,41 @@ class backtest(object):
                                                     self.stats_data_dir, self.strategy_initial, self.video_link,
                                                     self.documents_link, self.tags_array, self.rating_dict,
                                                     self.margin_ratio, self.subscribers_num, self.trader_name)
+        self.algorithm = portfolio_rebalance(self.trade_agent, self.portfolio_data_engine, self.rebalance_dict,
+                                             self.acceptance_range)
         df = pd.read_csv(run_file)
+        row = df.iloc[-1]
         last_day = df["date"].iloc[-1]
-        availablefunds = df["AvailableFunds"].iloc[-1]
-        excessliquidity = df["ExcessLiquidity"].iloc[-1]
-        buyingpower = df["BuyingPower"].iloc[-1]
-        leverage = df["Leverage"].iloc[-1]
-        equitywithloanvalue = df["EquityWithLoanValue"].iloc[-1]
-        totalcashvalue = df["TotalCashValue"].iloc[-1]
-        netdividend = df["NetDividend"].iloc[-1]
-        netliquidation = df["NetLiquidation"].iloc[-1]
-        unrealizedpnL = df["UnrealizedPnL"].iloc[-1]
-        realizedpnL = df["RealizedPnL"].iloc[-1]
-        grosspositionvalue = df["GrossPositionValue"].iloc[-1]
+        availablefunds = row.get("AvailableFunds")
+        excessliquidity = row.get("ExcessLiquidity")
+        buyingpower = row.get("BuyingPower")
+        leverage = row.get("Leverage")
+        equitywithloanvalue = row.get("EquityWithLoanValue")
+        totalcashvalue = row.get("TotalCashValue")
+        netdividend = row.get("NetDividend")
+        netliquidation = row.get("NetLiquidation")
+        unrealizedpnL = row.get("UnrealizedPnL")
+        realizedpnL = row.get("RealizedPnL")
+        grosspositionvalue = row.get("GrossPositionValue")
 
-
+        self.acc_data.update_trading_funds(availablefunds, excessliquidity, buyingpower, leverage, equitywithloanvalue)
+        self.acc_data.update_mkt_value(totalcashvalue, netdividend, netliquidation, unrealizedpnL, realizedpnL,
+                                       grosspositionvalue)
+        for ticker in self.tickers:
+            mktprice = row.get(f"marketPrice_{ticker}")
+            position = row.get(f"position_{ticker}")
+            averagecost = row.get(f"averageCost_{ticker}")
+            marketvalue = row.get(f"marketValue_{ticker}")
+            ticker_realizedpnl = row.get(f"realizedPNL_{ticker}")
+            ticker_unrealizedpnl = row.get(f"unrealizedPNL_{ticker}")
+            initmarginreq = row.get(f"initMarginReq_{ticker}")
+            maintmarginreq = row.get(f"maintMarginReq_{ticker}")
+            costbasis = row.get(f"costBasis_{ticker}")
+            self.acc_data.update_portfolio_item(ticker, position, mktprice, averagecost, marketvalue,
+                                                ticker_realizedpnl, ticker_unrealizedpnl, initmarginreq, maintmarginreq,
+                                                costbasis)
+        self.portfolio_data_engine.acc_data = self.acc_data
+        self.trade_agent.backtest_acc_data = self.acc_data
 
         pass
 

@@ -46,7 +46,7 @@ if __name__ == "__main__":
                                                                       data_freq, user_id, cal_stat,
                                                                       db_mode, acceptance_range,
                                                                       execute_period))
-    M_MSFT.start()
+    # M_MSFT.start()
     SPY_MSFT.start()
-    M_MSFT.join()
+    # M_MSFT.join()
     SPY_MSFT.join()
