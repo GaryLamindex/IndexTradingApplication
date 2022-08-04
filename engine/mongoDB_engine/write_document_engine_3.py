@@ -178,7 +178,13 @@ class Write_Mongodb:
                     algo_dict['average_win'] = x['Since Inception Average Win Per Day']
                     algo_dict['trading_card_id'] = y['_id']
                     insert_coll = self.db2['algoInfoOverview_new']
-                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id']}, algo_dict, upsert=True)
+                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id'],
+                                             'total_return_percentage': algo_dict['total_return_percentage'],
+                                             'net_profit': algo_dict['net_profit'],
+                                             'sharpe_ratio': algo_dict['sharpe_ratio'],
+                                             'compounding_return': algo_dict['compounding_return'],
+                                             'average_win': algo_dict['average_win']}, algo_dict, upsert=True)
+                    print(algo_dict)
             except:
                 continue
 
@@ -207,9 +213,13 @@ class Write_Mongodb:
                     trade_dict['quantity'] = quantity[z]
                     trade_dict['proceeds'] = proceeds[z]
                     trade_dict['trading_card_id'] = x['_id']
+                    insert_coll = self.db['TradeLog_new']
+                    insert_coll.replace_one({'trading_card_id': trade_dict['trading_card_id'],
+                                             'ETF_Name': trade_dict['ETF_Name'],
+                                             'price': trade_dict['price'],
+                                             'quantity': trade_dict['quantity'],
+                                             'proceeds': trade_dict['proceeds']}, trade_dict, upsert=True)
                     print(trade_dict)
-                    # insert_coll = self.db['TradeLog_new']
-                    # insert_coll.replace_one({'trading_card_id': trade_dict['trading_card_id']}, trade_dict, upsert=True)
 
     def delete(self):
         self.db = self.conn['nft-flask']
@@ -230,7 +240,7 @@ def main():
     # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
     engine = Write_Mongodb()
     # engine.historical_graph_new()
-    # engine.algo_info_overview()
+    engine.algo_info_overview()
     # engine.trade_log()
     # engine.delete()
     return
