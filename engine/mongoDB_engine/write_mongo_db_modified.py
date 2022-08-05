@@ -67,48 +67,33 @@ class Write_Mongodb:
     #         trading_cards_df['strategyInitial'] = strategy_initial
     #         coll.insert_many(trading_cards_df.to_dict(orient='records'))
     #     return
-
     # for reference
-    def update_algo_principle_top(self):
-        coll = self.rainydrop_db[self.Strategies]
-        insert_coll = self.nft_db[self.algoPrincipleTop]
-
-        documents = coll.find({}, {'_id': 0,
-                                   'strategy_name': 1,
-                                   '1 Yr Volatility': 1,
-                                   '1 Yr Win Rate': 1,
-                                   '1 Yr Return': 1,
-                                   '1 Yr Sharpe': 1,
-                                   '1 Yr Average Win Per Day': 1})
-
-        for x in documents:
-            r = {'strategy_name': x['strategy_name'],
-                 'datetime': datetime.datetime.now(),
-                 'avgReturn': x['1 Yr Average Win Per Day'],
-                 'volatility': x['1 Yr Volatility'],
-                 'winrate': x['1 Yr Win Rate'],
-                 'annualReturn': x['1 Yr Win Rate'],
-                 'sharpRatio': x['1 Yr Sharpe']
-                 }
-
-            insert_coll.replace_one({"strategy_name": x['strategy_name']}, r, upsert=True)
-            print("successfully updated:\n", x)
-
-        return
-
-    def historical_graph(self):
-        for coll in self.simulation_db.list_collection_names():
-        # time stamp, price
-            documents = self.simulation_db[coll].find({},{'timestamp': 1,
-                                                          'NetLiquidation': 1})
-            for x in documents:
-                print(x)
-
-        return
-        
-
-
-
+    # def update_algo_principle_top(self):
+    #     coll = self.rainydrop_db[self.Strategies]
+    #     insert_coll = self.nft_db[self.algoPrincipleTop]
+    #
+    #     documents = coll.find({}, {'_id': 0,
+    #                                'strategy_name': 1,
+    #                                '1 Yr Volatility': 1,
+    #                                '1 Yr Win Rate': 1,
+    #                                '1 Yr Return': 1,
+    #                                '1 Yr Sharpe': 1,
+    #                                '1 Yr Average Win Per Day': 1})
+    #
+    #     for x in documents:
+    #         r = {'strategy_name': x['strategy_name'],
+    #              'datetime': datetime.datetime.now(),
+    #              'avgReturn': x['1 Yr Average Win Per Day'],
+    #              'volatility': x['1 Yr Volatility'],
+    #              'winrate': x['1 Yr Win Rate'],
+    #              'annualReturn': x['1 Yr Win Rate'],
+    #              'sharpRatio': x['1 Yr Sharpe']
+    #              }
+    #
+    #         insert_coll.replace_one({"strategy_name": x['strategy_name']}, r, upsert=True)
+    #         print("successfully updated:\n", x)
+    #
+    #     return
 
     def update_drawdown_data(self):
         insert_coll = self.nft_db[self.drawdown_data]
@@ -130,46 +115,46 @@ class Write_Mongodb:
 
         return
 
-    def portfolio_returns(self):
-        coll = self.rainydrop_db[self.Strategies]
-        # insert_coll = self.nft_db[self.algoPrincipleTop]
-        documents = coll.find({}, {'_id': 0,
-                                   'strategy_name': 1,
-                                   'YTD Return': 1,
-                                   '1 Yr Return': 1,
-                                   '3 Yr Return': 1,
-                                   '5 Yr Return': 1,
-                                   'Since Inception Return': 1
-                                   })
+    # def portfolio_returns(self):
+    #     coll = self.rainydrop_db[self.Strategies]
+    #     # insert_coll = self.nft_db[self.algoPrincipleTop]
+    #     documents = coll.find({}, {'_id': 0,
+    #                                'strategy_name': 1,
+    #                                'YTD Return': 1,
+    #                                '1 Yr Return': 1,
+    #                                '3 Yr Return': 1,
+    #                                '5 Yr Return': 1,
+    #                                'Since Inception Return': 1
+    #                                })
+    #
+    #     # for x in documents:
+    #     #     insert_coll.replace_one({"strategy_name": x['strategy_name']}, x, upsert=True)
+    #     #     print("successfully updated:\n", x)
+    #
+    #     return
 
-        # for x in documents:
-        #     insert_coll.replace_one({"strategy_name": x['strategy_name']}, x, upsert=True)
-        #     print("successfully updated:\n", x)
-
-        return
-
-    def composite_table(self):
-        coll = self.rainydrop_db[self.Strategies]
-        # insert_coll = self.nft_db[self.algoPrincipleTop]
-        documents = coll.find({}, {'_id': 0,
-                                   'strategy_name': 1,
-                                   'Composite': 1})
-
-        for x in documents:
-            sep_dict = x['Composite']
-            print(sep_dict)
-
-        return
+    # def composite_table(self):
+    #     coll = self.rainydrop_db[self.Strategies]
+    #     # insert_coll = self.nft_db[self.algoPrincipleTop]
+    #     documents = coll.find({}, {'_id': 0,
+    #                                'strategy_name': 1,
+    #                                'Composite': 1})
+    #
+    #     for x in documents:
+    #         sep_dict = x['Composite']
+    #         print(sep_dict)
+    #
+    #     return
 
 
-    def trade_log(self):
-        # insert_coll = self.nft_db[self.drawdown_data]
-        for coll in self.simulation_db.list_collection_names():
-            print(coll)
-            documents = self.simulation_db[coll].find({})
-            for x in documents:
-                print(x)
-        return
+    # def trade_log(self):
+    #     # insert_coll = self.nft_db[self.drawdown_data]
+    #     for coll in self.simulation_db.list_collection_names():
+    #         print(coll)
+    #         documents = self.simulation_db[coll].find({})
+    #         for x in documents:
+    #             print(x)
+    #     return
 
     def update_drawdown_graph_data(self):
         trading_card_new_coll = self.nft_db[self.trading_cards_new]
@@ -191,21 +176,21 @@ class Write_Mongodb:
                                                       'trading_card_id': x['trading_card_id']}, x, upsert=True)
         return
 
-    def rolling_return(self):
-        for coll in self.rainydrop_db.list_collection_names():
-            print(coll)
-            documents = self.rainydrop_db[coll].find({},{'_id': 0,
-                                                         '1 Yr Rolling Return': 1,
-                                                         '2 Yr Rolling Return': 1,
-                                                         '3 Yr Rolling Return': 1,
-                                                         '5 Yr Rolling Return': 1,
-                                                         '7 Yr Rolling Return': 1,
-                                                         '10 Yr Rolling Return': 1,
-                                                         '15 Yr Rolling Return': 1,
-                                                         '20 Yr Rolling Return': 1,
-                                                         })
-            for x in documents:
-                print(x)
+    # def rolling_return(self):
+    #     for coll in self.rainydrop_db.list_collection_names():
+    #         print(coll)
+    #         documents = self.rainydrop_db[coll].find({},{'_id': 0,
+    #                                                      '1 Yr Rolling Return': 1,
+    #                                                      '2 Yr Rolling Return': 1,
+    #                                                      '3 Yr Rolling Return': 1,
+    #                                                      '5 Yr Rolling Return': 1,
+    #                                                      '7 Yr Rolling Return': 1,
+    #                                                      '10 Yr Rolling Return': 1,
+    #                                                      '15 Yr Rolling Return': 1,
+    #                                                      '20 Yr Rolling Return': 1,
+    #                                                      })
+    #         for x in documents:
+    #             print(x)
 
     def write_trading_card(self):
         coll = self.nft_db[self.trading_cards_new]
@@ -387,55 +372,55 @@ class Write_Mongodb:
             insert_coll = self.db['historicalGraphNew']
             insert_coll.replace_one({'key': graph_dict['key']}, graph_dict, upsert=True)
 
-    def algo_info_overview(self):
-        self.db = self.conn['rainydrop']
-        coll = self.db['Strategies']
-        self.db2 = self.conn["nft-flask"]
-        trading_card_coll = self.db2['tradingCardsNew']
-        doc = trading_card_coll.find({}, {'strategyName': 1})
-        for y in doc:
-            try:
-                y['_id'] = str(y['_id'])
-                documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
-                                                                             'Since Inception Return': 1,
-                                                                             'net profit': 1,
-                                                                             'Since Inception Alpha': 1,
-                                                                             'Since Inception Sharpe': 1,
-                                                                             'compound_inception_return_dict': 1,
-                                                                             'margin ratio': 1,
-                                                                             'Since Inception Sortino': 1,
-                                                                             'Since Inception Volatility': 1,
-                                                                             'Since Inception Win Rate': 1,
-                                                                             'Since Inception Max Drawdown': 1,
-                                                                             'Since Inception Average Win Per Day': 1,
-                                                                             'inception pos neg': 1,
-                                                                             'Since Inception Profit Loss Ratio': 1,
-                                                                             'strategy_name': 1})
-                for x in documents:
-                    algo_dict = {}
-                    algo_dict['total_return_percentage'] = x['Since Inception Return']
-                    algo_dict['net_profit'] = x['net profit']
-                    algo_dict['sharpe_ratio'] = x['Since Inception Sharpe']
-                    algo_dict['compounding_return'] = x['compound_inception_return_dict']
-                    algo_dict['margin_ratio'] = x['margin ratio']
-                    algo_dict['sortino_ratio'] = x['Since Inception Sortino']
-                    algo_dict['max_drawdown'] = x['Since Inception Max Drawdown']
-                    algo_dict['alpha'] = x['Since Inception Alpha']
-                    algo_dict['volatility'] = x['Since Inception Volatility']
-                    algo_dict['profit_loss_ratio'] = x['Since Inception Profit Loss Ratio']
-                    algo_dict['win_rate'] = x['Since Inception Win Rate']
-                    algo_dict['average_win'] = x['Since Inception Average Win Per Day']
-                    algo_dict['trading_card_id'] = y['_id']
-                    insert_coll = self.db2['algoInfoOverview_new']
-                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id'],
-                                             'total_return_percentage': algo_dict['total_return_percentage'],
-                                             'net_profit': algo_dict['net_profit'],
-                                             'sharpe_ratio': algo_dict['sharpe_ratio'],
-                                             'compounding_return': algo_dict['compounding_return'],
-                                             'average_win': algo_dict['average_win']}, algo_dict, upsert=True)
-                    print(algo_dict)
-            except:
-                continue
+    # def algo_info_overview(self):
+    #     self.db = self.conn['rainydrop']
+    #     coll = self.db['Strategies']
+    #     self.db2 = self.conn["nft-flask"]
+    #     trading_card_coll = self.db2['tradingCardsNew']
+    #     doc = trading_card_coll.find({}, {'strategyName': 1})
+    #     for y in doc:
+    #         try:
+    #             y['_id'] = str(y['_id'])
+    #             documents = coll.find({'strategy_name': y['strategyName']}, {'_id': 0,
+    #                                                                          'Since Inception Return': 1,
+    #                                                                          'net profit': 1,
+    #                                                                          'Since Inception Alpha': 1,
+    #                                                                          'Since Inception Sharpe': 1,
+    #                                                                          'compound_inception_return_dict': 1,
+    #                                                                          'margin ratio': 1,
+    #                                                                          'Since Inception Sortino': 1,
+    #                                                                          'Since Inception Volatility': 1,
+    #                                                                          'Since Inception Win Rate': 1,
+    #                                                                          'Since Inception Max Drawdown': 1,
+    #                                                                          'Since Inception Average Win Per Day': 1,
+    #                                                                          'inception pos neg': 1,
+    #                                                                          'Since Inception Profit Loss Ratio': 1,
+    #                                                                          'strategy_name': 1})
+    #             for x in documents:
+    #                 algo_dict = {}
+    #                 algo_dict['total_return_percentage'] = x['Since Inception Return']
+    #                 algo_dict['net_profit'] = x['net profit']
+    #                 algo_dict['sharpe_ratio'] = x['Since Inception Sharpe']
+    #                 algo_dict['compounding_return'] = x['compound_inception_return_dict']
+    #                 algo_dict['margin_ratio'] = x['margin ratio']
+    #                 algo_dict['sortino_ratio'] = x['Since Inception Sortino']
+    #                 algo_dict['max_drawdown'] = x['Since Inception Max Drawdown']
+    #                 algo_dict['alpha'] = x['Since Inception Alpha']
+    #                 algo_dict['volatility'] = x['Since Inception Volatility']
+    #                 algo_dict['profit_loss_ratio'] = x['Since Inception Profit Loss Ratio']
+    #                 algo_dict['win_rate'] = x['Since Inception Win Rate']
+    #                 algo_dict['average_win'] = x['Since Inception Average Win Per Day']
+    #                 algo_dict['trading_card_id'] = y['_id']
+    #                 insert_coll = self.db2['algoInfoOverview_new']
+    #                 insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id'],
+    #                                          'total_return_percentage': algo_dict['total_return_percentage'],
+    #                                          'net_profit': algo_dict['net_profit'],
+    #                                          'sharpe_ratio': algo_dict['sharpe_ratio'],
+    #                                          'compounding_return': algo_dict['compounding_return'],
+    #                                          'average_win': algo_dict['average_win']}, algo_dict, upsert=True)
+    #                 print(algo_dict)
+    #         except:
+    #             continue
 
     def trade_log_new(self):
         self.db = self.conn['nft-flask']
@@ -469,6 +454,15 @@ class Write_Mongodb:
                                              'quantity': trade_dict['quantity'],
                                              'proceeds': trade_dict['proceeds']}, trade_dict, upsert=True)
                     print(trade_dict)
+
+    def run_all(self):
+        self.write_trading_card()
+        self.trade_log_new()
+        self.write_historical_graph_new()
+        self.update_portfolio_efficiency_new()
+        self.update_historical_return_new()
+        self.update_drawdown_graph_data()
+        self.update_drawdown_data()
 
 
 
