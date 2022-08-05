@@ -19,7 +19,7 @@ class Write_Mongodb:
     drawdown_data = 'drawdown_data'
     simulation = 'simulation'
     drawdown_graph_data = 'drawdown_graph_data'
-    rolling_test = 'rolling_test'
+    rollingReturns_new = "rollingReturns_new"
 
     def __init__(self, run_data_df=None, all_file_return_df=None, drawdown_abstract_df=None, drawdown_raw_df=None):
         self.conn = MongoClient(
@@ -210,7 +210,7 @@ class Write_Mongodb:
 
     def rolling_return(self):
         coll = self.nft_db[self.trading_cards]
-        replace = self.nft_db[self.rolling_test]
+        replace = self.nft_db[self.rollingReturns_new]
         documents = self.rainydrop_db[self.Strategies].find({}, {'_id': 0,
                                                                  '1 Yr Rolling Return': 1,
                                                                  '2 Yr Rolling Return': 1,
