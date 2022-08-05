@@ -136,7 +136,8 @@ class Write_Mongodb:
                 array.append(temp)
             graph_dict['data'] = array
             insert_coll = self.db['historicalGraphNew']
-            insert_coll.insert_one(graph_dict)
+            insert_coll.replace_one({'trading_card_id': graph_dict['trading_card_id'] }, graph_dict, upsert=True)
+            print(graph_dict)
 
     def algo_info_overview(self):
         self.db = self.conn['rainydrop']
@@ -178,12 +179,7 @@ class Write_Mongodb:
                     algo_dict['average_win'] = x['Since Inception Average Win Per Day']
                     algo_dict['trading_card_id'] = y['_id']
                     insert_coll = self.db2['algoInfoOverview_new']
-                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id'],
-                                             'total_return_percentage': algo_dict['total_return_percentage'],
-                                             'net_profit': algo_dict['net_profit'],
-                                             'sharpe_ratio': algo_dict['sharpe_ratio'],
-                                             'compounding_return': algo_dict['compounding_return'],
-                                             'average_win': algo_dict['average_win']}, algo_dict, upsert=True)
+                    insert_coll.replace_one({'trading_card_id': algo_dict['trading_card_id'] }, algo_dict, upsert=True)
                     print(algo_dict)
             except:
                 continue
@@ -222,12 +218,11 @@ class Write_Mongodb:
 
     def delete(self):
         self.db = self.conn['nft-flask']
-        self.db2 = self.conn["simulation"]
         trading_card_coll = self.db['tradingCardsNew']
         documents = trading_card_coll.find({}, {'strategyName': 1})
         for x in documents:
             x['_id'] = str(x['_id'])
-            col = self.db['TradeLog_new']
+            col = self.db['algoInfoOverview_new']
             while col.count_documents({'trading_card_id': x['_id']}) != 0:
                 col.delete_one({'trading_card_id': x['_id']})
     def delete_all(self):
@@ -244,7 +239,7 @@ def main():
     # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
     engine = Write_Mongodb()
     # engine.historical_graph_new()
-    # engine.algo_info_overview()
+    engine.algo_info_overview()
     # engine.trade_log()
     # engine.delete()
     # engine.delete_all()
