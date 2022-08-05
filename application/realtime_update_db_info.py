@@ -1,5 +1,9 @@
+from engine.mongoDB_engine.write_mongo_db_modified import Write_Mongodb
 
-class RealtimeUpdateDb:
+class RealtimeUpdateDbInfo:
+
     def run(self):
         while True:
-            pass
+            engine = Write_Mongodb()
+            engine.run_all()
+
