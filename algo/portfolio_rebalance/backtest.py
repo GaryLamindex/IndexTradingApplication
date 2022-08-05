@@ -204,7 +204,7 @@ class backtest(object):
                     portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
 
             if self.quick_test:
-                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1):
+                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1,):
                     self.run(timestamp, algorithm, sim_agent, trade_agent)
             else:
                 self.run(timestamp, algorithm, sim_agent, trade_agent)
