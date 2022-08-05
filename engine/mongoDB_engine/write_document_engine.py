@@ -85,7 +85,7 @@ class Write_Mongodb:
             all_file_return_df['margin ratio'] = margin_ratio
             all_file_return_df['subscribers_num'] = subscribers_num
             all_file_return_df['trader_name'] = trader_name
-            all_file_return_df = all_file_return_df.loc[[name]]
+            all_file_return_df = all_file_return_df.loc[all_file_return_df['Backtest Spec'] == name]
             all_file_return_record = all_file_return_df.to_dict(orient='records')
             coll.insert_many(all_file_return_record)
         return
