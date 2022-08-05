@@ -14,6 +14,7 @@ class Write_Mongodb:
     trading_cards_new = 'tradingCardsNew'
     strategyequity = 'strategyEquity'
     rollingReturns = 'rollingReturns'
+    rollingReturns_new = 'rollingReturns_new'
     algoPrincipleTop = 'algoPrincipleTop'
     rainydrop = 'rainydrop'
     Strategies = 'Strategies'
@@ -177,20 +178,43 @@ class Write_Mongodb:
         return
 
     # def rolling_return(self):
-    #     for coll in self.rainydrop_db.list_collection_names():
-    #         print(coll)
-    #         documents = self.rainydrop_db[coll].find({},{'_id': 0,
-    #                                                      '1 Yr Rolling Return': 1,
-    #                                                      '2 Yr Rolling Return': 1,
-    #                                                      '3 Yr Rolling Return': 1,
-    #                                                      '5 Yr Rolling Return': 1,
-    #                                                      '7 Yr Rolling Return': 1,
-    #                                                      '10 Yr Rolling Return': 1,
-    #                                                      '15 Yr Rolling Return': 1,
-    #                                                      '20 Yr Rolling Return': 1,
-    #                                                      })
-    #         for x in documents:
-    #             print(x)
+    #     coll = self.nft_db[self.trading_cards]
+    #     replace = self.nft_db[self.rollingReturns_new]
+    #     documents = self.rainydrop_db[self.Strategies].find({}, {'_id': 0,
+    #                                                             '1 Yr Rolling Return': 1,
+    #                                                              '2 Yr Rolling Return': 1,
+    #                                                              '3 Yr Rolling Return': 1,
+    #                                                              '5 Yr Rolling Return': 1,
+    #                                                              '7 Yr Rolling Return': 1,
+    #                                                              '10 Yr Rolling Return': 1,
+    #                                                              '15 Yr Rolling Return': 1,
+    #                                                              '20 Yr Rolling Return': 1,
+    #                                                              'strategy_name': 1
+    #                                                              })
+    #     for x in documents:
+
+    #         trading_card_id = coll.find({'strategyName': x['strategy_name']}, {'_id': 1})
+
+    #         del x['strategy_name']
+    #         for y in trading_card_id:
+    #             y['_id'] = str(y['_id'])
+
+    #         try:
+    #             for key, value in x.items():
+    #                 dict_copy = {'period': key,
+    #                             'average_return': value['average_annual_return'],
+    #                              'best_return': str(value['max_annual_rolling_return']) + " (" + str(
+    #                                 value['dateinfo_index_max']) + ")",
+    #                              'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
+    #                                  value['dateinfo_index_min']) + ")",
+    #                              'negative_periods': str(value['negative_periods']),
+    #                              'trading_card_id': y['_id']}
+    #                 replace.replace_one(
+    #                     {'period': dict_copy['period'], 'trading_card_id': dict_copy['trading_card_id']}, dict_copy,
+    #                     upsert=True)
+    #                 # print(dict_copy)
+    #        except:
+    #            continue
 
     def write_trading_card(self):
         coll = self.nft_db[self.trading_cards_new]
