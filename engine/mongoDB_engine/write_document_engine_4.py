@@ -223,28 +223,30 @@ class Write_Mongodb:
                                                                  'strategy_name': 1
                                                                  })
         for x in documents:
-            try:
+
                 trading_card_id = coll.find({'strategyName': x['strategy_name']}, {'_id': 1})
 
                 del x['strategy_name']
                 for y in trading_card_id:
                     y['_id'] = str(y['_id'])
 
-                for key, value in x.items():
-                    dict_copy = {'period': key,
-                                 'average_return': value['average_annual_return'],
-                                 'best_return': str(value['max_annual_rolling_return']) + " (" + str(
-                                     value['dateinfo_index_max']) + ")",
-                                 'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
-                                     value['dateinfo_index_min']) + ")",
-                                 'negative_periods': str(value['negative_periods']),
-                                 'trading_card_id': y['_id']}
-                    replace.replace_one(
-                        {'period': dict_copy['period'], 'trading_card_id': dict_copy['trading_card_id']}, dict_copy,
-                        upsert=True)
-                    # print(dict_copy)
-            except:
-                continue
+                try:
+                    for key, value in x.items():
+                        dict_copy = {'period': key,
+                                     'average_return': value['average_annual_return'],
+                                     'best_return': str(value['max_annual_rolling_return']) + " (" + str(
+                                         value['dateinfo_index_max']) + ")",
+                                     'worst_return': str(value['min_annual_rolling_return']) + " (" + str(
+                                         value['dateinfo_index_min']) + ")",
+                                     'negative_periods': str(value['negative_periods']),
+                                     'trading_card_id': y['_id']}
+                        replace.replace_one(
+                            {'period': dict_copy['period'], 'trading_card_id': dict_copy['trading_card_id']}, dict_copy,
+                            upsert=True)
+                        # print(dict_copy)
+                except:
+                    continue
+
 
 
 def main():
