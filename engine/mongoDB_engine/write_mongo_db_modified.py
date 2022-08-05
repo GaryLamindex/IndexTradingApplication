@@ -376,7 +376,7 @@ class Write_Mongodb:
                 coll.replace_one({'trading_card_id':return_dict['trading_card_id']}, return_dict, upsert=True)
         return
 
-    def historical_graph_new(self):
+    def write_historical_graph_new(self):
         self.db = self.conn['nft-flask']
         self.db2 = self.conn["simulation"]
         trading_card_coll = self.db['tradingCardsNew']
@@ -442,7 +442,7 @@ class Write_Mongodb:
             except:
                 continue
 
-    def trade_log(self):
+    def trade_log_new(self):
         self.db = self.conn['nft-flask']
         self.db2 = self.conn["simulation"]
         trading_card_coll = self.db['tradingCardsNew']
