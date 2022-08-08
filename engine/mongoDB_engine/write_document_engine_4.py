@@ -256,7 +256,7 @@ def main():
     # a.composite_table()
     # a.trade_log()
     # a.drawdown()
-    a.rolling_return()
+    # a.rolling_return()
     # a.historical_graph()
 
 
