@@ -138,8 +138,8 @@ class backtest(object):
                     last_day = df["date"].iloc[-1]
                     first_row=df.iloc[0]
                     last_row = df.iloc[-1]
-                    if abs((self.start_date.replace(day=1) - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
-                            abs((self.end_date.replace(day=1) - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
+                    if abs((self.start_date - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
+                            abs((self.end_date - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
                         os.remove(Path(run_file))
                     else:
                         if os.path.exists(graph_file):

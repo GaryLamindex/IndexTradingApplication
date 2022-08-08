@@ -297,4 +297,5 @@ class realtime_statistic_engine:
                                                 rating_dict=self.rating_dict,
                                                 margin_ratio=self.margin_ratio,
                                                 subscribers_num=self.subscribers_num,
-                                                trader_name=self.trader_name)
+                                                trader_name=self.trader_name,
+                                                name = spec[0])

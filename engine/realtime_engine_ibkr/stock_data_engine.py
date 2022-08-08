@@ -210,7 +210,7 @@ class ibkr_stock_data_io_engine:
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt <= 5:
                     self.grab_data_retry_attempt = self.grab_data_retry_attempt + 1
-                    raise Exception
+                    continue
                 else:
                     self.grab_data_retry_attempt = 0
                     return
