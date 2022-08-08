@@ -54,7 +54,6 @@ class backtest(object):
                  video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
-        self.stat_agent = None
         self.algorithm = None
         self.dividend_agent = None
         self.sim_agent = None
@@ -136,7 +135,7 @@ class backtest(object):
                     df = pd.read_csv(run_file)
                     first_day = df["date"].iloc[0]
                     last_day = df["date"].iloc[-1]
-                    first_row=df.iloc[0]
+                    first_row = df.iloc[0]
                     last_row = df.iloc[-1]
                     if abs((self.start_date - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
                             abs((self.end_date - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
@@ -158,11 +157,6 @@ class backtest(object):
                                                   self.portfolio_data_engine,
                                                   self.tickers)
                 self.dividend_agent = dividend_engine(self.tickers)
-                self.stat_agent = realtime_statistic_engine(self.run_file_dir, self.start_timestamp, self.end_timestamp,
-                                                            self.path, self.table_name, self.store_mongoDB,
-                                                            self.stats_data_dir, self.strategy_initial, self.video_link,
-                                                            self.documents_link, self.tags_array, self.rating_dict,
-                                                            self.margin_ratio, self.subscribers_num, self.trader_name)
 
                 self.algorithm = portfolio_rebalance(self.trade_agent, self.portfolio_data_engine, self.rebalance_dict,
                                                      self.acceptance_range)
@@ -174,8 +168,6 @@ class backtest(object):
         list_of_stats_data = listdir(self.stats_data_dir)
         for file in list_of_stats_data:
             os.remove(Path(f"{self.stats_data_dir}/{file}"))
-        if self.cal_stat:
-            self.stat_agent.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm, portfolio_data_engine,
                       sim_agent, dividend_engine, trade_agent):
@@ -190,7 +182,7 @@ class backtest(object):
         for timestamp in timestamps:
             _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
-            print('#' * 20, _date, ":", _time, '#' * 20)
+            print('#' * 20, _date, ":", _time, ' ' * 5, self.tickers, '#' * 20)
 
             if row == 0:
                 # input initial cash
@@ -204,7 +196,7 @@ class backtest(object):
                     portfolio_data_engine.deposit_dividend(total_dividend, timestamp)
 
             if self.quick_test:
-                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1,):
+                if algorithm.check_exec(timestamp, freq="Monthly", relative_delta=1, ):
                     self.run(timestamp, algorithm, sim_agent, trade_agent)
             else:
                 self.run(timestamp, algorithm, sim_agent, trade_agent)

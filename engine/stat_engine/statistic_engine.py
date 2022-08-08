@@ -1,5 +1,4 @@
 import datetime
-
 import pandas as pd
 import numpy as np
 import os
@@ -10,6 +9,10 @@ from scipy import stats
 from dateutil.relativedelta import relativedelta
 from engine.simulation_engine import sim_data_io_engine
 from object import backtest_acc_data
+from datetime import datetime
+from pathlib import Path
+from engine.mongoDB_engine.write_document_engine import Write_Mongodb
+from engine.simulation_engine import sim_data_io_engine
 
 RISK_FREE_RATE = 0.0127
 # equivalent rate for 60s
@@ -69,16 +72,17 @@ class statistic_engine:
         # there are totally 5 cases for the lookback period 
         # "1d", "1m", "6m", "1y", "3y" "5y"
         lp = np.inf
+        data_period_df = pd.DataFrame()
         # get the sliced frame for the given lookback_period
         if lookback_period == "1d":
             data_period_df = self.data_engine.get_data_by_period(date, "1d", file_name)
-            lp = 1/365
+            lp = 1 / 365
         elif lookback_period == "1m":
             data_period_df = self.data_engine.get_data_by_period(date, "1m", file_name)
             lp = 1 / 12
         elif lookback_period == "6m":
             data_period_df = self.data_engine.get_data_by_period(date, "6m", file_name)
-            lp = 1/6
+            lp = 1 / 6
         elif lookback_period == "1y":
             data_period_df = self.data_engine.get_data_by_period(date, "1y", file_name)
             lp = 1
@@ -100,7 +104,7 @@ class statistic_engine:
             cmp_rtn = np.inf
         else:
             rtn = (ending_net_liquidity - starting_net_liquidity) / starting_net_liquidity
-            cmp_rtn = (ending_net_liquidity/starting_net_liquidity)**(1/lp)-1
+            cmp_rtn = (ending_net_liquidity / starting_net_liquidity) ** (1 / lp) - 1
         return rtn, cmp_rtn
 
     def get_return_by_range(self, range, file_name):
@@ -115,13 +119,15 @@ class statistic_engine:
         starting_net_liquidity = \
             range_df.loc[range_df['timestamp'] == range_df['timestamp'].min()]['NetLiquidation'].values[0]
 
-        starting_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].min()]['date'].values[0],
-                                       format='%Y-%m-%d')
+        starting_date = pd.to_datetime(
+            range_df.loc[range_df['timestamp'] == range_df['timestamp'].min()]['date'].values[0],
+            format='%Y-%m-%d')
 
         ending_net_liquidity = \
             range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['NetLiquidation'].values[0]
-        ending_date = pd.to_datetime(range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['date'].values[0],
-                                     format='%Y-%m-%d')
+        ending_date = pd.to_datetime(
+            range_df.loc[range_df['timestamp'] == range_df['timestamp'].max()]['date'].values[0],
+            format='%Y-%m-%d')
         days_diff = (ending_date - starting_date).days
 
         if starting_net_liquidity == 0:
@@ -137,7 +143,6 @@ class statistic_engine:
 
         return rtn, cmp_rtn
 
-
     def get_return_inception(self, file_name):
         print("get_return_inception")
         inception_df = self.data_engine.get_full_df(file_name)
@@ -151,9 +156,11 @@ class statistic_engine:
         print(f"starting_net_liquidity:{starting_net_liquidity}; ending_net_liquidity:{ending_net_liquidity}")
 
         starting_date = pd.to_datetime(
-            inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].min()]['date'].values[0], format='%Y-%m-%d')
+            inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].min()]['date'].values[0],
+            format='%Y-%m-%d')
         ending_date = pd.to_datetime(
-            inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['date'].values[0], format='%Y-%m-%d')
+            inception_df.loc[inception_df['timestamp'] == inception_df['timestamp'].max()]['date'].values[0],
+            format='%Y-%m-%d')
         days_diff = (ending_date - starting_date).days
 
         no_of_years = (dt.datetime.fromtimestamp(ending_ts) - dt.datetime.fromtimestamp(starting_ts)).days / 365
@@ -179,7 +186,7 @@ class statistic_engine:
         day = last_day.day
         range = [f"{year}-01-01", f"{year}-{month}-{day}"]
         re, compound_re = self.get_return_by_range(range, file_name)
-        return re, compound_re, month/12
+        return re, compound_re, month / 12
 
     # return a dictionary of all return info (ytd, 1y, 3y, 5y and inception)
     def get_return_data(self, file_name):
@@ -195,20 +202,20 @@ class statistic_engine:
         return_inflation_adj_dict = {}
         compound_return_dict = {}
 
-        return_dict["ytd"] , compound_return_dict['ytd'] ,yr = self.get_return_ytd(file_name)
-        return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / ((1+inflation_rate) ** yr) - 1
+        return_dict["ytd"], compound_return_dict['ytd'], yr = self.get_return_ytd(file_name)
+        return_inflation_adj_dict["ytd"] = 1 + return_dict.get('ytd') / ((1 + inflation_rate) ** yr) - 1
 
-        return_dict["1y"] , compound_return_dict['1y']= self.get_return_by_period(day_string, "1y", file_name)
-        return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / (1+inflation_rate) - 1
+        return_dict["1y"], compound_return_dict['1y'] = self.get_return_by_period(day_string, "1y", file_name)
+        return_inflation_adj_dict["1y"] = 1 + return_dict.get('1y') / (1 + inflation_rate) - 1
 
-        return_dict["3y"], compound_return_dict['3y']= self.get_return_by_period(day_string, "3y", file_name)
-        return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / (1+inflation_rate)**3 - 1
+        return_dict["3y"], compound_return_dict['3y'] = self.get_return_by_period(day_string, "3y", file_name)
+        return_inflation_adj_dict["3y"] = 1 + return_dict.get('3y') / (1 + inflation_rate) ** 3 - 1
 
         return_dict["5y"], compound_return_dict['5y'] = self.get_return_by_period(day_string, "5y", file_name)
-        return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / (1+inflation_rate) ** 5 - 1
+        return_inflation_adj_dict["5y"] = 1 + return_dict.get('5y') / (1 + inflation_rate) ** 5 - 1
 
         return_dict["inception"], compound_return_dict['inception'], yr = self.get_return_inception(file_name)
-        return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / (1+inflation_rate) ** yr - 1
+        return_inflation_adj_dict["inception"] = 1 + return_dict.get('inception') / (1 + inflation_rate) ** yr - 1
 
         return return_dict, return_inflation_adj_dict, compound_return_dict
 
@@ -217,7 +224,7 @@ class statistic_engine:
     def get_sharpe_by_period(self, date, lookback_period, file_name):
         # there are totally 5 cases for the lookback period 
         # "1d", "1m", "6m", "1y", "3y", "5y"
-
+        data_period_df = pd.DataFrame()
         # get the sliced frame for the given lookback_period
         if lookback_period == "1d":
             data_period_df = self.data_engine.get_data_by_period(date, "1d", file_name)
@@ -273,7 +280,7 @@ class statistic_engine:
 
     def get_sharpe_inception(self, file_name):
         inception_df = self.data_engine.get_full_df(file_name)
-
+        no_of_days = 0
         # the case of a specified spec
         if isinstance(self.data_engine, sim_data_io_engine.online_engine):
             date_column = inception_df['timestamp'].dt.date  # since online df returns timestamp data type
@@ -332,7 +339,7 @@ class statistic_engine:
     def get_max_drawdown_by_period(self, date, lookback_period, file_name):
         # there are totally 5 cases for the lookback period 
         # "1d", "1m", "6m", "1y", "3y" "5y"
-
+        data_period_df = pd.DataFrame()
         # get the sliced frame for the given lookback_period
         if lookback_period == "1d":
             data_period_df = self.data_engine.get_data_by_period(date, "1d", file_name)
@@ -401,7 +408,7 @@ class statistic_engine:
     def get_sortino_by_period(self, date, lookback_period, file_name):
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-
+        data_period_df = pd.DataFrame()
         ending_nlv = data_period_df['NetLiquidation']
         return_col = ending_nlv.pct_change().dropna()
         avg_period_return = np.array(return_col).mean()
@@ -463,7 +470,7 @@ class statistic_engine:
     def get_alpha_by_period(self, date, lookback_period, file_name, marketCol):
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-
+        data_period_df = pd.DataFrame()
         multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12,
                       "3y": 60 * 24 * 30 * 12 * 3,
                       "5y": 60 * 24 * 30 * 12 * 5}
@@ -594,7 +601,6 @@ class statistic_engine:
         else:
             marketReturn = np.inf
 
-
         # calculate alpha
         alpha = portfolio_return - EQV_RISK_FREE_RATE ** no_of_days - \
                 beta * (marketReturn - EQV_RISK_FREE_RATE ** no_of_days)
@@ -648,7 +654,7 @@ class statistic_engine:
         positive = 0
         negative = 0
         avg_return = np.array([])
-
+        rolling_range_df = pd.DataFrame()
         if rolling_period in ['1y', '2y', '3y', '5y', '7y', '10y', '15y', '20y']:
             rolling_range_df = self.data_engine.get_data_by_range(range, file_name)
 
@@ -665,7 +671,8 @@ class statistic_engine:
             start_ts = dt.datetime.timestamp(rolling_start_dt)
             end_ts = dt.datetime.timestamp(rolling_end_dt)
             try:
-                start_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] >= start_ts].index[0]]
+                start_info_df = rolling_range_df.iloc[
+                    rolling_range_df[rolling_range_df['timestamp'] >= start_ts].index[0]]
                 end_info_df = rolling_range_df.iloc[rolling_range_df[rolling_range_df['timestamp'] <= end_ts].index[-1]]
             except IndexError:
                 return None
@@ -714,6 +721,7 @@ class statistic_engine:
 
     def get_volatility_by_period(self, date, lookback_period, file_name, marketCol):
         # should be using by period, like get_alpha, ask Mark how to do it
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         delete_duplicate_df = data_period_df.drop_duplicates(subset=["date"], keep=False)
@@ -789,6 +797,7 @@ class statistic_engine:
         return slope
 
     def get_win_rate_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         profit = data_period_df.NetLiquidation.diff()
@@ -820,6 +829,7 @@ class statistic_engine:
         return win_rate_dict
 
     def get_loss_rate_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         profit = data_period_df.NetLiquidation.diff()
@@ -863,6 +873,7 @@ class statistic_engine:
         return (full_df_arr[-1] / full_df_arr[0]) ** 0.25 - 1
 
     def get_treynor_ratio_by_period(self, date, lookback_period, file_name, marketCol):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         startNL = data_period_df["NetLiquidation"].iloc[0]
@@ -930,6 +941,7 @@ class statistic_engine:
         return treynor_ratio_dict
 
     def get_information_ratio_by_period(self, date, lookback_period, file_name, marketCol):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         average_portfolio_return = data_period_df["NetLiquidation"].pct_change().mean()
@@ -987,7 +999,7 @@ class statistic_engine:
         # drawdown_dict['drawdown_abstract'] = self.get_drawdown_by_range(range ,file_name)
         # drawdown_dict['drawdown_raw_data'] = self.get_drawdown_raw_data_by_range(file_name, range)
 
-        drawdown_df = self.get_drawdown_by_range(range ,file_name)
+        drawdown_df = self.get_drawdown_by_range(range, file_name)
         drawdown_raw_df = self.get_drawdown_raw_data_by_range(file_name, range)
         return drawdown_df, drawdown_raw_df
 
@@ -1007,7 +1019,8 @@ class statistic_engine:
         g_min = np.inf
 
         info_df = range_df.loc[(range_df['timestamp'] >= start_ts) & (range_df['timestamp'] <= end_ts)]
-
+        max_date_info = pd.DataFrame()
+        min_date_info = pd.DataFrame()
         for index, row in info_df.iterrows():
             if ((row['NetLiquidation']) >= g_max):
                 if (not np.isinf(g_min)):
@@ -1017,8 +1030,8 @@ class statistic_engine:
                     drawdown_days = (pd.to_datetime(min_date_info, format="%Y-%m-%d") - pd.to_datetime(max_date_info,
                                                                                                        format="%Y-%m-%d")).days
                     recovery_days = (
-                                pd.to_datetime(recovery_date_info, format="%Y-%m-%d") - pd.to_datetime(min_date_info,
-                                                                                                       format="%Y-%m-%d")).days
+                            pd.to_datetime(recovery_date_info, format="%Y-%m-%d") - pd.to_datetime(min_date_info,
+                                                                                                   format="%Y-%m-%d")).days
                     list = [max_drawdown, drawdown_period, drawdown_days, recovery_date_info, recovery_days]
                     drawdown_df.loc[len(drawdown_df.index)] = list
                     g_min = np.inf
@@ -1040,10 +1053,10 @@ class statistic_engine:
             list = [max_drawdown, str(drawdown_period), drawdown_days, recovery_date_info, recovery_days]
             drawdown_df.loc[len(drawdown_df.index)] = list
 
-        p = (drawdown_df.sort_values(by=['Drawdown'])).reset_index(drop= True)
+        p = (drawdown_df.sort_values(by=['Drawdown'])).reset_index(drop=True)
         return p
 
-    def get_drawdown_raw_data_by_range(self,file_name, range):
+    def get_drawdown_raw_data_by_range(self, file_name, range):
         # drawdown_df = pd.DataFrame(columns = ["Drawdown","Drawdown period","Drawdown days","Recovery date", "Recovery days"])
         range_df = self.data_engine.get_data_by_range(range, file_name)
         output_df = pd.DataFrame(columns=['timestamp', 'drawdown'])
@@ -1073,6 +1086,7 @@ class statistic_engine:
         return output_df
 
     def get_average_win_day_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         # print(data_period_df)
@@ -1124,6 +1138,7 @@ class statistic_engine:
         return average_win_day_dict
 
     def get_profit_loss_ratio_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
         # print(data_period_df)
@@ -1194,6 +1209,7 @@ class statistic_engine:
     def check_win_or_lose_day(self, df, sum_of_percentage_increased=0, number_of_win_days=0,
                               sum_of_percentage_decreased=0, number_of_lose_days=0, pos=0):
         for x in range(len(df['date'])):
+            percentage_change_in_net_liquidation = 0
             check = False
             # if x == len(df['date']) - 1:
             #     percentage_change_in_net_liquidation = (df['NetLiquidation'][x] - df['NetLiquidation'][pos]) / df['NetLiquidation'][pos]
@@ -1238,7 +1254,7 @@ class statistic_engine:
             for i in header:
                 mkv = last_day_info.iloc[0][i]
                 tname = (i.split("_"))[-1]
-                composite.update({tname: mkv/gross})
+                composite.update({tname: mkv / gross})
                 number_of_ETFs = number_of_ETFs + 1
         except KeyError:
             composite = None
@@ -1254,8 +1270,8 @@ class statistic_engine:
     def get_last_daily_change(self, file_name):
         full_df = self.data_engine.get_full_df(file_name)
         full_df['date'] = pd.to_datetime(full_df['date'])
-        mask = full_df[(full_df['date'].max() - full_df['date'])/ np.timedelta64(1,'D') < 1]
-        daily = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1])/mask['NetLiquidation'].iloc[0]
+        mask = full_df[(full_df['date'].max() - full_df['date']) / np.timedelta64(1, 'D') < 1]
+        daily = (mask['NetLiquidation'].iloc[0] - mask['NetLiquidation'].iloc[-1]) / mask['NetLiquidation'].iloc[0]
         return daily
 
     def get_last_monthly_change(self, file_name):
@@ -1266,6 +1282,7 @@ class statistic_engine:
         return monthly
 
     def get_sd_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
@@ -1318,7 +1335,7 @@ class statistic_engine:
         pos = 0
         neg = 0
 
-        for i , j in full_df.iterrows():
+        for i, j in full_df.iterrows():
             if start_dt.month != temp_dt.month:
                 print(temp_info['date'])
                 if start_info['NetLiquidation'] > temp_info['NetLiquidation']:
@@ -1336,7 +1353,8 @@ class statistic_engine:
             temp_info = j
         return pos, neg
 
-    def get_pos_neg_months_by_period(self, date, lookback_period,file_name):
+    def get_pos_neg_months_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
 
@@ -1371,75 +1389,307 @@ class statistic_engine:
         return full_df['NetLiquidation'].iloc[-1] - full_df['NetLiquidation'].iloc[0]
 
 
+class realtime_statistic_engine:
+
+    def __init__(self, run_file_dir, start_timestamp, end_timestamp, path, table_name, store_mongoDB, stats_data_dir,
+                 strategy_initial, video_link, documents_link, tags_array, rating_dict, margin_ratio, subscribers_num,
+                 trader_name):
+
+        self.trader_name = trader_name
+        self.subscribers_num = subscribers_num
+        self.margin_ratio = margin_ratio
+        self.rating_dict = rating_dict
+        self.tags_array = tags_array
+        self.documents_link = documents_link
+        self.video_link = video_link
+        self.strategy_initial = strategy_initial
+        self.stats_data_dir = stats_data_dir
+        self.store_mongoDB = store_mongoDB
+        self.table_name = table_name
+        self.path = path
+        self.end_timestamp = end_timestamp
+        self.start_timestamp = start_timestamp
+        self.run_file_dir = run_file_dir
+
+    def cal_all_file_return(self):
+        sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
+        backtest_data_directory = os.fsencode(self.run_file_dir)
+        data_list = []
+        for idx, file in enumerate(os.listdir(backtest_data_directory)):
+            if file.decode().endswith("csv"):
+                ticker_name = file.decode().split("_")
+                marketCol = f'marketPrice_{ticker_name[1]}'
+                # costCol = f'costBasis_{self.tickers[idx]}'
+                # valueCol = f'marketValue_{self.tickers[idx]}'
+                file_name = file.decode().split(".csv")[0]
+                stat_engine = statistic_engine(sim_data_offline_engine)
+                # stat_engine_3 = statistic_engine_3(sim_data_offline_engine)
+                sharpe_dict = stat_engine.get_sharpe_data(file_name)
+                inception_sharpe = sharpe_dict.get("inception")
+                _1_yr_sharpe = sharpe_dict.get("1y")
+                _3_yr_sharpe = sharpe_dict.get("3y")
+                _5_yr_sharpe = sharpe_dict.get("5y")
+                _ytd_sharpe = sharpe_dict.get("ytd")
+
+                sortino_dict = stat_engine.get_sortino_data(file_name)
+                inception_sortino = sortino_dict.get('inception')
+                _1_yr_sortino = sortino_dict.get('1y')
+                _3_yr_sortino = sortino_dict.get('3y')
+                _5_yr_sortino = sortino_dict.get('5y')
+                _ytd_sortino = sortino_dict.get('ytd')
+
+                return_dict, return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(file_name)
+                inception_return = return_dict.get("inception")
+                _1_yr_return = return_dict.get("1y")
+                _3_yr_return = return_dict.get("3y")
+                _5_yr_return = return_dict.get("5y")
+                _ytd_return = return_dict.get("ytd")
+                inflation_adj_inception_return = return_inflation_adj_dict.get('inception')
+                inflation_adj_1_yr_return = return_inflation_adj_dict.get('1y')
+                inflation_adj_3_yr_return = return_inflation_adj_dict.get('3y')
+                inflation_adj_5_yr_return = return_inflation_adj_dict.get('5y')
+                inflation_adj_ytd_return = return_inflation_adj_dict.get('ytd')
+                compound_inception_return_dict = compound_return_dict.get('inception')
+                compound_1_yr_return_dict = compound_return_dict.get('1y')
+                compound_3_yr_return_dict = compound_return_dict.get('3y')
+                compound_5_yr_return_dict = compound_return_dict.get('5y')
+                compound_ytd_return_dict = compound_return_dict.get('ytd')
+
+                max_drawdown_dict = stat_engine.get_max_drawdown_data(file_name)
+                inception_max_drawdown = max_drawdown_dict.get("inception")
+                _1_yr_max_drawdown = max_drawdown_dict.get("1y")
+                _3_yr_max_drawdown = max_drawdown_dict.get("3y")
+                _5_yr_max_drawdown = max_drawdown_dict.get("5y")
+                _ytd_max_drawdown = max_drawdown_dict.get("ytd")
+
+                alpha_dict = stat_engine.get_alpha_data(file_name, marketCol)
+                inception_alpha = alpha_dict.get('inception')
+                _1_yr_alpha = alpha_dict.get('1y')
+                _3_yr_alpha = alpha_dict.get('3y')
+                _5_yr_alpha = alpha_dict.get('5y')
+                _ytd_alpha = alpha_dict.get('ytd')
+
+                volatility_dict = stat_engine.get_volatility_data(file_name, marketCol)
+                inception_volatility = volatility_dict.get('inception')
+                _1_yr_volatility = volatility_dict.get('1y')
+                _3_yr_volatility = volatility_dict.get('3y')
+                _5_yr_volatility = volatility_dict.get('5y')
+                _ytd_volatility = volatility_dict.get('ytd')
+
+                win_rate_dict = stat_engine.get_win_rate_data(file_name)
+                inception_win_rate = win_rate_dict.get('inception')
+                _1_yr_win_rate = win_rate_dict.get('1y')
+                _3_yr_win_rate = win_rate_dict.get('3y')
+                _5_yr_win_rate = win_rate_dict.get('5y')
+                _ytd_win_rate = win_rate_dict.get('ytd')
+
+                dateStringS = datetime.fromtimestamp(self.start_timestamp)
+                dateStringE = datetime.fromtimestamp(self.end_timestamp)
+                date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}", \
+                              f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
+                rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
+                _1_yr_rolling_return = rolling_return_dict.get('1y')
+                _2_yr_rolling_return = rolling_return_dict.get('2y')
+                _3_yr_rolling_return = rolling_return_dict.get('3y')
+                _5_yr_rolling_return = rolling_return_dict.get('5y')
+                _7_yr_rolling_return = rolling_return_dict.get('7y')
+                _10_yr_rolling_return = rolling_return_dict.get('10y')
+                _15_yr_rolling_return = rolling_return_dict.get('15y')
+                _20_yr_rolling_return = rolling_return_dict.get('20y')
+
+                ########## Store drawdown in another csv
+                drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
+                drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv",
+                                         index=False)
+                drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv",
+                                         index=False)
+                # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
+                # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
+                # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
+
+                average_win_day_dict = stat_engine.get_average_win_day_data(file_name)
+                inception_average_win_day = average_win_day_dict.get('inception')
+                _1_yr_average_win_day = average_win_day_dict.get('1y')
+                _3_yr_average_win_day = average_win_day_dict.get('3y')
+                _5_yr_average_win_day = average_win_day_dict.get('5y')
+                _ytd_average_win_day = average_win_day_dict.get('ytd')
+
+                profit_loss_ratio_dict = stat_engine.get_profit_loss_ratio_data(file_name)
+                inception_profit_loss_ratio = profit_loss_ratio_dict.get('inception')
+                _1_yr_profit_loss_ratio = profit_loss_ratio_dict.get('1y')
+                _3_yr_profit_loss_ratio = profit_loss_ratio_dict.get('3y')
+                _5_yr_profit_loss_ratio = profit_loss_ratio_dict.get('5y')
+                _ytd_profit_loss_ratio = profit_loss_ratio_dict.get('ytd')
+
+                last_nlv = stat_engine.get_last_nlv(file_name)
+                last_daily = stat_engine.get_last_daily_change(file_name)
+                last_monthly = stat_engine.get_last_daily_change(file_name)
+
+                composite_dict, number_of_ETFs = stat_engine.get_composite_data(file_name)
+
+                sd_dict = stat_engine.get_sd_data(file_name)
+                _1_yr_sd = sd_dict.get('1y')
+                _3_yr_sd = sd_dict.get('3y')
+                _5_yr_sd = sd_dict.get('5y')
+                inception_sd = sd_dict.get('inception')
+
+                pos_neg_dict = stat_engine.get_pos_neg_data(file_name)
+                _1_yr_pos_neg = pos_neg_dict.get('1y')
+                _3_yr_pos_neg = pos_neg_dict.get('3y')
+                _5_yr_pos_neg = pos_neg_dict.get('5y')
+                inception_pos_neg = pos_neg_dict.get('inception')
+
+                information_ratio_dict = stat_engine.get_information_ratio_data(file_name, marketCol)
+                _1_yr_information_ratio = information_ratio_dict.get('1y')
+                _3_yr_information_ratio = information_ratio_dict.get('3y')
+                _5_yr_information_ratio = information_ratio_dict.get('5y')
+                inception_information_ratio = information_ratio_dict.get('inception')
+
+                net_profit = stat_engine.get_net_profit_inception(file_name)
+
+                all_file_stats_row = {
+                    "Backtest Spec": file_name, 'YTD Return': _ytd_return, '1 Yr Return': _1_yr_return,
+                    "3 Yr Return": _3_yr_return, "5 Yr Return": _5_yr_return,
+                    "Since Inception Return": inception_return,
+                    'inflation adj YTD Return': inflation_adj_ytd_return,
+                    'inflation adj 1 Yr Return': inflation_adj_1_yr_return,
+                    'inflation adj 3 Yr Return': inflation_adj_3_yr_return,
+                    'inflation adj 5 yr Return': inflation_adj_5_yr_return,
+                    'inflation adj Inception Return': inflation_adj_inception_return,
+                    "Since Inception Sharpe": inception_sharpe,
+                    "YTD Sharpe": _ytd_sharpe,
+                    "1 Yr Sharpe": _1_yr_sharpe, "3 Yr Sharpe": _3_yr_sharpe, "5 Yr Sharpe": _5_yr_sharpe,
+                    'Since Inception Sortino': inception_sortino, 'YTD Sortino': _ytd_sortino,
+                    '1 Yr Sortino': _1_yr_sortino, '3 Yr Sortino': _3_yr_sortino, '5 Yr Sortino': _5_yr_sortino,
+                    "Since Inception Max Drawdown": inception_max_drawdown, "YTD Max Drawdown": _ytd_max_drawdown,
+                    "1 Yr Max Drawdown": _1_yr_max_drawdown, "3 Yr Max Drawdown": _3_yr_max_drawdown,
+                    "5 Yr Max Drawdown": _5_yr_max_drawdown,
+                    "Since Inception Alpha": inception_alpha, "YTD Alpha": _ytd_alpha,
+                    "1 Yr Alpha": _1_yr_alpha, "3 Yr Alpha": _3_yr_alpha,
+                    "5 Yr Alpha": _5_yr_alpha,
+                    "Since Inception Volatility": inception_volatility, "YTD Volatility": _ytd_volatility,
+                    "1 Yr Volatility": _1_yr_volatility, "3 Yr Volatility": _3_yr_volatility,
+                    "5 Yr Volatility": _5_yr_volatility,
+                    "Since Inception Win Rate": inception_win_rate, "YTD Win Rate": _ytd_win_rate,
+                    "1 Yr Win Rate": _1_yr_win_rate, "3 Yr Win Rate": _3_yr_win_rate,
+                    "5 Yr Win Rate": _5_yr_win_rate,
+
+                    "1 Yr Rolling Return": _1_yr_rolling_return, "2 Yr Rolling Return": _2_yr_rolling_return,
+                    "3 Yr Rolling Return": _3_yr_rolling_return, "5 Yr Rolling Return": _5_yr_rolling_return,
+                    "7 Yr Rolling Return": _7_yr_rolling_return, "10 Yr Rolling Return": _10_yr_rolling_return,
+                    "15 Yr Rolling Return": _15_yr_rolling_return, "20 Yr Rolling Return": _20_yr_rolling_return,
+                    # "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
+
+                    "Since Inception Average Win Per Day": inception_average_win_day,
+                    "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
+                    "3 Yr Average Win Per Day": _3_yr_average_win_day,
+                    "5 Yr Average Win Per Day": _5_yr_average_win_day,
+                    "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
+                    "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
+                    "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio,
+                    "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
+                    "last nlv": last_nlv, "last daily change": last_daily, "last monthly change": last_monthly,
+
+                    "Composite": composite_dict,
+                    "number_of_ETFs": number_of_ETFs,
+
+                    "1 yr sd": _1_yr_sd,
+                    "3 yr sd": _3_yr_sd,
+                    "5 yr sd": _5_yr_sd,
+                    "inception sd": inception_sd,
+
+                    "1 yr pos neg": _1_yr_pos_neg,
+                    "3 yr pos neg": _3_yr_pos_neg,
+                    "5 yr pos neg": _5_yr_pos_neg,
+                    "inception pos neg": inception_pos_neg,
+                    "1 yr information ratio": _1_yr_information_ratio,
+                    "3 yr information ratio": _3_yr_information_ratio,
+                    "5 yr information ratio": _5_yr_information_ratio,
+                    "inception information ratio": inception_information_ratio,
+                    "net profit": net_profit,
+                    "compound_inception_return_dict": compound_inception_return_dict,
+                    "compound_1_yr_return_dict": compound_1_yr_return_dict,
+                    "compound_3_yr_return_dict": compound_3_yr_return_dict,
+                    "compound_5_yr_return_dict": compound_5_yr_return_dict,
+                    "compound_ytd_return_dict": compound_ytd_return_dict
+                }
+
+                # _additional_data = self.cal_additional_data(file_name)
+                # data_list.append(all_file_stats_row | _additional_data)
+                _additional_data = {}
+                data_list.append(all_file_stats_row | _additional_data)
+
+        col = ['Backtest Spec', 'YTD Return', '1 Yr Return', "3 Yr Return", "5 Yr Return",
+               "Since Inception Return", "Since Inception Sharpe", "YTD Sharpe", "1 Yr Sharpe", "3 Yr Sharpe",
+               "5 Yr Sharpe", 'Since Inception Sortino', 'YTD Sortino', '1 Yr Sortino', '3 Yr Sortino', '5 Yr Sortino',
+               "Since Inception Max Drawdown", "YTD Max Drawdown",
+               "1 Yr Max Drawdown",
+               "3 Yr Max Drawdown", "5 Yr Max Drawdown",
+               "Since Inception Alpha", "YTD Alpha", "1 Yr Alpha", "3 Yr Alpha", "5 Yr Alpha",
+               "Since Inception Volatility", "YTD Volatility", "1 Yr Volatility", "3 Yr Volatility", "5 Yr Volatility",
+               "Since Inception Win Rate", "YTD Win Rate", "1 Yr Win Rate", "3 Yr Win Rate", "5 Yr Win Rate",
+               "1 Yr Rolling Return", "2 Yr Rolling Return", "3 Yr Rolling Return", "5 Yr Rolling Return",
+               "7 Yr Rolling Return", "10 Yr Rolling Return", "15 Yr Rolling Return", "20 Yr Rolling Return",
+               # "Drawdown_abstract","Drawdown_raw_data",
+               "Since Inception Average Win Per Day", "YTD Average Win Per Day", "1 Yr Average Win Per Day",
+               "3 Yr Average Win Per Day", "5 Yr Average Win Per Day",
+               "Since Inception Profit Loss Ratio", "YTD Profit Loss Ratio", "1 Yr Profit Loss Ratio",
+               "3 Yr Profit Loss Ratio", "5 Yr Profit Loss Ratio",
+               "last nlv", "last daily change", "last monthly change",
+               "Composite", "number_of_ETFs",
+               "1 yr sd", "3 yr sd", "5 yr sd", "inception sd", "1 yr pos neg", "3 yr pos neg", "5 yr pos neg",
+               "inception pos neg", "1 yr information ratio", "3 yr information ratio", "5 yr information ratio",
+               "inception information ratio", "net profit",
+               "compound_inception_return_dict", "compound_1_yr_return_dict", "compound_3_yr_return_dict",
+               "compound_5_yr_return_dict", "compound_ytd_return_dict"
+               ]
+
+        df = pd.DataFrame(data=data_list, columns=col)
+        # pd.set_option("max_colwidth", 10000)
+        df.fillna(0)
+        print(f"{self.path}/stats_data/{self.table_name}.csv")
+        df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
+
+        # store data to mongoDB HERE
+        if self.store_mongoDB:
+            print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
+            p = Write_Mongodb()
+            for file in os.listdir(backtest_data_directory):
+                if file.decode().endswith("csv"):
+                    csv_path = Path(self.run_file_dir, file.decode())
+                    a = pd.read_csv(csv_path)
+                    spec = file.decode().split('.csv')
+                    name = spec[0] + "drawdown_abstract.csv"
+                    name2 = spec[0] + "drawdown_raw_data.csv"
+                    abstract_path = Path(self.stats_data_dir, name)
+                    drawdown_abstract = pd.read_csv(abstract_path)
+                    raw_data_path = Path(self.stats_data_dir, name2)
+                    drawdown_raw_data = pd.read_csv(raw_data_path)
+                    p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
+                                                drawdown_abstract_df=drawdown_abstract,
+                                                drawdown_raw_df=drawdown_raw_data,
+                                                run_df=a,
+                                                all_file_return_df=df,
+                                                strategy_initial=self.strategy_initial,
+                                                video_link=self.video_link,
+                                                documents_link=self.documents_link,
+                                                tags_array=self.tags_array,
+                                                rating_dict=self.rating_dict,
+                                                margin_ratio=self.margin_ratio,
+                                                subscribers_num=self.subscribers_num,
+                                                trader_name=self.trader_name,
+                                                name=spec[0])
+
+
 def main():
-    engine = sim_data_io_engine.offline_engine('/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
+    engine = sim_data_io_engine.offline_engine(
+        '/Users/chansiuchung/Documents/IndexTrade/user_id_0/backtest/backtest_rebalance_margin_wif_max_drawdown_control_0/run_data')
 
     my_stat_engine = statistic_engine(engine)
     # print(isinstance(engine,sim_data_io_engine.offline_engine))
     range = ["2019-12-1", "2022-4-29"]
     print(my_stat_engine.get_net_profit_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_sd_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_sd_by_period('2020-11-30', '1y',
-    #                                       '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_sd_by_period('2020-11-30', '3y',
-    #                                       '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_sd_by_period('2020-11-30','5y','0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_sd_Inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_last_monthly_change('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_return_range(range))
-    # print(my_stat_engine.get_return_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
-    # print(my_stat_engine.get_return_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
-    # print(my_stat_engine.get_return_range(range,spec="0.21_rebalance_margin_0.01_maintain_margin_0.02max_drawdown__year_2011"))
-    # print(my_stat_engine.get_sharpe_by_period("2017-11-30","1m"))
-    # print(my_stat_engine.get_sharpe_by_period("2017-11-30","1m",spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
-    # print(my_stat_engine.get_sharpe_by_period("2017-11-30","1m",spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
-    # print(my_stat_engine.get_sharpe_by_period("2017-11-30","1m",spec="0.21_rebalance_margin_0.01_maintain_margin_0.02max_drawdown__year_2011"))
-    # print(my_stat_engine.get_sharpe_by_range(range))
-    # print(my_stat_engine.get_sharpe_by_range(range,spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
-    # print(my_stat_engine.get_sharpe_by_range(range,spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
-    # print(my_stat_engine.get_sharpe_by_range(range,spec="0.21_rebalance_margin_0.01_maintain_margin_0.02max_drawdown__year_2011"))
-    # print(my_stat_engine.get_sharpe_inception())
-    # print(my_stat_engine.get_sharpe_inception(spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
-    # print(my_stat_engine.get_sharpe_inception(spec="0.055_rebalance_margin_0.01_maintain_margin_0.01max_drawdown__purchase_exliq_5.0"))
-    # print(my_stat_engine.get_sharpe_inception(spec="0.21_rebalance_margin_0.01_maintain_margin_0.02max_drawdown__year_2011"))
-    # print(my_stat_engine.get_return_ytd(spec="0.03_rebalance_margin_0.01_maintain_margin_0.03max_drawdown__year_2011"))
-    # with open(
-    #         "C:\\dynamodb\\dynamodb_related\\pythonProject\\algo\\rebalance_margin_wif_max_drawdown_control\\backtest\\backtest_data\\backtest_rebalance_margin_wif_max_drawdown_control_0\\0.038_rebalance_margin_0.01_maintain_margin_0.001_max_drawdown_ratio_5.0_purchase_exliq_.csv",
-    #         'r') as f:
-    #     df = pd.read_csv(f)
-    # print(df)
-    # print(my_stat_engine.get_sortino_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print(my_stat_engine.get_alpha_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_', "3188 marketPrice"))
-    # print(my_stat_engine.get_alpha_by_range(range,  '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    # print(my_stat_engine.get_alpha_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice"))
-    # print('alpha :' + str(my_stat_engine.get_alpha_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice")))
-    # # test the result in all_file_return, and add columns to
-    # print('volatility :' + str(my_stat_engine.get_volatility_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
-    # # print(my_stat_engine.get_rolling_return_by_range(range,'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"5y"))
-    # # my_stat_engine.get_drawdown_by_range(range, '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')
-    #print(my_stat_engine.get_drawdown_data( '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range))
-    # # print(my_stat_engine.composite('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # #print('max drawdown :' + str(my_stat_engine.get_max_drawdown_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # print('rolling return :' + str(my_stat_engine.get_rolling_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',range)))
-    # print('win rate :' + str(my_stat_engine.get_win_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # print('loss rate :' + str(my_stat_engine.get_loss_rate_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # print('total trade :' + str(my_stat_engine.get_total_trade('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_','3188 action')))
-    # print('compounding annual return :' + str(my_stat_engine.get_compounding_annual_return('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # print('treynor ratio :' + str(my_stat_engine.get_treynor_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 marketPrice")))
-    # print('information ratio :' + str(my_stat_engine.get_information_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_',"3188 mktPrice")))
-    # # print(my_stat_engine.get_profit_loss_ratio_by_period("2022-04-28", '1m','0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_profit_loss_ratio_by_range(["2022-03-27", "2022-4-28"],'0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_profit_loss_ratio_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_profit_loss_ratio_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # print('profit loss ratio :' + str(my_stat_engine.get_profit_loss_ratio_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # print('average win :' + str(my_stat_engine.get_average_win_day_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_')))
-    # # print(my_stat_engine.get_average_win_by_period("2022-05-26", '5y', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_average_win_day_by_period("2022-04-28", '1m', '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_average_win_day_by_range(["2022-03-27", "2022-4-28"], '0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_average_win_day_ytd('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    # # print(my_stat_engine.get_average_win_day_inception('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
-    #print(my_stat_engine.get_composite_data('50_SPY_50_IVV_'))
-    #print(my_stat_engine.get_return_data('0.06_rebalance_margin_0.005_max_drawdown_ratio_5.0_purchase_exliq_'))
+
 
 if __name__ == "__main__":
     main()

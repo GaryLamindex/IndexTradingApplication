@@ -15,6 +15,7 @@ from pathlib import Path
 class realtime:
     def __init__(self, tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
                  db_mode, acceptance_range, rebalance_ratios, execute_period):
+        self.stat_agent = None
         self.rebalance_dict = None
         self.trader_name = None
         self.margin_ratio = None
@@ -146,6 +147,7 @@ class realtime:
                     self.run_realtime(timestamp)
                 self.backtest.end_date = current_date
                 self.plot_all_file_graph()
+
 
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
