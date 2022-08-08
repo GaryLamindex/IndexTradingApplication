@@ -11,24 +11,24 @@ from algo.factor.modellib.covariance_matrix import covariance_matrix as cm
 
 class Indicator:
 
-    def __init__(self, indice, explained_variance=0.8):
+    def __init__(self, indices, explained_variance=0.8):
         self.expected_return = np.array([])
         self.expected_cov = np.array([])
-        self.indice = indice
+        self.indices = indices
         self.explained_variance = explained_variance
-        # self.indice_return = indice.pct_change().iloc[1:]  # Percentage return
-        self.indice_return = (np.log(indice) - np.log(indice.shift(1))).iloc[1:]  # Maybe use log return idk
+        # self.indices_return = indice.pct_change().iloc[1:]  # Percentage return
+        self.indices_return = (np.log(indices) - np.log(indices.shift(1))).iloc[1:]  # Maybe use log return idk
 
     def get_params(self):
         # PCA
         factors = pd.DataFrame()
-        data_array = self.indice_return.to_numpy()
+        data_array = self.indices_return.to_numpy()
         pca = PCA(n_components=self.explained_variance)
         pca.fit(data_array)
         eigenvectors = pca.components_
         j = 0
         for eigenvec in eigenvectors:
-            factors[j] = np.dot(self.indice_return, eigenvec)
+            factors[j] = np.dot(self.indices_return, eigenvec)
             j += 1
 
         # ARMA for 1-period forecast of PCs
@@ -48,7 +48,7 @@ class Indicator:
         all_beta_past = []
         all_beta_mean = []
         all_beta_cov = []
-        for idv_return in self.indice_return.T.values:
+        for idv_return in self.indices_return.T.values:
             transition_matrix = np.identity(factors.shape[1] + 1)
             observation_matrix = np.concatenate((np.ones((factors.shape[0], 1)), factors.to_numpy()), axis=1)\
                                  .reshape(factors.shape[0], 1, factors.shape[1] + 1)
@@ -83,7 +83,7 @@ class Indicator:
             past_expected_return = np.sum(all_beta_past[i] * adj_factors, axis=1)
             past_expected_returns.append(past_expected_return)
         past_expected_returns = np.array(past_expected_returns).T
-        return_residual = self.indice_return.to_numpy() - past_expected_returns
+        return_residual = self.indices_return.to_numpy() - past_expected_returns
         predicted_vars = []
         for i in range(return_residual.shape[1]):
             garch = arch_model(return_residual[:, i], vol='GARCH', p=1, o=0, q=1)

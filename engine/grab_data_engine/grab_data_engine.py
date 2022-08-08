@@ -715,8 +715,11 @@ class grab_crypto_data_engine:
         today = dt.date.today()
         for ticker in tickers:
             ticker = ticker.upper()
+            # Not optimal, may have to update later
+            if ticker == 'AUX':
+                ticker = '_AUX_'
             if not os.path.exists(f"{self.yfinance_data_path}/{ticker}.csv"):
-                self.get_yfinance_data_by_period(period='max', tickers=ticker)
+                self.get_yfinance_data_by_period(period='max', tickers=ticker.strip('_'))
                 continue
             else:
                 existing_data = pd.read_csv(f"{self.yfinance_data_path}/{ticker}.csv",
@@ -725,13 +728,13 @@ class grab_crypto_data_engine:
                 last_update = existing_data.index[-1].date()
                 days_passed = (today - last_update).days
             if days_passed < 1:
-                missing_data = self.get_yfinance_data_by_period_helper(period='1d', ticker=ticker)
+                missing_data = self.get_yfinance_data_by_period_helper(period='1d', ticker=ticker.strip('_'))
             elif days_passed < 5:
-                missing_data = self.get_yfinance_data_by_period_helper(period='5d', ticker=ticker)
+                missing_data = self.get_yfinance_data_by_period_helper(period='5d', ticker=ticker.strip('_'))
             elif days_passed < 30:
-                missing_data = self.get_yfinance_data_by_period_helper(period='1mo', ticker=ticker)
+                missing_data = self.get_yfinance_data_by_period_helper(period='1mo', ticker=ticker.strip('_'))
             else:
-                missing_data = self.get_yfinance_data_by_period_helper(period='max', ticker=ticker)
+                missing_data = self.get_yfinance_data_by_period_helper(period='max', ticker=ticker.strip('_'))
             if not missing_data.empty:
                 index_list = missing_data.index.tolist()
                 timestamp = list()
@@ -740,7 +743,11 @@ class grab_crypto_data_engine:
                 missing_data['timestamp'] = timestamp
                 missing_data = missing_data.rename(columns={'Open': 'open'})
                 updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
-                updated_data.to_csv(f"{self.yfinance_data_path}/{ticker}.csv", index=True, header=True)
+                try:
+                    updated_data.to_csv(f"{self.yfinance_data_path}/{ticker}.csv", index=True, header=True)
+                except FileNotFoundError:
+                    ticker = '_' + ticker + '_'
+                    updated_data.to_csv(f'{self.yfinance_data_path}/{ticker}.csv')
                 print(f"Successfully updated {ticker}.csv")
             else:
                 print(f"Failed to update {ticker}.csv")

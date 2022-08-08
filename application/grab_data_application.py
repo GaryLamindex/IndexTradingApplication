@@ -12,8 +12,8 @@ def main():
     # Use None if update all data
     stock_tickers = ['SPY', 'BND']
     crypto_tickers = ['ETH']
-    # ib = IB()
-    # ib.connect('127.0.0.1', 7497, clientId=1)
+    ib = IB()
+    ib.connect('127.0.0.1', 7497, clientId=1)
     stock_engine = grab_stock_data_engine(ib_instance=ib)
     crypto_engine = grab_crypto_data_engine()
     dividend_engine = grab_dividend_engine()
