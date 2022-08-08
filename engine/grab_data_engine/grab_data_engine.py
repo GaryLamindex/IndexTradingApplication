@@ -85,17 +85,17 @@ class grab_stock_data_engine:
             tickers = [tickers]
         for ticker in tickers:
             df = self.get_daily_data_by_period_helper(ticker, period)
-            index_list = df.index.tolist()
-            timestamp = list()
-            for x in range(len(index_list)):
-                timestamp.append(int(index_list[x].timestamp()))
-            df['timestamp'] = timestamp
-            df = df.rename(columns={'Open': 'open'})
-            df.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
             if not df.empty:
+                index_list = df.index.tolist()
+                timestamp = list()
+                for x in range(len(index_list)):
+                    timestamp.append(int(index_list[x].timestamp()))
+                df['timestamp'] = timestamp
+                df = df.rename(columns={'Open': 'open'})
+                df.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
                 print(f"Successfully download {ticker}.csv")
             else:
-                print(f"Failed downloading {ticker}.csv")
+                print(f"Failed to download {ticker}.csv")
 
     # Notice that data returned by yf.download is different from yf.Ticker().history, may have to solve later
     def get_daily_data_by_range_helper(self, ticker, start_timestamp, end_timestamp):
@@ -122,9 +122,11 @@ class grab_stock_data_engine:
             if not df.empty:
                 print(f"Successfully downloaded {ticker}.csv")
             else:
-                print(f"Failed downloading {ticker}.csv")
+                print(f"Failed to download {ticker}.csv")
 
     def get_missing_daily_data(self, tickers=None):
+        if not os.path.isdir(self.daily_ticker_data_path):
+            os.makedirs(self.daily_ticker_data_path)
         if type(tickers) is str:
             tickers = [tickers]
         if tickers is None:
@@ -150,18 +152,18 @@ class grab_stock_data_engine:
                 missing_data = self.get_daily_data_by_period_helper(period='1mo', ticker=ticker)
             else:
                 missing_data = self.get_daily_data_by_period_helper(period='max', ticker=ticker)
-            index_list = missing_data.index.tolist()
-            timestamp = list()
-            for x in range(len(index_list)):
-                timestamp.append(int(index_list[x].timestamp()))
-            missing_data['timestamp'] = timestamp
-            missing_data = missing_data.rename(columns={'Open': 'open'})
-            updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
-            updated_data.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
-            if not updated_data.empty:
+            if not missing_data.empty:
+                index_list = missing_data.index.tolist()
+                timestamp = list()
+                for x in range(len(index_list)):
+                    timestamp.append(int(index_list[x].timestamp()))
+                missing_data['timestamp'] = timestamp
+                missing_data = missing_data.rename(columns={'Open': 'open'})
+                updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
+                updated_data.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
                 print(f"Successfully updated {ticker}.csv")
             else:
-                print(f"Failed updating {ticker}.csv")
+                print(f"Failed to update {ticker}.csv")
 
 
     # ib (minute) functions
@@ -457,7 +459,7 @@ class grab_crypto_data_engine:
         self.binance_data_path = main_path + '/ticker_data/crypto_binance'
         self.coingecko_data_path = main_path + '/ticker_data/crypto_coingecko'
         self.yfinance_data_path = main_path + '/ticker_data/crypto_yfinance'
-        for path in (self.binance_name_path, self.coingecko_data_path, self.yfinance_data_path):
+        for path in (self.binance_name_path, self.coingecko_data_path):
             if not os.path.exists(path):
                 os.mkdir(path)
         self.binance_base_url = 'https://data.binance.vision'
@@ -560,7 +562,7 @@ class grab_crypto_data_engine:
             ticker = ticker.upper()
             df = self.get_binance_data_by_range_helper(ticker, start_timestamp, end_timestamp, bar_size)
             if df is None:
-                print(f"Current data for {ticker} is not available on Binance")
+                print(f"Yesterday's data for {ticker} is not available on Binance")
                 continue
             df.to_csv(f'{self.binance_data_path}/{ticker}.csv', index=False)
             print(f"Successfully downloaded {ticker}.csv")
@@ -576,7 +578,8 @@ class grab_crypto_data_engine:
         now_timestamp = dt.datetime.now().timestamp()
         for ticker in tickers:
             if not os.path.exists(f"{self.binance_data_path}/{ticker}.csv"):
-                self.get_binance_data_by_range(ticker, dt.datetime.timestamp(dt.datetime.combine(dt.date(2021, 3, 1), dt.datetime.min.time())), now_timestamp - 86400, '1d')
+                # Sometimes yesterday's data is not immediately available, so download data up to the day before yesterday instead
+                self.get_binance_data_by_range(ticker, dt.datetime.timestamp(dt.datetime.combine(dt.date(2021, 3, 1), dt.datetime.min.time())), now_timestamp - 172800, '1d')
                 continue
             else:
                 existing_data = pd.read_csv(f"{self.binance_data_path}/{ticker}.csv")
@@ -585,24 +588,12 @@ class grab_crypto_data_engine:
                     missing_data = self.get_binance_data_by_range_helper(ticker, last_update + 86400, now_timestamp - 86400, '1d')
                     updated_data = pd.concat([existing_data, missing_data])
                     updated_data.to_csv(f"{self.binance_data_path}/{ticker}.csv", index=False)
-                    if not updated_data.empty:
+                    if missing_data is not None:
                         print(f"Successfully updated {ticker}.csv")
                     else:
-                        print(f"Failed updating {ticker}.csv")
+                        print(f"Failed to update {ticker}.csv, possibly because yesterday's data is not available yet")
                 else:
                     print(f"Data for {ticker} is up-to-date")
-            # index_list = missing_data.index.tolist()
-            # timestamp = list()
-            # for x in range(len(index_list)):
-            #     timestamp.append(int(index_list[x].timestamp()))
-            # missing_data['timestamp'] = timestamp
-            # missing_data = missing_data.rename(columns={'Open': 'open'})
-            # updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
-            # updated_data.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
-            # if not updated_data.empty:
-            #     print(f"Successfully updated {ticker}.csv")
-            # else:
-            #     print(f"Failed updating {ticker}.csv")
 
     # e.g. convert '$582,266,289,816' to int type
     # doesn't support number with decimal point
@@ -677,10 +668,82 @@ class grab_crypto_data_engine:
             print('Daily crypto data not found')
             return None
 
-    def get_yfinance_data_helper(self, ticker, period):
+    def get_yfinance_data_by_period_helper(self, ticker, period):
         btc = yf.Ticker(f'{ticker}-USD')
         hist = btc.history(period=period)
         return hist
+
+    def get_yfinance_data_by_period(self, period, tickers=None):
+        if not os.path.isdir(self.yfinance_data_path):
+            os.makedirs(self.yfinance_data_path)
+        if tickers is None:
+            cg = CoinGeckoAPI()
+            coins_list = cg.get_coins_list()
+            tickers = [coin['symbol'] for coin in coins_list]
+        if type(tickers) is str:
+            tickers = [tickers]
+        for ticker in tickers:
+            ticker = ticker.upper()
+            df = self.get_yfinance_data_by_period_helper(ticker, period=period)
+            if not df.empty:
+                index_list = df.index.tolist()
+                timestamp = list()
+                for x in range(len(index_list)):
+                    timestamp.append(int(index_list[x].timestamp()))
+                df['timestamp'] = timestamp
+                df = df.rename(columns={'Open': 'open'})
+                # Symbols for certain cryptos are reserved names and cannot be used as file name
+                # Therefore the file name is changed if the symbol is a reserved name
+                try:
+                    df.to_csv(f"{self.yfinance_data_path}/{ticker}.csv", index=True, header=True)
+                except FileNotFoundError:
+                    ticker = '_' + ticker + '_'
+                    df.to_csv(f'{self.yfinance_data_path}/{ticker}.csv')
+                print(f"Successfully downloaded {ticker}.csv")
+            else:
+                print(f"Failed to download {ticker}.csv")
+
+    def get_missing_yfinance_data(self, tickers=None):
+        if not os.path.isdir(self.yfinance_data_path):
+            os.makedirs(self.yfinance_data_path)
+        if tickers is None:
+            cg = CoinGeckoAPI()
+            coins_list = cg.get_coins_list()
+            tickers = {coin['symbol'] for coin in coins_list}
+        if type(tickers) is str:
+            tickers = [tickers]
+        today = dt.date.today()
+        for ticker in tickers:
+            ticker = ticker.upper()
+            if not os.path.exists(f"{self.yfinance_data_path}/{ticker}.csv"):
+                self.get_yfinance_data_by_period(period='max', tickers=ticker)
+                continue
+            else:
+                existing_data = pd.read_csv(f"{self.yfinance_data_path}/{ticker}.csv",
+                                            index_col='Date',
+                                            parse_dates=True)
+                last_update = existing_data.index[-1].date()
+                days_passed = (today - last_update).days
+            if days_passed < 1:
+                missing_data = self.get_yfinance_data_by_period_helper(period='1d', ticker=ticker)
+            elif days_passed < 5:
+                missing_data = self.get_yfinance_data_by_period_helper(period='5d', ticker=ticker)
+            elif days_passed < 30:
+                missing_data = self.get_yfinance_data_by_period_helper(period='1mo', ticker=ticker)
+            else:
+                missing_data = self.get_yfinance_data_by_period_helper(period='max', ticker=ticker)
+            if not missing_data.empty:
+                index_list = missing_data.index.tolist()
+                timestamp = list()
+                for x in range(len(index_list)):
+                    timestamp.append(int(index_list[x].timestamp()))
+                missing_data['timestamp'] = timestamp
+                missing_data = missing_data.rename(columns={'Open': 'open'})
+                updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
+                updated_data.to_csv(f"{self.yfinance_data_path}/{ticker}.csv", index=True, header=True)
+                print(f"Successfully updated {ticker}.csv")
+            else:
+                print(f"Failed to update {ticker}.csv")
 
     # download yfinance data
     # def get_yfinance_max_historical_data(self, ticker):
@@ -694,7 +757,7 @@ class grab_crypto_data_engine:
         coins_list = cg.get_coins_list()
         for coin in coins_list:
             symbol = coin['symbol']
-            df = self.get_yfinance_data_helper(symbol, 'max')
+            df = self.get_yfinance_data_by_period_helper(symbol, 'max')
             if not df.empty:
                 # Symbols for certain cryptos are reserved names and cannot be used as file name
                 # Therefore the file name is changed if the symbol is a reserved name
@@ -744,7 +807,6 @@ class grab_dividend_engine():
         self.dividends_data_path = str(
             pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/ticker_data/dividend"
 
-
     def get_dividend_helper(self, ticker):
         btc = yf.Ticker(ticker)
         hist = btc.dividends
@@ -765,7 +827,7 @@ class grab_dividend_engine():
             if not df.empty:
                 print(f"Successfully downloaded {ticker}.csv")
             else:
-                print(f"Failed downloading {ticker}.csv")
+                print(f"Failed to download {ticker}.csv")
 
 
 # For testing only
