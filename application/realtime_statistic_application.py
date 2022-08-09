@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from engine.mongoDB_engine.write_document_engine import Write_Mongodb
+from engine.mongoDB_engine.write_statistic_document_engine import Write_Mongodb
 from engine.simulation_engine import sim_data_io_engine
 from engine.stat_engine.statistic_engine import statistic_engine
 
@@ -276,8 +276,6 @@ class realtime_statistic_engine:
             p = Write_Mongodb()
             for file in os.listdir(backtest_data_directory):
                 if file.decode().endswith("csv"):
-                    csv_path = Path(self.run_file_dir, file.decode())
-                    a = pd.read_csv(csv_path)
                     spec = file.decode().split('.csv')
                     name = spec[0] + "drawdown_abstract.csv"
                     name2 = spec[0] + "drawdown_raw_data.csv"
@@ -288,7 +286,6 @@ class realtime_statistic_engine:
                     p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
                                                 drawdown_abstract_df=drawdown_abstract,
                                                 drawdown_raw_df=drawdown_raw_data,
-                                                run_df=a,
                                                 all_file_return_df=df,
                                                 strategy_initial=self.strategy_initial,
                                                 video_link=self.video_link,

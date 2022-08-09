@@ -16,7 +16,7 @@ from crypto_algo.momentum_strategy_crypto.indicator import Indicator
 from engine.visualisation_engine import graph_plotting_engine
 from engine.stat_engine.statistic_engine import statistic_engine
 from engine.simulation_engine import sim_data_io_engine
-from engine.mongoDB_engine.write_document_engine import Write_Mongodb
+from engine.mongoDB_engine.write_statistic_document_engine import Write_Mongodb
 
 
 class backtest:

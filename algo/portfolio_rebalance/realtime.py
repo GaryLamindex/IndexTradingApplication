@@ -10,6 +10,7 @@ from engine.visualisation_engine import graph_plotting_engine
 import os
 import pathlib
 from pathlib import Path
+from engine.mongoDB_engine.write_run_data_document_engine import Write_Mongodb
 
 
 class realtime:
@@ -52,6 +53,8 @@ class realtime:
         self.acceptance_range = acceptance_range
         self.execute_period = execute_period
         self.init_backtest_flag = False
+        self.run_file_dir = f"{self.path}/{self.table_name}/run_data/"
+        self.backtest_data_directory = os.fsencode(self.run_file_dir)
         if db_mode.get("local"):
 
             self.run_file_dir = f"{self.path}/{self.table_name}/run_data/"
@@ -195,7 +198,16 @@ class realtime:
 
         self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
                                              stock_data_dict)
-
+        if self.store_mongoDB:
+            print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
+            p = Write_Mongodb()
+            for file in os.listdir(self.backtest_data_directory):
+                if file.decode().endswith("csv"):
+                    csv_path = Path(self.run_file_dir, file.decode())
+                    a = pd.read_csv(csv_path)
+                    spec = file.decode().split('.csv')
+                    p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
+                                                run_df = a)
     def plot_all_file_graph(self):
         print("plot_graph")
         graph_plotting_engine.plot_all_file_graph_png(f"{self.backtest.run_file_dir}", "date", "NetLiquidation",

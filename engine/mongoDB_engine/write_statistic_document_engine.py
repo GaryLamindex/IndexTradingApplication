@@ -56,16 +56,6 @@ class Write_Mongodb:
             coll.insert_many(drawdown_raw_records)
         return
 
-    def write_simulation(self, strategy_name, run_df):
-        """write simulation database"""
-        self.db = self.conn[self.simulation]
-        if strategy_name in self.db.list_collection_names():
-            print(f"{strategy_name} collection already exist in simulaiton")
-        else:
-            run_records = run_df.to_dict(orient='records')
-            coll = self.db[strategy_name]
-            coll.insert_many(run_records)
-        return
 
     def write_strategies(self, strategy_name=None, all_file_return_df=None, strategy_initial=None, video_link=None, documents_link=None,
                          tags_array=None, rating_dict=None, margin_ratio=None, subscribers_num=None, trader_name=None, name = None):
@@ -134,13 +124,12 @@ class Write_Mongodb:
             coll.insert_many(transaction_records)
         return
 
-    def write_new_backtest_result(self, strategy_name, drawdown_abstract_df, drawdown_raw_df, run_df, all_file_return_df,
+    def write_new_backtest_result(self, strategy_name, drawdown_abstract_df, drawdown_raw_df, all_file_return_df,
                                   strategy_initial, video_link, documents_link, tags_array, rating_dict, margin_ratio,
                                   subscribers_num, trader_name, name):
         """call whenever upload new backtest data, initiate everything"""
         self.write_drawdown_data(strategy_name, drawdown_abstract_df)
         self.write_drawdown_graph_data(strategy_name, drawdown_raw_df)
-        self.write_simulation(strategy_name, run_df)
         self.write_strategies(strategy_name, all_file_return_df, strategy_initial, video_link, documents_link,
                               tags_array, rating_dict, margin_ratio, subscribers_num, trader_name, name)
         return

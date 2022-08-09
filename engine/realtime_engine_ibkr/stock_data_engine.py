@@ -256,7 +256,7 @@ class ibkr_stock_data_io_engine:
             old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
         if old_df["timestamp"].iloc[0] != start_timestamp:  # if the file is not updated to the given start timestamp
             oldest_timestamp = old_df["timestamp"].iloc[0]
-            if "check" in old_df and old_df.loc[0, "check"] == "True":
+            if "check" in old_df and old_df.loc[0, "check"] == "True": # if there doesn't exist any older data, return the function
                 print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
                 return
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
