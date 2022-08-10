@@ -177,6 +177,16 @@ class realtime:
         if action_msgs is None:
             self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
                                                  stock_data_dict)
+            if self.store_mongoDB:
+                print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
+                p = Write_Mongodb()
+                for file in os.listdir(self.backtest_data_directory):
+                    if file.decode().endswith("csv"):
+                        csv_path = Path(self.run_file_dir, file.decode())
+                        a = pd.read_csv(csv_path)
+                        spec = file.decode().split('.csv')
+                        p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
+                                                    run_df=a)
             return
         for action_msg in action_msgs:
             action = action_msg.action_enum
