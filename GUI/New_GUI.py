@@ -1,19 +1,20 @@
+import subprocess
 import tkinter as tk
 # tk is the name of tkinter
 
 # mainframe
 interface = tk.Tk()
 
-# Mainframe basic structure
-interface.title("IndexTradingApplication")
-interface.geometry("700x500")
-interface.minsize(width=700, height=600)
-interface.config(bg="light blue")
-interface.attributes("-alpha", 0.95)
-
 
 class label_frame:
     def __init__(self):
+        # Mainframe basic structure
+        interface.title("IndexTradingApplication")
+        interface.geometry("700x500")
+        interface.minsize(width=700, height=600)
+        interface.config(bg="light blue")
+        interface.attributes("-alpha", 0.95)
+
         self.strategy1 = "1.Late Thirties to Early"
         self.strategy2 = "2.Warren Buffett Portfolio"
         self.strategy3 = "3.Edge Select Aggressive"
@@ -38,10 +39,25 @@ def create_button(name):
 
 # function of clicking buttons
 def onclick(name):
-    name.config(text="Running Code...", width=20, height=2, fg="black", bg="white", font="Helvetica").grid(row=0,
-                                                                                                           column=2)
+    name.config(text="Running Code...", width=20, height=2, fg="black", bg="white", font="Helvetica")
 
 
+def execute(self):
+    onclick(self)
+    subprocess.call(["python", "testing.py"])
+
+
+def end():
+    exit()
+
+
+end_button = create_button("Close This GUI")
+end_button.config(command=lambda: end())
+end_button.grid(row=0, column=3)
+
+button = create_button("run program")
+button.config(command=lambda: execute(button))
+button.grid(row=0, column=2)
 # Label
 countrow = 0
 # countcol = 0
@@ -52,7 +68,7 @@ Strategy = ['Strategy1', 'Strategy2', 'Strategy3', 'Strategy4', 'Strategy5', 'St
 labels = label_frame()
 
 strategy1 = create_text(labels.strategy1)
-strategy1.grid(row=0, column=0)
+strategy1.grid(row=0, column=0, ipady=4)
 
 strategy2 = create_text(labels.strategy2)
 strategy2.grid(row=1, column=0)
