@@ -34,6 +34,8 @@ class realtime:
         self.trade_agent = None
         self.portfolio_data_engine = None
         self.acc_data = None
+        self.bond = bond
+        self.indicators = {}
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/realtime"
 
         self.table_info = {"mode": "realtime", "strategy_name": "portfolio_rebalance", "user_id": user_id}
@@ -101,7 +103,7 @@ class realtime:
     def run(self):
         if not self.init_backtest_flag:
             self.init_backtest(self.user_id,
-                               store_mongoDB=True,
+                               store_mongoDB=False,
                                strategy_initial='SPY_MSFT_TIP_accelerating_dual_momentum',
                                video_link='https://www.youtube.com',
                                documents_link='https://google.com',
@@ -158,19 +160,40 @@ class realtime:
 
         stock_data_dict = {}
         sim_meta_data = {}
-
+        pct_change_dict = {}
+        for ticker in self.tickers:
+            pct_change_dict.update({ticker: {}})
         for ticker in self.tickers:
             ticker_data = self.stock_data_engines[ticker].get_ticker_item_by_timestamp(timestamp)
             if ticker_data is not None:
-                ticker_open_price = ticker_data.get("open")
-                stock_data_dict.update({ticker: {'last': ticker_open_price}})
+                ticker_engine = self.stock_data_engines[ticker]
+                ticker_items = ticker_engine.get_ticker_item_by_timestamp(timestamp)
+                self.indicators[ticker].append_into_df(ticker_items)
+                pct_change_dict[ticker].update({1: self.indicators[ticker].get_pct_change(1, 'open', timestamp)})
+                pct_change_dict[ticker].update({3: self.indicators[ticker].get_pct_change(3, 'open', timestamp)})
+                pct_change_dict[ticker].update({6: self.indicators[ticker].get_pct_change(6, 'open', timestamp)})
                 sim_meta_data.update({ticker: ticker_data})
+                price = ticker_items.get('open')
+                if price is None:
+                    stock_data_dict.update({ticker: {'last': None}})
+                    continue
+                else:
+                    stock_data_dict.update({ticker: {'last': price}})
 
-        orig_account_snapshot_dict = self.sim_agent.portfolio_data_engine.get_account_snapshot()
-        action_msgs = self.algorithm.run(stock_data_dict, timestamp)
+        bond_engine = self.stock_data_engines[self.bond]  # update bond price
+        ticker_items = bond_engine.get_ticker_item_by_timestamp(timestamp)
+        sim_meta_data.update({self.bond: bond_engine.get_ticker_item_by_timestamp(timestamp)})
+        price = ticker_items.get('open')
+        if price is None:
+            stock_data_dict.update({self.bond: {'last': None}})
+        else:
+            stock_data_dict.update({self.bond: {'last': price}})
+
+        action_msgs = self.algorithm.run(stock_data_dict, self.bond)
         action_record = []
         if action_msgs is None:
-            self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
+            self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
+                                                 action_record, sim_meta_data,
                                                  stock_data_dict)
             if self.store_mongoDB:
                 print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
@@ -187,22 +210,20 @@ class realtime:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
                 temp_action_record = self.trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                                 action_msg.args_dict.get(
-                                                                                     "position_sell"),
-                                                                                 {
-                                                                                     "timestamp": action_msg.timestamp})
+                                                                            action_msg.args_dict.get("position_sell"),
+                                                                            {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.BUY_MKT_ORDER:
                 temp_action_record = self.trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                                action_msg.args_dict.get(
-                                                                                    "position_purchase"),
-                                                                                {"timestamp": action_msg.timestamp})
+                                                                           action_msg.args_dict.get(
+                                                                               "position_purchase"),
+                                                                           {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
-
-        self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
-                                             stock_data_dict)
+        self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
+                                        action_record, sim_meta_data,
+                                        stock_data_dict)
         if self.store_mongoDB:
             print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
             p = Write_Mongodb()
