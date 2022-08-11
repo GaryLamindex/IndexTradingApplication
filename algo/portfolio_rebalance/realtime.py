@@ -137,20 +137,18 @@ class realtime:
                     [last_excute_timestamp, current_timestamp]) is None:
                 print("No new data")
             else:
-                timestamps_1 = \
+                timestamps = \
                     self.stock_data_engines[self.tickers[0]].get_data_by_range(
                         [last_excute_timestamp, current_timestamp])[
                         'timestamp']
-                timestamps_2 = \
-                    self.stock_data_engines[self.tickers[1]].get_data_by_range(
-                        [last_excute_timestamp, current_timestamp])[
-                        'timestamp']
-                timestamps = np.intersect1d(timestamps_1, timestamps_2)
+                for x in range(1, len(self.tickers)):
+                    temp = self.stock_data_engines[self.tickers[x]].get_data_by_range(
+                        [last_excute_timestamp, current_timestamp])['timestamp']
+                    timestamps = np.intersect1d(timestamps, temp)
                 for timestamp in timestamps:
                     self.run_realtime(timestamp)
                 self.backtest.end_date = current_date
                 self.plot_all_file_graph()
-
 
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
@@ -217,7 +215,8 @@ class realtime:
                     a = pd.read_csv(csv_path)
                     spec = file.decode().split('.csv')
                     p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
-                                                run_df = a)
+                                                run_df=a)
+
     def plot_all_file_graph(self):
         print("plot_graph")
         graph_plotting_engine.plot_all_file_graph_png(f"{self.backtest.run_file_dir}", "date", "NetLiquidation",
