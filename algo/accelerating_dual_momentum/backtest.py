@@ -194,7 +194,7 @@ class backtest:
         else:
             stock_data_dict.update({self.bond: {'last': price}})
 
-        action_msgs = algorithm.run(stock_data_dict, self.bond)
+        action_msgs = algorithm.run(pct_change_dict, stock_data_dict, self.bond, timestamp)
         action_record = []
         for action_msg in action_msgs:
             action = action_msg.action_enum

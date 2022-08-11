@@ -406,9 +406,9 @@ class statistic_engine:
         return drawdown_dict
 
     def get_sortino_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-        data_period_df = pd.DataFrame()
         ending_nlv = data_period_df['NetLiquidation']
         return_col = ending_nlv.pct_change().dropna()
         avg_period_return = np.array(return_col).mean()
@@ -468,9 +468,9 @@ class statistic_engine:
         return sortino_dict
 
     def get_alpha_by_period(self, date, lookback_period, file_name, marketCol):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-        data_period_df = pd.DataFrame()
         multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12,
                       "3y": 60 * 24 * 30 * 12 * 3,
                       "5y": 60 * 24 * 30 * 12 * 5}
