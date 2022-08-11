@@ -165,6 +165,7 @@ class realtime:
                 ticker_open_price = ticker_data.get("open")
                 stock_data_dict.update({ticker: {'last': ticker_open_price}})
                 sim_meta_data.update({ticker: ticker_data})
+
         orig_account_snapshot_dict = self.sim_agent.portfolio_data_engine.get_account_snapshot()
         action_msgs = self.algorithm.run(stock_data_dict, timestamp)
         action_record = []

@@ -225,23 +225,24 @@ class realtime:
 
 
 def main():
-    tickers = ["M", "MSFT"]
-    rebalance_ratio = [50, 50]
-    initial_amount = 10000
-    start_date = datetime(2020, 1, 1)  # YYMMDD
-    data_freq = "one_day"
-    user_id = 0
-    cal_stat = True
-    db_mode = {"dynamo_db": False, "local": True}
-    acceptance_range = 0
-    execute_period = "Monthly"
-
-    realtime_backtest = realtime(tickers, initial_amount, start_date, cal_stat,
-                                 data_freq, user_id, db_mode, acceptance_range,
-                                 rebalance_ratio, execute_period)
-    while True:
-        realtime_backtest.run()
-        time.sleep(60)
+    pass
+    # tickers = ["M", "MSFT"]
+    # rebalance_ratio = [50, 50]
+    # initial_amount = 10000
+    # start_date = datetime(2020, 1, 1)  # YYMMDD
+    # data_freq = "one_day"
+    # user_id = 0
+    # cal_stat = True
+    # db_mode = {"dynamo_db": False, "local": True}
+    # acceptance_range = 0
+    # execute_period = "Monthly"
+    #
+    # realtime_backtest = realtime(tickers, initial_amount, start_date, cal_stat,
+    #                              data_freq, user_id, db_mode, acceptance_range,
+    #                              rebalance_ratio, execute_period)
+    # while True:
+    #     realtime_backtest.run()
+    #     time.sleep(60)
 
 
 if __name__ == "__main__":
