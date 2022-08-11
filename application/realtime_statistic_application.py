@@ -4,15 +4,15 @@ from engine.stat_engine.statistic_engine import realtime_statistic_engine
 
 
 def cal_stat_function():
-    trader_name = trader_name
-    subscribers_num = subscribers_num
-    margin_ratio = margin_ratio
-    rating_dict = rating_dict
-    tags_array = tags_array
-    documents_link = documents_link
-    video_link = video_link
-    strategy_initial = strategy_initial
-    store_mongoDB = store_mongoDB
+    store_mongoDB = True,
+    strategy_initial = 'this is 20 80 m and msft portfolio',
+    video_link = 'https://www.youtube.com',
+    documents_link = 'https://google.com',
+    tags_array = None,
+    subscribers_num = 3,
+    rating_dict = None,
+    margin_ratio = 3.24,
+    trader_name = 'Fai'
     table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
     table_name = table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
         table_info.get("user_id"))
