@@ -19,9 +19,10 @@ def process_function(tickers, rebalance_ratio, initial_amount, start_date, data_
 
     while True:
         now_timestamp = datetime.now()
-        if (now_timestamp - last_exec_timestamp).total_seconds() >= 43200:
-            stock_engine.get_missing_daily_data()
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
             last_exec_timestamp = datetime.now()
+            stock_engine.get_missing_daily_data()
+
         realtime_backtest.run()
         time.sleep(60)
 
