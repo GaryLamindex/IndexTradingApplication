@@ -146,7 +146,7 @@ class realtime:
                 for timestamp in timestamps:
                     self.run_realtime(timestamp)
                 self.backtest.end_date = current_date
-                self.plot_all_file_graph()
+                # self.plot_all_file_graph()
 
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
