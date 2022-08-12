@@ -30,7 +30,7 @@ def stat_process_function(user_id, spec_str):
     time.sleep(300)
     realtime_stat = realtime_statistic(user_id, spec_str)
     realtime_stat.cal_stat_function()
-    time.sleep(1140)
+    time.sleep(86400)
 
 
 if __name__ == "__main__":
