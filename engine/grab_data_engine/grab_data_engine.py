@@ -22,7 +22,7 @@ class grab_stock_data_engine:
     def __init__(self, ib_instance=None, update_list=False):
         # Ignore ib_instance parameter if only daily data is required
         self.ticker_name_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.parent.resolve()) + '/etf_list'
+                                    .parent.parent.parent.resolve()) + '/etf_list'
         # If update_list or ticker_name.csv does not exist, create ticker_name.csv
         if not os.path.isdir(self.ticker_name_path):
             os.makedirs(self.ticker_name_path)
