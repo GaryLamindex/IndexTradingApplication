@@ -3,6 +3,7 @@ from datetime import datetime
 import time
 
 from algo.portfolio_rebalance.realtime import realtime
+from application.realtime_statistic_application import realtime_statistic
 from engine.grab_data_engine.grab_data_engine import grab_stock_data_engine
 
 
@@ -23,6 +24,13 @@ def process_function(tickers, rebalance_ratio, initial_amount, start_date, data_
             last_exec_timestamp = datetime.now()
         realtime_backtest.run()
         time.sleep(60)
+
+
+def stat_process_function(user_id, spec_str):
+    time.sleep(300)
+    realtime_stat = realtime_statistic(user_id, spec_str)
+    realtime_stat.cal_stat_function()
+    time.sleep(1140)
 
 
 if __name__ == "__main__":
@@ -46,7 +54,13 @@ if __name__ == "__main__":
                                                                       data_freq, user_id, cal_stat,
                                                                       db_mode, acceptance_range,
                                                                       execute_period))
+    SPY_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_SPY_50_MSFT_"))
+    M_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_M_50_MSFT_"))
     M_MSFT.start()
     SPY_MSFT.start()
+    SPY_MSFT_stat.start()
+    M_MSFT_stat.start()
+    M_MSFT_stat.join()
+    SPY_MSFT_stat.join()
     M_MSFT.join()
     SPY_MSFT.join()

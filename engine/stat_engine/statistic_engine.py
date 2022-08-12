@@ -406,9 +406,9 @@ class statistic_engine:
         return drawdown_dict
 
     def get_sortino_by_period(self, date, lookback_period, file_name):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-        data_period_df = pd.DataFrame()
         ending_nlv = data_period_df['NetLiquidation']
         return_col = ending_nlv.pct_change().dropna()
         avg_period_return = np.array(return_col).mean()
@@ -468,9 +468,9 @@ class statistic_engine:
         return sortino_dict
 
     def get_alpha_by_period(self, date, lookback_period, file_name, marketCol):
+        data_period_df = pd.DataFrame()
         if lookback_period in ['1d', '1m', '6m', '1y', '3y', '5y']:
             data_period_df = self.data_engine.get_data_by_period(date, lookback_period, file_name)
-        data_period_df = pd.DataFrame()
         multiplier = {"1d": 60 * 24, "1m": 60 * 24 * 30, "6m": 60 * 24 * 30 * 6, "1y": 60 * 24 * 30 * 12,
                       "3y": 60 * 24 * 30 * 12 * 3,
                       "5y": 60 * 24 * 30 * 12 * 5}
@@ -1411,6 +1411,9 @@ class realtime_statistic_engine:
         self.start_timestamp = start_timestamp
         self.run_file_dir = run_file_dir
 
+    def update_timestamp(self, timestamp):
+        self.end_timestamp = timestamp
+
     def cal_file_return(self, run_file):
         sim_data_offline_engine = sim_data_io_engine.offline_engine(self.run_file_dir)
         backtest_data_directory = os.fsencode(self.run_file_dir)
@@ -1439,7 +1442,8 @@ class realtime_statistic_engine:
                     _5_yr_sortino = sortino_dict.get('5y')
                     _ytd_sortino = sortino_dict.get('ytd')
 
-                    return_dict, return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(file_name)
+                    return_dict, return_inflation_adj_dict, compound_return_dict = stat_engine.get_return_data(
+                        file_name)
                     inception_return = return_dict.get("inception")
                     _1_yr_return = return_dict.get("1y")
                     _3_yr_return = return_dict.get("3y")
@@ -1486,7 +1490,7 @@ class realtime_statistic_engine:
 
                     dateStringS = datetime.fromtimestamp(self.start_timestamp)
                     dateStringE = datetime.fromtimestamp(self.end_timestamp)
-                    date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}", \
+                    date_range = [f"{dateStringS.year}-{dateStringS.month}-{dateStringS.day}",
                                   f"{dateStringE.year}-{dateStringE.month}-{dateStringE.day}"]
                     rolling_return_dict = stat_engine.get_rolling_return_data(file_name, date_range)
                     _1_yr_rolling_return = rolling_return_dict.get('1y')
@@ -1500,10 +1504,12 @@ class realtime_statistic_engine:
 
                     ########## Store drawdown in another csv
                     drawdown_abstract, drawdown_raw_data = stat_engine.get_drawdown_data(file_name, date_range)
-                    drawdown_raw_data.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv",
-                                             index=False)
-                    drawdown_abstract.to_csv(f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv",
-                                             index=False)
+                    drawdown_raw_data.to_csv(
+                        f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_raw_data.csv",
+                        index=False)
+                    drawdown_abstract.to_csv(
+                        f"{self.path}/{self.table_name}/stats_data/{file_name}drawdown_abstract.csv",
+                        index=False)
                     # drawdown_dict = stat_engine.get_drawdown_data(file_name, date_range)
                     # drawdown_abstract = drawdown_dict.get('drawdown_abstract')
                     # drawdown_raw_data = drawdown_dict.get('drawdown_raw_data')
@@ -1582,11 +1588,13 @@ class realtime_statistic_engine:
                         # "Drawdown_abstract": drawdown_abstract, "Drawdown_raw_data": drawdown_raw_data,
 
                         "Since Inception Average Win Per Day": inception_average_win_day,
-                        "YTD Average Win Per Day": _ytd_average_win_day, "1 Yr Average Win Per Day": _1_yr_average_win_day,
+                        "YTD Average Win Per Day": _ytd_average_win_day,
+                        "1 Yr Average Win Per Day": _1_yr_average_win_day,
                         "3 Yr Average Win Per Day": _3_yr_average_win_day,
                         "5 Yr Average Win Per Day": _5_yr_average_win_day,
                         "Since Inception Profit Loss Ratio": inception_profit_loss_ratio,
-                        "YTD Profit Loss Ratio": _ytd_profit_loss_ratio, "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
+                        "YTD Profit Loss Ratio": _ytd_profit_loss_ratio,
+                        "1 Yr Profit Loss Ratio": _1_yr_profit_loss_ratio,
                         "3 Yr Profit Loss Ratio": _3_yr_profit_loss_ratio,
                         "5 Yr Profit Loss Ratio": _5_yr_profit_loss_ratio,
                         "last nlv": last_nlv, "last daily change": last_daily, "last monthly change": last_monthly,
@@ -1649,7 +1657,13 @@ class realtime_statistic_engine:
         # pd.set_option("max_colwidth", 10000)
         df.fillna(0)
         print(f"{self.path}/stats_data/{self.table_name}.csv")
-        df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False)
+        path = Path(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv")
+        flag = path.is_file()
+        if flag:
+            df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False, mode='a', header=False)
+        else:
+            df.to_csv(f"{self.path}/{self.table_name}/stats_data/all_file_return.csv", index=False, mode='a',
+                      header=True)
 
         # store data to mongoDB HERE
         if self.store_mongoDB:
