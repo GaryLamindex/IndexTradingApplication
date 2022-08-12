@@ -133,8 +133,6 @@ class backtest:
         list_of_stats_data = listdir(self.stats_data_dir)
         for file in list_of_stats_data:
             os.remove(Path(f"{self.stats_data_dir}/{file}"))
-        if self.cal_stat:
-            self.cal_all_file_return()
 
     def backtest_exec(self, start_timestamp, end_timestamp, initial_amount, algorithm,
                       portfolio_data_engine, sim_agent, dividend_agent, trade_agent):
