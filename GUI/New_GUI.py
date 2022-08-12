@@ -10,8 +10,8 @@ class label_frame:
     def __init__(self):
         # Mainframe basic structure
         interface.title("IndexTradingApplication")
-        interface.geometry("700x500")
-        interface.minsize(width=700, height=600)
+        interface.geometry("850x600")
+        interface.minsize(width=850, height=600)
         interface.config(bg="light blue")
         interface.attributes("-alpha", 0.95)
 
@@ -29,12 +29,16 @@ class label_frame:
 
 # function of creating labels
 def create_text(name):
-    return tk.Label(interface, text=name, width=35, height=2, fg="black", bg="white", font="Helvetica")
+    return tk.Label(interface, text=name, width=35, height=2, fg="black", bg="light blue", font="Helvetica")
 
 
 # function of creating buttons
 def create_button(name):
-    return tk.Button(interface, text=name, width=20, height=2, fg="black", bg="grey", font="Helvetica")
+    return tk.Button(interface, text=name, width=15, height=2, fg="black", bg="grey", font=("Helvetica", 15))
+
+
+def create_entry():
+    return tk.Entry(interface, fg='black', bg="white", font="Helvetica")
 
 
 # function of clicking buttons
@@ -42,9 +46,11 @@ def onclick(name):
     name.config(text="Running Code...", width=20, height=2, fg="black", bg="white", font="Helvetica")
 
 
-def execute(self):
+def execute(self, filename):
     onclick(self)
-    subprocess.call(["python", "testing.py"])
+    subprocess.call(["python", filename])
+    subprocess.check_call(["python", filename])
+    self.config(text="Success Running!!")
 
 
 def end():
@@ -56,8 +62,12 @@ end_button.config(command=lambda: end())
 end_button.grid(row=0, column=3)
 
 button = create_button("run program")
-button.config(command=lambda: execute(button))
-button.grid(row=0, column=2)
+button.config(command=lambda: execute(button, "testing.py"))
+button.grid(row=2, column=3)
+
+enter = create_entry()
+enter.grid(row=1, column=3)
+
 # Label
 countrow = 0
 # countcol = 0
