@@ -49,6 +49,11 @@ class backtest:
     def __init__(self, tickers, bond, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode, store_mongoDB, strategy_initial='None', video_link='None', documents_link='None',
                  tags_array=list(), subscribers_num=0, rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
+        self.algorithm = None
+        self.dividend_agent = None
+        self.sim_agent = None
+        self.trade_agent = None
+        self.acc_data = None
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
 
         self.table_info = {"mode": "backtest", "strategy_name": "accelerating_dual_momentum", "user_id": user_id}
@@ -113,19 +118,19 @@ class backtest:
         if os.path.exists(graph_file):
             os.remove(Path(graph_file))
 
-        acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
-                                     self.table_name, spec_str)
+        self.acc_data = backtest_acc_data(self.table_info.get("user_id"), self.table_info.get("strategy_name"),
+                                          self.table_name, spec_str)
         options = self.tickers.copy()
         options.append(self.bond)
 
-        portfolio_data_engine = backtest_portfolio_data_engine(acc_data, options)
-        trade_agent = backtest_trade_engine(acc_data, self.stock_data_engines, portfolio_data_engine)
-        sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
-                                     self.tickers)
-        dividend_agent = dividend_engine(self.tickers)
-        algorithm = accelerating_dual_momentum(trade_agent, portfolio_data_engine)
-        self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, algorithm,
-                           portfolio_data_engine, sim_agent, dividend_agent, trade_agent)
+        portfolio_data_engine = backtest_portfolio_data_engine(self.acc_data, options)
+        self.trade_agent = backtest_trade_engine(self.acc_data, self.stock_data_engines, portfolio_data_engine)
+        self.sim_agent = simulation_agent(backtest_spec, self.table_info, False, portfolio_data_engine,
+                                          self.tickers)
+        self.dividend_agent = dividend_engine(self.tickers)
+        self.algorithm = accelerating_dual_momentum(self.trade_agent, portfolio_data_engine)
+        self.backtest_exec(self.start_timestamp, self.end_timestamp, self.initial_amount, self.algorithm,
+                           portfolio_data_engine, self.sim_agent, self.dividend_agent, self.trade_agent)
         print("Finished Backtest:", backtest_spec)
         print("-------------------------------------------------------------------------------")
 
@@ -144,7 +149,8 @@ class backtest:
         portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
         tickers_and_bonds_list = self.tickers.copy()
         tickers_and_bonds_list.append(self.bond)
-        timestamps = self.stock_data_engines[tickers_and_bonds_list[0]].get_data_by_range([start_timestamp, end_timestamp])[
+        timestamps = \
+        self.stock_data_engines[tickers_and_bonds_list[0]].get_data_by_range([start_timestamp, end_timestamp])[
             'timestamp']
         for x in range(1, len(tickers_and_bonds_list)):
             temp = self.stock_data_engines[tickers_and_bonds_list[x]].get_data_by_range(

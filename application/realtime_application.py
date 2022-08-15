@@ -53,7 +53,7 @@ def stat_process_function(user_id, spec_str):
     time.sleep(86400)
 
 
-def main():
+if __name__ == "__main__":
     rebalance_tickers = [["M", "MSFT"], ["SPY", "MSFT"]]
     accelerating_tickers = [["BND", "BNDX"], ["DBC", "DES"]]
     rebalance_ratio = [[50, 50]]
@@ -91,13 +91,13 @@ def main():
     M_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_M_50_MSFT_"))
     M_MSFT_rebalance.start()
     SPY_MSFT_rebalance.start()
+    # BND_BNDX_accelerating.start()
+    # DBC_DES_accelerating.start()
     SPY_MSFT_stat.start()
     M_MSFT_stat.start()
     M_MSFT_stat.join()
     SPY_MSFT_stat.join()
     M_MSFT_rebalance.join()
     SPY_MSFT_rebalance.join()
-
-
-if __name__ == "__main__":
-    main()
+    # BND_BNDX_accelerating.join()
+    # DBC_DES_accelerating.join()
