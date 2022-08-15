@@ -54,6 +54,7 @@ class backtest(object):
                  video_link='None', documents_link='None', tags_array=list(), subscribers_num=0,
                  rating_dict={}, margin_ratio=np.NaN, trader_name='None'):
 
+        self.run_file = None
         self.algorithm = None
         self.dividend_agent = None
         self.sim_agent = None
@@ -129,17 +130,15 @@ class backtest(object):
                     spec_str = f"{spec_str}{str(v)}_{str(k)}_"
 
                 # remove if exist
-                run_file = self.run_file_dir + spec_str + '.csv'
+                self.run_file = self.run_file_dir + spec_str + '.csv'
                 graph_file = self.graph_dir + spec_str + '.png'
-                if os.path.exists(run_file):
-                    df = pd.read_csv(run_file)
+                if os.path.exists(self.run_file):
+                    df = pd.read_csv(self.run_file)
                     first_day = df["date"].iloc[0]
                     last_day = df["date"].iloc[-1]
-                    first_row = df.iloc[0]
-                    last_row = df.iloc[-1]
                     if abs((self.start_date - datetime.strptime(first_day, "%Y-%m-%d")).days) > 10 or \
                             abs((self.end_date - datetime.strptime(last_day, "%Y-%m-%d")).days) > 10:
-                        os.remove(Path(run_file))
+                        os.remove(Path(self.run_file))
                     else:
                         if os.path.exists(graph_file):
                             os.remove(Path(graph_file))

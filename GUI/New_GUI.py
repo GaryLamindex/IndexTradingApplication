@@ -1,5 +1,7 @@
 import subprocess
 import tkinter as tk
+import engine.mongoDB_engine.trying
+
 # tk is the name of tkinter
 
 # mainframe
@@ -10,18 +12,18 @@ class label_frame:
     def __init__(self):
         # Mainframe basic structure
         interface.title("IndexTradingApplication")
-        interface.geometry("850x600")
-        interface.minsize(width=850, height=600)
+        interface.geometry("1050x600")
+        interface.minsize(width=1050, height=600)
         interface.config(bg="light blue")
         interface.attributes("-alpha", 0.95)
 
-        self.strategy1 = "1.Late Thirties to Early"
-        self.strategy2 = "2.Warren Buffett Portfolio"
-        self.strategy3 = "3.Edge Select Aggressive"
-        self.strategy4 = "4.Jane Bryant Quinn Portfolio"
-        self.strategy5 = "5.Ultimate Buy and Hold strategy"
-        self.strategy6 = "6.GAA Global Asset Allocation"
-        self.strategy7 = "7.Aggressive Global Income"
+        self.strategy1 = "1.Accelerating_dual_momentum"
+        self.strategy2 = "2.Factor"
+        self.strategy3 = "3.Portfolio_rebalance"
+        self.strategy4 = "4.Random_forest"
+        self.strategy5 = "5.Rebalance_margin_never_sell"
+        self.strategy6 = "6.Rebalance_margin_wif_maintainance_margin"
+        self.strategy7 = "7.Rebalance_margin_wif_max_drawdown_control"
         self.strategy8 = "8.Simplified Permanent Portfolio"
         self.strategy9 = "9.Vanguard Life Strategy Growth Fund"
         self.strategy10 = "10.No Brainer Portfolio"
@@ -29,7 +31,7 @@ class label_frame:
 
 # function of creating labels
 def create_text(name):
-    return tk.Label(interface, text=name, width=35, height=2, fg="black", bg="light blue", font="Helvetica")
+    return tk.Label(interface, text=name, width=40, height=2, fg="black", bg="light blue", font="Helvetica")
 
 
 # function of creating buttons
@@ -41,32 +43,49 @@ def create_entry():
     return tk.Entry(interface, fg='black', bg="white", font="Helvetica")
 
 
+def get_data():
+    value = enter.get()
+    choose_program(int(value))
+
+
 # function of clicking buttons
 def onclick(name):
-    name.config(text="Running Code...", width=20, height=2, fg="black", bg="white", font="Helvetica")
+    processing = create_text("Success Running")
+    processing.config(width=20, height=2, fg="black", bg="white", font="Helvetica")
+    processing.grid(row=10, column=1)
 
 
 def execute(self, filename):
     onclick(self)
-    subprocess.call(["python", filename])
-    subprocess.check_call(["python", filename])
-    self.config(text="Success Running!!")
+    # subprocess.call(["python", filename])
+    # subprocess.check_call(["python", filename])
+    engine.mongoDB_engine.trying.main()
+
+
+def choose_program(program_no):
+    if program_no == 1:
+        execute(strategy1, "testing.py")
+    else:
+        print("error")
 
 
 def end():
     exit()
 
 
-end_button = create_button("Close This GUI")
-end_button.config(command=lambda: end())
-end_button.grid(row=0, column=3)
+entry_text = create_text("Enter the program name")
+entry_text.grid(row=0, column=1)
 
-button = create_button("run program")
-button.config(command=lambda: execute(button, "testing.py"))
-button.grid(row=2, column=3)
+end_button = create_button("Close")
+end_button.config(command=lambda: end())
+end_button.grid(row=0, column=2)
 
 enter = create_entry()
-enter.grid(row=1, column=3)
+enter.grid(row=1, column=1)
+
+button = create_button("run program")
+button.config(command=lambda: get_data())
+button.grid(row=2, column=1)
 
 # Label
 countrow = 0
