@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime, timedelta
 from sklearn.ensemble import RandomForestRegressor
 from algo.random_forest.indicator import Indicator
 from object.action_data import IBAction, IBActionsTuple
@@ -16,8 +17,7 @@ class RandomForest:
         self.optimal_weight = {}
         self.action_msgs = []
 
-    def run(self, price_dict, all_indice_df, timestamp):
-        # remove price_dict param if possible
+    def run(self, price_dict, all_indice, timestamp):
         if not self.trade_agent.market_opened():
             return
 
@@ -27,29 +27,27 @@ class RandomForest:
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
         return_dict = {}
-        for ticker in all_indice_df.iteritems():
-
-
-            indicator = Indicator(index)
+        for ticker in price_dict.keys():
+            indicator = Indicator(all_indice[ticker])
             indicator.get_samples()
             X, y = indicator.dataset.drop("Return", axis=1), indicator.dataset["Return"]
-            regr = RandomForestRegressor(max_features=1 / 3,
+            regr = RandomForestRegressor(n_estimators=50,
+                                         max_features=1 / 3,
                                          min_samples_leaf=0.005,
                                          random_state=23571113,
                                          max_samples=0.7)
             regr.fit(X, y)
-            return_dict[ticker] = regr.predict()[0]
-        positive_return_ticker = [ticker for ticker, ret in return_dict.items if ret > 0]
+            return_dict[ticker] = regr.predict(indicator.last_dataset.reshape(1, -1))[0]
         total_return = sum([ret for ret in return_dict.values() if ret > 0])
-        self.optimal_weight = {ticker: return_dict[ticker] / total_return for ticker in positive_return_ticker}
+        self.optimal_weight = {ticker: (ret / total_return if ret > 0 else 0) for ticker, ret in return_dict.items()}
 
         self.action_msgs = []
 
         for ticker_data in self.portfolio:
             ticker_name = ticker_data.get("ticker")
             ticker_pos = ticker_data.get("position")
-            if ticker_name in all_indice_df.columns:
-                price = all_indice_df[ticker_name][-1]
+            if ticker_name in price_dict.keys():
+                price = all_indice[ticker_name].iloc[-1].values[0]
                 print("Weight:", self.optimal_weight[ticker_name])
                 target_pos = int(self.optimal_weight[ticker_name] * self.total_market_value / price)
                 print(f"{ticker_name} Current Position: {ticker_pos}; Target Position: {target_pos}; Market Value: {self.total_market_value}")
@@ -64,3 +62,35 @@ class RandomForest:
                     self.action_msgs.append(action_msg)
 
         return self.action_msgs.copy()
+
+    def check_exec(self, timestamp, **kwargs):
+        datetime_obj = datetime.utcfromtimestamp(timestamp)
+        if self.last_exec_datetime_obj is None:
+            self.last_exec_datetime_obj = datetime_obj
+            return True
+        else:
+            freq = kwargs.pop("freq")
+            relative_delta = kwargs.pop("relative_delta")
+            if freq == "Weekly":
+                # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(days=+relative_delta)
+                if datetime_obj > self.last_exec_datetime_obj + timedelta(days=7):
+                    self.last_exec_datetime_obj = datetime_obj
+                    # print(
+                    # f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
+                    return True
+                else:
+                    # print(
+                    # f"check_exec: False. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
+                    return False
+
+            elif freq == "Monthly":
+                # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(months=+relative_delta)
+                if datetime_obj.month != self.last_exec_datetime_obj.month and datetime_obj > self.last_exec_datetime_obj:
+                    # print(
+                    # f"check_exec: True. last_exec_datetime_obj.month={self.last_exec_datetime_obj.month}; datetime_obj.month={datetime_obj.month}")
+                    self.last_exec_datetime_obj = datetime_obj
+                    return True
+                else:
+                    # print(
+                    # f"check_exec: False. last_exec_datetime_obj.month={self.last_exec_datetime_obj.month}; datetime_obj.month={datetime_obj.month}")
+                    return False
