@@ -21,7 +21,7 @@ def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_d
 
     while True:
         now_timestamp = datetime.now()
-        if (now_timestamp - last_exec_timestamp).total_seconds() >= 43200:
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
             stock_engine.get_missing_daily_data()
             last_exec_timestamp = datetime.now()
         realtime_backtest.run()
