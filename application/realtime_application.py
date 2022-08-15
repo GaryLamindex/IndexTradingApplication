@@ -21,7 +21,7 @@ def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_d
 
     while True:
         now_timestamp = datetime.now()
-        if (now_timestamp - last_exec_timestamp).total_seconds() >= 43200:
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
             stock_engine.get_missing_daily_data()
             last_exec_timestamp = datetime.now()
         realtime_backtest.run()
@@ -79,14 +79,14 @@ if __name__ == "__main__":
                                                        data_freq, user_id, cal_stat,
                                                        db_mode, acceptance_range,
                                                        execute_period))
-    BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
-                                                    args=(accelerating_tickers[0], bond, deposit_amount, start_date,
-                                                          cal_stat, data_freq, user_id,
-                                                          db_mode, execute_period))
-    DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
-                                                   args=(accelerating_tickers[1], bond, deposit_amount, start_date,
-                                                         cal_stat, data_freq, user_id,
-                                                         db_mode, execute_period))
+    # BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
+    #                                                 args=(accelerating_tickers[0], bond, deposit_amount, start_date,
+    #                                                       cal_stat, data_freq, user_id,
+    #                                                       db_mode, execute_period))
+    # DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
+    #                                                args=(accelerating_tickers[1], bond, deposit_amount, start_date,
+    #                                                      cal_stat, data_freq, user_id,
+    #                                                      db_mode, execute_period))
     SPY_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_SPY_50_MSFT_"))
     M_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_M_50_MSFT_"))
     M_MSFT_rebalance.start()

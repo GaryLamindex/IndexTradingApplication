@@ -126,8 +126,10 @@ class realtime:
             ratio = self.rebalance_ratio.copy()
             for ticker_num in range(num_tickers):
                 self.rebalance_dict.update({self.tickers[ticker_num]: ratio[ticker_num]})
-            last_excute_day = self.backtest.end_date
-            last_excute_timestamp = datetime.timestamp(last_excute_day)
+            df = pd.read_csv(self.backtest.run_file)
+            last_excute_timestamp = df["timestamp"].iloc[-1]
+            last_excute_timestamp = int(last_excute_timestamp)
+            last_excute_timestamp = last_excute_timestamp+1
             current_date = datetime.now()
             current_timestamp = datetime.timestamp(current_date)
             _date = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%Y-%m-%d")
@@ -137,6 +139,7 @@ class realtime:
                     [last_excute_timestamp, current_timestamp]) is None:
                 print("No new data")
             else:
+                print("Have new data")
                 timestamps = \
                     self.stock_data_engines[self.tickers[0]].get_data_by_range(
                         [last_excute_timestamp, current_timestamp])[
@@ -148,7 +151,7 @@ class realtime:
                 for timestamp in timestamps:
                     self.run_realtime(timestamp)
                 self.backtest.end_date = current_date
-                self.plot_all_file_graph()
+                # self.plot_all_file_graph()
 
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
