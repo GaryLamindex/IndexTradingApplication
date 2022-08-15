@@ -829,6 +829,8 @@ class grab_dividend_engine():
         if type(tickers) is str:
             tickers = [tickers]
         for ticker in tickers:
+            if ticker == "^BTC":
+                continue
             df = self.get_dividend_helper(ticker)
             df.to_csv(f"{self.dividends_data_path}/{ticker}.csv", index=True, header=True)
             if not df.empty:
