@@ -3,7 +3,7 @@ import time
 import numpy as np
 import pandas as pd
 from datetime import datetime
-from algo.portfolio_rebalance.backtest import backtest as portfolio_rebalance_backtest
+from algo.factor.backtest import backtest as factor_backtest
 from object.action_data import IBAction, IBActionsTuple
 from engine.backtest_engine.stock_data_io_engine import local_engine
 from engine.visualisation_engine import graph_plotting_engine
@@ -15,7 +15,7 @@ from engine.mongoDB_engine.write_run_data_document_engine import Write_Mongodb
 
 class realtime:
     def __init__(self, tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
-                 db_mode, acceptance_range, rebalance_ratios, execute_period):
+                 db_mode, execute_period):
         self.stat_agent = None
         self.rebalance_dict = None
         self.trader_name = None
@@ -73,8 +73,8 @@ class realtime:
                 Path(self.transact_data_dir).mkdir(parents=True, exist_ok=True)
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
-                
-    def init_backtest(self, user_id, acceptance_range, store_mongoDB, strategy_initial, video_link,
+
+    def init_backtest(self, user_id, store_mongoDB, strategy_initial, video_link,
                       documents_link, tags_array, subscribers_num,
                       rating_dict, margin_ratio, trader_name):
         self.now = datetime.now()
@@ -90,9 +90,9 @@ class realtime:
             self.margin_ratio = margin_ratio
             self.trader_name = trader_name
 
-        self.backtest = portfolio_rebalance_backtest([self.tickers], self.initial_amount,
+        self.backtest = factor_backtest([self.tickers], self.initial_amount,
                                                      self.start_date, self.now, True, self.data_freq,
-                                                     user_id, self.db_mode, False, acceptance_range,
+                                                     user_id, self.db_mode, False,
                                                      [self.rebalance_ratio], store_mongoDB, strategy_initial,
                                                      video_link, documents_link, tags_array, subscribers_num,
                                                      rating_dict, margin_ratio, trader_name)
@@ -100,7 +100,7 @@ class realtime:
 
     def run(self):
         if not self.init_backtest_flag:
-            self.init_backtest(self.user_id, self.acceptance_range,
+            self.init_backtest(self.user_id,
                                store_mongoDB=True,
                                strategy_initial='this is 20 80 m and msft portfolio',
                                video_link='https://www.youtube.com',
