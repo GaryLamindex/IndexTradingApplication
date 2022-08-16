@@ -1,22 +1,31 @@
 import subprocess
 import tkinter as tk
-import engine.mongoDB_engine.trying
+from tkinter import messagebox
+# import engine.mongoDB_engine.trying
+# import algo.accelerating_dual_momentum.realtime
+# import algo.factor.realtime
+# import algo.portfolio_rebalance.realtime
+# import algo.random_forest
+# import algo.rebalance_margin_never_sell
+# import algo.rebalance_margin_wif_maintainance_margin
+# import algo.rebalance_margin_wif_max_drawdown_control.real_time
+
 
 # tk is the name of tkinter
 
 # mainframe
 interface = tk.Tk()
+# Mainframe basic structure
+interface.title("IndexTradingApplication")
+interface.geometry("1050x600")
+interface.minsize(width=1050, height=600)
+interface.config(bg="light blue")
+interface.attributes("-alpha", 0.95)
+var = tk.IntVar()
 
 
 class label_frame:
     def __init__(self):
-        # Mainframe basic structure
-        interface.title("IndexTradingApplication")
-        interface.geometry("1050x600")
-        interface.minsize(width=1050, height=600)
-        interface.config(bg="light blue")
-        interface.attributes("-alpha", 0.95)
-
         self.strategy1 = "1.Accelerating_dual_momentum"
         self.strategy2 = "2.Factor"
         self.strategy3 = "3.Portfolio_rebalance"
@@ -30,22 +39,59 @@ class label_frame:
 
 
 # function of creating labels
+# name = text you want to input
 def create_text(name):
     return tk.Label(interface, text=name, width=40, height=2, fg="black", bg="light blue", font="Helvetica")
 
 
 # function of creating buttons
 def create_button(name):
-    return tk.Button(interface, text=name, width=15, height=2, fg="black", bg="grey", font=("Helvetica", 15))
+    return tk.Button(interface,
+                     text=name,
+                     width=15,
+                     height=2,
+                     fg="black",
+                     bg="grey",
+                     font=("Helvetica", 15),
+                     activebackground="white")
+
+
+def create_message_box(text):
+    return messagebox.showinfo("Error Message", text)
+
+
+def activate_submit(apply_button):
+    if var.get() == 1:
+        apply_button['state'] = tk.NORMAL
+    elif var.get() == 0:
+        apply_button['state'] = tk.DISABLED
+    else:
+        create_message_box("There is an error")
+
+
+def check_button(name, apply_button):
+    return tk.Checkbutton(interface,
+                          text=name,
+                          onvalue=1,
+                          offvalue=0,
+                          variable=var,
+                          font=("Helvetica", 15),
+                          command=lambda: activate_submit(apply_button))
 
 
 def create_entry():
-    return tk.Entry(interface, fg='black', bg="white", font="Helvetica")
+    return tk.Entry(interface,
+                    fg='black',
+                    bg="white",
+                    font="Helvetica")
 
 
 def get_data():
     value = enter.get()
-    choose_program(int(value))
+    if value =="":
+        return create_message_box("Empty Entry")
+    else:
+        choose_program(int(value))
 
 
 # function of clicking buttons
@@ -55,16 +101,28 @@ def onclick(name):
     processing.grid(row=10, column=1)
 
 
-def execute(self, filename):
+def execute(self, param):
     onclick(self)
     # subprocess.call(["python", filename])
     # subprocess.check_call(["python", filename])
-    engine.mongoDB_engine.trying.main()
+    # engine.mongoDB_engine.trying.main()
 
 
 def choose_program(program_no):
     if program_no == 1:
-        execute(strategy1, "testing.py")
+        execute(strategy1, 1)
+    elif program_no == 2:
+        execute(strategy2, 2)
+    elif program_no == 3:
+        execute(strategy3, 3)
+    elif program_no == 4:
+        execute(strategy4, 4)
+    elif program_no == 5:
+        execute(strategy5, 5)
+    elif program_no == 6:
+        execute(strategy6, 6)
+    elif program_no == 7:
+        execute(strategy7, 7)
     else:
         print("error")
 
@@ -80,12 +138,16 @@ end_button = create_button("Close")
 end_button.config(command=lambda: end())
 end_button.grid(row=0, column=2)
 
+
 enter = create_entry()
 enter.grid(row=1, column=1)
 
 button = create_button("run program")
-button.config(command=lambda: get_data())
-button.grid(row=2, column=1)
+button.config(state=tk.DISABLED, command=lambda: get_data())
+button.grid(row=3, column=1)
+
+check = check_button("Confirmed Program", button)
+check.grid(row=2, column=1)
 
 # Label
 countrow = 0
@@ -97,7 +159,7 @@ Strategy = ['Strategy1', 'Strategy2', 'Strategy3', 'Strategy4', 'Strategy5', 'St
 labels = label_frame()
 
 strategy1 = create_text(labels.strategy1)
-strategy1.grid(row=0, column=0, ipady=4)
+strategy1.grid(row=0, column=0)
 
 strategy2 = create_text(labels.strategy2)
 strategy2.grid(row=1, column=0)
