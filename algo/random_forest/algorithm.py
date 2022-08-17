@@ -1,7 +1,9 @@
 import pandas as pd
+import math
 from datetime import datetime, timedelta
 from sklearn.ensemble import RandomForestRegressor
 from algo.random_forest.indicator import Indicator
+import quandl
 from object.action_data import IBAction, IBActionsTuple
 
 class RandomForest:
@@ -26,21 +28,30 @@ class RandomForest:
         self.portfolio = self.portfolio_agent.get_portfolio()
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
+        quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
+        one_yr_rate = quandl.get('FRED/DGS1')
+        ten_yr_rate = quandl.get('FRED/DGS10')
+        rate = (100 + ten_yr_rate) / (100 + one_yr_rate)
         return_dict = {}
+
+        degree_of_trust = -1000
+
         for ticker in price_dict.keys():
-            indicator = Indicator(all_indice[ticker])
+            indicator = Indicator(all_indice[ticker], rate)
             indicator.get_samples()
             X, y = indicator.dataset.drop("Return", axis=1), indicator.dataset["Return"]
-            regr = RandomForestRegressor(n_estimators=50,
+            regr = RandomForestRegressor(n_estimators=30,
                                          max_features=1 / 3,
-                                         min_samples_leaf=0.005,
+                                         min_samples_leaf=0.05,
                                          random_state=23571113,
-                                         max_samples=0.7)
+                                         max_samples=0.75)
             regr.fit(X, y)
             return_dict[ticker] = regr.predict(indicator.last_dataset.reshape(1, -1))[0]
-        total_return = sum([ret for ret in return_dict.values() if ret > 0])
-        self.optimal_weight = {ticker: (ret / total_return if ret > 0 else 0) for ticker, ret in return_dict.items()}
-
+        print(return_dict)
+        # total_return = sum([math.exp(ret) for ret in return_dict.values() if ret > 0])
+        # self.optimal_weight = {ticker: (math.exp(ret) / total_return if ret > 0 else 0) for ticker, ret in return_dict.items()}
+        total_return = sum([math.exp(degree_of_trust * ret) for ret in return_dict.values()])
+        self.optimal_weight = {ticker: (math.exp(degree_of_trust * ret) / total_return) for ticker, ret in return_dict.items()}
         self.action_msgs = []
 
         for ticker_data in self.portfolio:
