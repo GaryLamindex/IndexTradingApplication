@@ -135,9 +135,10 @@ class Backtest:
         all_indice = {}
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
+            ticker_item_start = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(years=-10)
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             ticker_last = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-            ticker_item = ticker_engine.get_data_by_range([0, timestamp])
+            ticker_item = ticker_engine.get_data_by_range([datetime.timestamp(ticker_item_start), timestamp])
             if ticker_item is not None:
                 ticker_item = ticker_item[['Date', 'Close']]
                 ticker_item['Date'] = pd.to_datetime(ticker_item['Date'])
