@@ -37,23 +37,19 @@ class Write_Mongodb:
     def write_drawdown_data(self, strategy_name, drawdown_abstract_df):
         """write drawdown_data database, plesase store abstract data rather than raw data """
         self.db = self.conn[self.drawdown_data]
-        if strategy_name in self.db.list_collection_names():
-            print(f"{strategy_name} collection already exist in drawdown_data")
-        else:
-            drawdown_abstract_records = drawdown_abstract_df.to_dict(orient='records')
-            coll = self.db[strategy_name]
-            coll.insert_many(drawdown_abstract_records)
+        drawdown_abstract_records = drawdown_abstract_df.to_dict(orient='records')
+        coll = self.db[strategy_name]
+        for x in drawdown_abstract_records:
+            coll.replace_one({'Drawdown period': x['Drawdown period']}, x, upsert=True)
         return
 
     def write_drawdown_graph_data(self, strategy_name, drawdown_raw_df):
         """write drawdown_graph_data database, please use raw data but not abstract data"""
         self.db = self.conn[self.drawdown_graph_data]
-        if strategy_name in self.db.list_collection_names():
-            print(f"{strategy_name} collection already exist in drawdown_graph_data")
-        else:
-            drawdown_raw_records = drawdown_raw_df.to_dict(orient='records')
-            coll = self.db[strategy_name]
-            coll.insert_many(drawdown_raw_records)
+        drawdown_raw_records = drawdown_raw_df.to_dict(orient='records')
+        coll = self.db[strategy_name]
+        for x in drawdown_raw_records:
+            coll.replace_one({'timestamp': x['timestamp']}, x, upsert=True)
         return
 
 
@@ -62,22 +58,20 @@ class Write_Mongodb:
         """write Strategies collection in rainydrop"""
         self.db = self.conn[self.rainydrop]
         coll = self.db[self.strategies]
-        if coll.count_documents({'strategy_name':strategy_name}) > 0:
-            print('document already exist in Strategies')
-        else:
-            all_file_return_df['strategy_initial'] = strategy_initial
-            all_file_return_df['strategy_name'] = strategy_name
-            all_file_return_df['video_link'] = video_link
-            all_file_return_df['documents_link'] = documents_link
-            all_file_return_df['tags_array'] = tags_array
-            all_file_return_df['rating_dict'] = rating_dict
-            all_file_return_df['subscribers num'] = subscribers_num
-            all_file_return_df['margin ratio'] = margin_ratio
-            all_file_return_df['subscribers_num'] = subscribers_num
-            all_file_return_df['trader_name'] = trader_name
-            all_file_return_df = all_file_return_df.loc[all_file_return_df['Backtest Spec'] == name]
-            all_file_return_record = all_file_return_df.to_dict(orient='records')
-            coll.insert_many(all_file_return_record)
+        all_file_return_df['strategy_initial'] = strategy_initial
+        all_file_return_df['strategy_name'] = strategy_name
+        all_file_return_df['video_link'] = video_link
+        all_file_return_df['documents_link'] = documents_link
+        all_file_return_df['tags_array'] = tags_array
+        all_file_return_df['rating_dict'] = rating_dict
+        all_file_return_df['subscribers num'] = subscribers_num
+        all_file_return_df['margin ratio'] = margin_ratio
+        all_file_return_df['subscribers_num'] = subscribers_num
+        all_file_return_df['trader_name'] = trader_name
+        all_file_return_df = all_file_return_df.loc[all_file_return_df['Backtest Spec'] == name]
+        all_file_return_record = all_file_return_df.to_dict(orient='records')
+        for x in all_file_return_record:
+            coll.replace_one({'strategy_name': x['strategy_name']}, x, upsert=True)
         return
 
     def write_ETF(self, ETF_name, ETF_df):
