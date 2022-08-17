@@ -33,12 +33,10 @@ class Write_Mongodb:
     def write_simulation(self, strategy_name, run_df):
         """write simulation database"""
         self.db = self.conn[self.simulation]
-        if strategy_name in self.db.list_collection_names():
-            print(f"{strategy_name} collection already exist in simulaiton")
-        else:
-            run_records = run_df.to_dict(orient='records')
-            coll = self.db[strategy_name]
-            coll.insert_many(run_records)
+        run_records = run_df.to_dict(orient='records')
+        coll = self.db[strategy_name]
+        for x in run_records:
+            coll.replace_one({'timestamp': x['timestamp']}, x, upsert=True)
         return
 
     def write_new_backtest_result(self, strategy_name, run_df):
