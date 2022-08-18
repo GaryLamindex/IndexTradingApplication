@@ -123,8 +123,10 @@ class realtime:
             self.algorithm = self.backtest.algorithm
             for ticker in self.tickers:
                 self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
-            last_excute_day = self.backtest.end_date
-            last_excute_timestamp = datetime.timestamp(last_excute_day)
+            df = pd.read_csv(self.backtest.run_file)
+            last_excute_timestamp = df["timestamp"].iloc[-1]
+            last_excute_timestamp = int(last_excute_timestamp)
+            last_excute_timestamp = last_excute_timestamp + 1
             current_date = datetime.now()
             current_timestamp = datetime.timestamp(current_date)
             _date = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%Y-%m-%d")
@@ -134,6 +136,7 @@ class realtime:
                     [last_excute_timestamp, current_timestamp]) is None:
                 print("No new data")
             else:
+                print("Have new data")
                 timestamps_1 = \
                     self.stock_data_engines[self.tickers[0]].get_data_by_range(
                         [last_excute_timestamp, current_timestamp])[

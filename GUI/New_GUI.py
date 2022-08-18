@@ -10,6 +10,18 @@ from tkinter import messagebox
 # import algo.rebalance_margin_wif_maintainance_margin
 # import algo.rebalance_margin_wif_max_drawdown_control.real_time
 
+# import application.backtest_application
+# import application.grab_data_application
+# import application.grap_stock_data_application
+# import application.lazyportfolioetf_scraper
+# import application.realtime_application
+# import application.realtime_statistic_application
+# import application.streaming_application
+# import application.realtime_update_db_info
+# import application.rebalance_margin_wif_max_drawdown_control_backtest_application
+# import application.smartContract_application
+# import application.streamlit_application
+
 
 # tk is the name of tkinter
 
@@ -90,6 +102,8 @@ def get_data():
     value = enter.get()
     if value =="":
         return create_message_box("Empty Entry")
+    elif (isinstance(value, int) != True):
+        return create_message_box("Wrong Input")
     else:
         choose_program(int(value))
 
@@ -131,7 +145,7 @@ def end():
     exit()
 
 
-entry_text = create_text("Enter the program name")
+entry_text = create_text("Enter the program number")
 entry_text.grid(row=0, column=1)
 
 end_button = create_button("Close")
@@ -187,47 +201,6 @@ strategy9.grid(row=8, column=0)
 
 strategy10 = create_text(labels.strategy10)
 strategy10.grid(row=9, column=0)
-"""
-for x in Strategy:
-    tk.Label(interface, text=x, width=10, height=2, fg="black", bg="white", font="Helvetica").grid(row=countrow,
-                                                                                                   column=0)
-    tk.Button(interface, text="Start Run "+x, width=20, height=2, command=lambda: onclick(countrow)).grid(row=countrow, column=1)
-    countrow = countrow+1
-"""
-
-"""
-Strategy1 = tk.Label(text="Strategy 1", width=10, height=2, fg="black", bg="white", font="Helvetica")
-Strategy1.grid(row=0, column=0)
-
-# button1
-my_button1 = tk.Button(interface, text="Start Run Strategy 1", command=lambda: onclick(Strategy1), height=2)
-my_button1.grid(row=0, column=1)
-
-
-lb2 = tk.Label(text="Strategy 2", width=10, height=2, fg="black", bg="white", font="Helvetica")
-lb2.grid(row=1, column=0)
-
-# button2
-my_button2 = tk.Button(interface, text="Start Run Strategy 2", command=lambda: onclick(Strategy1), height=2)
-my_button2.grid(row=1, column=1)
-
-lb3 = tk.Label(text="Strategy 3", width=10, height=2, fg="black", bg="white", font="Helvetica")
-lb3.grid(row=2, column=0)
-
-
-# button3
-my_button3 = tk.Button(interface, text="Start Run Strategy 3", command=lambda: onclick(Strategy1), height=2)
-my_button3.grid(row=2, column=1)
-
-
-lb4 = tk.Label(text="Strategy 4", width=10, height=2, fg="black", bg="white", font="Helvetica")
-lb4.grid(row=3, column=0)
-
-
-# button4
-my_button4 = tk.Button(interface, text="Start Run Strategy 4", command=lambda: onclick(Strategy1), height=2)
-my_button4.grid(row=3, column=1)
-"""
 
 # mainframe loop
 interface.mainloop()
