@@ -17,7 +17,6 @@ class realtime:
     def __init__(self, tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
                  db_mode, execute_period):
         self.stat_agent = None
-        self.rebalance_dict = None
         self.trader_name = None
         self.margin_ratio = None
         self.rating_dict = None
