@@ -161,6 +161,17 @@ class simulation_agent(object):
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
         _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
         timestamp_dict = {"timestamp": timestamp, "date": _date, "time": _time}
+        if os.path.exists(self.run_file_path):
+            with open(self.run_file_path, 'r', newline='') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    # adding the first row
+                    self.list_header = row
+
+                    # breaking the loop after the
+                    # first iteration itself
+                    break
+
 
         # store the header information to self.list_header field
         # using a for-loop function like the below example
