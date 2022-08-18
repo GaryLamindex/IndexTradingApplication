@@ -260,13 +260,10 @@ class ibkr_stock_data_io_engine:
                 print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
                 return
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
-            if changed:
-                self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, True)
-            else:  # if the file has not been changed
-                self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False, False)
+            self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False)
         print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
-    def get_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour, changed):
+    def get_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour):
         """
         It is a function only used by get_historical_data_by_range. It appends the given range of timestamps of data to
         the existent ticker file.
@@ -297,9 +294,8 @@ class ibkr_stock_data_io_engine:
             print(
                 f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
             current_end_timestamp = front_timestamp
-            changed = True
-        if changed:
-            old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        if "check" not in old_df:
             old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
             old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
             old_df["check"] = ""
