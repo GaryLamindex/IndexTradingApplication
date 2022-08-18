@@ -7,7 +7,7 @@ from engine.stat_engine.statistic_engine import realtime_statistic_engine
 
 
 class realtime_statistic:
-    def __init__(self, user_id, spec_str):
+    def __init__(self, user_id, strategy, spec_str):
         store_mongoDB = True,
         strategy_initial = '',
         video_link = 'https://www.youtube.com',
@@ -17,7 +17,7 @@ class realtime_statistic:
         rating_dict = None,
         margin_ratio = 3.24,
         trader_name = 'Fai'
-        table_info = {"mode": "backtest", "strategy_name": "portfolio_rebalance", "user_id": user_id}
+        table_info = {"mode": "backtest", "strategy_name": strategy, "user_id": user_id}
         table_name = table_info.get("mode") + "_" + table_info.get("strategy_name") + "_" + str(
             table_info.get("user_id"))
         path = str(pathlib.Path(__file__).parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"

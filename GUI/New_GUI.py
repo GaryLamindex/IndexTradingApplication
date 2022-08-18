@@ -1,6 +1,8 @@
 import subprocess
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
+
 # import engine.mongoDB_engine.trying
 # import algo.accelerating_dual_momentum.realtime
 # import algo.factor.realtime
@@ -70,6 +72,11 @@ def create_button(name):
 
 def create_message_box(text):
     return messagebox.showinfo("Error Message", text)
+
+
+# can use drop down menus with button
+def create_combobox(lists):
+    return ttk.Combobox(interface, values=lists, state="readonly")
 
 
 def activate_submit(apply_button):
@@ -163,6 +170,14 @@ button.grid(row=3, column=1)
 check = check_button("Confirmed Program", button)
 check.grid(row=2, column=1)
 
+select_list = create_combobox(["1.Accelerating_dual_momentum",
+                               "2.Factor",
+                               "3.Portfolio_rebalance",
+                               "4.Random_forest",
+                               "5.Rebalance_margin_never_sell",
+                               "6.Rebalance_margin_wif_maintainance_margin",
+                               "7.Rebalance_margin_wif_max_drawdown_control"])
+select_list.grid(row=4, column=1)
 # Label
 countrow = 0
 # countcol = 0

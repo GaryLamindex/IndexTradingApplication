@@ -36,7 +36,15 @@ class Backtest:
 
     def __init__(self, tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id,
                  db_mode):
+        self.run_file = None
+        self.algorithm = None
+        self.dividend_agent = None
+        self.sim_agent = None
+        self.trade_agent = None
+        self.portfolio_data_engine = None
+        self.acc_data = None
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/backtest"
+
 
         self.table_info = {"mode": "backtest", "strategy_name": "factor", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
