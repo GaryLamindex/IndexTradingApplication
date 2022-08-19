@@ -213,7 +213,7 @@ class ibkr_stock_data_io_engine:
                     continue
                 else:
                     self.grab_data_retry_attempt = 0
-                    return
+                    break
 
             front_timestamp = current_data[0].date.timestamp()
             current_data_df = util.df(current_data)
@@ -298,7 +298,7 @@ class ibkr_stock_data_io_engine:
         if "check" not in old_df:
             old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
             old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
-            old_df["check"] = ""
+            old_df["check"] = " "
             old_df.loc[0, "check"] = "True"
             old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
 
