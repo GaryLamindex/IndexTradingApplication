@@ -1,7 +1,9 @@
 import subprocess
+import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 
 # import engine.mongoDB_engine.trying
 # import algo.accelerating_dual_momentum.realtime
@@ -51,6 +53,26 @@ class label_frame:
         self.strategy9 = "9.Vanguard Life Strategy Growth Fund"
         self.strategy10 = "10.No Brainer Portfolio"
 
+
+class PrintLogger(object):  # create file like object
+
+    def __init__(self, textbox):  # pass reference to text widget
+        self.textbox = textbox  # keep ref
+
+    def write(self, text):
+        self.textbox.configure(state="normal")  # make field editable
+        self.textbox.insert("end", text)  # write text to textbox
+        self.textbox.see("end")  # scroll to end
+        self.textbox.configure(state="disabled")  # make field readonly
+
+    def flush(self):  # needed for file like object
+        pass
+
+
+def reset_logging(self):
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+    
 
 # function of creating labels
 # name = text you want to input
@@ -148,6 +170,11 @@ def choose_program(program_no):
         print("error")
 
 
+def getbutton(name):
+    choose_num = name.current() + 1
+    choose_program(choose_num)
+
+
 def end():
     exit()
 
@@ -178,6 +205,10 @@ select_list = create_combobox(["1.Accelerating_dual_momentum",
                                "6.Rebalance_margin_wif_maintainance_margin",
                                "7.Rebalance_margin_wif_max_drawdown_control"])
 select_list.grid(row=4, column=1)
+
+list_button = create_button("sure")
+list_button.config(command=lambda: getbutton(select_list))
+list_button.grid(row=5, column=1)
 # Label
 countrow = 0
 # countcol = 0
