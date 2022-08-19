@@ -72,7 +72,13 @@ class PrintLogger(object):  # create file like object
 def reset_logging(self):
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
-    
+
+
+def redirect_logging(self):
+    logger = PrintLogger(self.log_widget)
+    sys.stdout = logger
+    sys.stderr = logger
+
 
 # function of creating labels
 # name = text you want to input
