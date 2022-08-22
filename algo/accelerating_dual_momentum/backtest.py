@@ -130,6 +130,7 @@ class backtest:
                 if os.path.exists(graph_file):
                     os.remove(Path(graph_file))
                 self.load_run_data(spec_str)
+                return
         if os.path.exists(graph_file):
             os.remove(Path(graph_file))
 
@@ -218,6 +219,11 @@ class backtest:
 
         action_msgs = algorithm.run(pct_change_dict, stock_data_dict, self.bond, timestamp)
         action_record = []
+        if action_msgs is None:
+            self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
+                                                 action_record, sim_meta_data,
+                                                 stock_data_dict)
+            return
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:

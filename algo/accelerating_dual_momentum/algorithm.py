@@ -20,54 +20,55 @@ class accelerating_dual_momentum:
         self.action_msgs = []
 
     def run(self, pct_change_dict, price_dict, bond, timestamp):
-        self.action_msgs = []
-        self.pct_change_dict = pct_change_dict
-        if not self.trade_agent.market_opened():
-            return
-        self.portfolio_agent.update_stock_price_and_portfolio_data(price_dict)
-        self.account_snapshot = self.portfolio_agent.get_account_snapshot()
-        self.portfolio = self.portfolio_agent.get_portfolio()
-        self.total_market_value = self.account_snapshot.get("NetLiquidation")
-        ticker_list = [*pct_change_dict]
-        momentum_signals = []
-        buy = ""
-        for ticker in ticker_list:
-            one_month_pct_change = pct_change_dict[ticker][1]
-            three_month_pct_change = pct_change_dict[ticker][3]
-            six_month_pct_change = pct_change_dict[ticker][6]
-            momentum_signal = one_month_pct_change * 0.33 + three_month_pct_change * 0.33 + six_month_pct_change * 0.34
-            momentum_signals.append(momentum_signal)
-        if momentum_signals[0] < 0 and momentum_signals[1] < 0:
-            buy = bond
-        elif momentum_signals[0] > momentum_signals[1]:
-            buy = ticker_list[0]
-        elif momentum_signals[0] < momentum_signals[1]:
-            buy = ticker_list[1]
-        for ticker_data in self.portfolio:
-            ticker_name = ticker_data["ticker"]
-            ticker_pos = ticker_data["position"]
-            if ticker_name == buy:
-                if ticker_pos > 0:  # if holding a ticker that need to buy
-                    price = price_dict[buy]["last"]
-                    target_pos = self.total_market_value / price
-                    buy_pos = target_pos - ticker_pos
-                    if buy_pos > 0.0:
+        if self.check_exec(timestamp, freq="Monthly", relative_delta=1):
+            self.action_msgs = []
+            self.pct_change_dict = pct_change_dict
+            if not self.trade_agent.market_opened():
+                return
+            self.portfolio_agent.update_stock_price_and_portfolio_data(price_dict)
+            self.account_snapshot = self.portfolio_agent.get_account_snapshot()
+            self.portfolio = self.portfolio_agent.get_portfolio()
+            self.total_market_value = self.account_snapshot.get("NetLiquidation")
+            ticker_list = [*pct_change_dict]
+            momentum_signals = []
+            buy = ""
+            for ticker in ticker_list:
+                one_month_pct_change = pct_change_dict[ticker][1]
+                three_month_pct_change = pct_change_dict[ticker][3]
+                six_month_pct_change = pct_change_dict[ticker][6]
+                momentum_signal = one_month_pct_change * 0.33 + three_month_pct_change * 0.33 + six_month_pct_change * 0.34
+                momentum_signals.append(momentum_signal)
+            if momentum_signals[0] < 0 and momentum_signals[1] < 0:
+                buy = bond
+            elif momentum_signals[0] > momentum_signals[1]:
+                buy = ticker_list[0]
+            elif momentum_signals[0] < momentum_signals[1]:
+                buy = ticker_list[1]
+            for ticker_data in self.portfolio:
+                ticker_name = ticker_data["ticker"]
+                ticker_pos = ticker_data["position"]
+                if ticker_name == buy:
+                    if ticker_pos > 0:  # if holding a ticker that need to buy
+                        price = price_dict[buy]["last"]
+                        target_pos = self.total_market_value / price
+                        buy_pos = target_pos - ticker_pos
+                        if buy_pos > 0.0:
+                            action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
+                                                        {'ticker': buy, 'position_purchase': buy_pos})
+                            self.action_msgs.append(action_msg)
+                    elif ticker_pos == 0:  # if not holding a ticker that need to buy
+                        price = price_dict[buy]["last"]
+                        target_pos = self.total_market_value / price
                         action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                                    {'ticker': buy, 'position_purchase': buy_pos})
+                                                    {'ticker': buy, 'position_purchase': target_pos})
                         self.action_msgs.append(action_msg)
-                elif ticker_pos == 0:  # if not holding a ticker that need to buy
-                    price = price_dict[buy]["last"]
-                    target_pos = self.total_market_value / price
-                    action_msg = IBActionsTuple(timestamp, IBAction.BUY_MKT_ORDER,
-                                                {'ticker': buy, 'position_purchase': target_pos})
+                elif ticker_pos > 0:  # if holding a ticker that need to sell
+                    sell = ticker_name
+                    sell_pos = ticker_pos
+                    action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
+                                                {'ticker': sell, 'position_sell': sell_pos})
                     self.action_msgs.append(action_msg)
-            elif ticker_pos > 0:  # if holding a ticker that need to sell
-                sell = ticker_name
-                sell_pos = ticker_pos
-                action_msg = IBActionsTuple(timestamp, IBAction.SELL_MKT_ORDER,
-                                            {'ticker': sell, 'position_sell': sell_pos})
-                self.action_msgs.append(action_msg)
-        return self.action_msgs.copy()
+            return self.action_msgs.copy()
 
     def check_exec(self, timestamp, **kwargs):
         datetime_obj = datetime.utcfromtimestamp(timestamp)
