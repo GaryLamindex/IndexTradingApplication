@@ -226,9 +226,10 @@ class Write_Mongodb:
             while col.count_documents({'trading_card_id': x['_id']}) != 0:
                 col.delete_one({'trading_card_id': x['_id']})
     def delete_all(self):
-        self.db = self.conn['rainydrop']
-        col = self.db['Strategies']
-        col.delete_many({})
+        self.db = self.conn['drawdown_data']
+        for coll in self.db.list_collection_names():
+            col = self.db[coll]
+            col.delete_many({})
     # def write_new_backtest_result(self, all_file_return_df, strategy_initial, strategy_name):
     #     self.write_watchlist_suggestion(suggestion_id, all_file_return_df)
     #     self.write_trading_cards(trading_cards_id, strategy_name, strategy_initial, all_file_return_df)
@@ -239,7 +240,7 @@ def main():
     # requests.post('http://127.0.0.1:5000/composite/asset-allocation-etfs', json=data)
     engine = Write_Mongodb()
     # engine.historical_graph_new()
-    engine.algo_info_overview()
+    # engine.algo_info_overview()
     # engine.trade_log()
     # engine.delete()
     # engine.delete_all()
