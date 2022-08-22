@@ -13,9 +13,9 @@ class lazyportfolioetf_engine:
 
     def __init__(self):
         self.portfolio_path = str(
-            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/Rainy Drop/etf_list/portfolio.csv"
+            pathlib.Path(__file__).parent.parent.parent.resolve()) + "/etf_list/portfolio.csv"
         self.etf_list_path = str(pathlib.Path(__file__)
-                                 .parent.parent.parent.parent.resolve()) + '/etf_list'
+                                 .parent.parent.parent.resolve()) + '/etf_list'
 
     def get_portfolio(self):
         file_exists = os.path.exists(self.portfolio_path)
