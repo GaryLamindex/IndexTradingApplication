@@ -33,8 +33,8 @@ from tkinter.scrolledtext import ScrolledText
 interface = tk.Tk()
 # Mainframe basic structure
 interface.title("IndexTradingApplication")
-interface.geometry("1050x600")
-interface.minsize(width=1050, height=600)
+interface.geometry("1500x600")
+interface.minsize(width=1500, height=600)
 interface.config(bg="light blue")
 interface.attributes("-alpha", 0.95)
 var = tk.IntVar()
@@ -69,13 +69,13 @@ class PrintLogger(object):  # create file like object
         pass
 
 
-def reset_logging(self):
+def reset_logging():
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
 
 
-def redirect_logging(self):
-    logger = PrintLogger(self.log_widget)
+def redirect_logging():
+    logger = PrintLogger(log_widget)
     sys.stdout = logger
     sys.stderr = logger
 
@@ -137,8 +137,6 @@ def get_data():
     value = enter.get()
     if value =="":
         return create_message_box("Empty Entry")
-    elif (isinstance(value, int) != True):
-        return create_message_box("Wrong Input")
     else:
         choose_program(int(value))
 
@@ -212,9 +210,20 @@ select_list = create_combobox(["1.Accelerating_dual_momentum",
                                "7.Rebalance_margin_wif_max_drawdown_control"])
 select_list.grid(row=4, column=1)
 
-list_button = create_button("sure")
-list_button.config(command=lambda: getbutton(select_list))
-list_button.grid(row=5, column=1)
+# list_button = create_button("sure")
+# list_button.config(command=lambda: getbutton(select_list))
+# list_button.grid(row=5, column=1)
+
+redirect_button = create_button("Redirect console to widget")
+redirect_button.config(width=25, command=lambda: redirect_logging())
+redirect_button.grid(row=5, column=1)
+
+redirect_button2 = create_button("Redirect console reset")
+redirect_button2.config(width=25, command=lambda: reset_logging())
+redirect_button2.grid(row=5, column=2)
+
+log_widget = ScrolledText(interface, height=4, width=120, font=("consolas", "8", "normal"))
+log_widget.grid(row=6, column=1)
 # Label
 countrow = 0
 # countcol = 0
