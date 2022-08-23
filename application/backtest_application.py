@@ -354,16 +354,17 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # backtest = factor_backtest(tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id, db_mode)
 # backtest.loop_through_param()
 
-### ---------------------------------------  Bosco Backtest -------------------------------------------------------
+### --------------------------------------- Bosco Random Forest Backtest ----------------------------------------------
 from algo.random_forest.backtest import Backtest as random_forest_backtest
 
-tickers = ['SPY', 'QQQ', 'BND']
+# tickers = ['VOO', 'VO', 'VB', 'VWO', 'GLD', 'GSG']
+tickers = ['SPY']
 # existing_files = os.listdir('C:/Users/user/Documents/GitHub/ticker_data/one_day') # To be updated
 # tickers = [file.split('.')[0] for file in existing_files]
 # tickers.remove("ESGV")
 # tickers.remove("NUBD") # To be updated
 initial_amount = 10000000
-start_date = dt.datetime(2016, 1, 1)
+start_date = dt.datetime(2008, 1, 4)
 end_date = dt.datetime(2022, 7, 31)
 # end_date = dt.datetime.today() + dt.timedelta(days=-1)
 cal_stat = True
