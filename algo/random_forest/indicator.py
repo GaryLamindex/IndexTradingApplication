@@ -7,9 +7,8 @@ from sklearn.ensemble import RandomForestRegressor
 
 class Indicator:
     def __init__(self, indices, rate):
-        indices = pd.DataFrame(indices)
         self.daily_indices = indices
-        self.weekly_indices = indices.groupby(pd.Grouper(freq='W-fri')).nth(-1)
+        self.weekly_indices = indices.groupby(pd.Grouper(freq='W-Fri')).nth(-1)
         self.daily_return = indices.pct_change().rename(columns={"Close": "Return"}).iloc[1:]
         self.weekly_return = self.weekly_indices.pct_change().rename(columns={"Close": "Return"}).iloc[1:]
         self.ten_yr_rate = rate
@@ -21,23 +20,33 @@ class Indicator:
         #                                             self.daily_indices.ta.percent_return(length=5).rename("Daily-Return-5"), \
         #                                             self.daily_indices.ta.percent_return(length=20).rename("Daily-Return-20")
         return_week_1, return_week_4, return_week_12 = self.weekly_indices.ta.percent_return(length=1).rename("Weekly-Return-1"), \
-                                                       self.weekly_indices.ta.percent_return(length=4).rename("Weekly-Return-5"), \
-                                                       self.weekly_indices.ta.percent_return(length=12).rename("Weekly-Return-20")
-        # rsi = ta.rsi(self.daily_indices['Close'], talib=False).rename("RSI")
-        # bollinger_df = ta.bbands(self.daily_indices['Close'], length=20, talib=False)
-        # bollinger = (bollinger_df["BBU_20_2.0"] - self.daily_indices['Close']) / (bollinger_df["BBU_20_2.0"] - bollinger_df["BBL_20_2.0"])
-        # bollinger.name = "Bollinger"
-        ten_yr_rate = self.ten_yr_rate.groupby(pd.Grouper(freq='W-fri')).nth(-1).rename(columns={"Value": "Rate"}).pct_change()
+                                                       self.weekly_indices.ta.percent_return(length=4).rename("Weekly-Return-4"), \
+                                                       self.weekly_indices.ta.percent_return(length=12).rename("Weekly-Return-12")
+        rsi = ta.rsi(self.daily_indices['Close'], talib=False).rename("RSI")
+        # macd = ta.macd(self.daily_indices['Close'], talib=False)['MACDh_12_26_9'].diff().rename("MACD")
+        # stoch = ta.stoch(self.daily_indices['High'], self.daily_indices['Low'], self.daily_indices['Close'])
+        # stoch_k, stoch_d = stoch['STOCHk_14_3_3'], stoch['STOCHd_14_3_3']
+        # stoch = (stoch_k - stoch_d).pct_change().rename("Stoch")
+        bollinger_df = ta.bbands(self.daily_indices['Close'], length=20, talib=False)
+        bollinger = (bollinger_df["BBU_20_2.0"] - self.weekly_indices['Close']) / (
+                    bollinger_df["BBU_20_2.0"] - bollinger_df["BBL_20_2.0"])
+        bollinger.name = "Bollinger"
+        ten_yr_rate = self.ten_yr_rate.groupby(pd.Grouper(freq='W-Fri')).nth(0).rename(
+             columns={"Value": "Rate"}).pct_change()
         self.dataset = pd.concat([self.weekly_return,
                                   # return_day_1, return_day_5, return_day_20,
-                                  # return_week_1, return_week_4, return_week_12,
-                                  # rsi, bollinger,
-                                  ten_yr_rate], axis=1, join='inner')
+                                  return_week_1, return_week_4, return_week_12,
+                                  rsi, bollinger,
+                                  ten_yr_rate
+                                  ],
+                                 axis=1, join='inner')
         self.last_dataset = pd.concat([self.weekly_return,
                                        # return_day_1, return_day_5, return_day_20,
-                                       # return_week_1, return_week_4, return_week_12,
-                                       # rsi, bollinger,
-                                       ten_yr_rate], axis=1, join='outer').stack().groupby(level=1).tail(1).values[1:]
+                                       return_week_1, return_week_4, return_week_12,
+                                       rsi, bollinger,
+                                       ten_yr_rate
+                                       ],
+                                      axis=1, join='outer').stack().groupby(level=1).tail(1).values[1:]
         self.dataset['Return'] = self.dataset['Return'].shift(-1)
         self.dataset = self.dataset.dropna(how='any')
         a = 1
@@ -59,11 +68,11 @@ def main():
                                  random_state=23571113,
                                  max_samples=0.7)
     regr.fit(indicator.dataset.drop("Return", axis=1), indicator.dataset["Return"])
-    possible_values = np.linspace(indicator.dataset["Rate"].min(), indicator.dataset["Rate"].max(), 1000).reshape(-1, 1)
-    y = regr.predict(possible_values)
-    plt.plot(possible_values, y)
-    plt.show()
-    a=1
+    # possible_values = np.linspace(indicator.dataset["Rate"].min(), indicator.dataset["Rate"].max(), 1000).reshape(-1, 1)
+    # y = regr.predict(possible_values)
+    # plt.plot(possible_values, y)
+    # plt.show()
+    a = 1
 
 
 if __name__ == '__main__':

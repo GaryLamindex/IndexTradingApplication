@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 import pandas as pd
 from os import listdir
 from pathlib import Path
+import quandl
 from algo.random_forest.algorithm import RandomForest
 from engine.backtest_engine.dividend_engine import dividend_engine
 from engine.backtest_engine.portfolio_data_engine import backtest_portfolio_data_engine
@@ -116,6 +117,12 @@ class Backtest:
         print('Fetch data')
         portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
         timestamps = pd.Series([])
+
+        quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
+        one_yr_rate = quandl.get('FRED/DGS1')
+        ten_yr_rate = quandl.get('FRED/DGS3')
+        rate = (100 + ten_yr_rate) / (100 + one_yr_rate)
+
         for ticker in self.tickers:
             series = self.stock_data_engines[ticker].get_data_by_range([start_timestamp, end_timestamp])['timestamp']
             timestamps = self.stock_data_engines[ticker].get_union_timestamps(pd.Series(timestamps), series)
@@ -125,9 +132,9 @@ class Backtest:
             _time = datetime.utcfromtimestamp(int(timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, '#' * 20)
             if algorithm.check_exec(timestamp, freq=freq, relative_delta=1):
-                self.run(timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine)
+                self.run(timestamp, algorithm, rate, sim_agent, trade_agent, portfolio_data_engine)
 
-    def run(self, timestamp, algorithm, sim_agent, trade_agent, portfolio_data_engine):
+    def run(self, timestamp, algorithm, rate, sim_agent, trade_agent, portfolio_data_engine):
         price_dict = {}
         sim_meta_data = {}
         stock_data_dict = {}
@@ -135,22 +142,22 @@ class Backtest:
         all_indice = {}
         for ticker in self.tickers:
             ticker_engine = self.stock_data_engines[ticker]
-            ticker_item_start = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(years=-10)
+            ticker_item_start = datetime.utcfromtimestamp(int(timestamp)) + relativedelta(months=-6)
             sim_meta_data.update({ticker: ticker_engine.get_ticker_item_by_timestamp(timestamp)})
             ticker_last = ticker_engine.get_ticker_item_by_timestamp(timestamp)
-            ticker_item = ticker_engine.get_data_by_range([datetime.timestamp(ticker_item_start), timestamp])
+            ticker_item = ticker_engine.get_data_by_range([0, timestamp])
             if ticker_item is not None:
-                ticker_item = ticker_item[['Date', 'Close']]
+                ticker_item = ticker_item[['Date', 'High', 'Low', 'Close']]
                 ticker_item['Date'] = pd.to_datetime(ticker_item['Date'])
                 ticker_item.set_index('Date', inplace=True)
                 all_indice[ticker] = ticker_item
-                price = ticker_last.get('open')
+                price = ticker_last.get('Close')
             if price is None:
                 stock_data_dict.update({ticker: {'last': None}})
                 continue
             else:
                 stock_data_dict.update({ticker: {'last': price}})
-        action_msgs = algorithm.run(stock_data_dict, all_indice, timestamp)
+        action_msgs = algorithm.run(stock_data_dict, all_indice, rate, timestamp)
         action_record = []
         for action_msg in action_msgs:
             action = action_msg.action_enum
@@ -163,9 +170,9 @@ class Backtest:
             action = action_msg.action_enum
             if action == IBAction.BUY_MKT_ORDER:
                 temp_action_record = trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                            action_msg.args_dict.get(
+                                                                           action_msg.args_dict.get(
                                                                                 "position_purchase"),
-                                                                            {"timestamp": action_msg.timestamp})
+                                                                           {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         sim_agent.append_run_data_to_db(timestamp, sim_agent.portfolio_data_engine.get_account_snapshot(),
                                         action_record, sim_meta_data,

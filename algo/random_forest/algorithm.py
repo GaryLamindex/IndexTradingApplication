@@ -19,7 +19,7 @@ class RandomForest:
         self.optimal_weight = {}
         self.action_msgs = []
 
-    def run(self, price_dict, all_indice, timestamp):
+    def run(self, price_dict, all_indice, rate, timestamp):
         if not self.trade_agent.market_opened():
             return
 
@@ -28,21 +28,29 @@ class RandomForest:
         self.portfolio = self.portfolio_agent.get_portfolio()
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
-        quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
-        one_yr_rate = quandl.get('FRED/DGS1')
-        ten_yr_rate = quandl.get('FRED/DGS10')
-        rate = (100 + ten_yr_rate) / (100 + one_yr_rate)
+        # quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
+        # one_yr_rate = quandl.get('FRED/DGS1')
+        # ten_yr_rate = quandl.get('FRED/DGS3')
+        # rate = (100 + ten_yr_rate) / (100 + one_yr_rate)
+
         return_dict = {}
 
-        degree_of_trust = -1000
+        """
+        How confident you are in the algorithm.
+        If positive, higher weight on stocks w/ higher expected return;
+        if 0, equal weight on all stocks;
+        if negative, higher weight on stocks w/ lower expected return.
+        In theory can take any real numbers, but in practice choose a number in the range [-10000, 10000].
+        """
+        confidence = 500
 
         for ticker in price_dict.keys():
             indicator = Indicator(all_indice[ticker], rate)
             indicator.get_samples()
             X, y = indicator.dataset.drop("Return", axis=1), indicator.dataset["Return"]
-            regr = RandomForestRegressor(n_estimators=30,
+            regr = RandomForestRegressor(n_estimators=100,
                                          max_features=1 / 3,
-                                         min_samples_leaf=0.05,
+                                         min_samples_leaf=0.02,
                                          random_state=23571113,
                                          max_samples=0.75)
             regr.fit(X, y)
@@ -50,8 +58,8 @@ class RandomForest:
         print(return_dict)
         # total_return = sum([math.exp(ret) for ret in return_dict.values() if ret > 0])
         # self.optimal_weight = {ticker: (math.exp(ret) / total_return if ret > 0 else 0) for ticker, ret in return_dict.items()}
-        total_return = sum([math.exp(degree_of_trust * ret) for ret in return_dict.values()])
-        self.optimal_weight = {ticker: (math.exp(degree_of_trust * ret) / total_return) for ticker, ret in return_dict.items()}
+        total_return = sum([math.exp(confidence * ret) for ret in return_dict.values()]) + 1
+        self.optimal_weight = {ticker: (math.exp(confidence * ret) / total_return) for ticker, ret in return_dict.items()}
         self.action_msgs = []
 
         for ticker_data in self.portfolio:
