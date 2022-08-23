@@ -95,7 +95,7 @@ if __name__ == "__main__":
     #                                                args=(accelerating_tickers[1], bond, deposit_amount, start_date,
     #                                                      cal_stat, data_freq, user_id,
     #                                                      db_mode, execute_period))
-    portfolio_stat = [None] * len(rebalance_tickers)
+    portfolio_stat = [None for i in range(len(rebalance_tickers))]
     for y in range(0, len(rebalance_tickers)):
         spec = ''
         for x in range(len(rebalance_tickers[y])):
