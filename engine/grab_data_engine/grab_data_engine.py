@@ -190,7 +190,7 @@ class grab_stock_data_engine:
 
         return data
 
-    def get_min_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour, changed):
+    def get_min_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour):
         """
         It is a function only used by get_historical_data_by_range. It appends the given range of timestamps of data to
         the existent ticker file.
@@ -406,7 +406,7 @@ class grab_stock_data_engine:
                 print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
                 return
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
-            self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False)
+            self.get_min_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False)
         print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
