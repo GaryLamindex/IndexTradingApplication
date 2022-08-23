@@ -54,6 +54,8 @@ class lazyportfolioetf_engine:
         df.to_csv(self.portfolio_path, index=False)
 
 def main():
+    # engine = lazyportfolioetf_engine()
+    # engine.get_portfolio()
     pass
     # url = "http://www.lazyportfolioetf.com/allocation/"
     # page = urlopen(url)

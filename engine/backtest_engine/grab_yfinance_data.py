@@ -13,9 +13,9 @@ class yfinance_data_engine:
 
     def __init__(self):
         self.ticker_data_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.resolve()) + '/ticker_data/one_day'
+                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/one_day'
         self.ticker_name_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.resolve()) + '/etf_list'
+                                    .parent.parent.parent.parent.resolve()) + '/etf_list'
 
     def get_yfinance_max_historical_data(self, ticker):
         btc = yf.Ticker(ticker)
