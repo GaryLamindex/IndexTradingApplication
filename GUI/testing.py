@@ -37,6 +37,11 @@ class MainGUI(Tk):
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
 
+    def redirect_logging(self):
+        logger = PrintLogger(self.log_widget)
+        sys.stdout = logger
+        sys.stderr = logger
+
     def test_print(self):
         print("Am i working?")
 

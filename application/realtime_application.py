@@ -59,7 +59,7 @@ if __name__ == "__main__":
     portfolio_engine = lazyportfolioetf()
     portfolio_engine.get_portfolio()
     df = pd.read_csv(str(
-            pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + "/Rainy Drop/etf_list/portfolio.csv")
+            pathlib.Path(__file__).parent.parent.parent.resolve()) + "/etf_list/portfolio.csv")
     df['Weight'] = df['Weight'].str.rstrip('%').astype('float')
     df = df.loc[df['Weight'] != 100]
     df1 = df.groupby('Strategy Name')['Weight'].apply(list).reset_index(name='Weight')
@@ -79,23 +79,23 @@ if __name__ == "__main__":
     db_mode = {"dynamo_db": False, "local": True}
     acceptance_range = 0
     execute_period = "Monthly"
-    portfolio_rebalance = [None] * len(rebalance_tickers)
-    for x in range(0, len(rebalance_tickers)):
+    portfolio_rebalance = [None for i in range(len(rebalance_tickers))]
+    for x in range(len(rebalance_tickers)):
         portfolio_rebalance[x] = multiprocessing.Process(target=rebalance_process_function,
                                                    args=(rebalance_tickers[x], rebalance_ratio[x],
                                                          initial_amount, start_date,
                                                          data_freq, user_id, cal_stat,
                                                          db_mode, acceptance_range,
                                                          execute_period))
-    BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
-                                                    args=(accelerating_tickers[0], bond, deposit_amount, start_date,
-                                                          cal_stat, data_freq, user_id,
-                                                          db_mode, execute_period))
-    DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
-                                                   args=(accelerating_tickers[1], bond, deposit_amount, start_date,
-                                                         cal_stat, data_freq, user_id,
-                                                         db_mode, execute_period))
-    portfolio_stat = [None] * len(rebalance_tickers)
+    # BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
+    #                                                 args=(accelerating_tickers[0], bond, deposit_amount, start_date,
+    #                                                       cal_stat, data_freq, user_id,
+    #                                                       db_mode, execute_period))
+    # DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
+    #                                                args=(accelerating_tickers[1], bond, deposit_amount, start_date,
+    #                                                      cal_stat, data_freq, user_id,
+    #                                                      db_mode, execute_period))
+    portfolio_stat = [None for i in range(len(rebalance_tickers))]
     for y in range(0, len(rebalance_tickers)):
         spec = ''
         for x in range(len(rebalance_tickers[y])):
@@ -107,8 +107,8 @@ if __name__ == "__main__":
         portfolio_rebalance[x].start()
     # M_MSFT_rebalance.start()
     # SPY_MSFT_rebalance.start()
-    BND_BNDX_accelerating.start()
-    DBC_DES_accelerating.start()
+    # BND_BNDX_accelerating.start()
+    # DBC_DES_accelerating.start()
     for x in range(len(portfolio_stat)):
         portfolio_stat[x].start()
     for x in range(len(portfolio_stat)):
@@ -121,5 +121,5 @@ if __name__ == "__main__":
     # SPY_MSFT_stat.join()
     # M_MSFT_rebalance.join()
     # SPY_MSFT_rebalance.join()
-    BND_BNDX_accelerating.join()
-    DBC_DES_accelerating.join()
+    # BND_BNDX_accelerating.join()
+    # DBC_DES_accelerating.join()
