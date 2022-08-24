@@ -358,7 +358,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 from algo.random_forest.backtest import Backtest as random_forest_backtest
 
 # tickers = ['VOO', 'VO', 'VB', 'VWO', 'GLD', 'GSG']
-tickers = ['SPY']
+tickers = ['SPY', 'QQQ']
 # existing_files = os.listdir('C:/Users/user/Documents/GitHub/ticker_data/one_day') # To be updated
 # tickers = [file.split('.')[0] for file in existing_files]
 # tickers.remove("ESGV")

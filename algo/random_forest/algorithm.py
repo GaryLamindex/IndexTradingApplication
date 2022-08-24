@@ -42,7 +42,7 @@ class RandomForest:
         if negative, higher weight on stocks w/ lower expected return.
         In theory can take any real numbers, but in practice choose a number in the range [-10000, 10000].
         """
-        confidence = 500
+        confidence = 10000
 
         for ticker in price_dict.keys():
             indicator = Indicator(all_indice[ticker], rate)
@@ -66,7 +66,7 @@ class RandomForest:
             ticker_name = ticker_data.get("ticker")
             ticker_pos = ticker_data.get("position")
             if ticker_name in price_dict.keys():
-                price = all_indice[ticker_name].iloc[-1].values[0]
+                price = all_indice[ticker_name]["Close"].iloc[-1]
                 print("Weight:", self.optimal_weight[ticker_name])
                 target_pos = int(self.optimal_weight[ticker_name] * self.total_market_value / price)
                 print(f"{ticker_name} Current Position: {ticker_pos}; Target Position: {target_pos}; Market Value: {self.total_market_value}")
