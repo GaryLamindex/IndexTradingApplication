@@ -79,47 +79,47 @@ if __name__ == "__main__":
     db_mode = {"dynamo_db": False, "local": True}
     acceptance_range = 0
     execute_period = "Monthly"
-    portfolio_rebalance = [None for i in range(len(rebalance_tickers))]
-    for x in range(len(rebalance_tickers)):
-        portfolio_rebalance[x] = multiprocessing.Process(target=rebalance_process_function,
-                                                   args=(rebalance_tickers[x], rebalance_ratio[x],
-                                                         initial_amount, start_date,
-                                                         data_freq, user_id, cal_stat,
-                                                         db_mode, acceptance_range,
-                                                         execute_period))
-    # BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
-    #                                                 args=(accelerating_tickers[0], bond, deposit_amount, start_date,
-    #                                                       cal_stat, data_freq, user_id,
-    #                                                       db_mode, execute_period))
-    # DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
-    #                                                args=(accelerating_tickers[1], bond, deposit_amount, start_date,
-    #                                                      cal_stat, data_freq, user_id,
-    #                                                      db_mode, execute_period))
-    portfolio_stat = [None for i in range(len(rebalance_tickers))]
-    for y in range(0, len(rebalance_tickers)):
-        spec = ''
-        for x in range(len(rebalance_tickers[y])):
-            spec = spec + f"{int(rebalance_ratio[y][x])}_{rebalance_tickers[y][x]}_"
-        portfolio_stat[y] = multiprocessing.Process(target=stat_process_function, args=(0, spec))
+    # portfolio_rebalance = [None for i in range(len(rebalance_tickers))]
+    # for x in range(len(rebalance_tickers)):
+    #     portfolio_rebalance[x] = multiprocessing.Process(target=rebalance_process_function,
+    #                                                args=(rebalance_tickers[x], rebalance_ratio[x],
+    #                                                      initial_amount, start_date,
+    #                                                      data_freq, user_id, cal_stat,
+    #                                                      db_mode, acceptance_range,
+    #                                                      execute_period))
+    BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
+                                                    args=(accelerating_tickers[0], bond, deposit_amount, start_date,
+                                                          cal_stat, data_freq, user_id,
+                                                          db_mode, execute_period))
+    DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
+                                                   args=(accelerating_tickers[1], bond, deposit_amount, start_date,
+                                                         cal_stat, data_freq, user_id,
+                                                         db_mode, execute_period))
+    # portfolio_stat = [None for i in range(len(rebalance_tickers))]
+    # for y in range(0, len(rebalance_tickers)):
+    #     spec = ''
+    #     for x in range(len(rebalance_tickers[y])):
+    #         spec = spec + f"{int(rebalance_ratio[y][x])}_{rebalance_tickers[y][x]}_"
+    #     portfolio_stat[y] = multiprocessing.Process(target=stat_process_function, args=(0, spec))
     # SPY_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_SPY_50_MSFT_"))
     # M_MSFT_stat = multiprocessing.Process(target=stat_process_function, args=(0, "50_M_50_MSFT_"))
-    for x in range(len(portfolio_rebalance)):
-        portfolio_rebalance[x].start()
+    # for x in range(len(portfolio_rebalance)):
+    #     portfolio_rebalance[x].start()
     # M_MSFT_rebalance.start()
     # SPY_MSFT_rebalance.start()
-    # BND_BNDX_accelerating.start()
-    # DBC_DES_accelerating.start()
-    for x in range(len(portfolio_stat)):
-        portfolio_stat[x].start()
-    for x in range(len(portfolio_stat)):
-        portfolio_stat[x].join()
-    for x in range(len(portfolio_rebalance)):
-        portfolio_rebalance[x].join()
+    BND_BNDX_accelerating.start()
+    DBC_DES_accelerating.start()
+    # for x in range(len(portfolio_stat)):
+    #     portfolio_stat[x].start()
+    # for x in range(len(portfolio_stat)):
+    #     portfolio_stat[x].join()
+    # for x in range(len(portfolio_rebalance)):
+    #     portfolio_rebalance[x].join()
     # SPY_MSFT_stat.start()
     # M_MSFT_stat.start()
     # M_MSFT_stat.join()
     # SPY_MSFT_stat.join()
     # M_MSFT_rebalance.join()
     # SPY_MSFT_rebalance.join()
-    # BND_BNDX_accelerating.join()
-    # DBC_DES_accelerating.join()
+    BND_BNDX_accelerating.join()
+    DBC_DES_accelerating.join()
