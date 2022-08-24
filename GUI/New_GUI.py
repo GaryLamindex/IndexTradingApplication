@@ -5,14 +5,6 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-# import engine.mongoDB_engine.trying
-# import algo.accelerating_dual_momentum.realtime
-# import algo.factor.realtime
-# import algo.portfolio_rebalance.realtime
-# import algo.random_forest
-# import algo.rebalance_margin_never_sell
-# import algo.rebalance_margin_wif_maintainance_margin
-# import algo.rebalance_margin_wif_max_drawdown_control.real_time
 
 # import application.backtest_application
 # import application.grab_data_application
@@ -29,7 +21,7 @@ from tkinter.scrolledtext import ScrolledText
 
 # tk is the name of tkinter
 
-# mainframe
+# mainframe of gui
 interface = tk.Tk()
 # Mainframe basic structure
 interface.title("IndexTradingApplication")
@@ -42,6 +34,7 @@ var = tk.IntVar()
 
 class label_frame:
     def __init__(self):
+        # init strategy name
         self.strategy1 = "1.Accelerating_dual_momentum"
         self.strategy2 = "2.Factor"
         self.strategy3 = "3.Portfolio_rebalance"
@@ -110,6 +103,7 @@ def create_combobox(lists):
     return ttk.Combobox(interface, values=lists, state="readonly")
 
 
+# use for send submit command
 def activate_submit(apply_button):
     if var.get() == 1:
         apply_button['state'] = tk.NORMAL
@@ -136,6 +130,7 @@ def create_entry():
                     font="Helvetica")
 
 
+# get input from entry box
 def get_data():
     value = enter.get()
     if value =="":
@@ -160,6 +155,8 @@ def execute(self, param):
 
 def choose_program(program_no):
     if program_no == 1:
+        for x in range(100):
+            print(x)
         execute(strategy1, 1)
     elif program_no == 2:
         execute(strategy2, 2)
@@ -225,7 +222,7 @@ redirect_button2 = create_button("Redirect console reset")
 redirect_button2.config(width=25, command=lambda: reset_logging())
 redirect_button2.grid(row=8, column=0)
 
-log_widget = ScrolledText(interface, height=8, width=120, font=("consolas", "8", "normal"))
+log_widget = ScrolledText(interface, height=8, width=100, font=("consolas", "10", "normal"))
 log_widget.grid(row=6, column=0)
 # Label
 countrow = 0
