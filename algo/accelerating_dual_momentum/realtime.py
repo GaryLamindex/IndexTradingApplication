@@ -40,7 +40,7 @@ class realtime:
         self.indicators = {}
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/realtime"
 
-        self.table_info = {"mode": "realtime", "strategy_name": "portfolio_rebalance", "user_id": user_id}
+        self.table_info = {"mode": "realtime", "strategy_name": "accelerating_dual_momentum", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.user_id = user_id
