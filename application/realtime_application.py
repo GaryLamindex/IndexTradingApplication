@@ -86,7 +86,7 @@ if __name__ == "__main__":
     print(rebalance_ratio)
     print(rebalance_tickers)
     accelerating_tickers = [["BND", "BNDX"], ["DBC", "DES"]]
-    factor_tickers = ['SPY', 'QQQ', 'BND']
+    factor_tickers = [['SPY', 'QQQ', 'BND'],['VWO', 'GLD', 'GSG']]
     initial_amount = 10000
     bond = "TIP"
     deposit_amount = 1000000
@@ -113,12 +113,18 @@ if __name__ == "__main__":
     #                                                args=(accelerating_tickers[1], bond, deposit_amount, start_date,
     #                                                      cal_stat, data_freq, user_id,
     #                                                      db_mode, execute_period))
-    SPY_QQQ_BND_factor = multiprocessing.Process(target=factor_process_function,
-                                                    args=(factor_tickers, deposit_amount, start_date,
+    SPY_GLD_BND_factor = multiprocessing.Process(target=factor_process_function,
+                                                    args=(factor_tickers[0], deposit_amount, start_date,
                                                           cal_stat, data_freq, user_id,
                                                           db_mode, execute_period))
-    SPY_QQQ_BND_factor.start()
-    SPY_QQQ_BND_factor.join()
+    VWO_QQQ_GSG_factor = multiprocessing.Process(target=factor_process_function,
+                                                 args=(factor_tickers[1], deposit_amount, start_date,
+                                                       cal_stat, data_freq, user_id,
+                                                       db_mode, execute_period))
+    SPY_GLD_BND_factor.start()
+    VWO_QQQ_GSG_factor.start()
+    SPY_GLD_BND_factor.join()
+    VWO_QQQ_GSG_factor.join()
     # portfolio_stat = [None for i in range(len(rebalance_tickers))]
     # for y in range(0, len(rebalance_tickers)):
     #     spec = ''

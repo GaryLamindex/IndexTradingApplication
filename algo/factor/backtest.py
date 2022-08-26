@@ -51,6 +51,8 @@ class Backtest:
             self.table_info.get("user_id"))
         self.tickers = tickers
         self.initial_amount = initial_amount
+        self.start_date = start_date
+        self.end_date = end_date
         self.start_timestamp = datetime.timestamp(start_date)
         self.end_timestamp = datetime.timestamp(end_date)
         self.all_prices = pd.DataFrame([])
