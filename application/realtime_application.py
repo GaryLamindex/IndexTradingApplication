@@ -8,7 +8,7 @@ from application.realtime_statistic_application import realtime_statistic
 from engine.grab_data_engine.grab_data_engine import grab_stock_data_engine
 from algo.accelerating_dual_momentum.realtime import realtime as accelerating_realtime
 from application.lazyportfolioetf_scraper import lazyportfolioetf_engine as lazyportfolioetf
-
+from algo.factor.realtime import realtime as factor_realtime
 
 def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_date, data_freq, user_id, cal_stat,
                                db_mode,
@@ -47,6 +47,21 @@ def accelerating_process_function(tickers, bond, initial_amount, start_date, cal
     realtime_backtest.run()
     time.sleep(60)
 
+def factor_process_function(tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
+                                  db_mode, execute_period):
+    stock_engine = grab_stock_data_engine()
+    realtime_backtest = factor_realtime(tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
+                 db_mode, execute_period)
+    ticker_name_path = stock_engine.ticker_name_path
+    stock_engine.get_missing_daily_data()
+    last_exec_timestamp = datetime.now()
+    while True:
+        now_timestamp = datetime.now()
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
+            last_exec_timestamp = datetime.now()
+            stock_engine.get_missing_daily_data()
+        realtime_backtest.run()
+        time.sleep(60)
 
 def stat_process_function(user_id, spec_str):
     time.sleep(300)
@@ -68,6 +83,7 @@ if __name__ == "__main__":
     rebalance_tickers = df2['Ticker'].values.tolist()
     print(rebalance_ratio)
     print(rebalance_tickers)
+    factor_tickers = [['SPY', 'QQQ', 'BND'],['VWO', 'GLD', 'GSG']]
     accelerating_tickers = [["BND", "BNDX"], ["DBC", "DES"]]
     initial_amount = 10000
     bond = "TIP"
@@ -99,6 +115,18 @@ if __name__ == "__main__":
         temp.start()
         portfolio_stat[y] = temp
         temp.join()
+    # SPY_GLD_BND_factor = multiprocessing.Process(target=factor_process_function,
+    #                                              args=(factor_tickers[0], deposit_amount, start_date,
+    #                                                    cal_stat, data_freq, user_id,
+    #                                                    db_mode, execute_period))
+    # VWO_QQQ_GSG_factor = multiprocessing.Process(target=factor_process_function,
+    #                                              args=(factor_tickers[1], deposit_amount, start_date,
+    #                                                    cal_stat, data_freq, user_id,
+    #                                                    db_mode, execute_period))
+    # SPY_GLD_BND_factor.start()
+    # VWO_QQQ_GSG_factor.start()
+    # SPY_GLD_BND_factor.join()
+    # VWO_QQQ_GSG_factor.join()
     # for x in range(len(portfolio_rebalance)):
     #     portfolio_rebalance[x].start()
     # for x in range(len(portfolio_stat)):
