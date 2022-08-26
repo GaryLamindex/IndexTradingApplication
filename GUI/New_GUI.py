@@ -25,25 +25,13 @@ from tkinter.scrolledtext import ScrolledText
 interface = tk.Tk()
 
 
-class MainGUI(tk):
-    def __init__(self):
-        tk.__init__(self)
-        self.interface = tk.TK()
-        self.interface.title("IndexTradingApplication")
-        self.interface.geometry("1400x700")
-        self.interface.minsize(width=1400, height=700)
-        self.interface.config(bg="light blue")
-        self.interface.attributes("-alpha", 0.95)
-        var = tk.IntVar()
-
-
 # Mainframe basic structure
-# interface.title("IndexTradingApplication")
-# interface.geometry("1400x700")
-# interface.minsize(width=1400, height=700)
-# interface.config(bg="light blue")
-# interface.attributes("-alpha", 0.95)
-# var = tk.IntVar()
+interface.title("IndexTradingApplication")
+interface.geometry("1400x700")
+interface.minsize(width=1400, height=700)
+interface.config(bg="light blue")
+interface.attributes("-alpha", 0.95)
+var = tk.IntVar()
 
 
 class label_frame:
@@ -173,6 +161,7 @@ def choose_program(program_no):
             print(x)
         execute(strategy1, 1)
     elif program_no == 2:
+        print("hello testing")
         execute(strategy2, 2)
     elif program_no == 3:
         execute(strategy3, 3)
@@ -215,14 +204,14 @@ button.grid(row=3, column=0)
 check = check_button("Confirmed Program", button)
 check.grid(row=2, column=0)
 
-select_list = create_combobox(["1.Accelerating_dual_momentum",
-                               "2.Factor",
-                               "3.Portfolio_rebalance",
-                               "4.Random_forest",
-                               "5.Rebalance_margin_never_sell",
-                               "6.Rebalance_margin_wif_maintainance_margin",
-                               "7.Rebalance_margin_wif_max_drawdown_control"])
-select_list.grid(row=4, column=0)
+# select_list = create_combobox(["1.Accelerating_dual_momentum",
+#                                "2.Factor",
+#                                "3.Portfolio_rebalance",
+#                                "4.Random_forest",
+#                                "5.Rebalance_margin_never_sell",
+#                                "6.Rebalance_margin_wif_maintainance_margin",
+#                                "7.Rebalance_margin_wif_max_drawdown_control"])
+# select_list.grid(row=4, column=0)
 
 # list_button = create_button("sure")
 # list_button.config(command=lambda: getbutton(select_list))
@@ -236,7 +225,7 @@ redirect_button2 = create_button("Redirect console reset")
 redirect_button2.config(width=25, command=lambda: reset_logging())
 redirect_button2.grid(row=8, column=0)
 
-log_widget = ScrolledText(interface, height=8, width=100, font=("consolas", "10", "normal"))
+log_widget = ScrolledText(interface, height=8, width=100, font=("consolas", "10", "normal"), state='disabled')
 log_widget.grid(row=6, column=0)
 # Label
 # init labels name to labels
