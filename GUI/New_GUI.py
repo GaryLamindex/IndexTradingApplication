@@ -5,14 +5,6 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
-# import engine.mongoDB_engine.trying
-# import algo.accelerating_dual_momentum.realtime
-# import algo.factor.realtime
-# import algo.portfolio_rebalance.realtime
-# import algo.random_forest
-# import algo.rebalance_margin_never_sell
-# import algo.rebalance_margin_wif_maintainance_margin
-# import algo.rebalance_margin_wif_max_drawdown_control.real_time
 
 # import application.backtest_application
 # import application.grab_data_application
@@ -29,12 +21,12 @@ from tkinter.scrolledtext import ScrolledText
 
 # tk is the name of tkinter
 
-# mainframe
+# mainframe of gui
 interface = tk.Tk()
 # Mainframe basic structure
 interface.title("IndexTradingApplication")
-interface.geometry("1500x600")
-interface.minsize(width=1500, height=600)
+interface.geometry("1400x700")
+interface.minsize(width=1400, height=700)
 interface.config(bg="light blue")
 interface.attributes("-alpha", 0.95)
 var = tk.IntVar()
@@ -42,6 +34,7 @@ var = tk.IntVar()
 
 class label_frame:
     def __init__(self):
+        # init strategy name
         self.strategy1 = "1.Accelerating_dual_momentum"
         self.strategy2 = "2.Factor"
         self.strategy3 = "3.Portfolio_rebalance"
@@ -54,6 +47,7 @@ class label_frame:
         self.strategy10 = "10.No Brainer Portfolio"
 
 
+# show data print in console
 class PrintLogger(object):  # create file like object
 
     def __init__(self, textbox):  # pass reference to text widget
@@ -69,11 +63,13 @@ class PrintLogger(object):  # create file like object
         pass
 
 
+# reset output to console
 def reset_logging():
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
 
 
+# redirect console output to gui
 def redirect_logging():
     logger = PrintLogger(log_widget)
     sys.stdout = logger
@@ -107,6 +103,7 @@ def create_combobox(lists):
     return ttk.Combobox(interface, values=lists, state="readonly")
 
 
+# use for send submit command
 def activate_submit(apply_button):
     if var.get() == 1:
         apply_button['state'] = tk.NORMAL
@@ -133,6 +130,7 @@ def create_entry():
                     font="Helvetica")
 
 
+# get input from entry box
 def get_data():
     value = enter.get()
     if value =="":
@@ -157,6 +155,8 @@ def execute(self, param):
 
 def choose_program(program_no):
     if program_no == 1:
+        for x in range(100):
+            print(x)
         execute(strategy1, 1)
     elif program_no == 2:
         execute(strategy2, 2)
@@ -184,7 +184,7 @@ def end():
 
 
 entry_text = create_text("Enter the program number")
-entry_text.grid(row=0, column=1)
+entry_text.grid(row=0, column=0)
 
 end_button = create_button("Close")
 end_button.config(command=lambda: end())
@@ -192,14 +192,14 @@ end_button.grid(row=0, column=2)
 
 
 enter = create_entry()
-enter.grid(row=1, column=1)
+enter.grid(row=1, column=0)
 
 button = create_button("run program")
 button.config(state=tk.DISABLED, command=lambda: get_data())
-button.grid(row=3, column=1)
+button.grid(row=3, column=0)
 
 check = check_button("Confirmed Program", button)
-check.grid(row=2, column=1)
+check.grid(row=2, column=0)
 
 select_list = create_combobox(["1.Accelerating_dual_momentum",
                                "2.Factor",
@@ -208,22 +208,22 @@ select_list = create_combobox(["1.Accelerating_dual_momentum",
                                "5.Rebalance_margin_never_sell",
                                "6.Rebalance_margin_wif_maintainance_margin",
                                "7.Rebalance_margin_wif_max_drawdown_control"])
-select_list.grid(row=4, column=1)
+select_list.grid(row=4, column=0)
 
 # list_button = create_button("sure")
 # list_button.config(command=lambda: getbutton(select_list))
-# list_button.grid(row=5, column=1)
+# list_button.grid(row=5, column=0)
 
 redirect_button = create_button("Redirect console to widget")
 redirect_button.config(width=25, command=lambda: redirect_logging())
-redirect_button.grid(row=5, column=1)
+redirect_button.grid(row=7, column=0)
 
 redirect_button2 = create_button("Redirect console reset")
 redirect_button2.config(width=25, command=lambda: reset_logging())
-redirect_button2.grid(row=5, column=2)
+redirect_button2.grid(row=8, column=0)
 
-log_widget = ScrolledText(interface, height=4, width=120, font=("consolas", "8", "normal"))
-log_widget.grid(row=6, column=1)
+log_widget = ScrolledText(interface, height=8, width=100, font=("consolas", "10", "normal"))
+log_widget.grid(row=6, column=0)
 # Label
 countrow = 0
 # countcol = 0
@@ -234,34 +234,34 @@ Strategy = ['Strategy1', 'Strategy2', 'Strategy3', 'Strategy4', 'Strategy5', 'St
 labels = label_frame()
 
 strategy1 = create_text(labels.strategy1)
-strategy1.grid(row=0, column=0)
+strategy1.grid(row=0, column=1)
 
 strategy2 = create_text(labels.strategy2)
-strategy2.grid(row=1, column=0)
+strategy2.grid(row=1, column=1)
 
 strategy3 = create_text(labels.strategy3)
-strategy3.grid(row=2, column=0)
+strategy3.grid(row=2, column=1)
 
 strategy4 = create_text(labels.strategy4)
-strategy4.grid(row=3, column=0)
+strategy4.grid(row=3, column=1)
 
 strategy5 = create_text(labels.strategy5)
-strategy5.grid(row=4, column=0)
+strategy5.grid(row=4, column=1)
 
 strategy6 = create_text(labels.strategy6)
-strategy6.grid(row=5, column=0)
+strategy6.grid(row=5, column=1)
 
 strategy7 = create_text(labels.strategy7)
-strategy7.grid(row=6, column=0)
+strategy7.grid(row=6, column=1)
 
 strategy8 = create_text(labels.strategy8)
-strategy8.grid(row=7, column=0)
+strategy8.grid(row=7, column=1)
 
 strategy9 = create_text(labels.strategy9)
-strategy9.grid(row=8, column=0)
+strategy9.grid(row=8, column=1)
 
 strategy10 = create_text(labels.strategy10)
-strategy10.grid(row=9, column=0)
+strategy10.grid(row=9, column=1)
 
 # mainframe loop
 interface.mainloop()

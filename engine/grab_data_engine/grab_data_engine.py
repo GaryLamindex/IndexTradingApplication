@@ -192,7 +192,7 @@ class grab_stock_data_engine:
 
         return data
 
-    def get_min_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour, changed):
+    def get_min_data_by_range(self, start_timestamp, end_timestamp, ticker, bar_size, regular_trading_hour):
         """
         It is a function only used by get_historical_data_by_range. It appends the given range of timestamps of data to
         the existent ticker file.
@@ -200,11 +200,11 @@ class grab_stock_data_engine:
         current_end_timestamp = end_timestamp
         connect_tws(self.ib_instance)
         while current_end_timestamp > start_timestamp:
-            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
+            current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                            regular_trading_hour)
 
             if len(current_data) == 0:
-                current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
+                current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
                                                                regular_trading_hour)
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt < 5:
@@ -218,18 +218,18 @@ class grab_stock_data_engine:
             current_data_df['timestamp'] = current_data_df[['date']].apply(
                 lambda x: x[0].replace(tzinfo=dt.timezone(dt.timedelta(hours=8))).timestamp(), axis=1).astype(int)
             self.ib_instance.sleep(0)
-            current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+            current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                    header=False)
             print(
                 f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
             current_end_timestamp = front_timestamp
-        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        old_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
         if "check" not in old_df:
             old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
             old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
             old_df["check"] = " "
             old_df.loc[0, "check"] = "True"
-            old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
+            old_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", index=False, header=True)
 
     def write_df_to_csv(self, ticker, df):
         """
@@ -337,21 +337,21 @@ class grab_stock_data_engine:
         file_existed = False  # check whether there already exist ticker file before running the function
         empty_file = True  # check whether the ticker file is empty
         changed = False  # check whether the file has been changed
-        file_exist = f"{ticker}.csv" in os.listdir(self.ticker_data_path)
+        file_exist = f"{ticker}.csv" in os.listdir(self.min_ticker_data_path)
         if file_exist:  # if file already exist, check which date does the file updated to
             file_existed = True
-            check_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+            check_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
             update_date = check_df["timestamp"].max()  # the file was updated this date
         current_end_timestamp = end_timestamp
 
         connect_tws(self.ib_instance)
 
         while current_end_timestamp > start_timestamp:
-            current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
+            current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '3 W', bar_size,
                                                            regular_trading_hour)
 
             if len(current_data) == 0:
-                current_data = self.get_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
+                current_data = self.get_min_historical_data_helper(ticker, current_end_timestamp, '1 D', bar_size,
                                                                regular_trading_hour)
             if len(current_data) == 0:
                 if self.grab_data_retry_attempt <= 5:
@@ -368,7 +368,7 @@ class grab_stock_data_engine:
             if file_existed:  # if the file already existed before running the function
                 if current_data_df["timestamp"].iloc[0] <= update_date and current_data_df["timestamp"].iloc[
                     -1] != update_date:  # If the file will be updated to the given end timestamp after appending the current dataframe
-                    current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+                    current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                            header=False)  # append current data to the old file
                     print(
                         f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -378,7 +378,7 @@ class grab_stock_data_engine:
                     -1] == update_date:  # the file already updated to the given end timestamp
                     break
             elif empty_file:  # if the file does not exist
-                current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='w', index=False,
+                current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='w', index=False,
                                        header=True)  # write the current data with header
                 print(
                     f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
@@ -388,18 +388,18 @@ class grab_stock_data_engine:
                 continue
             # sleep(10) # wait to fetch another batch of data
             self.ib_instance.sleep(0)  # refresh the ib instance
-            current_data_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", mode='a', index=False,
+            current_data_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", mode='a', index=False,
                                    header=False)  # append current data to the old file
             print(
                 f"Appended three weeks data for {ticker}, from {int(front_timestamp)} to {int(current_end_timestamp)}")
             current_end_timestamp = front_timestamp
             changed = True
 
-        old_df = pd.read_csv(f"{self.ticker_data_path}/{ticker}.csv")
+        old_df = pd.read_csv(f"{self.min_ticker_data_path}/{ticker}.csv")
         if changed:
             old_df = old_df.loc[old_df["timestamp"] >= start_timestamp]
             old_df = old_df.drop_duplicates().sort_values(by=['timestamp'])
-            old_df.to_csv(f"{self.ticker_data_path}/{ticker}.csv", index=False, header=True)
+            old_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", index=False, header=True)
         if old_df["timestamp"].iloc[0] != start_timestamp:  # if the file is not updated to the given start timestamp
             oldest_timestamp = old_df["timestamp"].iloc[0]
             if "check" in old_df and old_df.loc[
@@ -407,7 +407,7 @@ class grab_stock_data_engine:
                 print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
                 return
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
-            self.get_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False)
+            self.get_min_data_by_range(start_timestamp, old_df["timestamp"].iloc[0], ticker, '1 min', False)
         print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
 
     def get_sehk_historical_data_by_range(self, ticker, start_timestamp, end_timestamp,
