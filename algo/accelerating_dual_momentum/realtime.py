@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from algo.accelerating_dual_momentum.backtest import backtest as accelerating_dual_momentum_backtest
+from algo.accelerating_dual_momentum.indicator import Indicator
 from object.action_data import IBAction, IBActionsTuple
 from engine.backtest_engine.stock_data_io_engine import local_engine
 from engine.visualisation_engine import graph_plotting_engine
@@ -15,7 +16,8 @@ from engine.mongoDB_engine.write_run_data_document_engine import Write_Mongodb
 
 class realtime:
     def __init__(self, tickers, bond, initial_amount, start_date, cal_stat, data_freq, user_id,
-                 db_mode,  execute_period):
+                 db_mode, execute_period):
+        self.tickers_and_bonds_list = None
         self.stat_agent = None
         self.rebalance_dict = None
         self.trader_name = None
@@ -75,7 +77,7 @@ class realtime:
             if not os.path.exists(self.graph_dir):
                 Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
-    def init_backtest(self, user_id,  store_mongoDB, strategy_initial, video_link,
+    def init_backtest(self, user_id, store_mongoDB, strategy_initial, video_link,
                       documents_link, tags_array, subscribers_num,
                       rating_dict, margin_ratio, trader_name):
         self.now = datetime.now()
@@ -95,7 +97,8 @@ class realtime:
                                                             self.start_date, self.now, True, self.data_freq,
                                                             user_id, self.db_mode, store_mongoDB,
                                                             strategy_initial,
-                                                            video_link, documents_link, tags_array, self.subscribers_num,
+                                                            video_link, documents_link, tags_array,
+                                                            self.subscribers_num,
                                                             self.rating_dict, self.margin_ratio, self.trader_name
                                                             )
         self.backtest.loop_through_param()
@@ -121,9 +124,18 @@ class realtime:
             self.sim_agent = self.backtest.sim_agent
             self.dividend_agent = self.backtest.dividend_agent
             self.algorithm = self.backtest.algorithm
-            for ticker in self.tickers:
-                self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+            self.tickers_and_bonds_list = self.tickers.copy()
+            self.tickers_and_bonds_list.append(self.bond)
             df = pd.read_csv(self.backtest.run_file)
+            last_date_str = df["date"].iloc[-1]
+            last_date = datetime.strptime(last_date_str, '%Y-%m-%d')
+            delta_timestamps = self.backtest.cal_deltas_timestamps(last_date)
+            for ticker in self.tickers:
+                # get current ticker data
+                self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
+                self.indicators[ticker] = Indicator(pd.DataFrame())
+                self.backtest.get_indicator_ticker_items(ticker, delta_timestamps)
+            self.stock_data_engines[self.bond] = local_engine(self.bond, self.data_freq)  # update bond price
             last_excute_timestamp = df["timestamp"].iloc[-1]
             last_excute_timestamp = int(last_excute_timestamp)
             last_excute_timestamp = last_excute_timestamp + 1
@@ -137,15 +149,14 @@ class realtime:
                 print("No new data")
             else:
                 print("Have new data")
-                timestamps_1 = \
+                timestamps = \
                     self.stock_data_engines[self.tickers[0]].get_data_by_range(
                         [last_excute_timestamp, current_timestamp])[
                         'timestamp']
-                timestamps_2 = \
-                    self.stock_data_engines[self.tickers[1]].get_data_by_range(
-                        [last_excute_timestamp, current_timestamp])[
-                        'timestamp']
-                timestamps = np.intersect1d(timestamps_1, timestamps_2)
+                for x in range(1, len(self.tickers)):
+                    temp = self.stock_data_engines[self.tickers[x]].get_data_by_range(
+                        [last_excute_timestamp, current_timestamp])['timestamp']
+                    timestamps = np.intersect1d(timestamps, temp)
                 for timestamp in timestamps:
                     self.run_realtime(timestamp)
                 self.backtest.end_date = current_date
@@ -192,7 +203,7 @@ class realtime:
         else:
             stock_data_dict.update({self.bond: {'last': price}})
 
-        action_msgs = self.algorithm.run(stock_data_dict, self.bond)
+        action_msgs = self.algorithm.run(pct_change_dict, stock_data_dict, self.bond, timestamp)
         action_record = []
         if action_msgs is None:
             self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
@@ -213,20 +224,21 @@ class realtime:
             action = action_msg.action_enum
             if action == IBAction.SELL_MKT_ORDER:
                 temp_action_record = self.trade_agent.place_sell_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                            action_msg.args_dict.get("position_sell"),
-                                                                            {"timestamp": action_msg.timestamp})
+                                                                                 action_msg.args_dict.get(
+                                                                                     "position_sell"),
+                                                                                 {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         for action_msg in action_msgs:
             action = action_msg.action_enum
             if action == IBAction.BUY_MKT_ORDER:
                 temp_action_record = self.trade_agent.place_buy_stock_mkt_order(action_msg.args_dict.get("ticker"),
-                                                                           action_msg.args_dict.get(
-                                                                               "position_purchase"),
-                                                                           {"timestamp": action_msg.timestamp})
+                                                                                action_msg.args_dict.get(
+                                                                                    "position_purchase"),
+                                                                                {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
         self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
-                                        action_record, sim_meta_data,
-                                        stock_data_dict)
+                                             action_record, sim_meta_data,
+                                             stock_data_dict)
         if self.store_mongoDB:
             print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
             p = Write_Mongodb()
@@ -236,7 +248,8 @@ class realtime:
                     a = pd.read_csv(csv_path)
                     spec = file.decode().split('.csv')
                     p.write_new_backtest_result(strategy_name=self.table_name + '_' + spec[0],
-                                                run_df = a)
+                                                run_df=a)
+
     def plot_all_file_graph(self):
         print("plot_graph")
         graph_plotting_engine.plot_all_file_graph_png(f"{self.backtest.run_file_dir}", "date", "NetLiquidation",

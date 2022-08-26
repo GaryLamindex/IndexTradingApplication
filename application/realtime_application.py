@@ -8,7 +8,7 @@ from application.realtime_statistic_application import realtime_statistic
 from engine.grab_data_engine.grab_data_engine import grab_stock_data_engine
 from algo.accelerating_dual_momentum.realtime import realtime as accelerating_realtime
 from application.lazyportfolioetf_scraper import lazyportfolioetf_engine as lazyportfolioetf
-from algo.factor.realtime import realtime as factor_realtime
+
 
 def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_date, data_freq, user_id, cal_stat,
                                db_mode,
@@ -47,23 +47,6 @@ def accelerating_process_function(tickers, bond, initial_amount, start_date, cal
         realtime_backtest.run()
         time.sleep(60)
 
-def factor_process_function(tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
-                                  db_mode, execute_period):
-    stock_engine = grab_stock_data_engine()
-    realtime_backtest = factor_realtime(tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
-                 db_mode, execute_period)
-    ticker_name_path = stock_engine.ticker_name_path
-    stock_engine.get_missing_daily_data()
-    last_exec_timestamp = datetime.now()
-    while True:
-        now_timestamp = datetime.now()
-        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
-            last_exec_timestamp = datetime.now()
-            stock_engine.get_missing_daily_data()
-
-        realtime_backtest.run()
-        time.sleep(60)
-
 
 def stat_process_function(user_id, spec_str):
     time.sleep(300)
@@ -86,7 +69,6 @@ if __name__ == "__main__":
     print(rebalance_ratio)
     print(rebalance_tickers)
     accelerating_tickers = [["BND", "BNDX"], ["DBC", "DES"]]
-    factor_tickers = ['SPY', 'QQQ', 'BND']
     initial_amount = 10000
     bond = "TIP"
     deposit_amount = 1000000
@@ -105,20 +87,14 @@ if __name__ == "__main__":
     #                                                      data_freq, user_id, cal_stat,
     #                                                      db_mode, acceptance_range,
     #                                                      execute_period))
-    # BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
-    #                                                 args=(accelerating_tickers[0], bond, deposit_amount, start_date,
-    #                                                       cal_stat, data_freq, user_id,
-    #                                                       db_mode, execute_period))
-    # DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
-    #                                                args=(accelerating_tickers[1], bond, deposit_amount, start_date,
-    #                                                      cal_stat, data_freq, user_id,
-    #                                                      db_mode, execute_period))
-    SPY_QQQ_BND_factor = multiprocessing.Process(target=factor_process_function,
-                                                    args=(factor_tickers, deposit_amount, start_date,
+    BND_BNDX_accelerating = multiprocessing.Process(target=accelerating_process_function,
+                                                    args=(accelerating_tickers[0], bond, deposit_amount, start_date,
                                                           cal_stat, data_freq, user_id,
                                                           db_mode, execute_period))
-    SPY_QQQ_BND_factor.start()
-    SPY_QQQ_BND_factor.join()
+    DBC_DES_accelerating = multiprocessing.Process(target=accelerating_process_function,
+                                                   args=(accelerating_tickers[1], bond, deposit_amount, start_date,
+                                                         cal_stat, data_freq, user_id,
+                                                         db_mode, execute_period))
     # portfolio_stat = [None for i in range(len(rebalance_tickers))]
     # for y in range(0, len(rebalance_tickers)):
     #     spec = ''
@@ -131,8 +107,8 @@ if __name__ == "__main__":
     #     portfolio_rebalance[x].start()
     # M_MSFT_rebalance.start()
     # SPY_MSFT_rebalance.start()
-    # BND_BNDX_accelerating.start()
-    # DBC_DES_accelerating.start()
+    BND_BNDX_accelerating.start()
+    DBC_DES_accelerating.start()
     # for x in range(len(portfolio_stat)):
     #     portfolio_stat[x].start()
     # for x in range(len(portfolio_stat)):
@@ -145,5 +121,5 @@ if __name__ == "__main__":
     # SPY_MSFT_stat.join()
     # M_MSFT_rebalance.join()
     # SPY_MSFT_rebalance.join()
-    # BND_BNDX_accelerating.join()
-    # DBC_DES_accelerating.join()
+    BND_BNDX_accelerating.join()
+    DBC_DES_accelerating.join()

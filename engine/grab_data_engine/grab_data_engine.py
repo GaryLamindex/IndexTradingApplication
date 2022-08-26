@@ -38,7 +38,8 @@ class grab_stock_data_engine:
             for link in soup.find_all('a', href=True):
                 if link['href'] == "http://www.lazyportfolioetf.com/allocation/10-year-treasury/":
                     portfolio_link = True
-                if link['href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
+                if link[
+                    'href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
                     portfolio_link = False
                 if portfolio_link:
                     links.append(link['href'])
@@ -57,7 +58,7 @@ class grab_stock_data_engine:
             df.to_csv(f"{self.ticker_name_path}/ticker_name.csv", index=False)
         # yfinance (daily) variables
         self.daily_ticker_data_path = str(pathlib.Path(__file__)
-                                    .parent.parent.parent.parent.resolve()) + '/ticker_data/one_day'
+                                          .parent.parent.parent.parent.resolve()) + '/ticker_data/one_day'
         # ib (minute) variable
         self.ib_instance = ib_instance
         if ib_instance is not None:
@@ -99,7 +100,8 @@ class grab_stock_data_engine:
 
     # Notice that data returned by yf.download is different from yf.Ticker().history, may have to solve later
     def get_daily_data_by_range_helper(self, ticker, start_timestamp, end_timestamp):
-        start_date, end_date = start_timestamp.date() + dt.timedelta(days=1), end_timestamp.date() + dt.timedelta(days=1)
+        start_date, end_date = start_timestamp.date() + dt.timedelta(days=1), end_timestamp.date() + dt.timedelta(
+            days=1)
         hist = yf.download(ticker, start=start_date, end=end_date)
         return hist
 
@@ -139,8 +141,7 @@ class grab_stock_data_engine:
                 self.get_daily_data_by_period(period='max', tickers=ticker)
                 continue
             else:
-                existing_data = pd.read_csv(f"{self.daily_ticker_data_path}/{ticker}.csv",
-                                            index_col='Date',
+                existing_data = pd.read_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index_col='Date',
                                             parse_dates=True)
                 last_update = existing_data.index[-1].date()
                 days_passed = (today - last_update).days
@@ -159,12 +160,13 @@ class grab_stock_data_engine:
                     timestamp.append(int(index_list[x].timestamp()))
                 missing_data['timestamp'] = timestamp
                 missing_data = missing_data.rename(columns={'Open': 'open'})
-                updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
+                updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date',
+                                                                                                      keep='last').set_index(
+                    'Date')
                 updated_data.to_csv(f"{self.daily_ticker_data_path}/{ticker}.csv", index=True, header=True)
                 print(f"Successfully updated {ticker}.csv")
             else:
                 print(f"Failed to update {ticker}.csv")
-
 
     # ib (minute) functions
 
@@ -299,8 +301,6 @@ class grab_stock_data_engine:
 
         return ticker_info_dict
 
-
-
     """
     Details of the head timestamp for each stocks:
     QQQ: 1999-03-10 14:30:00
@@ -402,7 +402,8 @@ class grab_stock_data_engine:
             old_df.to_csv(f"{self.min_ticker_data_path}/{ticker}.csv", index=False, header=True)
         if old_df["timestamp"].iloc[0] != start_timestamp:  # if the file is not updated to the given start timestamp
             oldest_timestamp = old_df["timestamp"].iloc[0]
-            if "check" in old_df and old_df.loc[0, "check"] == "True": # if there doesn't exist any older data, return the function
+            if "check" in old_df and old_df.loc[
+                0, "check"] == "True":  # if there doesn't exist any older data, return the function
                 print(f"[{dt.datetime.now().strftime('%Y/%m/%d %H:%M:%S')}] Successfully appended {ticker}.csv")
                 return
             print(f"start fetching data from {int(start_timestamp)} to {int(oldest_timestamp)}")
@@ -430,11 +431,12 @@ class grab_stock_data_engine:
             self.write_df_to_csv(ticker, current_data_df)
 
     def get_multiple_min_data_by_range(self, start_timestamp, end_timestamp, bar_size,
-                                              regular_trading_hour, tickers=None):
+                                       regular_trading_hour, tickers=None):
         if tickers is None:
             tickers = pd.read_csv(f"{self.ticker_name_path}/ticker_name.csv")['Ticker']
         for ticker in tickers:
-            self.get_min_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size, regular_trading_hour)
+            self.get_min_historical_data_by_range(ticker, start_timestamp, end_timestamp, bar_size,
+                                                  regular_trading_hour)
             print("successfully written", ticker)
 
     def update_csv(self, old_csv, update_csv, sort_values_col):
@@ -490,8 +492,8 @@ class grab_crypto_data_engine:
         browser = webdriver.Chrome(service=Service(webdriver.ChromeDriverManager().install()), options=chrome_options)
 
         browser.get('https://data.binance.vision/?prefix=data/spot/daily/klines/')
-        elements = browser.find_elements(By.CLASS_NAME, "container-md")[1]\
-                  .find_element(By.ID, "listing").get_attribute("outerHTML")
+        elements = browser.find_elements(By.CLASS_NAME, "container-md")[1] \
+            .find_element(By.ID, "listing").get_attribute("outerHTML")
 
         print(elements)
 
@@ -582,13 +584,15 @@ class grab_crypto_data_engine:
         for ticker in tickers:
             if not os.path.exists(f"{self.binance_data_path}/{ticker}.csv"):
                 # Sometimes yesterday's data is not immediately available, so download data up to the day before yesterday instead
-                self.get_binance_data_by_range(ticker, dt.datetime.timestamp(dt.datetime.combine(dt.date(2021, 3, 1), dt.datetime.min.time())), now_timestamp - 172800, '1d')
+                self.get_binance_data_by_range(ticker, dt.datetime.timestamp(
+                    dt.datetime.combine(dt.date(2021, 3, 1), dt.datetime.min.time())), now_timestamp - 172800, '1d')
                 continue
             else:
                 existing_data = pd.read_csv(f"{self.binance_data_path}/{ticker}.csv")
                 last_update = existing_data["Open time"].iloc[-1]
                 if last_update + 86400 < now_timestamp - 86400:
-                    missing_data = self.get_binance_data_by_range_helper(ticker, last_update + 86400, now_timestamp - 86400, '1d')
+                    missing_data = self.get_binance_data_by_range_helper(ticker, last_update + 86400,
+                                                                         now_timestamp - 86400, '1d')
                     updated_data = pd.concat([existing_data, missing_data])
                     updated_data.to_csv(f"{self.binance_data_path}/{ticker}.csv", index=False)
                     if missing_data is not None:
@@ -745,7 +749,9 @@ class grab_crypto_data_engine:
                     timestamp.append(int(index_list[x].timestamp()))
                 missing_data['timestamp'] = timestamp
                 missing_data = missing_data.rename(columns={'Open': 'open'})
-                updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date', keep='last').set_index('Date')
+                updated_data = pd.concat([existing_data, missing_data]).reset_index().drop_duplicates(subset='Date',
+                                                                                                      keep='last').set_index(
+                    'Date')
                 try:
                     updated_data.to_csv(f"{self.yfinance_data_path}/{ticker}.csv", index=True, header=True)
                 except FileNotFoundError:
@@ -777,6 +783,7 @@ class grab_crypto_data_engine:
                     symbol = '_' + symbol + '_'
                     df.to_csv(f'{self.yfinance_data_path}/{symbol.upper()}.csv')
 
+
 class grab_dividend_engine():
     def __init__(self, update_list=False):
         self.ticker_name_path = str(pathlib.Path(__file__)
@@ -796,7 +803,8 @@ class grab_dividend_engine():
             for link in soup.find_all('a', href=True):
                 if link['href'] == "http://www.lazyportfolioetf.com/allocation/10-year-treasury/":
                     portfolio_link = True
-                if link['href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
+                if link[
+                    'href'] == "https://twitter.com/intent/tweet?text=Lazy%20Portfolios:%20ETF%20Allocation&url=http://www.lazyportfolioetf.com/allocation":
                     portfolio_link = False
                 if portfolio_link:
                     links.append(link['href'])
@@ -860,4 +868,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
