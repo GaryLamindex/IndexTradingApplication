@@ -23,13 +23,27 @@ from tkinter.scrolledtext import ScrolledText
 
 # mainframe of gui
 interface = tk.Tk()
+
+
+class MainGUI(tk):
+    def __init__(self):
+        tk.__init__(self)
+        self.interface = tk.TK()
+        self.interface.title("IndexTradingApplication")
+        self.interface.geometry("1400x700")
+        self.interface.minsize(width=1400, height=700)
+        self.interface.config(bg="light blue")
+        self.interface.attributes("-alpha", 0.95)
+        var = tk.IntVar()
+
+
 # Mainframe basic structure
-interface.title("IndexTradingApplication")
-interface.geometry("1400x700")
-interface.minsize(width=1400, height=700)
-interface.config(bg="light blue")
-interface.attributes("-alpha", 0.95)
-var = tk.IntVar()
+# interface.title("IndexTradingApplication")
+# interface.geometry("1400x700")
+# interface.minsize(width=1400, height=700)
+# interface.config(bg="light blue")
+# interface.attributes("-alpha", 0.95)
+# var = tk.IntVar()
 
 
 class label_frame:
@@ -225,11 +239,6 @@ redirect_button2.grid(row=8, column=0)
 log_widget = ScrolledText(interface, height=8, width=100, font=("consolas", "10", "normal"))
 log_widget.grid(row=6, column=0)
 # Label
-countrow = 0
-# countcol = 0
-Strategy = ['Strategy1', 'Strategy2', 'Strategy3', 'Strategy4', 'Strategy5', 'Strategy6', 'Strategy7', 'Strategy8',
-            'Strategy9', 'Strategy10', 'Strategy11']
-
 # init labels name to labels
 labels = label_frame()
 
