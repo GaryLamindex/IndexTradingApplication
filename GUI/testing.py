@@ -1,51 +1,38 @@
-import sys
-from tkinter import Tk, Button, Frame
-from tkinter.scrolledtext import ScrolledText
+from tkinter import *
+from tkinter import ttk
 
-
-class PrintLogger(object):  # create file like object
-
-    def __init__(self, textbox):  # pass reference to text widget
-        self.textbox = textbox  # keep ref
-
-    def write(self, text):
-        self.textbox.configure(state="normal")  # make field editable
-        self.textbox.insert("end", text)  # write text to textbox
-        self.textbox.see("end")  # scroll to end
-        self.textbox.configure(state="disabled")  # make field readonly
-
-    def flush(self):  # needed for file like object
+def calculate(*args):
+    try:
+        value = float(feet.get())
+        meters.set(int(0.3048 * value * 10000.0 + 0.5)/10000.0)
+    except ValueError:
         pass
 
+root = Tk()
+root.title("Feet to Meters")
 
-class MainGUI(Tk):
+mainframe = ttk.Frame(root, padding="3 3 12 12")
+mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+root.columnconfigure(0, weight=1)
+root.rowconfigure(0, weight=1)
 
-    def __init__(self):
-        Tk.__init__(self)
-        self.root = Frame(self)
-        self.root.pack()
-        self.redirect_button = Button(self.root, text="Redirect console to widget", command=self.redirect_logging)
-        self.redirect_button.pack()
-        self.redirect_button = Button(self.root, text="Redirect console reset", command=self.reset_logging)
-        self.redirect_button.pack()
-        self.test_button = Button(self.root, text="Test Print", command=self.test_print)
-        self.test_button.pack()
-        self.log_widget = ScrolledText(self.root, height=4, width=120, font=("consolas", "8", "normal"))
-        self.log_widget.pack()
+feet = StringVar()
+feet_entry = ttk.Entry(mainframe, width=7, textvariable=feet)
+feet_entry.grid(column=2, row=1, sticky=(W, E))
 
-    def reset_logging(self):
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+meters = StringVar()
+ttk.Label(mainframe, textvariable=meters).grid(column=2, row=2, sticky=(W, E))
 
-    def redirect_logging(self):
-        logger = PrintLogger(self.log_widget)
-        sys.stdout = logger
-        sys.stderr = logger
+ttk.Button(mainframe, text="Calculate", command=calculate).grid(column=3, row=3, sticky=W)
 
-    def test_print(self):
-        print("Am i working?")
+ttk.Label(mainframe, text="feet").grid(column=3, row=1, sticky=W)
+ttk.Label(mainframe, text="is equivalent to").grid(column=1, row=2, sticky=E)
+ttk.Label(mainframe, text="meters").grid(column=3, row=2, sticky=W)
 
+for child in mainframe.winfo_children():
+    child.grid_configure(padx=5, pady=5)
 
-if __name__ == "__main__":
-    app = MainGUI()
-    app.mainloop()
+feet_entry.focus()
+root.bind("<Return>", calculate)
+
+root.mainloop()

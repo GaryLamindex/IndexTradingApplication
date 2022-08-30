@@ -37,13 +37,13 @@ var = tk.IntVar()
 class label_frame:
     def __init__(self):
         # init strategy name
-        self.strategy1 = "1.Accelerating_dual_momentum"
-        self.strategy2 = "2.Factor"
-        self.strategy3 = "3.Portfolio_rebalance"
-        self.strategy4 = "4.Random_forest"
-        self.strategy5 = "5.Rebalance_margin_never_sell"
-        self.strategy6 = "6.Rebalance_margin_wif_maintainance_margin"
-        self.strategy7 = "7.Rebalance_margin_wif_max_drawdown_control"
+        self.strategy1 = "1.backtest_application"
+        self.strategy2 = "2.grab_data_application"
+        self.strategy3 = "3.grap_stock_data_application"
+        self.strategy4 = "4.lazyportfolioetf_scraper"
+        self.strategy5 = "5.realtime_application"
+        self.strategy6 = "6.realtime_statistic_application"
+        self.strategy7 = "7.realtime_update_db_info"
         self.strategy8 = "8.Simplified Permanent Portfolio"
         self.strategy9 = "9.Vanguard Life Strategy Growth Fund"
         self.strategy10 = "10.No Brainer Portfolio"
