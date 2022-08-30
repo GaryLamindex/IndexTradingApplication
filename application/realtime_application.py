@@ -8,7 +8,7 @@ from application.realtime_statistic_application import realtime_statistic
 from engine.grab_data_engine.grab_data_engine import grab_stock_data_engine
 from algo.accelerating_dual_momentum.realtime import realtime as accelerating_realtime
 from application.lazyportfolioetf_scraper import lazyportfolioetf_engine as lazyportfolioetf
-from algo.factor.realtime import realtime as factor_realtime
+from algo.factor.realtime import Realtime as factor_realtime
 
 def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_date, data_freq, user_id, cal_stat,
                                db_mode,
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         spec = ''
         for x in range(len(rebalance_tickers[y])):
             spec = spec + f"{int(rebalance_ratio[y][x])}_{rebalance_tickers[y][x]}_"
-         temp = multiprocessing.Process(target=stat_process_function, args=(0, spec))
+        temp = multiprocessing.Process(target=stat_process_function, args=(0, spec))
         temp.start()
         portfolio_stat[y] = temp
         temp.join()

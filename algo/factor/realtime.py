@@ -1,8 +1,9 @@
 import time
-from dateutil.relativedelta import relativedelta
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import quandl
 from algo.factor.backtest import Backtest as factor_backtest
 from object.action_data import IBAction, IBActionsTuple
 from engine.backtest_engine.stock_data_io_engine import local_engine
@@ -13,10 +14,10 @@ from pathlib import Path
 from engine.mongoDB_engine.write_run_data_document_engine import Write_Mongodb
 
 
-class realtime:
-    def __init__(self, tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
-                 db_mode, execute_period):
+class Realtime:
+    def __init__(self, tickers, initial_amount, start_date, cal_stat, data_freq, user_id, db_mode):
         self.stat_agent = None
+        self.rebalance_dict = None
         self.trader_name = None
         self.margin_ratio = None
         self.rating_dict = None
@@ -35,7 +36,7 @@ class realtime:
         self.acc_data = None
         self.path = str(pathlib.Path(__file__).parent.parent.parent.parent.resolve()) + f"/user_id_{user_id}/realtime"
 
-        self.table_info = {"mode": "realtime", "strategy_name": "portfolio_rebalance", "user_id": user_id}
+        self.table_info = {"mode": "realtime", "strategy_name": "factor", "user_id": user_id}
         self.table_name = self.table_info.get("mode") + "_" + self.table_info.get("strategy_name") + "_" + str(
             self.table_info.get("user_id"))
         self.user_id = user_id
@@ -48,28 +49,28 @@ class realtime:
         self.start_date = start_date
         self.backtest = None
         self.now = datetime.now()
-        self.execute_period = execute_period
         self.init_backtest_flag = False
         self.run_file_dir = f"{self.path}/{self.table_name}/run_data/"
         self.backtest_data_directory = os.fsencode(self.run_file_dir)
+
         if db_mode.get("local"):
 
-            self.run_file_dir = f"{self.path}/{self.table_name}/run_data/"
-            self.stats_data_dir = f"{self.path}/{self.table_name}/stats_data/"
-            self.acc_data_dir = f"{self.path}/{self.table_name}/acc_data/"
-            self.transact_data_dir = f"{self.path}/{self.table_name}/transaction_data/"
-            self.graph_dir = f"{self.path}/{self.table_name}/graph"
+                self.run_file_dir = f"{self.path}/{self.table_name}/run_data/"
+                self.stats_data_dir = f"{self.path}/{self.table_name}/stats_data/"
+                self.acc_data_dir = f"{self.path}/{self.table_name}/acc_data/"
+                self.transact_data_dir = f"{self.path}/{self.table_name}/transaction_data/"
+                self.graph_dir = f"{self.path}/{self.table_name}/graph"
 
-            if not os.path.exists(self.run_file_dir):
-                Path(self.run_file_dir).mkdir(parents=True, exist_ok=True)
-            if not os.path.exists(self.stats_data_dir):
-                Path(self.stats_data_dir).mkdir(parents=True, exist_ok=True)
-            if not os.path.exists(self.acc_data_dir):
-                Path(self.acc_data_dir).mkdir(parents=True, exist_ok=True)
-            if not os.path.exists(self.transact_data_dir):
-                Path(self.transact_data_dir).mkdir(parents=True, exist_ok=True)
-            if not os.path.exists(self.graph_dir):
-                Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
+                if not os.path.exists(self.run_file_dir):
+                    Path(self.run_file_dir).mkdir(parents=True, exist_ok=True)
+                if not os.path.exists(self.stats_data_dir):
+                    Path(self.stats_data_dir).mkdir(parents=True, exist_ok=True)
+                if not os.path.exists(self.acc_data_dir):
+                    Path(self.acc_data_dir).mkdir(parents=True, exist_ok=True)
+                if not os.path.exists(self.transact_data_dir):
+                    Path(self.transact_data_dir).mkdir(parents=True, exist_ok=True)
+                if not os.path.exists(self.graph_dir):
+                    Path(self.graph_dir).mkdir(parents=True, exist_ok=True)
 
     def init_backtest(self, user_id, store_mongoDB, strategy_initial, video_link,
                       documents_link, tags_array, subscribers_num,
@@ -88,22 +89,24 @@ class realtime:
             self.trader_name = trader_name
 
         self.backtest = factor_backtest(self.tickers, self.initial_amount,
-                                                     self.start_date, self.now, True, self.data_freq,
-                                                     user_id, self.db_mode)
+                                               self.start_date, self.now, True, self.data_freq,
+                                               user_id, self.db_mode, False, store_mongoDB, strategy_initial,
+                                               video_link, documents_link, tags_array, subscribers_num,
+                                               rating_dict, trader_name)
         self.backtest.loop_through_param()
 
     def run(self):
         if not self.init_backtest_flag:
             self.init_backtest(self.user_id,
                                store_mongoDB=True,
-                               strategy_initial='this is 20 80 m and msft portfolio',
+                               strategy_initial='factor',
                                video_link='https://www.youtube.com',
                                documents_link='https://google.com',
                                tags_array=None,
                                subscribers_num=3,
                                rating_dict=None,
                                margin_ratio=3.24,
-                               trader_name='Fai'
+                               trader_name='Sharry'
                                )
             self.init_backtest_flag = True
         else:
@@ -115,29 +118,29 @@ class realtime:
             self.algorithm = self.backtest.algorithm
             for ticker in self.tickers:
                 self.stock_data_engines[ticker] = local_engine(ticker, self.data_freq)
-            last_excute_day = self.backtest.end_date
-            last_excute_timestamp = datetime.timestamp(last_excute_day)
+            df = pd.read_csv(self.backtest.run_file)
+            last_execute_timestamp = df["timestamp"].iloc[-1]
             current_date = datetime.now()
             current_timestamp = datetime.timestamp(current_date)
             _date = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%Y-%m-%d")
             _time = datetime.utcfromtimestamp(int(current_timestamp)).strftime("%H:%M:%S")
             print('#' * 20, _date, ":", _time, " " * 5, self.tickers, '#' * 20)
-            if self.stock_data_engines[self.tickers[0]].get_data_by_range(
-                    [last_excute_timestamp, current_timestamp]) is None:
+            if current_timestamp > last_execute_timestamp + datetime.timedelta(days=6):
                 print("No new data")
             else:
+                print("Have new data")
                 timestamps = \
                     self.stock_data_engines[self.tickers[0]].get_data_by_range(
-                        [last_excute_timestamp, current_timestamp])[
+                        [last_execute_timestamp, current_timestamp])[
                         'timestamp']
                 for x in range(1, len(self.tickers)):
                     temp = self.stock_data_engines[self.tickers[x]].get_data_by_range(
-                        [last_excute_timestamp, current_timestamp])['timestamp']
+                        [last_execute_timestamp, current_timestamp])['timestamp']
                     timestamps = np.intersect1d(timestamps, temp)
                 for timestamp in timestamps:
                     self.run_realtime(timestamp)
                 self.backtest.end_date = current_date
-                self.plot_all_file_graph()
+                # self.plot_all_file_graph()
 
     def run_realtime(self, timestamp):  # run realtime
         _date = datetime.utcfromtimestamp(int(timestamp)).strftime("%Y-%m-%d")
@@ -178,12 +181,12 @@ class realtime:
                 stock_data_dict.update({ticker: {'last': price}})
         all_indice_df.dropna(axis=1, inplace=True)
         grouped_indice_df = all_indice_df.groupby(pd.Grouper(freq='MS')).nth(-1)
+        orig_account_snapshot_dict = self.sim_agent.portfolio_data_engine.get_account_snapshot()
         action_msgs = self.algorithm.run(stock_data_dict, grouped_indice_df, timestamp)
         action_record = []
         if action_msgs is None:
-            self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
-                                        action_record, sim_meta_data,
-                                        stock_data_dict)
+            self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
+                                                 stock_data_dict)
             if self.store_mongoDB:
                 print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
                 p = Write_Mongodb()
@@ -213,9 +216,8 @@ class realtime:
                                                                                 {"timestamp": action_msg.timestamp})
                 action_record.append(temp_action_record)
 
-        self.sim_agent.append_run_data_to_db(timestamp, self.sim_agent.portfolio_data_engine.get_account_snapshot(),
-                                        action_record, sim_meta_data,
-                                        stock_data_dict)
+        self.sim_agent.append_run_data_to_db(timestamp, orig_account_snapshot_dict, action_record, sim_meta_data,
+                                             stock_data_dict)
         if self.store_mongoDB:
             print("(*&^%$#$%^&*()(*&^%$#$%^&*(")
             p = Write_Mongodb()
@@ -234,24 +236,24 @@ class realtime:
 
 
 def main():
-    pass
-    # tickers = ["M", "MSFT"]
-    # rebalance_ratio = [50, 50]
-    # initial_amount = 10000
-    # start_date = datetime(2020, 1, 1)  # YYMMDD
-    # data_freq = "one_day"
-    # user_id = 0
-    # cal_stat = True
-    # db_mode = {"dynamo_db": False, "local": True}
-    # acceptance_range = 0
-    # execute_period = "Monthly"
-    #
-    # realtime_backtest = realtime(tickers, initial_amount, start_date, cal_stat,
-    #                              data_freq, user_id, db_mode, acceptance_range,
-    #                              rebalance_ratio, execute_period)
-    # while True:
-    #     realtime_backtest.run()
-    #     time.sleep(60)
+    # tickers = ['VOO', 'VO', 'VB', 'VWO', 'GLD', 'GSG']
+    tickers = ['SPY']
+    # existing_files = os.listdir('C:/Users/user/Documents/GitHub/ticker_data/one_day') # To be updated
+    # tickers = [file.split('.')[0] for file in existing_files]
+    # tickers.remove("ESGV")
+    # tickers.remove("NUBD") # To be updated
+    initial_amount = 10000000
+    start_date = datetime(2022, 1, 7)
+    cal_stat = True
+    data_freq = 'one_day'
+    user_id = 0
+    db_mode = {"dynamo_db": False, "local": True}
+
+    realtime_backtest = Realtime(tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
+                                 db_mode)
+    while True:
+        realtime_backtest.run()
+        time.sleep(60)
 
 
 if __name__ == "__main__":
