@@ -334,7 +334,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 # backtest = rebalance_margin_wif_maintainance_margin_backtest(tickers, initial_amount, start_date, end_date, cal_stat, rabalance_dict, maintain_dict, purchase_exliq_ratio_dict, data_freq, user_id, db_mode)
 # backtest.loop_through_param()
 
-### ---------------------------------------  Bosco Backtest -------------------------------------------------------
+### ---------------------------------------  Bosco Factor Backtest -------------------------------------------------------
 # from algo.factor.backtest import Backtest as factor_backtest
 #
 # # tickers = ['SPY', 'QQQ', 'BND']
@@ -358,7 +358,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.parent.resolve()))
 from algo.random_forest.backtest import Backtest as random_forest_backtest
 
 # tickers = ['VOO', 'VO', 'VB', 'VWO', 'GLD', 'GSG']
-tickers = ['SPY', 'QQQ']
+tickers = ['SPY', 'QQQ', 'GLD']
 # existing_files = os.listdir('C:/Users/user/Documents/GitHub/ticker_data/one_day') # To be updated
 # tickers = [file.split('.')[0] for file in existing_files]
 # tickers.remove("ESGV")
@@ -372,6 +372,16 @@ data_freq = 'one_day'
 user_id = 0
 db_mode = {"dynamo_db": False, "local": True}
 
-backtest = random_forest_backtest(tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id, db_mode)
+backtest = random_forest_backtest(tickers, initial_amount, start_date, end_date, cal_stat, data_freq, user_id, db_mode,
+                                  # store_mongoDB=False,
+                                  # strategy_initial=None,
+                                  # video_link=None,
+                                  # documents_link=None,
+                                  # tags_array=None,
+                                  # subscribers_num=None,
+                                  # rating_dict=None,
+                                  # margin_ratio=None,
+                                  # trader_name=None
+                                  )
 backtest.loop_through_param()
 
