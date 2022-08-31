@@ -10,7 +10,7 @@ from algo.accelerating_dual_momentum.realtime import realtime as accelerating_re
 from application.lazyportfolioetf_scraper import lazyportfolioetf_engine as lazyportfolioetf
 from algo.factor.realtime import Realtime as factor_realtime
 
-lock = multiprocessing.Lock()
+lock = multiprocessing.RLock()
 def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_date, data_freq, user_id, cal_stat,
                                db_mode,
                                acceptance_range, execute_period):
@@ -64,11 +64,13 @@ def factor_process_function(tickers, initial_amount, start_date, cal_stat, data_
     stock_engine.get_missing_daily_data()
     last_exec_timestamp = datetime.now()
     while True:
+        lock.acquire()
         now_timestamp = datetime.now()
         if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
             last_exec_timestamp = datetime.now()
             stock_engine.get_missing_daily_data()
         realtime_backtest.run()
+        lock.release()
         time.sleep(60)
 
 def stat_process_function(user_id, spec_str):
