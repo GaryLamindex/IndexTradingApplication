@@ -145,6 +145,11 @@ class Backtest:
         portfolio_data_engine.deposit_cash(initial_amount, start_timestamp)
         timestamps = pd.Series([])
 
+        """
+        If the API key does not work, refer to the following link for details on how to get a new API key:
+        https://docs.data.nasdaq.com/docs/getting-started
+        """
+
         quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
         one_yr_rate = quandl.get('FRED/DGS1')
         ten_yr_rate = quandl.get('FRED/DGS3')
