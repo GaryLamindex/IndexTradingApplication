@@ -152,8 +152,8 @@ class Backtest:
 
         quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
         one_yr_rate = quandl.get('FRED/DGS1')
-        ten_yr_rate = quandl.get('FRED/DGS3')
-        rate = (100 + ten_yr_rate) / (100 + one_yr_rate)
+        three_yr_rate = quandl.get('FRED/DGS3')
+        rate = (100 + three_yr_rate) / (100 + one_yr_rate)
 
         for ticker in self.tickers:
             series = self.stock_data_engines[ticker].get_data_by_range([start_timestamp, end_timestamp])['timestamp']

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import math
 from datetime import datetime, timedelta
 from sklearn.ensemble import RandomForestRegressor
@@ -28,26 +29,24 @@ class RandomForest:
         self.portfolio = self.portfolio_agent.get_portfolio()
         self.total_market_value = self.account_snapshot.get("NetLiquidation")
 
-        # quandl.ApiConfig.api_key = 'xdHPexePa-TVMtE5bMhA'
-        # one_yr_rate = quandl.get('FRED/DGS1')
-        # ten_yr_rate = quandl.get('FRED/DGS3')
-        # rate = (100 + ten_yr_rate) / (100 + one_yr_rate)
-
         return_dict = {}
 
         """
         How confident you are in the algorithm.
         If positive, higher weight on stocks w/ higher expected return;
-        if 0, equal weight on all stocks;
+        if 0, equal weight on all stocks (and cash);
         if negative, higher weight on stocks w/ lower expected return.
         In theory can take any real numbers, but in practice choose a number in the range [-10000, 10000].
         """
-        confidence = 10000
+        confidence = 1000
 
         for ticker in price_dict.keys():
             indicator = Indicator(all_indice[ticker], rate)
             indicator.get_samples()
             X, y = indicator.dataset.drop("Return", axis=1), indicator.dataset["Return"]
+            if np.inf in X.values:
+                return_dict[ticker] = -np.inf
+                continue
             regr = RandomForestRegressor(n_estimators=100,
                                          max_features=1 / 3,
                                          min_samples_leaf=0.02,
@@ -92,8 +91,8 @@ class RandomForest:
             relative_delta = kwargs.pop("relative_delta")
             if freq == "Weekly":
                 # next_exec_datetime_obj = self.last_exec_datetime_obj + relativedelta(days=+relative_delta)
-                if datetime_obj > self.last_exec_datetime_obj + timedelta(days=7):
-                    self.last_exec_datetime_obj = datetime_obj
+                if datetime_obj > self.last_exec_datetime_obj + timedelta(days=6):
+                    self.last_exec_datetime_obj = self.last_exec_datetime_obj + timedelta(days=7)
                     # print(
                     # f"check_exec: True. last_exec_datetime_obj.day={self.last_exec_datetime_obj.day}; datetime_obj.day={datetime_obj.day}")
                     return True
