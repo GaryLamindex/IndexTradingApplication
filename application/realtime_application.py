@@ -11,9 +11,12 @@ from application.lazyportfolioetf_scraper import lazyportfolioetf_engine as lazy
 from algo.factor.realtime import Realtime as factor_realtime
 from algo.random_forest.realtime import Realtime as random_forest_realtime
 
+lock = multiprocessing.RLock()
 def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_date, data_freq, user_id, cal_stat,
                                db_mode,
                                acceptance_range, execute_period):
+
+
     stock_engine = grab_stock_data_engine()
     realtime_backtest = rebalance_realtime(tickers, initial_amount, start_date, cal_stat,
                                            data_freq, user_id, db_mode, acceptance_range,
@@ -22,31 +25,36 @@ def rebalance_process_function(tickers, rebalance_ratio, initial_amount, start_d
     stock_engine.get_missing_daily_data()
     last_exec_timestamp = datetime.now()
 
-    # while True:
-    now_timestamp = datetime.now()
-    if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
-        stock_engine.get_missing_daily_data()
-        last_exec_timestamp = datetime.now()
-    realtime_backtest.run()
-    time.sleep(60)
+    while True:
+        lock.acquire()
+        now_timestamp = datetime.now()
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
+            stock_engine.get_missing_daily_data()
+            last_exec_timestamp = datetime.now()
+        realtime_backtest.run()
+        lock.release()
+        time.sleep(60)
 
 
 def accelerating_process_function(tickers, bond, initial_amount, start_date, cal_stat, data_freq, user_id,
                                   db_mode, execute_period):
+
     stock_engine = grab_stock_data_engine()
     realtime_backtest = accelerating_realtime(tickers, bond, initial_amount, start_date, cal_stat, data_freq, user_id,
                                               db_mode, execute_period)
     ticker_name_path = stock_engine.ticker_name_path
     stock_engine.get_missing_daily_data()
     last_exec_timestamp = datetime.now()
-    # while True:
-    now_timestamp = datetime.now()
-    if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
-        last_exec_timestamp = datetime.now()
-        stock_engine.get_missing_daily_data()
+    while True:
+        lock.acquire()
+        now_timestamp = datetime.now()
+        if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
+            last_exec_timestamp = datetime.now()
+            stock_engine.get_missing_daily_data()
 
-    realtime_backtest.run()
-    time.sleep(60)
+        realtime_backtest.run()
+        lock.release()
+        time.sleep(60)
 
 
 def factor_process_function(tickers, initial_amount, start_date, cal_stat, data_freq, user_id,
@@ -58,11 +66,13 @@ def factor_process_function(tickers, initial_amount, start_date, cal_stat, data_
     stock_engine.get_missing_daily_data()
     last_exec_timestamp = datetime.now()
     while True:
+        lock.acquire()
         now_timestamp = datetime.now()
         if (now_timestamp - last_exec_timestamp).total_seconds() >= 10800:
             last_exec_timestamp = datetime.now()
             stock_engine.get_missing_daily_data()
         realtime_backtest.run()
+        lock.release()
         time.sleep(60)
 
 
@@ -84,8 +94,10 @@ def random_forest_process_function(tickers, initial_amount, start_date, cal_stat
 
 def stat_process_function(user_id, spec_str):
     time.sleep(300)
+    lock.acquire()
     realtime_stat = realtime_statistic(user_id, spec_str)
     realtime_stat.cal_stat_function()
+    lock.release()
     time.sleep(86400)
 
 
