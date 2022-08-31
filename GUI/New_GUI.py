@@ -6,6 +6,8 @@ from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 
 
+# **import other python file in order to call their main function
+
 # import application.backtest_application
 # import application.grab_data_application
 # import application.grap_stock_data_application
@@ -44,9 +46,9 @@ class label_frame:
         self.strategy5 = "5.realtime_application"
         self.strategy6 = "6.realtime_statistic_application"
         self.strategy7 = "7.realtime_update_db_info"
-        self.strategy8 = "8.Simplified Permanent Portfolio"
-        self.strategy9 = "9.Vanguard Life Strategy Growth Fund"
-        self.strategy10 = "10.No Brainer Portfolio"
+        self.strategy8 = "8.Simplified Permanent Portfolio (not exist)"
+        self.strategy9 = "9.Vanguard Life Strategy Growth Fund (not exist)"
+        self.strategy10 = "10.No Brainer Portfolio (not exist)"
 
 
 # show data print in console
@@ -155,23 +157,28 @@ def execute(self, param):
     # engine.mongoDB_engine.trying.main()
 
 
+# call main function from other python file
 def choose_program(program_no):
     if program_no == 1:
-        for x in range(100):
-            print(x)
+        # application.backtest_application.main()
         execute(strategy1, 1)
     elif program_no == 2:
-        print("hello testing")
+        # application.grab_data_application.main()
         execute(strategy2, 2)
     elif program_no == 3:
+        # application.grap_stock_data_application.main()
         execute(strategy3, 3)
     elif program_no == 4:
+        # application.lazyportfolioetf_scraper.main()
         execute(strategy4, 4)
     elif program_no == 5:
+        # application.realtime_application.main()
         execute(strategy5, 5)
     elif program_no == 6:
+        # application.realtime_statistic_application.main()
         execute(strategy6, 6)
     elif program_no == 7:
+        # application.realtime_update_db_info.main()
         execute(strategy7, 7)
     else:
         print("error")
